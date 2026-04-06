@@ -24,4 +24,4 @@ Before working in this folder, read:
 | input.md | THE RIGHT DECISION — FOUNDATIONAL FRAMEWORK |
 | meta.md | META-DOC: Business Model |
 
-<!-- Generated: 2026-04-06T23:19:47.774Z -->
+<!-- Generated: 2026-04-06T23:27:10.486Z -->

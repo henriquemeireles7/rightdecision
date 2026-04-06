@@ -22,4 +22,4 @@ Before working in this folder, read:
 | meta.md | META-DOC: Methodology |
 | raw.md | RAW FOUNDER ANSWERS — Methodology |
 
-<!-- Generated: 2026-04-06T23:19:47.775Z -->
+<!-- Generated: 2026-04-06T23:27:10.487Z -->

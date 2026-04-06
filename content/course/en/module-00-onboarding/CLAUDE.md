@@ -22,4 +22,4 @@ Before working in this folder, read:
 |------|---------|
 | 01-welcome.mdx | Welcome. Choose Your Decision. |
 
-<!-- Generated: 2026-04-06T23:19:47.769Z -->
+<!-- Generated: 2026-04-06T23:27:10.474Z -->

@@ -25,4 +25,4 @@ Before working in this folder, read:
 | meta.md | META-DOC: Manifesto |
 | raw.md | RAW FOUNDER ANSWERS — Manifesto |
 
-<!-- Generated: 2026-04-06T23:19:47.774Z -->
+<!-- Generated: 2026-04-06T23:27:10.486Z -->

@@ -25,4 +25,4 @@ Before working in this folder, read:
 | 03-say-it-out-loud.mdx | Say It Out Loud |
 | 04-practice-commit.mdx | Practice: Commit |
 
-<!-- Generated: 2026-04-06T23:19:47.772Z -->
+<!-- Generated: 2026-04-06T23:27:10.477Z -->

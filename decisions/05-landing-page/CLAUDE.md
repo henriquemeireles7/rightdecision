@@ -26,4 +26,4 @@ Before working in this folder, read:
 | input.md | INPUT: Landing Page Strategy |
 | meta.md | META-DOC: Landing Page Strategy |
 
-<!-- Generated: 2026-04-06T23:19:47.775Z -->
+<!-- Generated: 2026-04-06T23:27:10.489Z -->

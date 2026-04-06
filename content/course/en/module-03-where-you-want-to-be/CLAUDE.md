@@ -25,4 +25,4 @@ Before working in this folder, read:
 | 03-is-this-yours.mdx | Is This Yours? |
 | 04-practice-define-your-target-state.mdx | Practice: Define Your Target State |
 
-<!-- Generated: 2026-04-06T23:19:47.771Z -->
+<!-- Generated: 2026-04-06T23:27:10.476Z -->

@@ -25,4 +25,4 @@ Before working in this folder, read:
 | 03-the-second-cycle-is-faster.mdx | The Second Cycle Is Faster |
 | 04-practice-close-the-loop.mdx | Practice: Close the Loop, Open the Next |
 
-<!-- Generated: 2026-04-06T23:19:47.774Z -->
+<!-- Generated: 2026-04-06T23:27:10.482Z -->

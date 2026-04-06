@@ -27,7 +27,13 @@ company.md, roadmap.md, voice.md, coding.md, design.md, deploy.md, ops.md, harne
 | File | Exports |
 |------|---------|
 | 001-architecture.md | Right Decision — Architecture & Methodology |
-| general.md | Decision Documents — General Index |
-| human.md | Human Communication Guide |
+| coding.md | Coding — How We Build Software |
+| company.md | Company — The Right Decision |
+| deploy.md | Deploy — How We Ship |
+| design.md | Design System — Right Decision |
+| harness.md | Harness — AI Development System |
+| ops.md | Ops — Internal Tools + Automation |
+| roadmap.md | Roadmap — Current Priorities |
+| voice.md | Human Communication Guide |
 
-<!-- Generated: 2026-04-06T23:19:47.768Z -->
+<!-- Generated: 2026-04-06T23:27:10.485Z -->
