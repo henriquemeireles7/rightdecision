@@ -56,6 +56,10 @@ Routing:
 ## CLI & Tooling Best Practices
 - Use rg (ripgrep) instead of grep — faster, fewer tokens, Rust-based.
 - Use fd instead of find — faster file discovery.
+- Use bat instead of cat — syntax highlighting for file inspection.
+- Use delta/difft for git diffs — difft understands TypeScript AST, delta gives side-by-side.
+- Use tokei for codebase stats — quick line counts by language.
+- Use dust for directory sizes — find bloat that wastes search time.
 - Use Bun for everything — never npm/yarn/npx. Always bunx, bun test, bun run.
 - Use Biome for everything — never ESLint/Prettier. Single tool for format+lint+imports.
 - Never run bun run dev inside Claude Code sessions — use a separate terminal/tmux pane.
@@ -81,6 +85,11 @@ CRITICAL: Before writing ANY content for end users (course classes, emails, land
 This file defines how to write like a human, not like AI. It includes: 12 writing rules, anti-patterns to avoid, engagement techniques (open loops, pattern interrupts, questions that stop), and the Right Decision brand voice (Henry's patterns, Indy's patterns, the Indy Test).
 In QA mode, flag any content that violates human.md rules.
 
+## Decisions Folder (Strategy Documents)
+All strategy documents live in decisions/. See decisions/general.md for the full index.
+Document pipeline: d-meta (design template) → d-input (capture thinking) → d-plan (write document).
+Methodology: Meta → Draft → Document. Each phase catches problems before the next.
+
 ## Deployment
 Railway. Dockerfile deploy. PostgreSQL on Railway.
 GitHub: henriquemeireles7. Email: hsameireles@gmail.com.
@@ -97,3 +106,7 @@ Key routing rules:
 - Code review, check my diff → invoke review
 - Design system, brand → invoke design-consultation
 - Architecture review → invoke plan-eng-review
+- Strategy document template → invoke d-meta
+- Brain dump, capture thinking → invoke d-input
+- Write strategy document → invoke d-plan
+- Full document pipeline → invoke d-auto
