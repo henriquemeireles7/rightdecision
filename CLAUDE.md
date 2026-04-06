@@ -3,21 +3,16 @@
 ## What is this
 Decisions is an infobusiness + software company. Solo developer + AI agents.
 Stack: Bun, Hono, Preact, Drizzle, Zod, PostgreSQL (Railway), Better Auth, Stripe, Tailwind.
-Architecture: Domain-Spec Architecture (DSA). Every folder with code has a SPEC.md.
+Architecture: Domain-Spec Architecture (DSA). Every folder with code has a nested CLAUDE.md.
 
-## CRITICAL: Read SPEC.md before ANY code change
-Before modifying ANY file, read the SPEC.md in that folder.
-If no SPEC.md exists and you're creating a new folder, create SPEC.md FIRST.
-
-Routing:
-- Working in ui/ → read ui/SPEC.md
-- Working in features/*/ → read features/*/SPEC.md
-- Working in marketing/ → read marketing/SPEC.md
-- Working in providers/ → read providers/SPEC.md
-- Working in platform/*/ → read platform/*/SPEC.md
+## Context Files (nested CLAUDE.md)
+Every code folder has a CLAUDE.md that Claude Code auto-loads when working in that directory.
+Each has a human-authored header (purpose, rules) and an auto-generated footer (files, exports, deps).
+The footer is refreshed automatically by a Stop hook whenever code in the folder changes.
+If creating a new folder, create its CLAUDE.md FIRST with at least the purpose section.
 
 ## Build Order (NEVER skip steps)
-1. Write/update SPEC.md
+1. Write/update folder CLAUDE.md
 2. Write/update schema.ts
 3. Update platform/errors.ts if new errors needed
 4. Update platform/env.ts if new env vars needed
@@ -69,7 +64,7 @@ Routing:
 Hooks are defined in .claude/settings.json and run automatically:
 - **PreToolUse:** block dangerous commands, protect .env/bun.lock/secrets, protect config files (biome.json, tsconfig.json — fix code, don't weaken config).
 - **PostToolUse:** warn on console.log in production code after edits.
-- **Stop:** batch Biome format+lint + TypeScript typecheck on all changed files (runs once at end, not per-edit). macOS notification when done.
+- **Stop:** batch Biome format+lint + TypeScript typecheck on all changed files (runs once at end, not per-edit). Auto-updates nested CLAUDE.md footers for changed directories. macOS notification when done.
 - **SessionStart (compact):** re-inject stack rules after context compaction.
 
 ## Commit & Push Discipline
