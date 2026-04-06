@@ -25,4 +25,4 @@ Before working in this folder, read:
 | 03-when-life-interrupts.mdx | When Life Interrupts |
 | 04-practice-your-first-review.mdx | Practice: Your First Review |
 
-<!-- Generated: 2026-04-06T23:19:47.773Z -->
+<!-- Generated: 2026-04-06T23:27:10.480Z -->

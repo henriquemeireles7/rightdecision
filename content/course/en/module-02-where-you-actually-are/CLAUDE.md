@@ -25,4 +25,4 @@ Before working in this folder, read:
 | 03-what-youre-pretending-is-fine.mdx | What You're Pretending Is Fine |
 | 04-practice-write-your-state-map.mdx | Practice: Write Your State Map |
 
-<!-- Generated: 2026-04-06T23:19:47.771Z -->
+<!-- Generated: 2026-04-06T23:27:10.476Z -->

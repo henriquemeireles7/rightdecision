@@ -25,4 +25,4 @@ Before working in this folder, read:
 | 03-one-or-two-habits.mdx | One or Two Habits, Not Ten |
 | 04-practice-build-your-plan.mdx | Practice: Build Your Plan |
 
-<!-- Generated: 2026-04-06T23:19:47.772Z -->
+<!-- Generated: 2026-04-06T23:27:10.478Z -->

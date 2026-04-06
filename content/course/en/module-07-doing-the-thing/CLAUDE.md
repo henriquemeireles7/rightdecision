@@ -25,4 +25,4 @@ Before working in this folder, read:
 | 03-fear-grief-shame-exhaustion.mdx | Fear, Grief, Shame, Exhaustion |
 | 04-practice-your-execution-protocol.mdx | Practice: Your Execution Protocol |
 
-<!-- Generated: 2026-04-06T23:19:47.773Z -->
+<!-- Generated: 2026-04-06T23:27:10.479Z -->

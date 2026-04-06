@@ -24,4 +24,4 @@ Before working in this folder, read:
 | input.md | INPUT: Course Outline |
 | meta.md | META-DOC: Course Outline |
 
-<!-- Generated: 2026-04-06T23:19:47.775Z -->
+<!-- Generated: 2026-04-06T23:27:10.488Z -->

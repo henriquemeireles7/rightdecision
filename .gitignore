@@ -1,0 +1,21 @@
+node_modules/
+dist/
+.DS_Store
+*.pem
+
+# env
+.env
+.env.local
+.env.*.local
+
+# keep example
+!.env.example
+
+# bun
+bun.lock
+
+# misc
+*.tsbuildinfo
+coverage/
+.context/
+.gstack/

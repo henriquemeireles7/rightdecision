@@ -25,4 +25,4 @@ Before working in this folder, read:
 | 03-the-decision-primitive.mdx | The Decision Primitive |
 | 04-practice-name-your-discomfort.mdx | Practice: Name Your Discomfort |
 
-<!-- Generated: 2026-04-06T23:19:47.770Z -->
+<!-- Generated: 2026-04-06T23:27:10.475Z -->

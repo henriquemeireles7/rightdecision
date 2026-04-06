@@ -25,4 +25,4 @@ Before working in this folder, read:
 | 03-the-misidentification-trap.mdx | The Misidentification Trap |
 | 04-practice-name-your-constraint.mdx | Practice: Name Your Constraint |
 
-<!-- Generated: 2026-04-06T23:19:47.772Z -->
+<!-- Generated: 2026-04-06T23:27:10.477Z -->
