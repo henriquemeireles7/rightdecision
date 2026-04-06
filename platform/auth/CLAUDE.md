@@ -3,6 +3,14 @@
 ## Purpose
 Authentication and authorization — Better Auth setup, permissions, session handling.
 
+
+## Must-Read Context
+Before working in this folder, read:
+- decisions/coding.md — data flow, API contracts, patterns
+
+## Additional Context
+- decisions/company.md — for permission logic and roles
+
 ## Rules
 - Follow the project-wide rules in the root CLAUDE.md.
 
@@ -23,4 +31,4 @@ Authentication and authorization — Better Auth setup, permissions, session han
 - platform/errors
 - platform/types
 
-<!-- Generated: 2026-04-06T21:32:57.590Z -->
+<!-- Generated: 2026-04-06T23:19:47.778Z -->

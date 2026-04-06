@@ -1,10 +1,24 @@
-# decisions
+# decisions — Strategy Knowledge Base
 
 ## Purpose
-Strategy documents — the decisions/ knowledge base.
+All strategy knowledge lives here in three layers:
+1. **Universal reference files** (*.md at root) — compact summaries, <100 lines each
+2. **Document folders** (NN-name/) — deep strategy docs via d-meta → d-input → d-plan
+3. **This CLAUDE.md** — auto-updated file inventory
+
+## Must-Read Context
+Before working in this folder, read:
+- decisions/roadmap.md — current priorities, pipeline status
+- decisions/company.md — product, ICP, positioning
+
+## Reference files
+company.md, roadmap.md, voice.md, coding.md, design.md, deploy.md, ops.md, harness.md
 
 ## Rules
-- Follow the project-wide rules in the root CLAUDE.md.
+- Reference files: updated when major decisions change. Each has "Last verified" date.
+- document.md: static once written. Only changed by explicit user request.
+- meta.md/input.md: immutable once created.
+- When in doubt, read the reference file first. Follow pointers for depth.
 
 ---
 <!-- AUTO-GENERATED BELOW — do not edit manually -->
@@ -16,4 +30,4 @@ Strategy documents — the decisions/ knowledge base.
 | general.md | Decision Documents — General Index |
 | human.md | Human Communication Guide |
 
-<!-- Generated: 2026-04-06T21:32:57.585Z -->
+<!-- Generated: 2026-04-06T23:19:47.768Z -->

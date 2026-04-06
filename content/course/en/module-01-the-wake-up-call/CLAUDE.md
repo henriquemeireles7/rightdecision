@@ -3,6 +3,14 @@
 ## Purpose
 Course module: the wake up call.
 
+
+## Must-Read Context
+Before working in this folder, read:
+- decisions/voice.md — writing rules, brand voice, Indy test
+
+## Additional Context
+- decisions/company.md — for ICP context
+
 ## Rules
 - Follow the project-wide rules in the root CLAUDE.md.
 
@@ -17,4 +25,4 @@ Course module: the wake up call.
 | 03-the-decision-primitive.mdx | The Decision Primitive |
 | 04-practice-name-your-discomfort.mdx | Practice: Name Your Discomfort |
 
-<!-- Generated: 2026-04-06T21:32:57.586Z -->
+<!-- Generated: 2026-04-06T23:19:47.770Z -->

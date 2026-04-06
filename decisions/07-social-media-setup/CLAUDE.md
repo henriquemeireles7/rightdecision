@@ -3,6 +3,14 @@
 ## Purpose
 Strategy document: 07 social media setup.
 
+
+## Must-Read Context
+Before working in this folder, read:
+- decisions/roadmap.md — current priorities
+
+## Additional Context
+- decisions/ops.md — for automation strategy
+
 ## Rules
 - Follow the project-wide rules in the root CLAUDE.md.
 
@@ -12,6 +20,9 @@ Strategy document: 07 social media setup.
 ## Files
 | File | Exports |
 |------|---------|
+| document.md | Social Media Setup — The Right Decision |
+| input.md | Input — Social Media Setup (Doc #7) |
 | meta.md | META-DOC: Social Media Setup |
+| raw.md | Raw Input — Social Media Setup (Doc #7) |
 
-<!-- Generated: 2026-04-06T21:32:57.590Z -->
+<!-- Generated: 2026-04-06T23:19:47.776Z -->

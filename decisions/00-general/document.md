@@ -25,6 +25,32 @@ The draft becomes a spec that an implementer can execute from. Every ambiguity g
 
 ---
 
+## Knowledge Base Rules
+
+This file (`general.md`) is the **living summary** of the entire decisions/ knowledge base. It gets updated as new documents or raw material are added. Same pattern as SPEC.md in DSA.
+
+**Three mutation tiers:**
+1. **`general.md`** = living, always updated. AI reads this first for full context.
+2. **`*/document.md`** = static once written. Only changes if Henry explicitly asks.
+3. **Raw material** (`input.md`, `raw.md`, podcast transcripts) = immutable. New files are added, never edited.
+
+**Current status (2026-04-06):**
+- Docs 1-5: COMPLETE (business model, manifesto, methodology, course outline, landing page)
+- Doc 6 (VSL): DEFERRED — needs podcast recordings first
+- Docs 7-9: COMPLETE (social media setup, short-video viral strategy, knowledge base strategy)
+- **Next:** Build landing page (from doc #5 spec) → build product → record first podcast → run MVP pipeline → automate → v1 launch
+
+**Key decisions from docs 7-9:**
+- 13 social accounts launch simultaneously (AI-first content for brand, human→AI for personal)
+- Custom Bun/TypeScript pipeline (no n8n/Make.com), $500/month tool budget
+- Podcast transcripts in `decisions/podcasts/{type}/` (general, vsl, the3acts, course)
+- general.md = living summary. document.md = static. Raw material = immutable.
+- AI content disclosed on all platforms (transparency is on-brand)
+- Dark channel niche TBD (criteria defined, selection deferred)
+- KB automation deferred to harness workflow (manual updates for now)
+
+---
+
 ## Document Index
 
 ### Week 1 — Product 1: Course
@@ -36,15 +62,15 @@ The draft becomes a spec that an implementer can execute from. Every ambiguity g
 | 3 | Methodology | Deep framework — every step gets explanation, exact questions, common mistakes, worked example, and output. |
 | 4 | Course Outline | Modules, lessons, formats, exercises, transformation arc. |
 | 5 | Landing Page | Headline, problem, mechanism, offer stack, price, guarantee, FAQ, CTA, plus implementation specs. |
-| 6 | Video Sales Letter | Word-for-word script — hook, problem, failed solutions, mechanism, proof, offer, close. |
+| 6 | Video Sales Letter | **DEFERRED** — needs podcast recordings first. Word-for-word script — hook, problem, failed solutions, mechanism, proof, offer, close. |
 
 ### Week 2 — Distribution 1: Organic
 
 | # | Document | Description |
 |---|----------|-------------|
-| 7 | Social Media Setup | Platform selection, bios, visual identity guidelines, content categories, posting cadence. |
-| 8 | Short-Video Viral Strategy | Content pillars, hook formulas, ideal length, posting frequency, production workflow. |
-| 9 | Long-Video Engagement Strategy | YouTube format, episode structure, publishing cadence, thumbnail/title strategy, funnel connection. |
+| 7 | Social Media Setup | 13-account registry (3 TikTok, 3 Instagram, 3 Facebook, 3 X, 1 YouTube), bios, visual identity, posting templates per platform, podcast distribution cadence (2/day → live transition). |
+| 8 | Short-Video Viral Strategy | Automated pipeline — OpusClip integration, AI-generated content, dark channel concept, folder-based automation, auto-posting workflows. Not human labor. |
+| 9 | Knowledge Base Strategy | Self-compounding knowledge architecture — general.md as living summary, static document archives, podcast transcript taxonomy, AI self-learning loop (future). |
 | 10 | Company Branding Strategy | Startup directory submissions — Crunchbase, AngelList, Product Hunt, LinkedIn company page. |
 | 11 | Basic SEO/DR Strategy | Core backlinks acquisition plan, outreach targets, directory submissions, domain authority baseline. |
 | 12 | Website Strategy | Site structure, key pages, tech stack, GEO optimization for AI answers. |

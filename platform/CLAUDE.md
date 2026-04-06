@@ -3,6 +3,14 @@
 ## Purpose
 Platform layer — shared infrastructure used by all features.
 
+
+## Must-Read Context
+Before working in this folder, read:
+- decisions/coding.md — data flow, API contracts, patterns
+
+## Additional Context
+- decisions/deploy.md — if changing infrastructure
+
 ## Rules
 - Follow the project-wide rules in the root CLAUDE.md.
 
@@ -16,4 +24,4 @@ Platform layer — shared infrastructure used by all features.
 | errors.ts | errors, ErrorCode, throwError |
 | types.ts | AppUser, AppEnv |
 
-<!-- Generated: 2026-04-06T21:32:57.591Z -->
+<!-- Generated: 2026-04-06T23:19:47.781Z -->

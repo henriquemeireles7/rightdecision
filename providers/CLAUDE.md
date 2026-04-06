@@ -3,6 +3,11 @@
 ## Purpose
 External service abstractions — one file per capability, named by what it does not who provides it.
 
+
+## Must-Read Context
+Before working in this folder, read:
+- decisions/coding.md — data flow, API contracts, patterns
+
 ## Rules
 - Follow the project-wide rules in the root CLAUDE.md.
 
@@ -18,4 +23,4 @@ External service abstractions — one file per capability, named by what it does
 ## Internal Dependencies
 - platform/env
 
-<!-- Generated: 2026-04-06T21:32:57.592Z -->
+<!-- Generated: 2026-04-06T23:19:47.781Z -->

@@ -3,6 +3,14 @@
 ## Purpose
 Course module: where you actually are.
 
+
+## Must-Read Context
+Before working in this folder, read:
+- decisions/voice.md — writing rules, brand voice, Indy test
+
+## Additional Context
+- decisions/company.md — for ICP context
+
 ## Rules
 - Follow the project-wide rules in the root CLAUDE.md.
 
@@ -17,4 +25,4 @@ Course module: where you actually are.
 | 03-what-youre-pretending-is-fine.mdx | What You're Pretending Is Fine |
 | 04-practice-write-your-state-map.mdx | Practice: Write Your State Map |
 
-<!-- Generated: 2026-04-06T21:32:57.587Z -->
+<!-- Generated: 2026-04-06T23:19:47.771Z -->

@@ -3,6 +3,14 @@
 ## Purpose
 Course module: resolution.
 
+
+## Must-Read Context
+Before working in this folder, read:
+- decisions/voice.md — writing rules, brand voice, Indy test
+
+## Additional Context
+- decisions/company.md — for ICP context
+
 ## Rules
 - Follow the project-wide rules in the root CLAUDE.md.
 
@@ -17,4 +25,4 @@ Course module: resolution.
 | 03-the-second-cycle-is-faster.mdx | The Second Cycle Is Faster |
 | 04-practice-close-the-loop.mdx | Practice: Close the Loop, Open the Next |
 
-<!-- Generated: 2026-04-06T21:32:57.588Z -->
+<!-- Generated: 2026-04-06T23:19:47.774Z -->

@@ -4,7 +4,9 @@
 const reminders = [
   'Stack: Bun (not npm/yarn), Biome (not ESLint/Prettier), Hono (not Express), Preact (not React), Drizzle (not Prisma).',
   'Run `bun run check` before every commit (lint + typecheck + test).',
-  'Every code folder has a nested CLAUDE.md — Claude Code auto-loads it. Check it for context before modifying files.',
+  'Every code folder has a nested CLAUDE.md — Claude Code auto-loads it. Check its Must-Read Context section for which universal files to read.',
+  'Universal reference files live in decisions/: company.md, roadmap.md, voice.md, coding.md, design.md, deploy.md, ops.md, harness.md.',
+  'If you find contradictions between files: STOP, point them out, ask the user, and fix immediately.',
   'Use throwError() from platform/errors.ts — never return ad-hoc errors.',
   'Use success() or paginated() from platform/responses.ts — never return raw c.json().',
   'Use env from platform/env.ts — never access process.env directly.',

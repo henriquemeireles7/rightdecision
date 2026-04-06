@@ -3,6 +3,11 @@
 ## Purpose
 Strategy document: 03 methodology.
 
+
+## Must-Read Context
+Before working in this folder, read:
+- decisions/roadmap.md — current priorities
+
 ## Rules
 - Follow the project-wide rules in the root CLAUDE.md.
 
@@ -17,4 +22,4 @@ Strategy document: 03 methodology.
 | meta.md | META-DOC: Methodology |
 | raw.md | RAW FOUNDER ANSWERS — Methodology |
 
-<!-- Generated: 2026-04-06T21:32:57.589Z -->
+<!-- Generated: 2026-04-06T23:19:47.775Z -->

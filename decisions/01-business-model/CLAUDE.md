@@ -3,6 +3,14 @@
 ## Purpose
 Strategy document: 01 business model.
 
+
+## Must-Read Context
+Before working in this folder, read:
+- decisions/roadmap.md — current priorities
+
+## Additional Context
+- decisions/company.md — for product context
+
 ## Rules
 - Follow the project-wide rules in the root CLAUDE.md.
 
@@ -16,4 +24,4 @@ Strategy document: 01 business model.
 | input.md | THE RIGHT DECISION — FOUNDATIONAL FRAMEWORK |
 | meta.md | META-DOC: Business Model |
 
-<!-- Generated: 2026-04-06T21:32:57.589Z -->
+<!-- Generated: 2026-04-06T23:19:47.774Z -->

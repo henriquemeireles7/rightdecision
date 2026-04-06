@@ -5,6 +5,11 @@ Decisions is an infobusiness + software company. Solo developer + AI agents.
 Stack: Bun, Hono, Preact, Drizzle, Zod, PostgreSQL (Railway), Better Auth, Stripe, Tailwind.
 Architecture: Domain-Spec Architecture (DSA). Every folder with code has a nested CLAUDE.md.
 
+## Product Context
+The Right Decision: $197/year platform teaching the one decision that matters + AI to decompose it.
+ICP: Women 30-50 who have "done the work" but are stuck. Anti-self-help positioning.
+For full context read decisions/company.md. For brand voice read decisions/voice.md.
+
 ## Context Files (nested CLAUDE.md)
 Every code folder has a CLAUDE.md that Claude Code auto-loads when working in that directory.
 Each has a human-authored header (purpose, rules) and an auto-generated footer (files, exports, deps).
@@ -70,18 +75,41 @@ Hooks are defined in .claude/settings.json and run automatically:
 ## Commit & Push Discipline
 When work is done and the user confirms, run `bun run check` (lint + typecheck + test), then commit and push. Do not commit after every edit — commit at logical completion points.
 
+## Universal Reference Files (decisions/*.md)
+Read the files that match your task. Read as many as needed:
+- Customer-facing content, ICP → decisions/company.md
+- Roadmap, priorities, "what's next" → decisions/roadmap.md
+- Content for end users (copy, courses, emails) → decisions/voice.md
+- Coding (features, platform, providers) → decisions/coding.md
+- Visual/UI/CSS/components → decisions/design.md
+- Deploy, CI/CD, infrastructure → decisions/deploy.md
+- Internal tools, automation, ops → decisions/ops.md
+- Improving the AI harness → decisions/harness.md
+
+Each folder's CLAUDE.md has a "Must-Read Context" section listing which files to read
+BEFORE working in that folder. Always check it first.
+
 ## Design System
-Always read DESIGN.md before making any visual or UI decisions.
+Always read decisions/design.md before making any visual or UI decisions.
 Aesthetic: Ethereal Warmth. Fonts: Instrument Serif + Sans. Palette: warm cream/beige/gold.
 Do not deviate without explicit user approval.
 
-## Human Communication
-CRITICAL: Before writing ANY content for end users (course classes, emails, landing pages, social posts, ads), read decisions/human.md.
+## Brand Voice
+CRITICAL: Before writing ANY content for end users (course classes, emails, landing pages, social posts, ads), read decisions/voice.md.
 This file defines how to write like a human, not like AI. It includes: 12 writing rules, anti-patterns to avoid, engagement techniques (open loops, pattern interrupts, questions that stop), and the Right Decision brand voice (Henry's patterns, Indy's patterns, the Indy Test).
-In QA mode, flag any content that violates human.md rules.
+In QA mode, flag any content that violates voice.md rules.
+
+## Contradiction Resolution
+If you find contradictions between universal files, folder CLAUDE.md, or strategy docs:
+1. STOP. Do not proceed with contradictory information.
+2. Point out the specific contradiction and where each version lives.
+3. Ask the user which is correct.
+4. Update the wrong file immediately so the contradiction is gone.
+Never leave contradictions unresolved — they compound into bigger problems.
 
 ## Decisions Folder (Strategy Documents)
-All strategy documents live in decisions/. See decisions/general.md for the full index.
+All strategy documents live in decisions/. See decisions/roadmap.md for current priorities.
+Full document index: decisions/00-general/document.md
 Document pipeline: d-meta (design template) → d-input (capture thinking) → d-plan (write document).
 Methodology: Meta → Draft → Document. Each phase catches problems before the next.
 
