@@ -16,7 +16,7 @@ Course + Claude skills for personal life decisions.
 |----------|-----------|--------|
 | 1 | Restructure decisions/ folder (shared vs product-specific) | In progress |
 | 2 | Build Life Decisions landing page (from doc 05 spec) | Not started |
-| 2.5 | Write PRD from JTBD findings (doc 08) | Not started |
+| 2.5 | Write PRD from JTBD findings (doc 08) | COMPLETE |
 | 3 | Build course player MVP | Not started |
 | 4 | Design methodology → skills mapping (one skill per exercise) | Not started |
 | 5 | Record first 3 course modules | Not started |
@@ -51,7 +51,7 @@ Course + Claude skills + automation APIs for non-tech entrepreneurs.
 - 05-landing-page: COMPLETE (moved from root) — updated 2026-04-06: eternal self-help loop, three failure points
 - 06-free-course-funnel: NOT STARTED
 - 07-jobs-to-be-done: COMPLETE — JTBD analysis for Life Decisions software
-- 08-prd: NOT STARTED — next in pipeline, translates JTBD to product requirements
+- 08-prd: COMPLETE — PRD for Life Decisions V1. Two-app architecture, interactive onboarding, Wins Board V1, free mini-course. Decision primitive deferred.
 
 ### Business Decisions Documents (in decisions/businessdecisions/)
 - 03-methodology: NOT STARTED

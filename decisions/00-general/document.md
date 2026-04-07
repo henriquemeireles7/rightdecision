@@ -41,7 +41,8 @@ This file (`general.md`) is the **living summary** of the entire decisions/ know
 - **Business model expanded to v3:** Two products (Life Decisions + Business Decisions). Input captured, document pending d-plan.
 - **Folder restructured:** Product-specific docs moved into `lifedecisions/` and `businessdecisions/` subfolders.
 - **JTBD complete (2026-04-06):** Jobs-to-be-Done analysis for Life Decisions software (doc #7)
-- **Next:** Write PRD from JTBD → build Life Decisions landing page → build both MVPs → record first podcast → v1 launch
+- **PRD complete (2026-04-06):** Product Requirements Document for Life Decisions V1 (doc #8). Key decisions: two-app architecture (web + Claude Cowork), interactive onboarding as methodology introduction, Wins Board in V1 (simplified), decision primitive deferred, free mini-course in V1.
+- **Next:** Build Life Decisions landing page → build V1 (web app + AI skills) → record first podcast → v1 launch
 
 **Key decisions (2026-04-06 restructure):**
 - Two products: Life Decisions ($197/yr) + Business Decisions ($1,997/yr)
@@ -73,7 +74,9 @@ This file (`general.md`) is the **living summary** of the entire decisions/ know
 | 3 | Methodology | `lifedecisions/03-methodology/` | Life-specific decision methodology. Each step maps to a Claude skill. |
 | 4 | Course Outline | `lifedecisions/04-course-outline/` | 3 acts, 9 modules, AI skills intro class, ~23.5 hours. |
 | 5 | Landing Page | `lifedecisions/05-landing-page/` | Life Decisions sales page — copy, structure, implementation specs. |
-| 6L | Free Course Funnel | `lifedecisions/06-free-course-funnel/` | NOT STARTED — simplified methodology as lead gen. |
+| 6L | Free Course Funnel | `lifedecisions/06-free-course-funnel/` | NOT STARTED — simplified methodology as lead gen. Included in V1 scope per PRD. |
+| 7L | Jobs-to-be-Done | `lifedecisions/07-jobs-to-be-done/` | JTBD analysis for Life Decisions software. Three segments, forces of progress, job map, outcome statements. |
+| 8L | Product Requirements | `lifedecisions/08-prd/` | PRD for V1. Two-app architecture, interactive onboarding, Wins Board V1, 6-week build plan. |
 
 ### Business Decisions Documents (decisions/businessdecisions/)
 

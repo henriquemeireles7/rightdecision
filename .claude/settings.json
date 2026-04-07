@@ -1,68 +1,88 @@
 {
   "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bun run .claude/hooks/block-dangerous.ts"
-          }
-        ]
-      },
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bun run .claude/hooks/protect-files.ts"
-          },
-          {
-            "type": "command",
-            "command": "bun run .claude/hooks/protect-config.ts"
-          }
-        ]
-      }
-    ],
     "PostToolUse": [
       {
-        "matcher": "Write|Edit",
         "hooks": [
           {
-            "type": "command",
-            "command": "bun run .claude/hooks/warn-console-log.ts"
+            "command": "bun run .claude/hooks/warn-console-log.ts",
+            "type": "command"
           }
-        ]
+        ],
+        "matcher": "Write|Edit"
       }
     ],
-    "Stop": [
+    "PreCompact": [
       {
-        "matcher": "",
         "hooks": [
           {
-            "type": "command",
-            "command": "bun run .claude/hooks/stop-quality-gate.ts"
-          },
-          {
-            "type": "command",
-            "command": "bun run .claude/hooks/update-context-files.ts"
-          },
-          {
-            "type": "command",
-            "command": "bun run .claude/hooks/notify-done.ts"
+            "command": "bd prime",
+            "type": "command"
           }
-        ]
+        ],
+        "matcher": ""
+      }
+    ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "command": "bun run .claude/hooks/block-dangerous.ts",
+            "type": "command"
+          }
+        ],
+        "matcher": "Bash"
+      },
+      {
+        "hooks": [
+          {
+            "command": "bun run .claude/hooks/protect-files.ts",
+            "type": "command"
+          },
+          {
+            "command": "bun run .claude/hooks/protect-config.ts",
+            "type": "command"
+          }
+        ],
+        "matcher": "Edit|Write"
       }
     ],
     "SessionStart": [
       {
-        "matcher": "compact",
         "hooks": [
           {
-            "type": "command",
-            "command": "bun run .claude/hooks/reinject-context.ts"
+            "command": "bun run .claude/hooks/reinject-context.ts",
+            "type": "command"
           }
-        ]
+        ],
+        "matcher": "compact"
+      },
+      {
+        "hooks": [
+          {
+            "command": "bd prime",
+            "type": "command"
+          }
+        ],
+        "matcher": ""
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "command": "bun run .claude/hooks/stop-quality-gate.ts",
+            "type": "command"
+          },
+          {
+            "command": "bun run .claude/hooks/update-context-files.ts",
+            "type": "command"
+          },
+          {
+            "command": "bun run .claude/hooks/notify-done.ts",
+            "type": "command"
+          }
+        ],
+        "matcher": ""
       }
     ]
   }
