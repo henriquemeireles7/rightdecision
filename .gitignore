@@ -22,3 +22,6 @@ coverage/
 
 # bv (beads viewer) local config and caches
 .bv/
+
+# ML models (large binaries)
+models/
