@@ -43,6 +43,28 @@ Types flow from ONE source. Never define types manually — infer from Zod/Drizz
 - Tests MUST fail first (TDD)
 - No abstraction until 3rd duplication (applies to test helpers too)
 
+## Hono Core Patterns
+- Use `Hono` factory with typed environment (`AppEnv`)
+- Chain routes with `.route()` for full type inference
+- Use `c.var` for typed middleware context (auth user, permissions)
+- Return `c.html()` for SSR pages, `success()`/`paginated()` for API
+- Middleware chain: auth → permissions → handler (clean separation)
+- Use `hono/client` RPC for type-safe frontend API calls
+
+## Railway Deployment Patterns
+- Single Dockerfile with Bun image — lightweight, fast builds
+- PostgreSQL on same Railway project — zero network hop
+- Environment variables through Railway dashboard → `platform/env.ts`
+- Health check endpoint for Railway's built-in monitoring
+- Database migrations run on deploy (not manually)
+
+## Claude Code / Conductor Patterns
+- Every folder with code has a CLAUDE.md (auto-loaded per directory)
+- Nested CLAUDE.md has human-authored header + auto-generated footer
+- Skills are one file each, self-contained, with clear triggers
+- Use Conductor workspaces for parallel agent work on different tasks
+- Hooks batch quality checks at Stop, not per-edit
+
 ## Key Utilities
 | File | What |
 |------|------|

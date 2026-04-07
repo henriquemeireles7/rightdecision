@@ -311,11 +311,13 @@ You are in Phase 7 continuously. Feedback is not a separate step you do after ex
 
 ---
 
-## 9. Phase 7 — Feedback + Re-evaluation
+## 9. Phase 7 — Feedback + Winning
 
 ### What this phase does
 
-Observe what reality tells you. The dominant constraint today may not be the dominant constraint in 90 days. The cycle must repeat not on a rigid schedule but triggered by signals.
+Observe what reality tells you AND celebrate what you've achieved. The dominant constraint today may not be the dominant constraint in 90 days. The cycle must repeat not on a rigid schedule but triggered by signals.
+
+This phase is not just measurement — it is reorientation toward winning. The self-help loop keeps people focused on healing, processing, understanding. This methodology keeps people focused on winning: what did I decide, what did I do, what changed? Win-oriented thinking compresses the loop because you start looking for victories instead of looking for problems.
 
 ### Exact questions (weekly, 15 minutes)
 
@@ -342,11 +344,20 @@ The loop never breaks. Disruptions during progress are normal. Your "old life" i
 
 **WRONG:** Pause the loop to "survive first." This means you stopped doing the work. You found something to focus on instead. People who pause do not come back. They stay stuck for months or years until pain forces restart.
 
+### The win check (added to the weekly review)
+
+After the five review questions, ask one more:
+
+6. What is ONE thing that improved this week because of your decision? Name it specifically.
+
+This is not gratitude journaling. This is evidence collection. You are building a record of wins — small ones, medium ones, eventually the big one when the constraint is resolved. The record matters because it rewrites the story you tell yourself: from "I'm stuck and trying to get unstuck" to "I'm someone who decides and wins."
+
 ### Common mistakes
 
 - **Never reviewing:** Executing blindly for months. Weekly check-in is mandatory.
 - **Reviewing too often:** Daily self-assessment becomes anxiety. Weekly is the cadence.
 - **Confusing "hard" with "wrong":** Hard feedback (this is painful) is different from wrong feedback (this is not moving the needle).
+- **Only tracking problems:** Reviewing what went wrong without naming what went right. The win check prevents this.
 
 ---
 
@@ -356,7 +367,7 @@ The loop never breaks. Disruptions during progress are normal. Your "old life" i
 
 The constraint is resolved. That specific discomfort is gone. You are closer to your target state. The level of discomfort is inversely proportional to the ability of making the right decision.
 
-But life is an infinite evolution path. There will always be new constraints. Resolution is not the end. It is the transition.
+But life is an infinite evolution path. There will always be new constraints. Resolution is not the end. It is the transition. And it is a victory worth naming.
 
 ### How you know it is resolved
 
@@ -370,6 +381,18 @@ Resolved constraints can regress. Habits decay. Situations change.
 
 - **Hold the habits:** The 1-2 habits installed in Phase 5 continue. They are now automatic. If they stop, the constraint returns.
 - **Watch for regression signals:** If the discomfort from the resolved constraint returns, check: did a habit slip? Did the environment change? Catch it early.
+
+### Write your win
+
+When the constraint is resolved, write a win story. Not a journal entry. Not a reflection. A victory report:
+
+1. What was your dominant constraint?
+2. What did you decide?
+3. What changed? (State map before vs after — specific numbers.)
+4. What did it cost you? (Time, discomfort, what you gave up.)
+5. What do you know now that you didn't know before you started?
+
+The win story serves three purposes: it closes the loop with celebration instead of just assessment, it becomes a reference for your future self ("I've done this before, I can do it again"), and it rewrites the narrative from "I was stuck" to "I decided and won."
 
 ### Starting the new cycle
 
@@ -477,6 +500,8 @@ Maria accepted a marketing director role at a company she respects. Salary incre
 | 2026-04-04 | Reward is in execution, not resolution | Founder + Indy: "the reward is the process itself" | If customers expect results-based rewards, adjust framing |
 | 2026-04-04 | One constraint at a time, sequential | Theory of Constraints applied to personal development | If entangled constraints force parallel work, add a "constraint triage" protocol |
 | 2026-04-04 | Discomfort is inversely proportional to decision-making ability | Founder insight | If this claim feels too strong, qualify with "in constraint-resolution contexts" |
+| 2026-04-06 | Phase 7 reframed as "Feedback + Winning" | JTBD analysis: win-oriented framing compresses the loop and differentiates from healing-oriented self-help | If users find win-tracking performative or stressful, soften to optional |
+| 2026-04-06 | Added "Write Your Win" to Phase 8 | Resolution needs celebration, not just assessment. Win stories feed the Wins Board product feature. | If users skip win-writing, simplify to 1-2 questions |
 
 ---
 

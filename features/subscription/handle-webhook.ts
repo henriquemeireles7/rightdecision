@@ -2,6 +2,8 @@ import { Hono } from 'hono'
 import { db } from '@/platform/db/client'
 import { purchases } from '@/platform/db/schema'
 import { env } from '@/platform/env'
+import { throwError } from '@/platform/errors'
+import { success } from '@/platform/server/responses'
 import { payments } from '@/providers/payments'
 
 export const webhookRoutes = new Hono()
@@ -11,7 +13,7 @@ webhookRoutes.post('/', async (c) => {
   const signature = c.req.header('stripe-signature')
 
   if (!signature) {
-    return c.json({ error: 'No signature' }, 400)
+    return throwError(c, 'VALIDATION_ERROR', 'No signature')
   }
 
   let event
@@ -19,14 +21,14 @@ webhookRoutes.post('/', async (c) => {
     event = payments.webhooks.constructEvent(body, signature, env.STRIPE_WEBHOOK_SECRET)
   } catch (err) {
     console.error('Webhook signature verification failed:', err)
-    return c.json({ error: 'Invalid signature' }, 400)
+    return throwError(c, 'VALIDATION_ERROR', 'Invalid signature')
   }
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object
 
     if (session.payment_status !== 'paid') {
-      return c.json({ received: true })
+      return success(c, { received: true })
     }
 
     const email = session.customer_details?.email ?? session.customer_email ?? ''
@@ -35,7 +37,7 @@ webhookRoutes.post('/', async (c) => {
 
     if (!email) {
       console.error('Webhook: no email in session', session.id)
-      return c.json({ received: true })
+      return success(c, { received: true })
     }
 
     try {
@@ -55,5 +57,5 @@ webhookRoutes.post('/', async (c) => {
     }
   }
 
-  return c.json({ received: true })
+  return success(c, { received: true })
 })

@@ -1,233 +1,164 @@
-# THE RIGHT DECISION — FOUNDATIONAL FRAMEWORK
+# INPUT: Business Model v3
+Captured: 2026-04-06
+For meta-doc: decisions/01-business-model/meta.md
 
----
+## From existing documents
 
-## PART 1: THE CORE THESIS
+### Business Model v2 (decisions/01-business-model/legacy/document.md)
+- One product: The Right Decision, $197/year
+- ICP: Woman 30-50, stuck at a higher level
+- Course: 9 modules, 3 acts, ~23 hours, 3 months
+- AI Decision Engine for personalized decision decomposition
+- Distribution: Indy's content → landing page → Stripe → Better Auth → Course + AI
+- Revenue: 508 customers = $100K. 50 sales/month = $9,850/month
+- Annual only billing (commitment IS the thesis)
+- 7-day money-back guarantee
 
-Every meaningful change in your life — every transition from where you are to where you want to be — begins with a decision. Not with information. Not with motivation. Not with a plan. A decision.
+### Manifesto (decisions/02-manifesto/document.md)
+- Core thesis: the decision is the primitive
+- Enemy: the dependency industry (self-help that profits from understanding without action)
+- Anti-self-help positioning
+- Seven angles on decisions (content pillars)
+- Eight sins of indecision
 
-You are not stuck because you lack resources. You are not stuck because you lack time. You are not stuck because the world is unfair. You are stuck because you are not making the right decisions — or you are making no decisions at all, which is the worst decision of all.
+### Course Outline (decisions/04-course-outline/document.md)
+- 3 acts: See Clearly, Decide, Move
+- 9 modules, 37 classes, ~23 hours
+- Manual-first, AI-second exercise design
+- Docx questionnaire + AI prompt per module
+- Throughline decision chosen in onboarding
 
-The right decision is not a single mythical choice that fixes everything. It is a discipline — a repeating act of identifying what actually needs to change, committing to change it, and reorganizing your life around that commitment.
+### Viral Strategy (decisions/08-short-video-viral-strategy/document.md)
+- Folder-based automation pipeline (Bun/TypeScript, no workflow tools)
+- Podcast → OpusClip → clips → auto-post to 13 accounts
+- AI content generation: ElevenLabs voice clone + HeyGen talking head
+- $500/month tool budget
+- Custom pipeline code, not n8n/Make.com
 
-Most people don't lack decisiveness. They lack *decision accuracy*. They decide with energy and conviction — about the wrong things. They optimize the second-biggest problem. They solve what's comfortable instead of what's critical. They make decisions that look good instead of decisions that move the needle.
+## From founder
 
-The quality of your life is the accumulated result of your decisions. Not your circumstances. Not your luck. Your decisions — their accuracy, their timing, and your consistency in executing them.
+### One-Liner (expanded)
+The Right Decision is two products under one brand. Life Decisions ($197/year) teaches you the methodology to make the one decision that matters and execute it daily — delivered as a course with AI-powered Claude skills that guide each exercise. Business Decisions ($1,997/year) teaches non-tech creators how to build and run an AI-native infobusiness using the same methodology — plus automation APIs that handle distribution, content pipeline, and growth without writing code.
 
----
+### Three Personas
 
-## PART 2: THE SEVEN ANGLES ON DECISIONS
+**Persona 1 — "The Stuck Achiever" (Life Decisions)**
+Woman, 30-50. Has done the work: therapy, courses, books, meditation. Objectively ahead of her peers. Stuck at a higher level where problems are harder to name. Disguises indecision as research. Spends on understanding, not action.
+*"You already know what to do. You just haven't decided."*
 
-These are different lenses through which the same primitive — the decision — can be explored, taught, and sold. Each angle is a potential content pillar, sales letter hook, or module within the methodology.
+**Persona 2 — "The Overthinker" (Life Decisions)**
+Man, 25-40. Overthinks career and business moves. Consumes business content obsessively but never starts. Has ideas, plans, frameworks — but no decisions. Analysis paralysis disguised as preparation.
+*"You don't have an information problem. You have a decision problem."*
 
----
+**Persona 3 — "The Drowning Builder" (Business Decisions)**
+Non-tech entrepreneur, 28-45. Has an idea or early-stage business but drowns in planning instead of executing. Wants to build something but doesn't know how to systematize. Needs the methodology AND the platform to run it.
+*"Stop preparing. Start deciding. We give you the tools to execute."*
 
-### ANGLE 1 — THE DECISION AS THE ATOMIC UNIT OF CHANGE
+### Two Products, One Methodology
 
-Nothing in your life changes until you decide. You can read every book, attend every seminar, hire every coach — but until the moment you commit to a specific course of action, your state remains the same.
+The core methodology (decision cycle: state map → target → constraint → decide → decompose → execute → review → resolve) is the same for both products. The APPLICATION differs:
 
-Information doesn't change your life. Decisions do. Information is an input to decisions, but most people use information as a *substitute* for decisions. They research endlessly, consume content obsessively, and call it progress. It's not progress. It's sophisticated procrastination.
+- **Life Decisions:** Apply the methodology to personal life decisions. Course teaches the framework. Skills guide each exercise. Output: a personal decision archive on the user's computer.
+- **Business Decisions:** Apply the methodology to building a business. Course teaches the framework PLUS "vibe coding for non-tech founders." Skills guide each exercise AND automation APIs handle distribution, posting, content pipeline. Output: a running business with automated distribution.
 
-The atomic unit of life change is not the goal. It's not the habit. It's not the insight. It's the decision. Goals without decisions are fantasies. Habits without decisions are routines. Insights without decisions are entertainment.
+### Skills ARE the Product
 
-**Copy angle:** "You don't have an information problem. You have a decision problem."
+Each methodology step has its own Claude skill (modeled after gstack skills). The user installs our skills in Claude Code or Claude Cowork.
 
----
+The skill flow per exercise:
+1. Skill asks deep questions (like d-input)
+2. User answers in their own words
+3. Skill saves raw answers to `raw.md`
+4. Skill generates structured output to `document.md`
+5. Output lives in user's personal folder
 
-### ANGLE 2 — THE DECISION AS DIAGNOSIS
+This is the SAME meta → input → document pattern we use in our own decisions/ folder.
 
-Before you can make the right decision, you must know what to decide about. This is where most people fail — not at the moment of choosing, but at the moment of framing.
+Life Decisions: skills only (no API needed)
+Business Decisions: skills + APIs (for automation)
 
-The right decision solves the dominant constraint in your life. The dominant constraint is the single biggest thing standing between your current state and your desired state — the one thing that, if resolved, would unlock the most progress or make every other problem smaller.
+### Course Structure
 
-Most people never identify their dominant constraint. They solve whatever is loudest, most urgent, or least threatening. They spend years optimizing things that don't matter while the real obstacle sits untouched, growing harder to resolve with every passing month.
+**Main course (both products):** Pure methodology. 3 acts, 9 modules. Manual exercises first, then AI skills for refinement.
 
-The first act of the right decision is not choosing. It's diagnosing. What is actually in the way? Not what you tell people is in the way. Not what sounds reasonable. What is *actually* in the way?
+**Intro lesson (both products):** One class in the introduction teaching AI setup — installing Claude Cowork, installing our skills, explaining how the AI-guided exercises work. Not technical. Shows the flow: "you'll answer questions, the AI saves your work, here's what the output looks like."
 
-**Copy angle:** "You're making good decisions about the wrong problems."
+**Bonus courses (standalone, not part of main 3-act structure):**
+- Life Decisions: "Claude Cowork for Personal Decisions"
+- Business Decisions: "Vibe Coding for Non-Tech Creators/Founders" (Claude Code course)
 
----
+### Free Course Funnel
 
-### ANGLE 3 — THE DECISION AS A DECLARATION OF PRIORITY
+Both products have a simplified free course as lead generation:
+- Fewer steps, but the methodology works by itself
+- User joins the platform (email capture)
+- Sees the full product and can upgrade
+- Social media focuses entirely on driving to the free course
+- "We teach Business Decisions clients to do exactly what we do — that is the whole flywheel"
 
-Every decision is a declaration of what matters most to you right now. Not what you say matters. Not what you wish mattered. What you *actually* prioritize with your time, energy, and attention.
+### The Flywheel
 
-When you don't consciously decide, your priorities are set by default — by other people's expectations, by urgency, by habit, by fear. You become reactive. Your life is shaped by whoever and whatever demands your attention the loudest.
+```
+Free course (lead gen on social media)
+  → User joins platform (email capture)
+    → Sees full product + AI skills
+      → Upgrades to Life Decisions ($197/yr) or Business Decisions ($1,997/yr)
+        → Business Decisions clients build the SAME funnel for their audience
+          → They use our platform to run their business
+            → Our methodology + tools proven again
+```
 
-The right decision takes priority back. It says: this is the most important thing in my life right now, and everything else is subordinate to it. Not ignored — subordinate. There's a hierarchy, and the right decision sits at the top.
+### Agent-First Architecture (Business Decisions)
 
-This is why the right decision often creates friction. When you declare a new priority, you are implicitly demoting everything that was previously at the top. People who benefited from your old priorities will resist. Systems built around your old patterns will break. This is not a side effect — it's proof that the decision is real.
+The Business Decisions platform is NOT a traditional SaaS dashboard:
+- APIs + Claude skills compose the platform
+- Users interact via Claude Cowork (non-tech) or Claude Code (tech)
+- No competing with Claude — we provide the methodology + skills + APIs that work WITH Claude
+- The automation pipeline (podcast → clips → multi-platform posting) runs through our APIs
+- Users only touch `decisions/` and `content/` folders — everything else is abstracted
 
-**Copy angle:** "If your decision doesn't rearrange your life, it wasn't a decision. It was a wish."
+### Docs as Product
 
----
+The `decisions/` folder IS the company. Sharing strategy documents with B2B customers is intentional:
+- Proof the system works
+- Example content for the business course
+- Zero extra work (docs already exist)
+- Radical transparency builds trust
 
-### ANGLE 4 — THE DECISION AS RISK ACCEPTANCE
+Henry and Indy will also do the Life Decisions exercises themselves as example content for the B2C product (later, not now).
 
-Every real decision carries risk. If there is no risk, there is no decision — there is only a preference. Choosing between two safe, reversible options is not a decision in any meaningful sense. It's administrative.
+### Content and Marketing Angle
 
-The decisions that change your life are the ones where something is at stake. Where you could lose money, time, status, comfort, or relationships. Where the outcome is uncertain and the downside is real.
+Main message: "Life transformation through action, not introspection"
+AI angle: "The main cause behind not making decisions is complexity — AI helps you have clarity"
+Business angle: "Business decisions to make money running an AI-native infobusiness"
 
-Most people avoid these decisions entirely. They construct elaborate frameworks of analysis, consultation, and "preparation" that are actually mechanisms for delay. They wait for certainty that will never arrive, because the nature of meaningful decisions is that they must be made before you have complete information.
+Free PDF with prompts → free course → full product. Each social media post drives to the free course funnel.
 
-The right decision accepts asymmetric risk: situations where the downside is survivable and the upside is transformational. It doesn't eliminate uncertainty — it moves through it.
+### Pricing
 
-**Copy angle:** "If you're waiting until it feels safe, you'll wait forever. The right decision never feels safe. It feels necessary."
+- Life Decisions: $197/year (annual only — commitment IS the thesis)
+- Business Decisions: $1,997/year (10x because user also pays for Claude, high-ticket product)
+- One LLC, one brand (The Right Decision), two tiers
 
----
+### Cross-Sell
 
-### ANGLE 5 — THE DECISION AS A TEMPORAL ACT
+Both products use the same course platform. Users can see both tiers. Natural cross-sell:
+- Life → Business: "Now that you've made your life decision, build something from it"
+- Business → Life: "The founder's personal decisions matter too"
 
-The right decision exists in time, and time is not neutral. Every day you don't decide, the variables change. Your constraint evolves. Your resources shift. Opportunities open and close. The decision that was right last month may not be right today.
+## Gaps
 
-This means two things:
+1. **[OPEN] Storage for video files:** Local filesystem won't scale for high-quality video. Options: cloud storage (S3/R2), Google Drive, VPS, DuckDB. How does Claude Code access remote storage? Needs research.
 
-First, speed matters. Not recklessness — but the cost of delay is real and usually invisible. People agonize over decisions for weeks or months without accounting for what that delay costs them. The compounding cost of indecision is one of the most underestimated forces in life.
+2. **[OPEN] Non-tech user deployment:** How does a Business Decisions customer actually run the automation platform? Multi-tenant SaaS on our servers? Managed instance? Their own deployment? This is the hardest unsolved problem.
 
-Second, the right decision must be revisited. Not because you were wrong, but because the world moved. A decision is not a permanent installation — it's a commitment that must be revalidated as reality provides feedback. The discipline is not "decide once, execute forever." It's "decide, execute, observe, re-decide."
+3. **[OPEN] Free course funnel design:** How many steps in the simplified methodology? What's the "aha" moment that triggers upgrade? What's free vs. paid? Needs its own d-meta → d-input → d-plan cycle.
 
-**Copy angle:** "The cost of the wrong decision is visible. The cost of no decision is invisible — and usually higher."
+4. **[OPEN] Skill distribution:** How do users install our Claude skills? npm package? Git repo? MCP server? What's the UX for a non-tech person installing a Claude skill?
 
----
+5. **[OPEN] Business Decisions course content:** The "vibe coding for non-tech creators" bonus course needs its own outline. What do they learn? How much Claude Code do they need to know?
 
-### ANGLE 6 — THE DECISION AS OWNERSHIP
+6. **[OPEN] Revenue model for Business Decisions:** At $1,997/year, what's the cost to serve? Do we host infrastructure per customer? What's the margin?
 
-The right decision is yours. Not your partner's, not your parents', not your mentor's, not your culture's. Yours.
-
-This doesn't mean you decide in isolation. Seek counsel, gather perspectives, learn from people ahead of you. But the moment of commitment — the act of saying "I am doing this, and I accept the consequences" — is non-transferable.
-
-When you outsource your decisions, you outsource your life. You become a passenger in someone else's narrative. And when things go wrong — and they will — you have no agency to correct course, because the steering wheel was never in your hands.
-
-The most dangerous form of decision outsourcing is invisible. It looks like "following best practices," "doing what everyone else does," or "listening to the experts." These can be useful inputs. But when they become the *basis* of your decision rather than inputs to it, you've stopped deciding and started conforming.
-
-**Copy angle:** "No one else can make the right decision for your life. If they could, it wouldn't be your life."
-
----
-
-### ANGLE 7 — THE DECISION AS A SYSTEM, NOT AN EVENT
-
-Most people think of decisions as moments — dramatic crossroads where you choose left or right. This framing is wrong. It puts all the weight on a single point in time and ignores everything before and after.
-
-The right decision is a system:
-- **Diagnosis** — identifying the dominant constraint (what to decide about)
-- **Commitment** — choosing a course of action (the decision itself)
-- **Decomposition** — breaking the decision into objectives, tasks, and habits (how to execute)
-- **Execution** — doing the work with consistency (the sustained effort)
-- **Feedback** — observing what reality tells you (the re-evaluation trigger)
-
-People who consistently make the right decisions aren't luckier or smarter. They run a better system. They diagnose more honestly, commit more cleanly, decompose more practically, execute more consistently, and re-evaluate more frequently.
-
-The right decision is not an event you experience. It's a cycle you operate. And the better you get at operating the cycle, the better your life gets — not linearly, but compoundingly.
-
-**Copy angle:** "The right decision isn't a moment. It's a muscle. And most people have never trained it."
-
----
-
-## PART 3: THE MECHANISM (EXPANDED)
-
-### The Decision Cycle
-
-**Step 1 — Honest State Mapping**
-Where are you right now? The accuracy of your decisions is capped by the accuracy of your self-assessment. Include everything: finances, health, relationships, skills, emotional state, obligations, energy levels. The map must be honest or every downstream decision is built on a lie.
-
-**Step 2 — Target State Definition**
-Where do you want to be? Define this as a *condition of life*, not a metric. "Freedom to choose how I spend my time" is a state. "$50K/month" is a metric that may or may not serve the state. The state is the compass. Metrics are checkpoints.
-
-Key rule: *Objectives have metrics. Tasks have deadlines. The target state has neither — it has clarity.*
-
-**Step 3 — Dominant Constraint Identification**
-What is the single biggest thing between your current state and your target state? Not the most visible. Not the most urgent. The one that, if resolved, would create the most forward movement. This is the hardest step. The dominant constraint is usually the one you're avoiding.
-
-**Step 4 — Decision Commitment**
-Based on the dominant constraint, what do you need to decide? Name the decision explicitly. Write it down. Tell someone. Make it concrete and irreversible enough that you can't sleepwalk back to the default.
-
-**Step 5 — Decision Decomposition**
-Break the decision into its execution structure:
-- **Decisions** → the coherent set of choices organized by priority
-- **Objectives** → measurable outcomes (each has metrics)
-- **Tasks** → time-bound actions (each has deadlines)
-- **Habits** → recurring behaviors that sustain execution without willpower (each has triggers)
-
-Decisions without habits decay. Habits without decisions drift. You need both.
-
-**Step 6 — Execution with Sustainability**
-Execute within a life you can actually sustain. The right decision optimized across three dimensions: time (how fast), effort (how efficiently), and quality of life (how sustainably). Burnout is not a badge. It's a system failure.
-
-**Step 7 — Feedback and Re-evaluation**
-Time changes all variables. The dominant constraint today may not be the dominant constraint in 90 days. The cycle must repeat — not on a rigid schedule, but triggered by signals: a constraint resolved, progress stalled, a major event reshuffled the variables, or persistent discomfort suggesting misalignment.
-
----
-
-## PART 4: THE PRINCIPLES
-
-**1. The decision is the primitive.** Nothing changes until you decide. Everything in this framework exists to serve the quality, accuracy, and consistency of your decisions.
-
-**2. Focus on controllable inputs.** The right decision centers on what you can directly affect. When a decision depends on someone else, reframe: what can *you* do that maximizes the probability of the outcome you want?
-
-**3. The dominant constraint is your compass, not your identity.** Identify it, resolve it, move on. Don't build your personality around your problems.
-
-**4. Social friction is a signal, not a goal.** Expect it when you reorganize your priorities. Don't seek it as proof of progress.
-
-**5. Risk is information.** A decision with no risk is probably not addressing your dominant constraint. Seek asymmetric risk — survivable downside, transformational upside.
-
-**6. Sustainability over intensity.** Design for years, not weeks.
-
-**7. Inaction is the most expensive decision.** Its cost is invisible but compounding.
-
-**8. Never outsource the diagnosis.** Delegate tasks, hire for execution, seek advice. But the honest assessment of your situation and what's in the way — that's yours alone.
-
-**9. The system beats the moment.** Individual decisions can be wrong. A consistent system for making, executing, and revising decisions will outperform any single brilliant choice.
-
----
-
-## PART 5: THE SINS OF DECISIONS
-
-**1. Solving the second-biggest constraint because the biggest one is scary.**
-The most common failure. You know what the real problem is. You choose to work on something adjacent because it's safer.
-
-**2. Outsourcing the diagnosis.**
-Asking someone else to tell you what's wrong with your life. They can offer perspective. They cannot see your actual state.
-
-**3. Disguising indecision as research.**
-Reading one more book, taking one more course, having one more conversation — not to inform a decision, but to postpone it.
-
-**4. Deciding without decomposing.**
-Making a bold commitment with no execution structure. This produces motivational highs followed by nothing.
-
-**5. Decomposing without deciding.**
-Creating plans, systems, and task lists without ever committing to the underlying decision. Productive theater.
-
-**6. Copying someone else's decision.**
-Their constraint is not your constraint. Their state is not your state. What worked for them is information, not instruction.
-
-**7. Optimizing for reversibility.**
-Choosing only decisions that can be easily undone. This guarantees you never make the decisions that actually change your life.
-
-**8. Not deciding — and pretending that's not a decision.**
-The default is always a choice. And it's almost always the most expensive one.
-
----
-
-## ON THE PRODUCT NAME
-
-My recommendation: **The Right Decision** (singular).
-
-Here's why:
-
-**"Decisions" (plural, generic)** is too broad. It describes a category, not a methodology. It sounds like an academic book or a business podcast. There's no tension, no specificity, no implied promise. You'd be competing with every "decision science" brand in existence.
-
-**"The Right Decisions" (plural, specific)** is better — it implies a framework that produces multiple good outcomes. But it dilutes the core thesis. Your framework argues that at any given moment, there is ONE dominant constraint and therefore one primary decision that matters most. Pluralizing it undermines the most contrarian and memorable claim in the methodology.
-
-**"The Right Decision" (singular, specific)** is the strongest for several reasons:
-
-It matches the core insight — at any moment, one decision matters more than all others. The singular form is the thesis itself.
-
-It creates productive tension. The audience immediately asks: "what IS the right decision?" — which is exactly the gap your methodology fills.
-
-It works as both a brand and a repeated concept. "Have you run The Right Decision framework?" "What's your Right Decision this quarter?" It becomes a tool people reference by name.
-
-It's linguistically commanding. Singular + definite article = authority. "The Right Decision" sounds like a law of nature. "The Right Decisions" sounds like a listicle.
-
-And for the Brazilian market specifically: **"A Decisão Certa"** carries the same weight in Portuguese — singular, definitive, almost philosophical.
-
-The singular form forces the audience to confront the core discipline: you cannot solve everything at once. You must choose the ONE constraint and make the ONE decision that matters most right now. The name itself teaches the methodology.
+7. **[OPEN] Methodology for exercises → skills mapping:** Which methodology steps become which skills? What's the exact skill API? This depends on the Life Decisions methodology doc being finalized first.

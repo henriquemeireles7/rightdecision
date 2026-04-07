@@ -12,7 +12,11 @@ Before working in this folder, read:
 - decisions/company.md — product, ICP, positioning
 
 ## Reference files
-company.md, roadmap.md, voice.md, coding.md, design.md, deploy.md, ops.md, harness.md
+company.md, roadmap.md, voice.md, coding.md, design.md, deploy.md, harness.md, lifedecisions.md, businessdecisions.md
+
+## Product subfolders
+- `lifedecisions/` — Life Decisions product-specific docs (methodology, course, landing page)
+- `businessdecisions/` — Business Decisions product-specific docs (methodology, course, landing page)
 
 ## Rules
 - Reference files: updated when major decisions change. Each has "Last verified" date.
@@ -27,12 +31,13 @@ company.md, roadmap.md, voice.md, coding.md, design.md, deploy.md, ops.md, harne
 | File | Exports |
 |------|---------|
 | 001-architecture.md | Right Decision — Architecture & Methodology |
+| businessdecisions.md | Business Decisions — Product Reference |
 | coding.md | Coding — How We Build Software |
 | company.md | Company — The Right Decision |
 | deploy.md | Deploy — How We Ship |
 | design.md | Design System — Right Decision |
 | harness.md | Harness — AI Development System |
-| ops.md | Ops — Internal Tools + Automation |
+| lifedecisions.md | Life Decisions — Product Reference |
 | roadmap.md | Roadmap — Current Priorities |
 | voice.md | Human Communication Guide |
 

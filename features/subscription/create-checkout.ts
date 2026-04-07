@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import { env } from '@/platform/env'
 import { throwError } from '@/platform/errors'
+import { success } from '@/platform/server/responses'
 import { payments, plans } from '@/providers/payments'
 
 export const checkoutRoutes = new Hono()
@@ -29,7 +30,7 @@ checkoutRoutes.post('/', async (c) => {
       allow_promotion_codes: true,
     })
 
-    return c.json({ ok: true as const, url: session.url })
+    return success(c, { url: session.url })
   } catch (error) {
     console.error('Checkout error:', error)
     return throwError(c, 'PAYMENT_FAILED')
