@@ -1,5 +1,6 @@
 import type { Hono } from 'hono'
 import { accountRoutes } from '@/features/account/routes'
+import { adminRoutes } from '@/features/admin/routes'
 import { bookmarkRoutes } from '@/features/course/bookmark-routes'
 import { courseRoutes } from '@/features/course-player/routes'
 import { progressApiRoutes } from '@/features/course/progress-routes'
@@ -24,4 +25,5 @@ export function mountRoutes(app: Hono) {
     .route('/api/bookmarks', bookmarkRoutes)
     .route('/api/account', accountRoutes)
     .route('/api/search', searchRoutes)
+    .route('/api/admin', adminRoutes)
 }
