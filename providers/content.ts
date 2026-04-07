@@ -45,7 +45,9 @@ function parseFrontmatter(raw: string): { meta: Record<string, string>; content:
 // ─── Content Loading ─────────────────────────────────────────────────────────
 
 const CONTENT_DIR = join(import.meta.dir, '../content/course/en')
+const REDIRECTS_PATH = join(import.meta.dir, '../content/redirects.json')
 
+let redirects: Record<string, string> = {}
 const classMap = new Map<string, CourseClass>()
 const moduleMap = new Map<number, CourseModule>()
 let loaded = false
@@ -62,6 +64,14 @@ function buildClassId(moduleNum: number, lessonNum: number): string {
 
 function loadContent() {
   if (loaded) return
+
+  // Load redirects map
+  try {
+    const raw = readFileSync(REDIRECTS_PATH, 'utf-8')
+    redirects = JSON.parse(raw) as Record<string, string>
+  } catch {
+    redirects = {}
+  }
 
   try {
     const moduleDirs = readdirSync(CONTENT_DIR, { withFileTypes: true })
@@ -123,9 +133,24 @@ function loadContent() {
 
 // ─── Public API ──────────────────────────────────────────────────────────────
 
+/**
+ * Resolve a classId through the redirects map (for renamed classes).
+ * Returns the current classId, following redirect chains.
+ */
+export function resolveClassId(classId: string): string {
+  loadContent()
+  let resolved = classId
+  let depth = 0
+  while (redirects[resolved] && depth < 10) {
+    resolved = redirects[resolved]!
+    depth++
+  }
+  return resolved
+}
+
 export function getClass(classId: string): CourseClass | undefined {
   loadContent()
-  return classMap.get(classId)
+  return classMap.get(resolveClassId(classId))
 }
 
 export function getModule(moduleNum: number): CourseModule | undefined {
