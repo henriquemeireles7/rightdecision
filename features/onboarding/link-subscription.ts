@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm'
+import { eq, isNull } from 'drizzle-orm'
 import { db } from '@/platform/db/client'
 import { subscriptions } from '@/platform/db/schema'
 import { consumeSession } from './session'
@@ -19,7 +19,7 @@ export async function linkAccountAfterCreation(
   // The subscription was created with userId=null during checkout
   // We find it by stripeCustomerId which maps to the email used at checkout
   const allSubs = await db.query.subscriptions.findMany({
-    where: eq(subscriptions.userId, null as unknown as string),
+    where: isNull(subscriptions.userId),
   })
 
   // Match by looking up each subscription's customer email in Stripe

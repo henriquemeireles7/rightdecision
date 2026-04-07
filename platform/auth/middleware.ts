@@ -12,10 +12,13 @@ export const requireAuth = createMiddleware<AppEnv>(async (c, next) => {
     return throwError(c, 'UNAUTHORIZED')
   }
 
+  const userWithRole = session.user as Record<string, unknown>
   c.set('user', {
-    ...session.user,
-    role: (session.user as any).role ?? 'free',
-  } as AppEnv['Variables']['user'])
+    id: session.user.id,
+    email: session.user.email,
+    name: session.user.name,
+    role: (typeof userWithRole.role === 'string' ? userWithRole.role : 'free') as AppEnv['Variables']['user']['role'],
+  })
   c.set('session', session.session)
   await next()
 })

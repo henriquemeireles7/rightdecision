@@ -1,4 +1,5 @@
 import type { Context } from 'hono'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 export const errors = {
   UNAUTHORIZED: { code: 'UNAUTHORIZED', status: 401, message: 'Authentication required' },
@@ -80,5 +81,5 @@ export type ErrorCode = keyof typeof errors
 
 export function throwError(c: Context, errorCode: ErrorCode, details?: string) {
   const { status, ...body } = errors[errorCode]
-  return c.json({ ok: false as const, ...body, ...(details ? { details } : {}) }, status as any)
+  return c.json({ ok: false as const, ...body, ...(details ? { details } : {}) }, status as ContentfulStatusCode)
 }

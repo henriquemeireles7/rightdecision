@@ -37,7 +37,9 @@ export function ClassView({ cls, isComplete, isLocked, nextClassId }: ClassViewP
         {cls.durationMinutes} min · Module {cls.module} · {cls.type === 'practical' ? 'Practice' : 'Theory'}
       </div>
 
-      <div class="prose prose-neutral max-w-none mb-12" dangerouslySetInnerHTML={{ __html: cls.content }} />
+      {/* Content is from trusted local MDX files, rendered as text.
+          TODO: Add markdown renderer (e.g. marked + DOMPurify) for rich formatting */}
+      <div class="prose prose-neutral max-w-none mb-12 whitespace-pre-wrap">{cls.content}</div>
 
       <div class="border-t pt-8 flex items-center justify-between">
         {!isComplete ? (

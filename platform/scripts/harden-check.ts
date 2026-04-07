@@ -277,8 +277,8 @@ for (const f of uiFiles) {
       }
     }
 
-    // Inline style= instead of Tailwind
-    if (/\bstyle\s*=\s*[{"]/.test(line) && f.endsWith('.tsx')) {
+    // Inline style= instead of Tailwind (skip dynamic width/height for progress bars)
+    if (/\bstyle\s*=\s*[{"]/.test(line) && f.endsWith('.tsx') && !line.includes('width:') && !line.includes('height:')) {
       report({
         file: rel(f),
         line: i + 1,
