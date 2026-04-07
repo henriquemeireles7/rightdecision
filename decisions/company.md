@@ -1,37 +1,61 @@
 # Company — The Right Decision
 
 > Last verified: 2026-04-06
-> Deep dive: decisions/01-business-model/document.md, decisions/02-manifesto/document.md
+> Deep dive: decisions/01-business-model/input.md, decisions/02-manifesto/document.md
 
 ## What we are
-The Right Decision is an infobusiness + software company. US-registered. Solo developer (Henry) + AI agents + content partner (Indy).
+The Right Decision is an infobusiness + software company. US-registered LLC. Solo developer (Henry) + AI agents + content partner (Indy). Two products under one brand, delivered through AI-powered Claude skills and automation APIs.
 
 ## One-liner
-A yearly platform ($197/year) that teaches you the one decision that actually matters right now, then uses AI to decompose it into commitments you can execute daily.
+A yearly platform with two tiers: Life Decisions ($197/year) teaches the decision methodology for personal transformation, and Business Decisions ($1,997/year) teaches non-tech creators to build AI-native infobusinesses using our exact tools and methodology.
 
 ## Core thesis
-The decision is the primitive. Every meaningful change in a human life begins with a decision, not with information, motivation, or a plan. Most people are stuck because they are not making the right decisions, or making no decisions at all — which is the worst decision of all.
+The decision is the primitive. Every meaningful change in a human life begins with a decision, not with information, motivation, or a plan. The main cause behind not making decisions is complexity — AI helps you have clarity. We deliver transformation through action, not introspection.
 
-## ICP (Ideal Customer Profile)
-A woman, 30-50, who has "done the work." She moved cities, changed jobs, tried therapy, read the books, did the courses. She is objectively ahead of her peers — and she is stuck. Not at the beginning. Stuck at a higher level.
+## What we are NOT
+- Not a therapy replacement or mental health service
+- Not a life coaching practice (no 1-on-1 sessions, no dependency)
+- Not a traditional SaaS with dashboards and buttons
+- Not a marketing agency (we teach, not do-it-for-you)
+- Not competing with Claude/AI tools — we build ON them
+- Not a traditional community — Wins Board for celebrating victories replaces forums (V2)
+- Not a no-code website builder
+- Not "self-help" — we are anti-self-help. The enemy is the dependency industry.
 
-She commits the third sin: disguising indecision as research. She reads one more book, takes one more course, not to inform a decision, but to postpone it.
+## Two Products
 
-## Product
-- **Name:** The Right Decision (singular — "A Decisao Certa" in Portuguese)
-- **Price:** $197/year (annual only — commitment IS the thesis)
-- **Includes:** 9-module course (3 acts, ~23 hours, 3 months at 2h/week) + AI Decision Engine + daily execution prompts
-- **Does NOT include:** Live coaching, 1-on-1, community (Phase 2)
-- **Guarantee:** 7-day money-back
+### Life Decisions ($197/year)
+Course + Claude skills for personal life decisions. User runs skills in Claude Cowork on their own computer. No API needed — docs and skills only.
+> See: decisions/lifedecisions.md
+
+### Business Decisions ($1,997/year)
+Course + Claude skills + automation APIs for non-tech entrepreneurs. "Vibe coding for non-tech creators/founders." Users interact via Claude Code/Cowork.
+> See: decisions/businessdecisions.md
+
+## Three Personas
+
+**Persona 1 — "The Stuck Achiever" (Life Decisions)**
+Woman, 30-50. Has done the work. Stuck at a higher level. Disguises indecision as research.
+
+**Persona 2 — "The Overthinker" (Life Decisions)**
+Man, 25-40. Overthinks career/business moves. Consumes content but never starts.
+
+**Persona 3 — "The Drowning Builder" (Business Decisions)**
+Non-tech entrepreneur, 28-45. Has idea/early business. Drowns in planning instead of executing.
 
 ## Team
-- **Henry** — Technical founder. Multiple companies, exits. Built the framework from lived experience.
-- **Indy** — Content and brand. The customer's voice. The Indy Test: "Would Indy say this to a friend at the kitchen table?"
+- **Henry** — Technical founder. Builds the platform, automation, and AI skills. Multiple companies, exits.
+- **Indy** — Content and brand. Face and voice of The Right Decision. The Indy Test: "Would Indy say this to a friend at the kitchen table?"
 
 ## Stage
-Pre-revenue. Building MVP (course platform + AI decision engine) and course content simultaneously.
+Pre-revenue. JTBD analysis complete for Life Decisions. Building PRD → both MVPs (Life Decisions course platform + Business Decisions automation platform) and course content simultaneously. Henry and Indy are the first Business Decisions customers (dogfooding).
 
 ## Positioning
-Anti-self-help. The enemy is the dependency industry — the business model that profits from understanding without action. We attack the model, never specific therapists/coaches.
+Anti-self-help. Life transformation through action, not introspection. The enemy is the dependency industry — the business model that profits from understanding without action.
 
-Differentiator: "Everything else teaches you to understand why you're stuck. We teach you to decide and do."
+Differentiator: "Everything else teaches you to understand why you're stuck. We teach you to decide and do — and we give you AI tools that make it effortless."
+
+Win-oriented, not healing-oriented: the methodology tracks victories, not healing progress. Resolution is celebrated, not just assessed.
+
+## The Flywheel
+Free course (lead gen) → Full course with AI skills → Business Decisions clients build the SAME funnel for their audience using our platform. Our docs ARE the company — sharing them is intentional (proof the system works, course content for B2B, radical transparency).
