@@ -75,6 +75,53 @@ export const errors = {
     status: 404,
     message: 'Course not found',
   },
+  // ─── BD Pipeline: Transcribe (Step 1) ───
+  TRANSCRIBE_VIDEO_NOT_FOUND: { code: 'TRANSCRIBE_VIDEO_NOT_FOUND', status: 404, message: 'Source video not found in storage' },
+  TRANSCRIBE_INVALID_FORMAT: { code: 'TRANSCRIBE_INVALID_FORMAT', status: 400, message: 'Video format not supported. Use MP4, WebM, or WAV' },
+  TRANSCRIBE_PROCESSING_FAILED: { code: 'TRANSCRIBE_PROCESSING_FAILED', status: 500, message: 'Transcription failed' },
+  TRANSCRIBE_TIMEOUT: { code: 'TRANSCRIBE_TIMEOUT', status: 504, message: 'Transcription timed out' },
+  TRANSCRIBE_EMPTY_RESULT: { code: 'TRANSCRIBE_EMPTY_RESULT', status: 422, message: 'Transcription returned no text' },
+  // ─── BD Pipeline: Clip Select (Step 2) ───
+  CLIP_SELECT_INVALID_STATE: { code: 'CLIP_SELECT_INVALID_STATE', status: 409, message: 'Pipeline run is not in the correct state for clip selection' },
+  CLIP_SELECT_NO_TRANSCRIPT: { code: 'CLIP_SELECT_NO_TRANSCRIPT', status: 422, message: 'No transcript available for clip selection' },
+  CLIP_SELECT_AI_FAILED: { code: 'CLIP_SELECT_AI_FAILED', status: 502, message: 'AI clip selection failed' },
+  CLIP_SELECT_PARSE_FAILED: { code: 'CLIP_SELECT_PARSE_FAILED', status: 422, message: 'Could not parse AI clip selection output' },
+  CLIP_SELECT_NO_CLIPS: { code: 'CLIP_SELECT_NO_CLIPS', status: 422, message: 'No viable clips found in transcript' },
+  CLIP_SELECT_INVALID_TIMESTAMPS: { code: 'CLIP_SELECT_INVALID_TIMESTAMPS', status: 422, message: 'Clip timestamps exceed video duration' },
+  // ─── BD Pipeline: Clip Cut (Step 3) ───
+  CLIP_CUT_VIDEO_NOT_FOUND: { code: 'CLIP_CUT_VIDEO_NOT_FOUND', status: 404, message: 'Source video not found for cutting' },
+  CLIP_CUT_FFMPEG_MISSING: { code: 'CLIP_CUT_FFMPEG_MISSING', status: 500, message: 'ffmpeg not available' },
+  CLIP_CUT_PROCESSING_FAILED: { code: 'CLIP_CUT_PROCESSING_FAILED', status: 500, message: 'ffmpeg clip cutting failed' },
+  CLIP_CUT_UPLOAD_FAILED: { code: 'CLIP_CUT_UPLOAD_FAILED', status: 502, message: 'Failed to upload cut clip to storage' },
+  CLIP_CUT_NO_APPROVED_CLIPS: { code: 'CLIP_CUT_NO_APPROVED_CLIPS', status: 422, message: 'No approved clips to cut' },
+  CLIP_CUT_PARTIAL_FAILURE: { code: 'CLIP_CUT_PARTIAL_FAILURE', status: 207, message: 'Some clips failed to cut' },
+  // ─── BD Pipeline: Metadata Generate (Step 4) ───
+  METADATA_NO_TRANSCRIPT: { code: 'METADATA_NO_TRANSCRIPT', status: 422, message: 'Clip has no transcript for metadata generation' },
+  METADATA_AI_FAILED: { code: 'METADATA_AI_FAILED', status: 502, message: 'AI metadata generation failed' },
+  METADATA_CHAR_LIMIT_EXCEEDED: { code: 'METADATA_CHAR_LIMIT_EXCEEDED', status: 422, message: 'Generated metadata exceeds platform character limit' },
+  METADATA_UNKNOWN_PLATFORM: { code: 'METADATA_UNKNOWN_PLATFORM', status: 400, message: 'Unknown platform specified' },
+  METADATA_ALREADY_EXISTS: { code: 'METADATA_ALREADY_EXISTS', status: 409, message: 'Metadata already generated for this clip and account' },
+  // ─── BD Pipeline: Post Distribute (Step 5) ───
+  POST_AUTH_FAILED: { code: 'POST_AUTH_FAILED', status: 401, message: 'Upload-Post authentication failed' },
+  POST_RATE_LIMITED: { code: 'POST_RATE_LIMITED', status: 429, message: 'Posting rate limited, will retry' },
+  POST_SERVICE_UNAVAILABLE: { code: 'POST_SERVICE_UNAVAILABLE', status: 503, message: 'Upload-Post service unavailable' },
+  POST_CLIP_NOT_FOUND: { code: 'POST_CLIP_NOT_FOUND', status: 404, message: 'Clip file not found in storage' },
+  POST_REJECTED: { code: 'POST_REJECTED', status: 422, message: 'Post rejected by platform' },
+  POST_PLATFORM_ERROR: { code: 'POST_PLATFORM_ERROR', status: 422, message: 'Platform-specific posting error' },
+  POST_PARTIAL_FAILURE: { code: 'POST_PARTIAL_FAILURE', status: 207, message: 'Some posts failed' },
+  POST_MISSING_ID: { code: 'POST_MISSING_ID', status: 500, message: 'Post succeeded but no tracking ID returned' },
+  // ─── BD Pipeline: Analytics Collect (Step 6) ───
+  ANALYTICS_SERVICE_UNAVAILABLE: { code: 'ANALYTICS_SERVICE_UNAVAILABLE', status: 503, message: 'Analytics service unavailable' },
+  ANALYTICS_POST_DELETED: { code: 'ANALYTICS_POST_DELETED', status: 410, message: 'Post no longer exists on platform' },
+  ANALYTICS_RATE_LIMITED: { code: 'ANALYTICS_RATE_LIMITED', status: 429, message: 'Analytics API rate limited' },
+  // ─── BD Pipeline: Insight Generate (Step 7) ───
+  INSIGHT_NO_DATA: { code: 'INSIGHT_NO_DATA', status: 422, message: 'No analytics data in specified date range' },
+  INSIGHT_INSUFFICIENT_DATA: { code: 'INSIGHT_INSUFFICIENT_DATA', status: 422, message: 'Not enough data for meaningful insights' },
+  INSIGHT_AI_FAILED: { code: 'INSIGHT_AI_FAILED', status: 502, message: 'AI insight generation failed' },
+  // ─── BD Pipeline: Workflow Orchestrator ───
+  WORKFLOW_UPLOAD_FAILED: { code: 'WORKFLOW_UPLOAD_FAILED', status: 502, message: 'Video upload to storage failed' },
+  WORKFLOW_INVALID_CONFIG: { code: 'WORKFLOW_INVALID_CONFIG', status: 400, message: 'Invalid workflow configuration' },
+  WORKFLOW_DUPLICATE: { code: 'WORKFLOW_DUPLICATE', status: 409, message: 'A workflow is already running for this video' },
 } as const satisfies Record<string, { code: string; status: number; message: string }>
 
 export type ErrorCode = keyof typeof errors

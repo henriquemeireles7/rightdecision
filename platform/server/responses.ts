@@ -19,3 +19,7 @@ export function created<T>(c: Context, data: T) {
 export function noContent(c: Context) {
   return c.body(null, 204)
 }
+
+export function partial<T>(c: Context, data: T, failures: Array<{ id: string; error: string }>) {
+  return c.json({ ok: true as const, data, failures, partial: true as const }, 207)
+}
