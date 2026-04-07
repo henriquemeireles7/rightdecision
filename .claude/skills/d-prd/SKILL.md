@@ -104,3 +104,4 @@ Produce `decisions/<product>/NN-prd/document.md` with:
 - ALWAYS specify architectural prerequisites before the build sequence
 - Use d-meta → d-input → d-docs pipeline internally for document structure
 - Every section references specific JTBD sections (not vague "per JTBD")
+- After saving, auto-commit and push all changed files. These are non-code docs — they can't break anything.

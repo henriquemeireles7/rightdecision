@@ -1,6 +1,7 @@
+import { eq } from 'drizzle-orm'
 import { Hono } from 'hono'
 import { db } from '@/platform/db/client'
-import { purchases } from '@/platform/db/schema'
+import { subscriptions } from '@/platform/db/schema'
 import { env } from '@/platform/env'
 import { throwError } from '@/platform/errors'
 import { success } from '@/platform/server/responses'
@@ -24,36 +25,69 @@ webhookRoutes.post('/', async (c) => {
     return throwError(c, 'VALIDATION_ERROR', 'Invalid signature')
   }
 
-  if (event.type === 'checkout.session.completed') {
-    const session = event.data.object
+  switch (event.type) {
+    case 'checkout.session.completed': {
+      const session = event.data.object
+      if (session.mode !== 'subscription') break
 
-    if (session.payment_status !== 'paid') {
-      return success(c, { received: true })
-    }
+      const subscriptionId =
+        typeof session.subscription === 'string'
+          ? session.subscription
+          : (session.subscription?.id ?? '')
 
-    const email = session.customer_details?.email ?? session.customer_email ?? ''
-    const customerId =
-      typeof session.customer === 'string' ? session.customer : (session.customer?.id ?? '')
+      if (!subscriptionId) break
 
-    if (!email) {
-      console.error('Webhook: no email in session', session.id)
-      return success(c, { received: true })
-    }
+      const customerId =
+        typeof session.customer === 'string' ? session.customer : (session.customer?.id ?? '')
 
-    try {
+      // Fetch subscription details for period end
+      const sub = await payments.subscriptions.retrieve(subscriptionId)
+      const periodEnd = (sub as unknown as { current_period_end: number }).current_period_end
+
       await db
-        .insert(purchases)
+        .insert(subscriptions)
         .values({
-          email: email.toLowerCase().trim(),
           stripeCustomerId: customerId,
-          stripeSessionId: session.id,
-          amountCents: session.amount_total ?? 19700,
-          userId: session.client_reference_id ?? undefined,
+          stripeSubscriptionId: subscriptionId,
           status: 'active',
+          currentPeriodEnd: new Date(periodEnd * 1000),
         })
-        .onConflictDoNothing({ target: purchases.stripeSessionId })
-    } catch (error) {
-      console.error('Webhook: create purchase error:', error)
+        .onConflictDoNothing({ target: subscriptions.stripeSubscriptionId })
+
+      break
+    }
+
+    case 'customer.subscription.updated': {
+      const sub = event.data.object as unknown as {
+        id: string
+        cancel_at_period_end: boolean
+        status: string
+        current_period_end: number
+      }
+      const status = sub.cancel_at_period_end ? 'cancelled' : (sub.status === 'active' ? 'active' : 'past_due')
+
+      await db
+        .update(subscriptions)
+        .set({
+          status: status as 'active' | 'past_due' | 'cancelled',
+          currentPeriodEnd: new Date(sub.current_period_end * 1000),
+          updatedAt: new Date(),
+        })
+        .where(eq(subscriptions.stripeSubscriptionId, sub.id))
+
+      break
+    }
+
+    case 'customer.subscription.deleted': {
+      await db
+        .update(subscriptions)
+        .set({
+          status: 'cancelled',
+          updatedAt: new Date(),
+        })
+        .where(eq(subscriptions.stripeSubscriptionId, event.data.object.id))
+
+      break
     }
   }
 

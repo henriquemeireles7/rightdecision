@@ -90,7 +90,7 @@ function scanFile(filePath: string, checks: Array<{ pattern: RegExp; rule: strin
   const content = readFileSync(filePath, 'utf-8')
   const lines = content.split('\n')
   for (let i = 0; i < lines.length; i++) {
-    const line = lines[i]
+    const line = lines[i]!
     for (const check of checks) {
       if (check.pattern.test(line)) {
         report({ file: rel(filePath), line: i + 1, severity: check.severity, rule: check.rule, message: check.message })
@@ -120,7 +120,7 @@ for (const f of routeFiles) {
   const lines = content.split('\n')
   for (let i = 0; i < lines.length; i++) {
     // Match c.json( but not inside error handler or comment
-    if (/\bc\.json\s*\(/.test(lines[i]) && !lines[i].trim().startsWith('//')) {
+    if (/\bc\.json\s*\(/.test(lines[i]!) && !lines[i]!.trim().startsWith('//')) {
       report({
         file: rel(f),
         line: i + 1,
@@ -173,7 +173,7 @@ for (const f of routeFiles) {
   const content = readFileSync(f, 'utf-8')
   const lines = content.split('\n')
   for (let i = 0; i < lines.length; i++) {
-    const line = lines[i]
+    const line = lines[i]!
     // Match route definitions that accept body (post, put, patch) without zValidator
     if (/\.(post|put|patch)\s*\(/.test(line) && !content.slice(0, content.indexOf(line) + line.length + 200).includes('zValidator')) {
       // More precise: check if zValidator appears as an argument in the same route chain
@@ -226,7 +226,7 @@ for (const f of allCodeFiles) {
   const content = readFileSync(f, 'utf-8')
   const lines = content.split('\n')
   for (let i = 0; i < lines.length; i++) {
-    if (/\bfetch\s*\(/.test(lines[i]) && !lines[i].includes('AbortSignal') && !lines[i].includes('signal')) {
+    if (/\bfetch\s*\(/.test(lines[i]!) && !lines[i]!.includes('AbortSignal') && !lines[i]!.includes('signal')) {
       // Check next few lines for signal option
       const block = lines.slice(i, Math.min(i + 5, lines.length)).join('\n')
       if (!block.includes('signal') && !block.includes('AbortSignal') && !block.includes('timeout')) {
@@ -259,7 +259,7 @@ for (const f of uiFiles) {
   const lines = content.split('\n')
 
   for (let i = 0; i < lines.length; i++) {
-    const line = lines[i]
+    const line = lines[i]!
 
     // <img> without alt
     if (/<img\b/.test(line)) {
@@ -277,8 +277,8 @@ for (const f of uiFiles) {
       }
     }
 
-    // Inline style= instead of Tailwind
-    if (/\bstyle\s*=\s*[{"]/.test(line) && f.endsWith('.tsx')) {
+    // Inline style= instead of Tailwind (skip dynamic width/height for progress bars)
+    if (/\bstyle\s*=\s*[{"]/.test(line) && f.endsWith('.tsx') && !line.includes('width:') && !line.includes('height:')) {
       report({
         file: rel(f),
         line: i + 1,

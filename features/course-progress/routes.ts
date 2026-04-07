@@ -4,42 +4,36 @@ import { Hono } from 'hono'
 import { z } from 'zod'
 import { requireAuth } from '@/platform/auth/middleware'
 import { db } from '@/platform/db/client'
-import { courseProgress, purchases } from '@/platform/db/schema'
+import { courseProgress, subscriptions } from '@/platform/db/schema'
 import { throwError } from '@/platform/errors'
 import { success } from '@/platform/server/responses'
 import type { AppEnv } from '@/platform/types'
 
 const completeSchema = z.object({
-  moduleId: z.number().min(1).max(7),
+  classId: z.string().min(1),
+  courseId: z.string().min(1),
 })
 
 export const progressRoutes = new Hono<AppEnv>()
 
 progressRoutes.post('/complete', requireAuth, zValidator('json', completeSchema), async (c) => {
   const user = c.get('user')
-  const { moduleId } = c.req.valid('json')
+  const { classId, courseId } = c.req.valid('json')
 
-  const purchase = await db.query.purchases.findFirst({
-    where: and(eq(purchases.userId, user.id), eq(purchases.status, 'active')),
+  const subscription = await db.query.subscriptions.findFirst({
+    where: and(eq(subscriptions.userId, user.id), eq(subscriptions.status, 'active')),
   })
 
-  if (!purchase) {
-    return throwError(c, 'NO_SUBSCRIPTION')
+  if (!subscription) {
+    return throwError(c, 'SUBSCRIPTION_REQUIRED')
   }
 
-  if (moduleId > 1) {
-    const prev = await db.query.courseProgress.findFirst({
-      where: and(eq(courseProgress.userId, user.id), eq(courseProgress.moduleId, moduleId - 1)),
-    })
+  await db
+    .insert(courseProgress)
+    .values({ userId: user.id, classId, courseId })
+    .onConflictDoNothing()
 
-    if (!prev) {
-      return throwError(c, 'LESSON_LOCKED')
-    }
-  }
-
-  await db.insert(courseProgress).values({ userId: user.id, moduleId }).onConflictDoNothing()
-
-  return success(c, { moduleId, completed: true })
+  return success(c, { classId, courseId, completed: true })
 })
 
 progressRoutes.get('/', requireAuth, async (c) => {
@@ -47,8 +41,8 @@ progressRoutes.get('/', requireAuth, async (c) => {
 
   const progress = await db.query.courseProgress.findMany({
     where: eq(courseProgress.userId, user.id),
-    orderBy: (cp, { asc }) => [asc(cp.moduleId)],
+    orderBy: (cp, { asc }) => [asc(cp.completedAt)],
   })
 
-  return success(c, { completedModules: progress.map((p) => p.moduleId) })
+  return success(c, { completedClasses: progress.map((p) => ({ classId: p.classId, courseId: p.courseId })) })
 })

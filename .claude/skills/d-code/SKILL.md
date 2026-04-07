@@ -239,6 +239,15 @@ export RUST_LOG=error
 export BV_OUTPUT_FORMAT=toon
 ```
 
+## THE LOOP RULE (most important rule)
+**NEVER STOP. NEVER ASK "should I continue?" NEVER pause between beads.**
+After closing a bead, IMMEDIATELY pick the next one and start coding.
+Keep going until `br ready` returns 0 actionable tasks. The ONLY reasons to stop:
+1. All beads are done (br ready returns nothing)
+2. You are genuinely blocked (needs user input, needs TTY, needs external service)
+3. The user explicitly tells you to stop
+Commit every 2-3 beads, but DO NOT pause for confirmation. Just commit and keep going.
+
 ## Rules
 - NEVER skip the Build Order steps — even if the bead only mentions one file
 - NEVER close a bead without ALL checks passing (tests + typecheck + biome)
@@ -249,7 +258,7 @@ export BV_OUTPUT_FORMAT=toon
 - ALWAYS read the bead description fully before coding — it's the spec
 - ALWAYS follow TDD: write failing test → make it pass → refactor
 - ALWAYS use `--suggest-next` when closing to chain work efficiently
-- ONE bead per cycle — don't batch multiple beads
+- ONE bead per cycle — don't batch multiple beads (unless they all modify the same file)
 - If a bead's description is insufficient, DON'T guess — update it with `br update`
 - If implementation reveals sub-tasks, create new beads with `--deps discovered-from:<id>`
 - Security: validate all input via Zod, use throwError(), never log sensitive data

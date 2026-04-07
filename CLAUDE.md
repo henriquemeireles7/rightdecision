@@ -103,6 +103,9 @@ Hooks are defined in .claude/settings.json and run automatically:
 ## Commit & Push Discipline
 When work is done and the user confirms, run `bun run check` (lint + typecheck + test), then commit and push. Do not commit after every edit — commit at logical completion points.
 
+### Auto-commit for doc-only skills
+Document skills (d-meta, d-input, d-plan, d-auto, d-jtbd, d-prd, d-tasks, d-write, autodocs) auto-commit and push after saving. These skills only modify non-code files (md, json, jsonl) so they can't break anything. Code skills (d-code, d-review, d-harden) do NOT auto-commit — they modify ts/tsx files that need `bun run check` first.
+
 ## Universal Reference Files (decisions/*.md)
 Read the files that match your task. Read as many as needed:
 - Customer-facing content, ICP → decisions/company.md

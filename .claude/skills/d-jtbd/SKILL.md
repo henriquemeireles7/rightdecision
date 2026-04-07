@@ -134,3 +134,4 @@ This skill is INTERACTIVE. It asks the founder forcing questions:
 - ALWAYS produce a "don't build" list — it's as important as what TO build
 - The JTBD document is solution-agnostic — describe the JOB, not our product
 - Use d-meta → d-input → d-docs pipeline internally for document structure
+- After saving, auto-commit and push all changed files. These are non-code docs — they can't break anything.

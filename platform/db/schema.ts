@@ -1,4 +1,4 @@
-import { boolean, integer, pgTable, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core'
+import { boolean, integer, jsonb, pgTable, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core'
 
 // ─── Users ───
 export const users = pgTable('users', {
@@ -56,7 +56,7 @@ export const verifications = pgTable('verifications', {
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 })
 
-// ─── Purchases ───
+// ─── Purchases (legacy — kept for migration reference) ───
 export const purchases = pgTable('purchases', {
   id: uuid('id').defaultRandom().primaryKey(),
   userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }),
@@ -70,7 +70,21 @@ export const purchases = pgTable('purchases', {
   purchasedAt: timestamp('purchased_at').notNull().defaultNow(),
 })
 
-// ─── Course Progress ───
+// ─── Subscriptions (PRD: recurring Stripe billing) ───
+export const subscriptions = pgTable('subscriptions', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }),
+  stripeCustomerId: text('stripe_customer_id').notNull(),
+  stripeSubscriptionId: text('stripe_subscription_id').notNull().unique(),
+  status: text('status', { enum: ['active', 'past_due', 'cancelled', 'trialing'] })
+    .notNull()
+    .default('active'),
+  currentPeriodEnd: timestamp('current_period_end').notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+})
+
+// ─── Course Progress (PRD: string-based class/course IDs) ───
 export const courseProgress = pgTable(
   'course_progress',
   {
@@ -78,8 +92,70 @@ export const courseProgress = pgTable(
     userId: uuid('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
-    moduleId: integer('module_id').notNull(),
+    classId: text('class_id').notNull(),
+    courseId: text('course_id').notNull(),
     completedAt: timestamp('completed_at').notNull().defaultNow(),
   },
-  (table) => [uniqueIndex('course_progress_user_module_idx').on(table.userId, table.moduleId)],
+  (table) => [uniqueIndex('course_progress_user_class_idx').on(table.userId, table.classId)],
+)
+
+// ─── Onboarding Sessions (PRD: anonymous pre-account data) ───
+export const onboardingSessions = pgTable('onboarding_sessions', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  sessionData: jsonb('session_data').$type<{
+    throughlineQ1?: string
+    throughlineQ2?: string
+    throughlineQ3?: string
+    throughlineNamed?: string
+    email?: string
+  }>(),
+  currentStep: integer('current_step').notNull().default(1),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  expiresAt: timestamp('expires_at').notNull(),
+})
+
+// ─── Onboarding Profiles (PRD: throughline + ICP intelligence) ───
+export const onboardingProfiles = pgTable('onboarding_profiles', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' })
+    .unique(),
+  throughlineQ1: text('throughline_q1'),
+  throughlineQ2: text('throughline_q2'),
+  throughlineQ3: text('throughline_q3'),
+  throughlineNamed: text('throughline_named'),
+  ageRange: text('age_range'),
+  lifeAreas: text('life_areas').array(),
+  triedBefore: text('tried_before').array(),
+  timeStuck: text('time_stuck'),
+  completedAt: timestamp('completed_at'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+})
+
+// ─── Wins (PRD: Wins Board social proof) ───
+export const wins = pgTable('wins', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  lifeArea: text('life_area', { enum: ['health', 'relationships', 'career', 'money'] }).notNull(),
+  description: text('description').notNull(),
+  isSeed: boolean('is_seed').notNull().default(false),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+})
+
+// ─── Bookmarks (PRD: class bookmarking) ───
+export const bookmarks = pgTable(
+  'bookmarks',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    classId: text('class_id').notNull(),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+  },
+  (table) => [uniqueIndex('bookmarks_user_class_idx').on(table.userId, table.classId)],
 )
