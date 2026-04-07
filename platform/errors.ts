@@ -19,6 +19,61 @@ export const errors = {
     status: 429,
     message: 'Too many requests, try again later',
   },
+  ONBOARDING_SESSION_EXPIRED: {
+    code: 'ONBOARDING_SESSION_EXPIRED',
+    status: 410,
+    message: 'Onboarding session has expired, please start again',
+  },
+  ONBOARDING_SESSION_NOT_FOUND: {
+    code: 'ONBOARDING_SESSION_NOT_FOUND',
+    status: 404,
+    message: 'Onboarding session not found',
+  },
+  ONBOARDING_INCOMPLETE: {
+    code: 'ONBOARDING_INCOMPLETE',
+    status: 400,
+    message: 'Please complete all onboarding steps first',
+  },
+  WIN_RATE_LIMITED: {
+    code: 'WIN_RATE_LIMITED',
+    status: 429,
+    message: 'You can share up to 3 wins per day',
+  },
+  WIN_TOO_LONG: {
+    code: 'WIN_TOO_LONG',
+    status: 400,
+    message: 'Win description must be 280 characters or less',
+  },
+  SUBSCRIPTION_REQUIRED: {
+    code: 'SUBSCRIPTION_REQUIRED',
+    status: 403,
+    message: 'An active subscription is required',
+  },
+  SUBSCRIPTION_NOT_FOUND: {
+    code: 'SUBSCRIPTION_NOT_FOUND',
+    status: 404,
+    message: 'Subscription not found',
+  },
+  MODULE_LOCKED: {
+    code: 'MODULE_LOCKED',
+    status: 403,
+    message: 'Complete previous classes to unlock this content',
+  },
+  BOOKMARK_DUPLICATE: {
+    code: 'BOOKMARK_DUPLICATE',
+    status: 409,
+    message: 'This class is already bookmarked',
+  },
+  CLASS_NOT_FOUND: {
+    code: 'CLASS_NOT_FOUND',
+    status: 404,
+    message: 'Class not found',
+  },
+  COURSE_NOT_FOUND: {
+    code: 'COURSE_NOT_FOUND',
+    status: 404,
+    message: 'Course not found',
+  },
 } as const satisfies Record<string, { code: string; status: number; message: string }>
 
 export type ErrorCode = keyof typeof errors
