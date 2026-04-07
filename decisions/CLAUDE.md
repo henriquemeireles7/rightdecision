@@ -12,7 +12,7 @@ Before working in this folder, read:
 - decisions/company.md — product, ICP, positioning
 
 ## Reference files
-company.md, roadmap.md, voice.md, coding.md, design.md, deploy.md, harness.md, lifedecisions.md, businessdecisions.md
+company.md, roadmap.md, voice.md, architecture.md, coding.md, design.md, deploy.md, harness.md, lifedecisions.md, businessdecisions.md
 
 ## Product subfolders
 - `lifedecisions/` — Life Decisions product-specific docs (methodology, course, landing page)

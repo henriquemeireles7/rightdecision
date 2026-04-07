@@ -20,10 +20,11 @@ d-jtbd → **d-prd** → d-tasks → d-code → d-review → /ship
 ## Context Loading
 1. Read the JTBD document fully
 2. Read `decisions/company.md` — positioning, ICP
-3. Read `decisions/coding.md` — technical feasibility, architecture constraints
-4. Read `decisions/design.md` — design system, aesthetic direction
-5. Audit existing codebase — what already exists? (same audit as d-tasks Step 0)
-6. Read any prior PRDs for this product area
+3. Read `decisions/architecture.md` — architectural patterns (Data Storage Rule, Step-Based Workflow, Feature Groups)
+4. Read `decisions/coding.md` — implementation patterns, tech stack constraints
+5. Read `decisions/design.md` — design system, aesthetic direction
+6. Audit existing codebase — what already exists? (same audit as d-tasks Step 0)
+7. Read any prior PRDs for this product area
 
 ## Process
 
@@ -44,6 +45,13 @@ For each entry point (how users arrive at the product):
 - Define data created at each step
 - Define error cases
 - Spec critical UI screens (not full design, but layout + key elements)
+
+### Step 3.5: Apply Architectural Patterns (from decisions/architecture.md)
+For each feature defined in Steps 1-3:
+- **Data Storage Rule:** Classify every data entity (filesystem vs PostgreSQL vs object storage) using the test questions
+- **Step-Based Workflow:** If the feature is a multi-step automation, decompose into steps using the Step Boundary Rule. Each step becomes its own feature folder with API endpoint.
+- **Feature Groups:** Assign each feature to `(shared)`, `(life)`, or `(business)` group
+- **Skill Mapping:** Map skills to steps. Identify approval gates (where humans decide).
 
 ### Step 4: Specify Data Model
 - Entity-relationship diagram

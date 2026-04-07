@@ -111,6 +111,7 @@ Read the files that match your task. Read as many as needed:
 - Customer-facing content, ICP → decisions/company.md
 - Roadmap, priorities, "what's next" → decisions/roadmap.md
 - Content for end users (copy, courses, emails) → decisions/voice.md
+- Architecture (data storage, workflows, feature groups) → decisions/architecture.md
 - Coding (features, platform, providers) → decisions/coding.md
 - Security & hardening baseline → decisions/hardening.md
 - Visual/UI/CSS/components → decisions/design.md
