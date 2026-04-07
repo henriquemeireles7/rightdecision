@@ -1,11 +1,11 @@
 # Roadmap — Current Priorities
 
-> Last verified: 2026-04-06
+> Last verified: 2026-04-07
 > Full document index: decisions/00-general/document.md
 > Pipeline: d-meta → d-input → d-plan → d-tasks
 
 ## Current Phase
-Foundation docs (1-9) complete. Business model expanded to two products. Now: restructure decisions/ → build Life Decisions landing page → build both MVPs → v1 launch.
+Foundation docs (1-9) complete. Business model expanded to two products. Life Decisions is course-first (docs done, building landing page + course player). Business Decisions is software-first (content pipeline IS the MVP, course teaches the platform later). The content pipeline (doc 08) serves both tracks — it's the BD product AND the distribution engine for LD.
 
 ## Two Tracks
 
@@ -24,17 +24,32 @@ Course + Claude skills for personal life decisions.
 | 7 | V1 launch | Not started |
 
 ### Track: Business Decisions (B2B — $1,997/year)
-Course + Claude skills + automation APIs for non-tech entrepreneurs.
+Software-first: the platform IS the product. Course teaches the platform later.
+Content pipeline (doc 08) powers distribution for BOTH tracks.
 
-| Priority | Milestone | Status |
-|----------|-----------|--------|
-| 1 | Write Business Decisions methodology doc | Not started |
-| 2 | Write Business Decisions course outline | Not started |
-| 3 | Build content automation pipeline (doc 08 spec) | Not started |
-| 4 | Build automation APIs (posting, content generation) | Not started |
-| 5 | Design Business Decisions landing page | Not started |
-| 6 | Record Business Decisions course modules | Not started |
-| 7 | "Vibe Coding for Non-Tech Creators" bonus course | Not started |
+**Write workflow (strategy docs):**
+
+| Priority | Doc | Status | Why this order |
+|----------|-----|--------|----------------|
+| 1 | 07-jtbd — Jobs to Be Done | In progress | Understand the Drowning Builder's software needs |
+| 2 | 08-prd — Platform MVP | Not started | Define BD platform from JTBD findings |
+| 3 | 03-methodology — Business decision cycle | Not started | Needs platform context to map skills |
+| 4 | 04-course-outline — Course | Not started | Course teaches the platform (platform must exist first) |
+| 5 | 05-landing-page — Landing page | Not started | Needs product to be defined |
+| 6 | 06-free-course-funnel | Not started | Post-launch |
+
+**Code workflow (building the platform):**
+
+| Priority | Milestone | Status | Serves |
+|----------|-----------|--------|--------|
+| 1 | Content pipeline MVP — manual walkthrough of doc 08 | Not started | Both (distribution) |
+| 2 | Content pipeline automation — file watchers, OpusClip, metadata | Not started | Both (distribution) |
+| 3 | Auto-posting scripts — platform APIs (TikTok, IG, etc.) | Not started | Both (distribution) |
+| 4 | Analytics/monitoring — pipeline health, posting logs | Not started | Both (ops) |
+| 5 | Client-facing packaging — multi-tenant, client decisions/ folders | Not started | BD only (product) |
+| 6 | "Vibe Coding for Non-Tech Creators" bonus course | Not started | BD only (course) |
+
+**Sequencing:** Write and code workflows run in parallel. JTBD + PRD inform later code stages (client packaging). Code pipeline doesn't wait for BD docs — it's specified in shared doc 08.
 
 ## Document Pipeline Status
 
@@ -54,8 +69,10 @@ Course + Claude skills + automation APIs for non-tech entrepreneurs.
 - 08-prd: COMPLETE — PRD for Life Decisions V1. Two-app architecture, interactive onboarding, Wins Board V1, free mini-course. Decision primitive deferred.
 
 ### Business Decisions Documents (in decisions/businessdecisions/)
-- 03-methodology: NOT STARTED
-- 04-course-outline: NOT STARTED
+- 07-jtbd: IN PROGRESS — JTBD analysis for BD platform (software-first, using doc 08 as reference input)
+- 08-prd: NOT STARTED — BD platform MVP (depends on JTBD)
+- 03-methodology: NOT STARTED — business decision cycle (depends on platform clarity)
+- 04-course-outline: NOT STARTED — course teaches the platform (depends on platform existing)
 - 05-landing-page: NOT STARTED
 - 06-free-course-funnel: NOT STARTED
 
