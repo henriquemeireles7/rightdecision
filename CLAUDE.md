@@ -135,16 +135,83 @@ If you find contradictions between universal files, folder CLAUDE.md, or strateg
 4. Update the wrong file immediately so the contradiction is gone.
 Never leave contradictions unresolved — they compound into bigger problems.
 
-## Beads (Task Tracking)
-All coding tasks are tracked as beads issues (`br` CLI). Beads replaces markdown task files with a queryable dependency graph.
-- Tasks live in `.beads/` (SQLite + JSONL). JSONL is committed to git.
-- `brready` — shows tasks with no uncompleted dependencies (what to work on next)
-- `brshow <id>` — full context for a task
-- `brclose <id>` — mark done after implementation + tests pass
-- Workflow: `brready → pick task → code → test → bd close → repeat`
-- NEVER skip dependencies — if `brready` returns nothing, blocked tasks need their deps completed first
-- Strategy docs become beads via d-tasks skill: `document.md → d-tasks → beads issues`
-- Coding from beads via d-code skill: `brready → implement → verify → close`
+## Beads (Task Tracking) — Agent Flywheel Methodology
+All coding tasks are tracked as beads issues. Two CLIs: `br` (beads_rust — task management) and `bv` (beads_viewer — graph analysis).
+Tasks live in `.beads/` (SQLite + JSONL). JSONL is committed to git. Always commit `.beads/` with code changes.
+
+### CLI Quick Reference
+```sh
+br ready --json                    # unblocked tasks
+br show <id>                       # full task details
+br update <id> --claim             # atomic: assign + set in_progress
+br close <id> -r "Done" --suggest-next  # close + get newly unblocked
+br create "..." -t task -p 1 -d "desc" --parent <epic> --deps "blocks:<id>"
+br dep add <from> <depends-on>     # add dependency
+br sync --flush-only               # export JSONL for git
+bv --robot-triage --format toon    # graph-aware recommendations (NEVER bare bv)
+bv --robot-next                    # single top pick + claim command
+bv --robot-plan                    # parallel execution tracks
+bv --robot-suggest                 # hygiene: duplicates, missing deps
+```
+
+### Agent Workflow (per bead)
+1. `bv --robot-next` → pick graph-optimal task
+2. `br update <id> --claim` → claim it (prevents duplicate work)
+3. Implement following Build Order (CLAUDE.md → schema → errors → env → tests → code → pages)
+4. Fresh eyes self-review: reread new code looking for bugs, fix, repeat (1-2 rounds)
+5. `bun run check` → all tests + lint + typecheck pass
+6. `br close <id> -r "Done: [summary]" --suggest-next` → close + get next
+7. `br sync --flush-only` at session end
+
+### Multi-Agent Coordination
+When multiple agents work simultaneously (Conductor workspaces):
+- All agents target the same branch (master). No worktree isolation.
+- Use Agent Mail for file reservations to prevent edit conflicts.
+- Each agent claims beads before working (`--claim`).
+- Discovered issues: `br create "Fix: ..." --deps "discovered-from:<current-id>"`
+- NEVER stash, revert, or overwrite other agents' work.
+
+### Key Rules
+- NEVER skip dependencies — if `br ready` returns nothing, blocked tasks need deps completed first
+- NEVER run bare `bv` — always use `--robot-*` flags (bare launches TUI, blocks agent)
+- Strategy docs → beads via d-tasks: `document.md → /d-tasks → beads issues`
+- Coding from beads via d-code: `/d-code → implement → verify → close`
+- Deep review via d-review: `/d-review → fresh eyes → random exploration → architectural check`
+
+## Agent Flywheel Tools
+
+### UBS (Ultimate Bug Scanner)
+Run `ubs .` to scan the full codebase for bugs (1000+ patterns, 8 languages).
+- After completing beads: `ubs . --format=toon` (token-efficient output)
+- Before shipping: `ubs --staged` (scan only staged files)
+- NEVER ignore UBS findings — fix or explicitly suppress with `# ubs:ignore`
+- Skip categories: `ubs . --skip=11,14` (skip TODO/debug nits)
+
+### DCG (Destructive Command Guard)
+Pre-execution safety guard. 49+ rule packs across 17 categories. Blocks dangerous commands before they run.
+- If DCG blocks a command: read the explanation, don't bypass without understanding
+- Override: `DCG_BYPASS=1` ONLY when certain the command is safe
+- Explain why blocked: `dcg explain "<command>"`
+
+### CASS (Coding Agent Session Search)
+Search past agent sessions for patterns, solutions, and context.
+- Before unfamiliar work: `cass search "topic" --robot --limit 5`
+- NEVER run bare `cass` — always use `--robot` or `--json` flags (bare launches TUI)
+- Indexes Claude Code, Codex, Cursor, Gemini sessions automatically
+
+### CM (CASS Memory System)
+Three-layer procedural memory: episodic → working → procedural.
+- Before non-trivial work: `cm context "task description" --json` (get relevant patterns)
+- After completing a bead: `cm outcome success <bead-id> --summary "what was done"` (teach future agents)
+- After a failure: `cm outcome failure <bead-id> --summary "what went wrong"` (learn from mistakes)
+- Rules decay without revalidation (90-day half-life) — recent patterns weighted higher
+
+### Agent Mail (Multi-Agent Coordination — MCP)
+MCP-based messaging for coordinating between Conductor workspaces. Tools: `mcp__mcp-agent-mail__*`
+- At session start: register identity, check inbox, reserve files you'll edit
+- During work: check reservations before editing shared files
+- At session end: release reservations, announce completed beads
+- File reservations prevent edit conflicts between parallel agents
 
 ## Decisions Folder (Strategy Documents)
 All strategy documents live in decisions/. See decisions/roadmap.md for current priorities.
@@ -174,3 +241,4 @@ Key routing rules:
 - Full document pipeline → invoke d-auto
 - Transform document into tasks → invoke d-tasks
 - Code from beads tasks → invoke d-code
+- Deep code review, fresh eyes, check quality → invoke d-review
