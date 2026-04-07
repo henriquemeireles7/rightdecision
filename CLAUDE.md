@@ -76,7 +76,7 @@ The auto-generated footer (Files, Internal Dependencies) is added by the Stop ho
 - Route chains must be connected (for AppRoutes type inference)
 
 ## Commands
-- bun run check — lint + typecheck + test (run before every commit)
+- bun run check — lint + typecheck + harden-check + test (run before every commit)
 - bun run dev — start dev server (hot reload)
 - bun test — run tests
 - bun run lint — fix lint + format issues
@@ -109,6 +109,7 @@ Read the files that match your task. Read as many as needed:
 - Roadmap, priorities, "what's next" → decisions/roadmap.md
 - Content for end users (copy, courses, emails) → decisions/voice.md
 - Coding (features, platform, providers) → decisions/coding.md
+- Security & hardening baseline → decisions/hardening.md
 - Visual/UI/CSS/components → decisions/design.md
 - Deploy, CI/CD, infrastructure → decisions/deploy.md
 - Life Decisions product (B2C) → decisions/lifedecisions.md
@@ -223,6 +224,22 @@ Methodology: Meta → Draft → Document → Tasks → Code. Each phase catches 
 Railway. Dockerfile deploy. PostgreSQL on Railway.
 GitHub: henriquemeireles7. Email: hsameireles@gmail.com.
 
+## Two Workflows
+
+### Workflow 1: Coding (feature development)
+```
+JTBD → PRD → TASKS → CODE → REVIEW → SHIP
+d-jtbd  d-prd  d-tasks  d-code  d-review  /ship
+```
+`/autocode` runs the full pipeline. JTBD + PRD are interactive. Tasks/Code/Review are automatic.
+
+### Workflow 2: Writing (strategy docs + content)
+```
+META → INPUT → DOCS → WRITE
+d-meta  d-input  d-plan  d-write
+```
+`/autodocs` runs the full pipeline. Input is interactive. d-write puts deliverables in content/.
+
 ## Skill routing
 When the user's request matches an available skill, ALWAYS invoke it using the Skill
 tool as your FIRST action.
@@ -238,7 +255,12 @@ Key routing rules:
 - Strategy document template → invoke d-meta
 - Brain dump, capture thinking → invoke d-input
 - Write strategy document → invoke d-plan
-- Full document pipeline → invoke d-auto
+- Full document pipeline → invoke autodocs
 - Transform document into tasks → invoke d-tasks
 - Code from beads tasks → invoke d-code
 - Deep code review, fresh eyes, check quality → invoke d-review
+- Security hardening, production ready, is this secure → invoke d-harden
+- Write content from strategy docs → invoke d-write
+- JTBD, validate demand, what to build → invoke d-jtbd
+- PRD, product requirements → invoke d-prd
+- Full coding pipeline end-to-end → invoke autocode

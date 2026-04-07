@@ -21,9 +21,8 @@ d-meta → d-input → d-docs → d-tasks → d-code → **d-review** → /ship
 ## Before Starting
 1. Read root CLAUDE.md (build order, rules)
 2. Read `decisions/coding.md` (dependency rules, security, performance, content layer)
-3. Read `decisions/hardening.md` (known issues, prior audit findings)
-4. Run `bun run check` — get a baseline (includes harden-check.ts)
-5. Run `git diff --stat` — understand the scope of changes
+3. Run `bun run check` — get a baseline (does it even pass?)
+4. Run `git diff --stat` — understand the scope of changes
 
 ## Review Methodology: Fresh Eyes + Structured Checks
 
@@ -57,30 +56,21 @@ Read `decisions/coding.md` dependency rules, then verify:
 - Env vars added before they're referenced
 - Tests exist alongside implementation files
 
-### Phase 3: Security Check (delegates to d-harden phases 2-4)
-Run the mechanical hardening check first:
-```sh
-bun platform/scripts/harden-check.ts
-```
-If errors found, fix them before continuing.
+### Phase 3: Security Check
+Reference: `decisions/coding.md` Security Patterns
 
-Then apply judgment-level checks from d-harden phases 2-4:
-- [ ] All user input validated via Zod (`@hono/zod-validator`) — schema completeness, not just presence
+- [ ] All user input validated via Zod (`@hono/zod-validator`)
 - [ ] No `process.env` usage outside `platform/env.ts`
 - [ ] No stack traces returned in error responses
 - [ ] No sensitive data logged (passwords, tokens, card numbers)
+- [ ] Wins Board content rendered as plain text (no markdown/HTML parsing)
+- [ ] Rate limiting on public endpoints (auth, wins submission)
 - [ ] Auth middleware on protected routes (`requireAuth`)
 - [ ] Permission checks where needed (`requirePermission`)
-- [ ] IDOR check: can user A access user B's data by changing IDs?
 - [ ] No SQL injection (all queries through Drizzle ORM)
 - [ ] XSS test: `<script>alert(1)</script>` renders escaped in user-content areas
-- [ ] Stripe webhook signature verified before processing
-- [ ] Payment amounts validated server-side (not from client)
-- [ ] Rate limiting on public endpoints (auth, checkout)
 
-Reference: `decisions/coding.md` Security Patterns + `decisions/hardening.md` for known issues.
-
-### Phase 4: Performance Check (delegates to d-harden phase 5)
+### Phase 4: Performance Check
 Reference: `decisions/coding.md` Performance Patterns
 
 - [ ] No N+1 queries (use Drizzle relational queries for joins)
@@ -89,8 +79,6 @@ Reference: `decisions/coding.md` Performance Patterns
 - [ ] Content loaded from in-memory Map, not per-request file I/O
 - [ ] No blocking operations in request handlers
 - [ ] Pagination for list endpoints (not unbounded queries)
-- [ ] Indexes exist for queried columns (check schema.ts)
-- [ ] fetch() calls have timeouts
 
 ### Phase 5: TDD Check
 Reference: `decisions/coding.md` TDD Methodology
