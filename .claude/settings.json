@@ -6,6 +6,10 @@
           {
             "command": "bun run .claude/hooks/warn-console-log.ts",
             "type": "command"
+          },
+          {
+            "command": "bun run .claude/hooks/harden-gate.ts",
+            "type": "command"
           }
         ],
         "matcher": "Write|Edit"

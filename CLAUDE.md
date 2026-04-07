@@ -76,7 +76,7 @@ The auto-generated footer (Files, Internal Dependencies) is added by the Stop ho
 - Route chains must be connected (for AppRoutes type inference)
 
 ## Commands
-- bun run check — lint + typecheck + test (run before every commit)
+- bun run check — lint + typecheck + harden-check + test (run before every commit)
 - bun run dev — start dev server (hot reload)
 - bun test — run tests
 - bun run lint — fix lint + format issues
@@ -109,6 +109,7 @@ Read the files that match your task. Read as many as needed:
 - Roadmap, priorities, "what's next" → decisions/roadmap.md
 - Content for end users (copy, courses, emails) → decisions/voice.md
 - Coding (features, platform, providers) → decisions/coding.md
+- Security & hardening baseline → decisions/hardening.md
 - Visual/UI/CSS/components → decisions/design.md
 - Deploy, CI/CD, infrastructure → decisions/deploy.md
 - Life Decisions product (B2C) → decisions/lifedecisions.md
@@ -258,6 +259,7 @@ Key routing rules:
 - Transform document into tasks → invoke d-tasks
 - Code from beads tasks → invoke d-code
 - Deep code review, fresh eyes, check quality → invoke d-review
+- Security hardening, production ready, is this secure → invoke d-harden
 - Write content from strategy docs → invoke d-write
 - JTBD, validate demand, what to build → invoke d-jtbd
 - PRD, product requirements → invoke d-prd

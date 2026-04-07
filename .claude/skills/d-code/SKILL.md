@@ -151,8 +151,16 @@ If ANY check fails:
    ```
 5. Repeat until ALL checks pass — NEVER close a bead with failing checks
 
-### Step 8: Fresh Eyes Self-Review (Agent Flywheel)
-After implementing, BEFORE closing, do a fresh eyes review:
+### Step 8: Harden + Fresh Eyes Review
+After implementing, BEFORE closing:
+
+**8a. Quick hardening check on changed files:**
+```sh
+bun platform/scripts/harden-check.ts
+```
+If errors found, fix them. If warnings, note them but proceed.
+
+**8b. Fresh eyes self-review (Agent Flywheel):**
 1. Read over ALL new/modified code with "fresh eyes" looking for obvious bugs
 2. Check: Are edge cases covered (empty inputs, concurrent access, error paths, boundaries)?
 3. Check: Are similar issues lurking elsewhere in the codebase?
