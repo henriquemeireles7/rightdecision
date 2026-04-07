@@ -15,6 +15,13 @@
       "when": 1775551375716,
       "tag": "0001_great_killraven",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1775598861134,
+      "tag": "0002_nappy_bloodscream",
+      "breakpoints": true
     }
   ]
 }
