@@ -82,3 +82,4 @@ Before finishing, reread all content against voice.md:
 - Status is always "draft" — human reviews before "published"
 - Content is MDX format (.mdx extension)
 - Practical classes must reference the specific AI skill by name
+- After saving, auto-commit and push all changed files. These are non-code docs — they can't break anything.

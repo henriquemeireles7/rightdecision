@@ -48,3 +48,4 @@ Example: `/d-auto methodology` or `/d-auto course outline`
 - Between phases, announce: "Phase 1 complete. Starting Phase 2: capturing your thinking."
 - Founder's exact words are sacred. Never clean up, rephrase, or make them sound smarter.
 - After completion, suggest `/d-tasks` if the document contains implementable work.
+- After saving, auto-commit and push all changed files. These are non-code docs — they can't break anything.

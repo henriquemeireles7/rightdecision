@@ -39,6 +39,7 @@ NEVER ask:
 - Founder's exact words matter. Don't clean up, don't rephrase, don't make it sound smart. Capture raw.
 - Input.md is the PRIMARY source for d-plan. This file IS the document's soul.
 - After saving, suggest: "Run /d-plan to write the [document name] using this input"
+- After saving, auto-commit and push all changed files. These are non-code docs — they can't break anything.
 
 ## Input.md format
 

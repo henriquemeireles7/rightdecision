@@ -35,3 +35,4 @@ When input.md contains information that contradicts earlier documents (previous 
 - Write for the implementer: if they'd need to ask "what did you mean?", it's not specific enough
 - After saving, list any earlier documents that may need updating based on new decisions
 - Suggest: "Run /d-tasks to extract implementable tasks" (only if the document contains buildable work)
+- After saving, auto-commit and push all changed files. These are non-code docs — they can't break anything.

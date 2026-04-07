@@ -23,3 +23,4 @@ Pipeline: **d-meta** (structure) → **d-input** (founder brain dump) → **d-pl
 - ONE question per AskUserQuestion. Always include (recommended) on best option.
 - Meta defines STRUCTURE only. Content comes from d-input.
 - After saving, suggest: "Run /d-input to capture your thinking for this document"
+- After saving, auto-commit and push all changed files. These are non-code docs — they can't break anything.
