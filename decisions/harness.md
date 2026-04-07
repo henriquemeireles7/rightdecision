@@ -58,18 +58,24 @@ Our Claude skills follow a pattern that becomes the product delivery mechanism:
 - Skills are atomic — no dependencies on other skills
 - Skills use the meta → input → document pattern
 
-## d-tasks Methodology Bridge
+## d-tasks / d-code Methodology Bridge (Beads)
 
-The gap between strategy docs and executable code:
+The gap between strategy docs and executable code, powered by beads (`br` CLI):
 ```
-document.md → d-tasks → tasks.md → agent picks up task → codes it
+document.md → d-tasks → beads issues (with deps) → d-code → agent implements from bd ready
 ```
 
-Each task in `tasks.md` should be:
-- Atomic (one agent session can complete it)
-- Reference the DSA build order step it's in
-- Reference which files to create/modify
-- Reference which decision docs to read for context
+**d-tasks** transforms a document into beads:
+- Creates an epic with all tasks as children
+- 3-5 passes: extract → fill gaps → dependency audit → adversarial review → enrichment
+- Each bead is self-describing: new agent can code it cold from `bd show <id>` alone
+- Beads include: file paths, imports, recipes, test cases, acceptance criteria
+
+**d-code** implements beads:
+- Loop: `bd ready → pick → implement (TDD) → verify (tests + tsc + biome) → bd close → repeat`
+- Fix loop: if any check fails, fix and re-run ALL checks before closing
+- Creates sub-beads if implementation reveals missing tasks
+- Final quality gate when all beads closed → suggests `/review` before `/ship`
 
 **Key principle:** Harness patterns are defined BEFORE AI codes, not extracted after. The harness IS the patterns.
 
@@ -125,3 +131,6 @@ If contradictions exist between universal files, folder CLAUDE.md, or strategy d
 | 2026-04-06 | Skills-as-product architecture | Each methodology step = one Claude skill, same meta → input → doc pattern |
 | 2026-04-06 | Harness patterns before code | Define methodology BEFORE AI codes, not after |
 | 2026-04-06 | d-tasks bridge | Gap between strategy docs and executable coding tasks |
+| 2026-04-07 | Beads for task tracking | Queryable dependency graph replaces markdown tasks — agents use bd ready |
+| 2026-04-07 | d-code skill | Implements beads with TDD + fix loop + quality gate → review → ship |
+| 2026-04-07 | TDD Methodology in coding.md | Red/Green/Refactor cycle documented with test structure template |

@@ -135,11 +135,22 @@ If you find contradictions between universal files, folder CLAUDE.md, or strateg
 4. Update the wrong file immediately so the contradiction is gone.
 Never leave contradictions unresolved — they compound into bigger problems.
 
+## Beads (Task Tracking)
+All coding tasks are tracked as beads issues (`br` CLI). Beads replaces markdown task files with a queryable dependency graph.
+- Tasks live in `.beads/` (SQLite + JSONL). JSONL is committed to git.
+- `brready` — shows tasks with no uncompleted dependencies (what to work on next)
+- `brshow <id>` — full context for a task
+- `brclose <id>` — mark done after implementation + tests pass
+- Workflow: `brready → pick task → code → test → bd close → repeat`
+- NEVER skip dependencies — if `brready` returns nothing, blocked tasks need their deps completed first
+- Strategy docs become beads via d-tasks skill: `document.md → d-tasks → beads issues`
+- Coding from beads via d-code skill: `brready → implement → verify → close`
+
 ## Decisions Folder (Strategy Documents)
 All strategy documents live in decisions/. See decisions/roadmap.md for current priorities.
 Full document index: decisions/00-general/document.md
-Document pipeline: d-meta (design template) → d-input (capture thinking) → d-plan (write document).
-Methodology: Meta → Draft → Document. Each phase catches problems before the next.
+Document pipeline: d-meta → d-input → d-plan → d-tasks (beads) → d-code (implement).
+Methodology: Meta → Draft → Document → Tasks → Code. Each phase catches problems before the next.
 
 ## Deployment
 Railway. Dockerfile deploy. PostgreSQL on Railway.
@@ -161,3 +172,5 @@ Key routing rules:
 - Brain dump, capture thinking → invoke d-input
 - Write strategy document → invoke d-plan
 - Full document pipeline → invoke d-auto
+- Transform document into tasks → invoke d-tasks
+- Code from beads tasks → invoke d-code
