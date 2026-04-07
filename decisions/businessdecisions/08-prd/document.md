@@ -1,3 +1,4 @@
+<!-- /autoplan restore point: /Users/henriquemeireles/.gstack/projects/henriquemeireles7-getzeny/henriquemeireles7-d-harden-skill-autoplan-restore-20260407-014719.md -->
 # Product Requirements Document — Business Decisions V1 (Phase 1)
 **Version:** 1.0
 **Date:** 2026-04-07
@@ -722,3 +723,39 @@ P0 features (F1-F7) are non-negotiable. Without them, there's no pipeline.
 ---
 
 **Next step:** Run `/d-tasks` to transform this PRD into executable beads tasks. Phase 1 features (F1-F14) become individual beads with dependencies matching the build sequence.
+
+---
+
+## /autoplan Review — Decision Audit Trail
+
+| # | Phase | Decision | Classification | Principle | Rationale | Rejected |
+|---|-------|----------|---------------|-----------|-----------|----------|
+| 1 | CEO | Mode: SELECTIVE EXPANSION | Mechanical | P3 | Plan is Phase 1 dogfooding, hold scope but cherry-pick improvements | N/A |
+| 2 | CEO | Accept filesystem-first arch with migration criteria | Taste | P5 | Simpler for Phase 1 but both voices flag concurrency risk. SQLite alternative viable. | SQLite-first |
+| 3 | CEO | Add Week 0 validation sprint before building | Mechanical | P6 | Both voices agree: validate OpusClip + content quality before 6 weeks of code | N/A |
+| 4 | CEO | Start with 3-5 accounts, not 13 | Taste | P3 | Both voices recommend narrower scope. Power-law distribution likely. | 13-account launch |
+| 5 | CEO | Elevate F8/F9 analytics to P0 | Taste | P1 | Feedback loop is the product, not just distribution volume | Keep as P1 |
+| 6 | CEO | Add build-vs-buy analysis for F5 auto-poster | Mechanical | P4 | Both voices flag: Buffer/SocialBee do 80% for $30/mo. Custom 5-API integration is highest-risk feature. | N/A |
+| 7 | Eng | Pick single source of truth (filesystem OR database) | Mechanical | P5 | Both voices flag dual-state as consistency timebomb. Database = read-only projection of filesystem. | N/A |
+| 8 | Eng | Use per-run manifest files or SQLite instead of single manifest.json | Mechanical | P5 | Concurrent writes will corrupt a single JSON file. Both voices agree. | N/A |
+| 9 | Eng | Define clip identity as (runId + timestamp range), not file hash | Mechanical | P5 | File hash breaks on re-encoding. Logical identity is deterministic. | N/A |
+| 10 | Eng | Add unique constraint on posts(clipId, platformAccountId) | Mechanical | P1 | Defense in depth. Application dedup + DB constraint. | N/A |
+| 11 | Eng | Validate OpusClip API exists BEFORE build starts | Mechanical | P6 | If no API, the 6-week timeline is invalid. This is a prerequisite, not Week 1. | N/A |
+| 12 | Eng | Break F5 into F5a-F5e (one per platform) | Mechanical | P5 | 5 different API auth flows, rate limits, upload mechanisms. Not one feature. | N/A |
+| 13 | Eng | Add test strategy section to PRD | Mechanical | P1 | Zero test plan for a pipeline with 5 external integrations. Must define mocking strategy. | N/A |
+| 14 | Eng | Separate BD credentials from LD web server env | Mechanical | P5 | Blast radius: LD vulnerability exposes all social media tokens. Separate env namespaces. | N/A |
+| 15 | Eng | Add rate limit analysis per platform | Mechanical | P1 | YouTube quota (10K units/day, 1600/upload = ~6/day). 30 clips/day to YouTube is impossible. | N/A |
+| 16 | Eng | Add "stable file" pattern for input watcher | Mechanical | P5 | Partial file upload if watcher triggers mid-copy of 2GB MP4. | N/A |
+| 17 | Eng | Add external heartbeat for health monitor | Mechanical | P1 | "Who watches the watchmen?" If Bun crashes, hourly check stops silently. | N/A |
+
+## GSTACK REVIEW REPORT
+
+| Review | Trigger | Why | Runs | Status | Findings |
+|--------|---------|-----|------|--------|----------|
+| CEO Review | `/plan-ceo-review` | Scope & strategy | 1 | issues_open | 8 findings (2 critical, 4 high, 2 medium) |
+| Codex Review (CEO) | `codex exec` | Independent strategy challenge | 1 | issues_open | 5 strategic blind spots flagged |
+| Eng Review | `/plan-eng-review` | Architecture & tests | 1 | issues_open | 17 findings (7 high, 7 medium, 3 low) |
+| Codex Review (Eng) | `codex exec` | Architecture challenge | 1 | issues_open | 3 critical architecture risks confirmed |
+| Design Review | `/plan-design-review` | UI/UX gaps | 0 | skipped | No UI scope (agent-first, no dashboard) |
+
+**VERDICT:** REVIEWED WITH ISSUES — 17 auto-decisions applied. 3 taste decisions + 0 user challenges surfaced at approval gate. Fix architectural HIGHs before converting to tasks.

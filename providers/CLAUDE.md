@@ -10,6 +10,9 @@ Thin wrappers around external services. One file per capability, named by WHAT i
 - Providers are the ONLY place that imports vendor SDKs (Stripe, Resend, etc.)
 - Features import from `providers/` — NEVER import vendor SDKs directly in `features/`
 - When swapping vendors, only the provider file changes — the interface stays the same
+- ALWAYS throw ProviderError on failure — NEVER let raw SDK/HTTP errors leak to features
+- ProviderError shape: `{ provider: string, operation: string, statusCode: number, rawResponse: unknown }`
+- Feature layer catches ProviderError and maps to the appropriate throwError() code
 
 ## payments.ts (Stripe)
 - Docs: https://docs.stripe.com/api
@@ -33,16 +36,38 @@ import type { PlanId } from '@/providers/payments'
 import { sendEmail } from '@/providers/email'
 ```
 
+## ProviderError Pattern
+All BD pipeline providers throw ProviderError instead of raw SDK errors:
+```ts
+export class ProviderError extends Error {
+  constructor(
+    public provider: string,
+    public operation: string,
+    public statusCode: number,
+    public rawResponse: unknown,
+  ) {
+    super(`${provider}.${operation} failed (${statusCode})`)
+    this.name = 'ProviderError'
+  }
+}
+```
+Export ProviderError from `providers/errors.ts`. Features catch it and map to throwError() codes.
+
 ## Recipe: New Provider
 ```ts
 // providers/capability-name.ts (named by WHAT, not WHO)
 import { env } from '@/platform/env'
+import { ProviderError } from '@/providers/errors'
 
 const client = new VendorSDK(env.VENDOR_API_KEY)
 export { client as capabilityName }
 
 export async function doThing(params: Params) {
-  return client.method(params)
+  try {
+    return await client.method(params)
+  } catch (error) {
+    throw new ProviderError('capability', 'doThing', 500, error)
+  }
 }
 ```
 Then: add env var to `platform/env.ts`, add provider section to this CLAUDE.md.

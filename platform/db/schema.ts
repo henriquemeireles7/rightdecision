@@ -1,4 +1,4 @@
-import { boolean, integer, jsonb, pgTable, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core'
+import { boolean, index, integer, jsonb, pgTable, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core'
 
 // ─── Users ───
 export const users = pgTable('users', {
@@ -159,3 +159,165 @@ export const bookmarks = pgTable(
   },
   (table) => [uniqueIndex('bookmarks_user_class_idx').on(table.userId, table.classId)],
 )
+
+// ═══════════════════════════════════════════════════════════
+// BD Pipeline Tables (Business Decisions Phase 1)
+// ═══════════════════════════════════════════════════════════
+
+// ─── Platform Accounts (BD: social media account configuration) ───
+export const platformAccounts = pgTable('platform_accounts', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  platform: text('platform', {
+    enum: ['tiktok', 'instagram', 'facebook', 'x', 'youtube', 'threads', 'linkedin', 'pinterest', 'reddit', 'bluesky'],
+  }).notNull(),
+  accountHandle: text('account_handle').notNull(),
+  accountType: text('account_type', { enum: ['brand', 'personal'] }).notNull(),
+  uploadPostProfileId: text('upload_post_profile_id'),
+  postingSchedule: jsonb('posting_schedule').$type<{ times: string[] }>(),
+  charLimit: integer('char_limit'),
+  hashtagLimit: integer('hashtag_limit'),
+  isActive: boolean('is_active').notNull().default(true),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+})
+
+// ─── Pipeline Runs (BD: episode processing state machine) ───
+export const pipelineRuns = pgTable(
+  'pipeline_runs',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    inputVideoUrl: text('input_video_url').notNull(),
+    inputVideoSize: integer('input_video_size'),
+    durationSeconds: integer('duration_seconds'),
+    category: text('category'),
+    status: text('status', {
+      enum: [
+        'queued', 'transcribing', 'transcribed', 'selecting', 'selected',
+        'awaiting_clip_approval', 'cutting', 'cut', 'generating_metadata',
+        'metadata_ready', 'awaiting_metadata_approval', 'posting',
+        'posted', 'analyzing', 'completed', 'failed',
+      ],
+    }).notNull().default('queued'),
+    stepFailedAt: text('step_failed_at'),
+    errorMessage: text('error_message'),
+    transcript: text('transcript'),
+    config: jsonb('config').$type<{
+      autoApproveClips?: boolean
+      autoApproveMetadata?: boolean
+      maxClipsPerEpisode?: number
+      clipScoreThreshold?: number
+      targetPlatforms?: string[]
+      schedulingMode?: 'immediate' | 'scheduled'
+    }>(),
+    clipsGenerated: integer('clips_generated').notNull().default(0),
+    clipsApproved: integer('clips_approved').notNull().default(0),
+    clipsPosted: integer('clips_posted').notNull().default(0),
+    clipsFailed: integer('clips_failed').notNull().default(0),
+    startedAt: timestamp('started_at'),
+    completedAt: timestamp('completed_at'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  },
+  (table) => [
+    index('idx_runs_status').on(table.status),
+    index('idx_runs_created').on(table.createdAt),
+  ],
+)
+
+// ─── Clips (BD: individual video clips extracted from episodes) ───
+export const clips = pgTable(
+  'clips',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    pipelineRunId: uuid('pipeline_run_id')
+      .notNull()
+      .references(() => pipelineRuns.id, { onDelete: 'cascade' }),
+    sourceTimestampStart: integer('source_timestamp_start').notNull(),
+    sourceTimestampEnd: integer('source_timestamp_end').notNull(),
+    duration: integer('duration').notNull(),
+    score: integer('score'),
+    suggestedTitle: text('suggested_title'),
+    transcriptSnippet: text('transcript_snippet'),
+    storageUrl: text('storage_url'),
+    approved: boolean('approved').notNull().default(false),
+    cutStatus: text('cut_status', { enum: ['pending', 'cutting', 'cut', 'failed'] })
+      .notNull()
+      .default('pending'),
+    platformFit: text('platform_fit').array(),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  },
+  (table) => [
+    index('idx_clips_pipeline_run').on(table.pipelineRunId),
+    index('idx_clips_approved').on(table.pipelineRunId, table.approved),
+  ],
+)
+
+// ─── Posts (BD: individual social media posts per clip per account) ───
+export const posts = pgTable(
+  'posts',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    clipId: uuid('clip_id')
+      .notNull()
+      .references(() => clips.id, { onDelete: 'cascade' }),
+    platformAccountId: uuid('platform_account_id')
+      .notNull()
+      .references(() => platformAccounts.id),
+    platformName: text('platform_name'),
+    uploadPostId: text('upload_post_id'),
+    uploadPostResponse: jsonb('upload_post_response'),
+    description: text('description'),
+    hashtags: text('hashtags').array(),
+    cta: text('cta'),
+    status: text('status', { enum: ['scheduled', 'posted', 'failed', 'retrying', 'deleted'] })
+      .notNull()
+      .default('scheduled'),
+    scheduledAt: timestamp('scheduled_at'),
+    postedAt: timestamp('posted_at'),
+    failureReason: text('failure_reason'),
+    retryCount: integer('retry_count').notNull().default(0),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('idx_posts_clip_account').on(table.clipId, table.platformAccountId),
+    index('idx_posts_clip').on(table.clipId),
+    index('idx_posts_status').on(table.status),
+  ],
+)
+
+// ─── Post Analytics (BD: engagement metric snapshots, immutable) ───
+export const postAnalytics = pgTable(
+  'post_analytics',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    postId: uuid('post_id')
+      .notNull()
+      .references(() => posts.id, { onDelete: 'cascade' }),
+    snapshotAt: timestamp('snapshot_at').notNull().defaultNow(),
+    views: integer('views').notNull().default(0),
+    likes: integer('likes').notNull().default(0),
+    comments: integer('comments').notNull().default(0),
+    shares: integer('shares').notNull().default(0),
+    saves: integer('saves').notNull().default(0),
+    impressions: integer('impressions').notNull().default(0),
+    reach: integer('reach').notNull().default(0),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+  },
+  (table) => [
+    index('idx_analytics_post').on(table.postId),
+    index('idx_analytics_snapshot').on(table.snapshotAt),
+  ],
+)
+
+// ─── Insights (BD: AI-generated actionable recommendations) ───
+export const insights = pgTable('insights', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  dateRangeStart: timestamp('date_range_start').notNull(),
+  dateRangeEnd: timestamp('date_range_end').notNull(),
+  recommendation: text('recommendation').notNull(),
+  supportingData: jsonb('supporting_data'),
+  actedOn: boolean('acted_on').notNull().default(false),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+})
