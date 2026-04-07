@@ -11,9 +11,6 @@ dist/
 # keep example
 !.env.example
 
-# bun
-bun.lock
-
 # misc
 *.tsbuildinfo
 coverage/
@@ -22,3 +19,6 @@ coverage/
 
 # beads (SQLite is local, JSONL is committed)
 .beads/beads.db
+
+# bv (beads viewer) local config and caches
+.bv/
