@@ -9,6 +9,12 @@
 - **GitHub:** henriquemeireles7
 - **Email:** hsameireles@gmail.com
 
+## Subdomain Strategy
+- `therightdecision.com` — Main website (brand, pricing page, both products)
+- `app.therightdecision.com` — Course platform (Life Decisions + Business Decisions)
+- `api.therightdecision.com` — Automation APIs (Business Decisions)
+- All served from same Railway deployment, route-based separation
+
 ## Environment Variables
 All env vars flow through `platform/env.ts` via `@t3-oss/env-core` + Zod validation.
 Build crashes if env vars are missing or invalid. Never use `process.env` directly.
@@ -38,6 +44,18 @@ bun run db:seed      # Seed dev data (dev only)
 bun run db:studio    # Open Drizzle Studio for inspection
 ```
 
+## Deploy Anti-patterns
+- Deploying without running `bun run check` first
+- Manual database migrations on production — automate in deploy pipeline
+- Storing secrets in `.env` files committed to git — use Railway dashboard
+- Running `bun run dev` on production — always use the built Dockerfile
+- Skipping health check verification after deploy
+- Creating separate Railway services before the monolith needs splitting
+- Using preview environments without verifying env var parity
+- Force-pushing to main branch — always use PRs with CI green
+- Deploying on Fridays without monitoring in place
+
 ## Domain Setup
 - Primary: therightdecision.com (TBD)
-- Ops/internal: ops.therightdecision.com (future)
+- App: app.therightdecision.com (course platform)
+- API: api.therightdecision.com (Business Decisions automation)

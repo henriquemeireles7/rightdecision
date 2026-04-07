@@ -8,11 +8,20 @@
 **Pipeline:** d-meta → d-input → d-plan (here) → d-tasks
 
 ## Document scope
-**This document IS:** Every section of the sales page with copy, structure, and implementation specs.
-**This document is NOT:** A design mockup. Not a traffic strategy. Not a VSL script.
+**This document IS:** Every section of the Life Decisions sales page with copy, structure, and implementation specs.
+**This document is NOT:** A design mockup. Not a traffic strategy. Not a VSL script. Not the Business Decisions landing page.
 **Primary reader:** Henry (builds the page), copywriters (refine), AI agents (implement)
-**Depends on:** Manifesto (doc #2), Business Model (doc #1), Course Outline (doc #4)
+**Depends on:** Manifesto (doc #2), Business Model (doc #1), Course Outline (lifedecisions/04-course-outline)
 **Feeds into:** VSL (doc #6), paid traffic strategy (doc #21)
+
+## Copy Reference — Updated Positioning (2026-04-06)
+This landing page sells **Life Decisions** specifically (not the full brand). Key copy updates:
+- **Main message:** "Life transformation through action, not introspection"
+- **AI angle:** "The main cause behind not making decisions is complexity — AI helps you have clarity"
+- **Skills framing:** Each exercise uses a Claude skill that guides you through questions and saves structured output
+- **Free course hook:** Simplified methodology available free — this page sells the full version
+- **Personas:** Speaks to Persona 1 (stuck achiever, woman 30-50) and Persona 2 (overthinker, man 25-40)
+- **Not mentioned on this page:** Business Decisions tier ($1,997) — that has its own landing page
 
 ---
 
@@ -63,6 +72,12 @@
 
 > One more book. One more course. One more therapist. One more practice.
 
+> And here's the thing — you're not doing nothing. You're doing everything. Therapy, courses, journaling, meditation. You're doing the work. You feel productive. You feel like you're getting somewhere.
+
+> Until a life event shows you that you're in the exact same place.
+
+> So you find the next thing. Start with enthusiasm. Do the practice. Feel improvement. Then reality hits again. You're in a loop. You've been in it for years. Each cycle feels different because the solution is different. But the pattern is identical: consume, process, feel better, get hit by life, repeat.
+
 > Nothing changes.
 
 **The price anchor (planted here, paid off in Section 8):**
@@ -93,18 +108,26 @@
 
 > That question is uncomfortable. Which is exactly why nobody asks it.
 
-**The mechanism (simple version):**
+**Why the loop never ends:**
+> Every self-help program you've tried does the same thing: it helps you practice. Practice understanding. Practice processing. Practice reflecting. But practice is not the same as deciding. And deciding is not the same as doing.
+
+> The loop has three failure points. No existing solution addresses all three:
+> 1. **You work on everything instead of the ONE thing that matters.** General improvement feels productive but changes nothing.
+> 2. **You plan without committing.** Beautiful intentions without a date and a witness.
+> 3. **You commit without a system to follow through.** Motivation fades. Willpower fails. Tuesday happens.
+
+**The mechanism:**
 > The Right Decision is built on one idea: **you are stuck because you're not making decisions, not because you lack understanding.**
 
-> The methodology works in three phases:
+> Three mechanisms break three failure points:
 
 > **See Clearly.** Map where you actually are (facts, not stories) and where you want to be (conditions, not metrics). Find the ONE thing in the way.
 
 > **Decide.** Name it. Commit to it. Tell someone. Set a date. Not a wish. Not a plan. A decision with a deadline and a witness.
 
-> **Move.** Break the decision into daily actions. Do one thing per day. The AI helps you decompose YOUR goal into YOUR specific decisions based on YOUR starting point.
+> **Move.** Break the decision into daily actions. Do one thing per day. Each step has an AI skill that guides you — asking deeper questions than you'd ask yourself and saving structured output to your personal decision folder.
 
-> The same goal requires completely different decisions for different people. The AI asks questions about YOUR life to find YOUR path.
+> The same goal requires completely different decisions for different people. The AI asks questions about YOUR life to find YOUR path. Not a chatbot. Not generic prompts. A structured skill that follows the methodology, personalized to your situation.
 
 **CTA:** Start for $197/year →
 
@@ -141,7 +164,7 @@
 
 > This is not a course you binge on a Sunday and forget by Wednesday.
 
-> It's a 3-month system. Two hours a week. Each module ends with a practice that produces a real document about YOUR life, YOUR decisions, YOUR plan.
+> It's a 3-month system. Two hours a week. Each module ends with an AI-guided exercise — you run a skill, answer questions in your own words, and get a structured document about YOUR life, YOUR decisions, YOUR plan saved to your personal folder.
 
 **Act I: See Clearly (Month 1)**
 
@@ -167,7 +190,7 @@
 | 8. What Reality Tells You | Weekly 15-minute reviews. Adjust or persist based on real data. |
 | 9. Resolution + Next Loop | Close the cycle. Start the next one. Each loop is faster. |
 
-> **By the end:** 9 documents in your AI project folder. A complete record of your decision, your plan, and your results. Proof that you can do this.
+> **By the end:** 10 documents in your personal decision folder — including your win story. A complete record of your decision, your plan, your results, and your victory. Proof that you can do this. And AI skills you can run again for your next decision cycle.
 
 **CTA:** Start the course →
 
@@ -199,7 +222,7 @@
 
 ### What we can show on Day 1
 
-> *(Post-launch: replace this section with real customer results and testimonials.)*
+> *(Post-launch: replace with the Wins Board — real customer victories, anonymized, categorized by life area. The Wins Board IS the testimonial system: real decisions, real constraints, real results, written by real people. Until then, use founder stories.)*
 
 > **Launch version copy:**
 
@@ -226,16 +249,17 @@
 > What you get:
 
 > - ✓ 9-module course (~23 hours, 3 months at 2h/week)
-> - ✓ 9 AI prompt templates that decompose YOUR goals into YOUR decisions
+> - ✓ 9 AI-powered Claude skills — one per exercise, guiding you through each step of the methodology
 > - ✓ 9 practical exercises that produce YOUR documents (State Map, Decision Statement, One-Page Plan, and more)
 > - ✓ Weekly review framework for ongoing decision-making
-> - ✓ Access to all future course updates and new modules
-> - ✓ Your complete decision archive in your AI project folder
+> - ✓ Access to all future course updates, new modules, and skill updates
+> - ✓ Your complete decision archive saved on your computer — you own your data
+> - ✓ AI setup class: we walk you through installing Claude Cowork and our skills (no tech knowledge needed)
 
 > What you DON'T get (and why):
 
 > - ✗ No live coaching or calls — because we don't want you dependent on us
-> - ✗ No community — because this is YOUR work, not a group activity
+> - ✗ No traditional community or forums — but a Wins Board where you can share your victories anonymously and cheer others on (coming soon)
 > - ✗ No "motivation" — because motivation is not the problem. Decisions are.
 
 ### The price in context
@@ -284,8 +308,11 @@
 > **What if I don't finish?**
 > You'll make your first decision in Week 1, Module 1. Finishing isn't the goal. Deciding is. But the full 3-month structure is designed to take you through one complete cycle.
 
-> **Do I need ChatGPT or Claude?**
-> The practical exercises include AI prompts you paste into ChatGPT or Claude (free versions work). The AI sharpens your answers — it doesn't replace your thinking.
+> **Do I need AI tools?**
+> Yes — the practical exercises use Claude Cowork (free to start) with our custom skills installed. We walk you through setup in the intro class. No tech knowledge needed. The AI guides you through questions and saves structured output — it sharpens your answers, it doesn't replace your thinking.
+
+> **What are "AI skills"?**
+> Each exercise IS an AI skill — think of it as a guided conversation that produces a real document. You run the skill, it asks you questions, you answer in your own words, it asks follow-ups to go deeper, and it saves a structured document to your personal folder. You do the thinking. The AI does the structuring. By the end of the course, you have 10 documents that tell the complete story of your decision — including your win story.
 
 > **What happens after the year?**
 > You renew at the same price. Or you don't — and you keep the methodology, the system, and all 9 documents you created. The Right Decision succeeds when you stop needing it.
@@ -408,3 +435,6 @@ Sections 4 (Transformation), 7 (Social Proof), 9 (Disqualification) are BELOW th
 | 2026-04-04 | 4 headline variants for testing | Different hooks for different awareness levels | Pick winner after 1000 visitors |
 | 2026-04-04 | Mobile: price + guarantee moved up | ICP decides on phone. Price anxiety must be addressed in first 3 screens. | Track mobile vs desktop conversion rates |
 | 2026-04-04 | No hero image | Text loads faster. The words do the work. | If bounce rate >70%, test with image |
+| 2026-04-06 | Added eternal self-help loop to Problem section | JTBD: the loop is the most powerful conversion message — she recognizes the pattern, not just the pain | If the longer problem section hurts conversion, A/B test shorter version |
+| 2026-04-06 | Three failure points in Mechanism section | JTBD: three mechanisms breaking three specific failure points is the structural-difference message | If readers don't connect failure points to mechanisms, simplify |
+| 2026-04-06 | Wins Board replaces "No community" in offer | JTBD: anonymous victories serve retention, social proof, and methodology simultaneously | Remove "coming soon" once Wins Board ships |

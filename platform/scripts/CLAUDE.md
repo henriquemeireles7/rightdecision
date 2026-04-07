@@ -1,18 +1,35 @@
 # scripts
 
 ## Purpose
-Utility scripts — migrations, seeds, one-time tasks.
+CLI utilities run with `bun run`. Migrations, seeds, one-time tasks.
 
+## Critical Rules
+- Scripts are standalone — import from `platform/` but NEVER from `features/`
+- ALWAYS call `process.exit(0)` on success, `process.exit(1)` on failure
+- NEVER commit scripts that modify production data — seeds are dev-only
+- `generate-context-files.ts` is the CLAUDE.md footer generator — changes here affect all context files
 
-## Must-Read Context
-Before working in this folder, read:
-- decisions/coding.md — data flow, API contracts, patterns
+## Recipe: New Script
+```ts
+import { db } from '@/platform/db/client'
 
-## Additional Context
-- decisions/deploy.md — for migration and seed scripts
+async function main() {
+  // ... script logic ...
+  console.log('Done.')
+  process.exit(0)
+}
 
-## Rules
-- Follow the project-wide rules in the root CLAUDE.md.
+main().catch((err) => {
+  console.error(err)
+  process.exit(1)
+})
+```
+Run with: `bun run platform/scripts/my-script.ts`
+
+## Verify
+```sh
+bunx tsc --noEmit platform/scripts/*.ts
+```
 
 ---
 <!-- AUTO-GENERATED BELOW — do not edit manually -->

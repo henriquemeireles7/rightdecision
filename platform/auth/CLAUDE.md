@@ -1,18 +1,27 @@
 # auth
 
 ## Purpose
-Authentication and authorization — Better Auth setup, permissions, session handling.
+Better Auth integration. Session management, role-based permissions (free/pro/admin).
 
+## Critical Rules
+- ALWAYS use `requireAuth` middleware for protected routes — never check auth inline
+- ALWAYS use `requirePermission()` for role-gated routes — never check roles manually
+- Roles are exactly 3: `free`, `pro`, `admin`. Permissions are additive (admin does NOT inherit pro permissions)
+- Auth routes mount at `/api/auth/*` and delegate to Better Auth handler — do not add custom routes here
+- Session: 30-day expiry, daily refresh. Do not change without explicit approval.
+- NEVER access `session.user.role` directly in route handlers — use `c.get('user').role` after `requireAuth`
 
-## Must-Read Context
-Before working in this folder, read:
-- decisions/coding.md — data flow, API contracts, patterns
+## Imports (use from other modules)
+```ts
+import { requireAuth } from '@/platform/auth/middleware'
+import { requirePermission } from '@/platform/auth/permissions'
+import type { Role } from '@/platform/auth/permissions'
+```
 
-## Additional Context
-- decisions/company.md — for permission logic and roles
-
-## Rules
-- Follow the project-wide rules in the root CLAUDE.md.
+## Verify
+```sh
+bun test platform/auth/
+```
 
 ---
 <!-- AUTO-GENERATED BELOW — do not edit manually -->

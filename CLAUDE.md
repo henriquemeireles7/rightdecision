@@ -12,9 +12,37 @@ For full context read decisions/company.md. For brand voice read decisions/voice
 
 ## Context Files (nested CLAUDE.md)
 Every code folder has a CLAUDE.md that Claude Code auto-loads when working in that directory.
-Each has a human-authored header (purpose, rules) and an auto-generated footer (files, exports, deps).
+Each has a human-authored header (purpose, rules, imports, recipe) and an auto-generated footer (files, exports, deps).
 The footer is refreshed automatically by a Stop hook whenever code in the folder changes.
-If creating a new folder, create its CLAUDE.md FIRST with at least the purpose section.
+
+When creating a new folder, create its CLAUDE.md FIRST using this template:
+```markdown
+# {folder-name}
+
+## Purpose
+{1-2 sentences: WHAT this does + WHY it matters architecturally}
+
+## Critical Rules
+- NEVER {most common mistake in this domain}
+- ALWAYS {pattern that prevents the biggest class of errors}
+- {3-5 more domain-specific NEVER/ALWAYS rules}
+
+## Imports (use from other modules)
+\```ts
+import { myExport } from '@/this-module/file'
+\```
+
+## Recipe: New {most common operation}
+\```ts
+// minimal skeleton showing the correct shape
+\```
+
+## Verify
+\```sh
+{exact command to verify changes in this module}
+\```
+```
+The auto-generated footer (Files, Internal Dependencies) is added by the Stop hook.
 
 ## Build Order (NEVER skip steps)
 1. Write/update folder CLAUDE.md
@@ -83,11 +111,11 @@ Read the files that match your task. Read as many as needed:
 - Coding (features, platform, providers) → decisions/coding.md
 - Visual/UI/CSS/components → decisions/design.md
 - Deploy, CI/CD, infrastructure → decisions/deploy.md
-- Internal tools, automation, ops → decisions/ops.md
+- Life Decisions product (B2C) → decisions/lifedecisions.md
+- Business Decisions product (B2B) → decisions/businessdecisions.md
 - Improving the AI harness → decisions/harness.md
 
-Each folder's CLAUDE.md has a "Must-Read Context" section listing which files to read
-BEFORE working in that folder. Always check it first.
+Each folder's CLAUDE.md has Critical Rules, Import Maps, and Recipes specific to that module.
 
 ## Design System
 Always read decisions/design.md before making any visual or UI decisions.
@@ -107,11 +135,22 @@ If you find contradictions between universal files, folder CLAUDE.md, or strateg
 4. Update the wrong file immediately so the contradiction is gone.
 Never leave contradictions unresolved — they compound into bigger problems.
 
+## Beads (Task Tracking)
+All coding tasks are tracked as beads issues (`br` CLI). Beads replaces markdown task files with a queryable dependency graph.
+- Tasks live in `.beads/` (SQLite + JSONL). JSONL is committed to git.
+- `brready` — shows tasks with no uncompleted dependencies (what to work on next)
+- `brshow <id>` — full context for a task
+- `brclose <id>` — mark done after implementation + tests pass
+- Workflow: `brready → pick task → code → test → bd close → repeat`
+- NEVER skip dependencies — if `brready` returns nothing, blocked tasks need their deps completed first
+- Strategy docs become beads via d-tasks skill: `document.md → d-tasks → beads issues`
+- Coding from beads via d-code skill: `brready → implement → verify → close`
+
 ## Decisions Folder (Strategy Documents)
 All strategy documents live in decisions/. See decisions/roadmap.md for current priorities.
 Full document index: decisions/00-general/document.md
-Document pipeline: d-meta (design template) → d-input (capture thinking) → d-plan (write document).
-Methodology: Meta → Draft → Document. Each phase catches problems before the next.
+Document pipeline: d-meta → d-input → d-plan → d-tasks (beads) → d-code (implement).
+Methodology: Meta → Draft → Document → Tasks → Code. Each phase catches problems before the next.
 
 ## Deployment
 Railway. Dockerfile deploy. PostgreSQL on Railway.
@@ -133,3 +172,5 @@ Key routing rules:
 - Brain dump, capture thinking → invoke d-input
 - Write strategy document → invoke d-plan
 - Full document pipeline → invoke d-auto
+- Transform document into tasks → invoke d-tasks
+- Code from beads tasks → invoke d-code

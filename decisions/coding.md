@@ -43,6 +43,61 @@ Types flow from ONE source. Never define types manually — infer from Zod/Drizz
 - Tests MUST fail first (TDD)
 - No abstraction until 3rd duplication (applies to test helpers too)
 
+## TDD Methodology
+The Build Order enforces TDD: step 5 (write tests) comes BEFORE step 6 (write code).
+
+### The Cycle: Red → Green → Refactor
+1. **Red:** Write the test first. It MUST fail. If it passes, the test is wrong.
+2. **Green:** Write the minimum code to make the test pass. No more.
+3. **Refactor:** Clean up while tests stay green. Extract only if 3rd duplication.
+
+### What to Test
+- Test BEHAVIOR, not implementation. "When I call X with Y, I get Z."
+- Test the public API of each module, not internal helpers.
+- Test error paths: what happens with bad input, missing auth, locked lessons?
+- Test edge cases: empty arrays, null values, boundary conditions.
+
+### Test Structure
+```ts
+import { describe, it, expect } from 'bun:test'
+
+describe('featureName', () => {
+  it('should do the expected thing', () => {
+    const result = myFunction(input)
+    expect(result).toEqual(expected)
+  })
+
+  it('should throw on invalid input', () => {
+    expect(() => myFunction(badInput)).toThrow()
+  })
+})
+```
+
+### Coverage Verification
+Run `bun test --coverage` to verify 100% coverage. No exceptions.
+
+## Hono Core Patterns
+- Use `Hono` factory with typed environment (`AppEnv`)
+- Chain routes with `.route()` for full type inference
+- Use `c.var` for typed middleware context (auth user, permissions)
+- Return `c.html()` for SSR pages, `success()`/`paginated()` for API
+- Middleware chain: auth → permissions → handler (clean separation)
+- Use `hono/client` RPC for type-safe frontend API calls
+
+## Railway Deployment Patterns
+- Single Dockerfile with Bun image — lightweight, fast builds
+- PostgreSQL on same Railway project — zero network hop
+- Environment variables through Railway dashboard → `platform/env.ts`
+- Health check endpoint for Railway's built-in monitoring
+- Database migrations run on deploy (not manually)
+
+## Claude Code / Conductor Patterns
+- Every folder with code has a CLAUDE.md (auto-loaded per directory)
+- Nested CLAUDE.md has human-authored header + auto-generated footer
+- Skills are one file each, self-contained, with clear triggers
+- Use Conductor workspaces for parallel agent work on different tasks
+- Hooks batch quality checks at Stop, not per-edit
+
 ## Key Utilities
 | File | What |
 |------|------|

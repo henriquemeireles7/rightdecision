@@ -35,34 +35,57 @@ This file (`general.md`) is the **living summary** of the entire decisions/ know
 3. **Raw material** (`input.md`, `raw.md`, podcast transcripts) = immutable. New files are added, never edited.
 
 **Current status (2026-04-06):**
-- Docs 1-5: COMPLETE (business model, manifesto, methodology, course outline, landing page)
+- Docs 1-5: COMPLETE (business model v2, manifesto, methodology, course outline, landing page)
 - Doc 6 (VSL): DEFERRED — needs podcast recordings first
 - Docs 7-9: COMPLETE (social media setup, short-video viral strategy, knowledge base strategy)
-- **Next:** Build landing page (from doc #5 spec) → build product → record first podcast → run MVP pipeline → automate → v1 launch
+- **Business model expanded to v3:** Two products (Life Decisions + Business Decisions). Input captured, document pending d-plan.
+- **Folder restructured:** Product-specific docs moved into `lifedecisions/` and `businessdecisions/` subfolders.
+- **JTBD complete (2026-04-06):** Jobs-to-be-Done analysis for Life Decisions software (doc #7)
+- **PRD complete (2026-04-06):** Product Requirements Document for Life Decisions V1 (doc #8). Key decisions: two-app architecture (web + Claude Cowork), interactive onboarding as methodology introduction, Wins Board in V1 (simplified), decision primitive deferred, free mini-course in V1.
+- **Next:** Build Life Decisions landing page → build V1 (web app + AI skills) → record first podcast → v1 launch
 
-**Key decisions from docs 7-9:**
-- 13 social accounts launch simultaneously (AI-first content for brand, human→AI for personal)
-- Custom Bun/TypeScript pipeline (no n8n/Make.com), $500/month tool budget
-- Podcast transcripts in `decisions/podcasts/{type}/` (general, vsl, the3acts, course)
-- general.md = living summary. document.md = static. Raw material = immutable.
-- AI content disclosed on all platforms (transparency is on-brand)
-- Dark channel niche TBD (criteria defined, selection deferred)
-- KB automation deferred to harness workflow (manual updates for now)
+**Key decisions (2026-04-06 restructure):**
+- Two products: Life Decisions ($197/yr) + Business Decisions ($1,997/yr)
+- Three personas: Stuck Achiever, Overthinker, Drowning Builder
+- Skills as product: one Claude skill per methodology exercise
+- Agent-first architecture for Business Decisions (APIs + skills, not SaaS dashboard)
+- Free course funnel for lead generation on both products
+- Wins Board replaces traditional community (anonymous victories, win-oriented retention)
+- Exercise = AI skill interaction (thinking-first, structuring-second — no separate docx step)
+- `lifedecisions.md` and `businessdecisions.md` replace `ops.md` as universal reference files
+- Product-specific docs (methodology, course, landing page) split into product subfolders
 
 ---
 
 ## Document Index
 
-### Week 1 — Product 1: Course
+### Shared Documents (decisions/ root)
 
-| # | Document | Description |
-|---|----------|-------------|
-| 1 | Business Model | One-page canvas — who we sell to, what we sell, at what price, through what channel, how money flows. |
-| 2 | Manifesto | Copy framework — The Right Decision as the primitive, the seven angles, the mechanism, the principles. |
-| 3 | Methodology | Deep framework — every step gets explanation, exact questions, common mistakes, worked example, and output. |
-| 4 | Course Outline | Modules, lessons, formats, exercises, transformation arc. |
-| 5 | Landing Page | Headline, problem, mechanism, offer stack, price, guarantee, FAQ, CTA, plus implementation specs. |
-| 6 | Video Sales Letter | **DEFERRED** — needs podcast recordings first. Word-for-word script — hook, problem, failed solutions, mechanism, proof, offer, close. |
+| # | Document | Location | Description |
+|---|----------|----------|-------------|
+| 1 | Business Model | `01-business-model/` | Two products, three personas, pricing, distribution, revenue model. v3 in progress. |
+| 2 | Manifesto | `02-manifesto/` | Copy framework — The Right Decision as the primitive, seven angles, mechanism, principles. |
+| 6 | Video Sales Letter | TBD | **DEFERRED** — needs podcast recordings first. |
+
+### Life Decisions Documents (decisions/lifedecisions/)
+
+| # | Document | Location | Description |
+|---|----------|----------|-------------|
+| 3 | Methodology | `lifedecisions/03-methodology/` | Life-specific decision methodology. Each step maps to a Claude skill. |
+| 4 | Course Outline | `lifedecisions/04-course-outline/` | 3 acts, 9 modules, AI skills intro class, ~23.5 hours. |
+| 5 | Landing Page | `lifedecisions/05-landing-page/` | Life Decisions sales page — copy, structure, implementation specs. |
+| 6L | Free Course Funnel | `lifedecisions/06-free-course-funnel/` | NOT STARTED — simplified methodology as lead gen. Included in V1 scope per PRD. |
+| 7L | Jobs-to-be-Done | `lifedecisions/07-jobs-to-be-done/` | JTBD analysis for Life Decisions software. Three segments, forces of progress, job map, outcome statements. |
+| 8L | Product Requirements | `lifedecisions/08-prd/` | PRD for V1. Two-app architecture, interactive onboarding, Wins Board V1, 6-week build plan. |
+
+### Business Decisions Documents (decisions/businessdecisions/)
+
+| # | Document | Location | Description |
+|---|----------|----------|-------------|
+| 3B | Methodology | `businessdecisions/03-methodology/` | NOT STARTED — business-specific decision methodology. |
+| 4B | Course Outline | `businessdecisions/04-course-outline/` | NOT STARTED — business course + vibe coding bonus. |
+| 5B | Landing Page | `businessdecisions/05-landing-page/` | NOT STARTED — Business Decisions sales page. |
+| 6B | Free Course Funnel | `businessdecisions/06-free-course-funnel/` | NOT STARTED — business simplified methodology as lead gen. |
 
 ### Week 2 — Distribution 1: Organic
 

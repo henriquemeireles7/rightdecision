@@ -19,3 +19,6 @@ bun.lock
 coverage/
 .context/
 .gstack/
+
+# beads (SQLite is local, JSONL is committed)
+.beads/beads.db

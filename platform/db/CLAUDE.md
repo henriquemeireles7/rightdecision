@@ -1,18 +1,39 @@
 # db
 
 ## Purpose
-Database layer — Drizzle schema, migrations, connection.
+Drizzle ORM + PostgreSQL. Single schema file, postgres-js driver, migration system.
 
+## Critical Rules
+- ALL tables go in `schema.ts` — NEVER define tables in feature folders
+- ALWAYS use `uuid('id').defaultRandom().primaryKey()` for primary keys
+- ALWAYS add `createdAt` and `updatedAt` timestamps to new tables
+- ALWAYS use `.references(() => parentTable.id, { onDelete: 'cascade' })` for foreign keys
+- After schema changes: `bun run db:generate` then `bun run db:migrate` — NEVER edit migration files manually
+- Use Drizzle query builder — NEVER raw SQL unless performance-critical
+- Better Auth tables (users, sessions, accounts, verifications) are managed by Better Auth — do not modify their structure
 
-## Must-Read Context
-Before working in this folder, read:
-- decisions/coding.md — data flow, API contracts, patterns
+## Imports (use from other modules)
+```ts
+import { db } from '@/platform/db/client'
+import { users, purchases, courseProgress } from '@/platform/db/schema'
+```
 
-## Additional Context
-- decisions/deploy.md — for migration workflow
+## Recipe: New Table
+Add to `platform/db/schema.ts`:
+```ts
+export const myTable = pgTable('my_table', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  // ... columns ...
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+})
+```
+Then run: `bun run db:generate && bun run db:migrate`
 
-## Rules
-- Follow the project-wide rules in the root CLAUDE.md.
+## Verify
+```sh
+bunx tsc --noEmit platform/db/schema.ts
+```
 
 ---
 <!-- AUTO-GENERATED BELOW — do not edit manually -->
