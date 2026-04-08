@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
 import { getCookie, setCookie } from 'hono/cookie'
+import { buildOrganizationSchema, buildProductSchema, renderJsonLd } from '@/features/(shared)/website/seo'
 import { env } from '@/platform/env'
 import { renderPage } from '@/platform/server/render'
 import { LandingPage } from './landing'
@@ -30,13 +31,21 @@ landingRoutes.get('/', (c) => {
     sameSite: 'Lax',
   })
 
+  const baseUrl = env.PUBLIC_APP_URL
+  const jsonLd = [
+    renderJsonLd(buildProductSchema(baseUrl)),
+    renderJsonLd(buildOrganizationSchema(baseUrl)),
+  ].join('\n')
+
   return c.html(
     renderPage(<LandingPage variant={finalVariant} />, {
       title: 'The Right Decision — Life Decisions Course',
       description:
         'A methodology + AI that turns stuck goals into clear decisions. $197/year. 7-day guarantee.',
+      ogImage: `${baseUrl}/og/why-we-built-the-right-decision.png`,
+      canonical: `${baseUrl}/life`,
       posthogKey: env.PUBLIC_POSTHOG_KEY,
       posthogHost: env.POSTHOG_HOST,
-    }),
+    }).replace('</head>', `${jsonLd}\n</head>`),
   )
 })

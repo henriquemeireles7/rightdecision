@@ -1,5 +1,6 @@
 import { join } from 'node:path'
 import { Hono } from 'hono'
+import { env } from '@/platform/env'
 import { renderPage } from '@/platform/server/render'
 import { getContentFile, listContentFiles } from '@/providers/markdown'
 import { ConceptIndex } from './concept-index'
@@ -7,7 +8,6 @@ import { ConceptPage } from './concept-page'
 import { buildArticleSchema, buildBreadcrumbSchema, buildFaqSchema, renderJsonLd } from './seo'
 
 const CONCEPTS_DIR = join(import.meta.dir, '../../../content/concepts')
-const BASE_URL = 'https://rightdecisions.io'
 
 export const conceptRoutes = new Hono()
 
@@ -20,8 +20,8 @@ conceptRoutes.get('/', async (c) => {
   )
 
   const breadcrumb = buildBreadcrumbSchema([
-    { name: 'Home', url: `${BASE_URL}/` },
-    { name: 'Concepts', url: `${BASE_URL}/concepts` },
+    { name: 'Home', url: `${env.PUBLIC_APP_URL}/` },
+    { name: 'Concepts', url: `${env.PUBLIC_APP_URL}/concepts` },
   ])
 
   return c.html(
@@ -29,7 +29,7 @@ conceptRoutes.get('/', async (c) => {
       title: 'Concepts — The Right Decision',
       description:
         'Key decision-making concepts explained with practical steps. Analysis paralysis, decision fatigue, feeling stuck, and more.',
-      canonical: `${BASE_URL}/concepts`,
+      canonical: `${env.PUBLIC_APP_URL}/concepts`,
     }).replace('</head>', `${renderJsonLd(breadcrumb)}\n</head>`),
   )
 })
@@ -55,20 +55,21 @@ conceptRoutes.get('/:slug', async (c) => {
     description: fm.description as string,
     author: 'henry',
     datePublished: (fm.date as string) ?? '2026-04-07',
-    url: `${BASE_URL}/concepts/${slug}`,
+    url: `${env.PUBLIC_APP_URL}/concepts/${slug}`,
+    baseUrl: env.PUBLIC_APP_URL,
   })
 
   const definedTermSchema = {
     '@type': 'DefinedTerm' as const,
     name: fm.title as string,
     description: firstParagraph,
-    url: `${BASE_URL}/concepts/${slug}`,
+    url: `${env.PUBLIC_APP_URL}/concepts/${slug}`,
   }
 
   const breadcrumb = buildBreadcrumbSchema([
-    { name: 'Home', url: `${BASE_URL}/` },
-    { name: 'Concepts', url: `${BASE_URL}/concepts` },
-    { name: fm.title as string, url: `${BASE_URL}/concepts/${slug}` },
+    { name: 'Home', url: `${env.PUBLIC_APP_URL}/` },
+    { name: 'Concepts', url: `${env.PUBLIC_APP_URL}/concepts` },
+    { name: fm.title as string, url: `${env.PUBLIC_APP_URL}/concepts/${slug}` },
   ])
 
   let jsonLd = renderJsonLd(articleSchema)
@@ -89,8 +90,10 @@ conceptRoutes.get('/:slug', async (c) => {
       {
         title: `${fm.title as string} — The Right Decision`,
         description: fm.description as string,
-        // ogImage: deferred until lyon-3tt.12 (OG image generation)
-        canonical: `${BASE_URL}/concepts/${slug}`,
+        keywords: (fm.keywords as string[]) ?? [],
+        ogImage: `${env.PUBLIC_APP_URL}/og/${slug}.png`,
+        ogType: 'article',
+        canonical: `${env.PUBLIC_APP_URL}/concepts/${slug}`,
       },
     ).replace('</head>', `${jsonLd}\n</head>`),
   )

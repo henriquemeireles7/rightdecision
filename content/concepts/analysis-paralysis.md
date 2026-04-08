@@ -60,3 +60,7 @@ Breaking analysis paralysis isn't about being reckless. It's about having a syst
 The reward is in the doing, not in the deciding. Every day you wake up and do the thing, you're already better than yesterday. Clarity doesn't come before action. It comes after.
 
 If analysis paralysis is keeping you stuck, the problem isn't that you need more information. The problem is that you need [one decision](/concepts/how-to-make-big-life-decisions). The right one. And then the discipline to execute it.
+
+---
+
+*Ready to stop analyzing and start deciding? [The Right Decision](/life) gives you a methodology + AI to make the one decision that changes everything.*

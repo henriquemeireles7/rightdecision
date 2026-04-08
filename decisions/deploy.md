@@ -26,6 +26,10 @@ Required vars (see `.env.example`):
 - `STRIPE_WEBHOOK_SECRET` — webhook verification
 - `RESEND_API_KEY` — transactional email
 
+Optional SEO vars:
+- `INDEXNOW_KEY` — IndexNow protocol key for instant search engine notification
+- `GOOGLE_SERVICE_ACCOUNT_JSON` — GCP service account for Search Console API
+
 ## Config-as-Code (`railway.toml`)
 All build and deploy settings are version-controlled in `railway.toml` at the repo root.
 Code config **always overrides** Railway dashboard settings.
@@ -57,6 +61,12 @@ GitHub Actions: `biome ci` → `tsc --noEmit` → `bun test` → `bun run build`
 3. Railway auto-deploys from main branch
 4. Verify health endpoint
 5. Check database migrations ran
+6. `bun run indexnow` — notify search engines of new/changed URLs
+
+## SEO Scripts
+- `bun run indexnow` — Submit new URLs to Bing/Yandex via IndexNow protocol
+- `bun run freshness` — Report content older than 90 days (GEO citation decay)
+- `bun run content:check` — Validate content quality (word count, keywords, links, FAQ)
 
 ## Database Migrations
 ```bash

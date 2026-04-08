@@ -19,7 +19,11 @@
     "db:generate": "bun drizzle-kit generate",
     "db:migrate": "bun platform/scripts/migrate.ts",
     "db:seed": "bun platform/scripts/seed.ts",
-    "db:studio": "bun drizzle-kit studio"
+    "db:studio": "bun drizzle-kit studio",
+    "indexnow": "bun scripts/post-deploy-indexnow.ts",
+    "freshness": "bun scripts/freshness.ts",
+    "content:check": "bun scripts/content-quality.ts",
+    "seo-health": "bun scripts/seo-health.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.10",
@@ -42,6 +46,7 @@
     "drizzle-zod": "^0.8.3",
     "gray-matter": "^4.0.3",
     "hono": "^4.12.10",
+    "jose": "^6.2.2",
     "marked": "^18.0.0",
     "postgres": "^3.4.8",
     "posthog-js": "^1.365.1",

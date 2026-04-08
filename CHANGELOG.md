@@ -33,6 +33,36 @@ All notable changes to this project will be documented in this file.
 - Unbounded queries: added LIMIT to getUserDecisions (200) and getReadingStats (500)
 - Share card cache: LRU eviction at 500 entries, fetch timeouts on font loading
 
+## [0.1.5.0] - 2026-04-08
+
+### Added
+- Complete SEO/GEO foundation from Doc 11 strategy (25 beads implemented)
+- JSON-LD structured data on all page types: Organization, WebSite, Article, FAQPage, DefinedTerm, Product, Person, BreadcrumbList
+- Programmatic OG image generation at /og/:slug.png (satori + resvg, cream bg, gold footer, Instrument Serif)
+- IndexNow provider for instant search engine notification + post-deploy submission script
+- Google Search Console API provider with JWT auth for indexing status and analytics
+- Self-hosted Instrument Serif + Sans fonts (removed Google Fonts CDN dependency)
+- Content freshness tracker (bun run freshness), quality validator (bun run content:check), SEO health dashboard (bun run seo-health)
+- New concept page: "What Is a Life Coach?" (~1,800 words, 5 FAQ pairs, internal links)
+- /life CTA added to all 7 existing concept pages
+
+### Changed
+- Replaced hardcoded BASE_URL with env.PUBLIC_APP_URL across 5 route files + seo.ts schema builders
+- Moved JSON-LD from hidden body divs to `<head>` injection on homepage and about page
+- Blog/concept pages now render og:type=article, keywords meta tag, and og:image pointing to /og/:slug.png
+- Added ogType + twitter:image + twitter:card support to render.tsx
+- Organization schema now includes logo field
+- Person schema includes description + sameAs (ready for LinkedIn/Crunchbase)
+
+### Fixed
+- OG image route param parsing (Hono treats :slug.png as single param)
+- Satori font format (woff2 not supported, switched to TTF for OG generation)
+- Added AbortSignal.timeout to all fetch calls in indexnow.ts and search-console.ts
+- Token cache invalidation on 401 in Search Console provider
+- JSON parse safety for corrupted IndexNow submission log
+- CSS formatting for @font-face unicode-range (biome compliance)
+- Two test files asserting Google Fonts CDN (updated for self-hosted fonts)
+
 ## [0.1.4.1] - 2026-04-08
 
 ### Fixed

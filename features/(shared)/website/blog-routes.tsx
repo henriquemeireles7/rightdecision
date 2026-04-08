@@ -1,5 +1,6 @@
 import { join } from 'node:path'
 import { Hono } from 'hono'
+import { env } from '@/platform/env'
 import { renderPage } from '@/platform/server/render'
 import { getContentFile, listContentFiles } from '@/providers/markdown'
 import { BlogIndex } from './blog-index'
@@ -8,7 +9,6 @@ import { buildArticleSchema, buildBreadcrumbSchema, renderJsonLd } from './seo'
 
 const BLOG_DIR = join(import.meta.dir, '../../../content/blog')
 const PER_PAGE = 10
-const BASE_URL = 'https://rightdecisions.io'
 
 export const blogRoutes = new Hono()
 
@@ -27,8 +27,8 @@ blogRoutes.get('/', async (c) => {
   const paginated = posts.slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE)
 
   const breadcrumb = buildBreadcrumbSchema([
-    { name: 'Home', url: `${BASE_URL}/` },
-    { name: 'Blog', url: `${BASE_URL}/blog` },
+    { name: 'Home', url: `${env.PUBLIC_APP_URL}/` },
+    { name: 'Blog', url: `${env.PUBLIC_APP_URL}/blog` },
   ])
 
   return c.html(
@@ -43,7 +43,7 @@ blogRoutes.get('/', async (c) => {
         title: 'Blog — The Right Decision',
         description:
           'Essays on decision-making, getting unstuck, and why self-help keeps you stuck.',
-        canonical: `${BASE_URL}/blog${cluster ? `?cluster=${cluster}` : ''}${page > 1 ? `${cluster ? '&' : '?'}page=${page}` : ''}`,
+        canonical: `${env.PUBLIC_APP_URL}/blog${cluster ? `?cluster=${cluster}` : ''}${page > 1 ? `${cluster ? '&' : '?'}page=${page}` : ''}`,
       },
     ).replace('</head>', `${renderJsonLd(breadcrumb)}\n</head>`),
   )
@@ -64,13 +64,14 @@ blogRoutes.get('/:slug', async (c) => {
     author: fm.author as string,
     datePublished: fm.date as string,
     dateModified: (fm.updated as string) ?? (fm.date as string),
-    url: `${BASE_URL}/blog/${slug}`,
+    url: `${env.PUBLIC_APP_URL}/blog/${slug}`,
+    baseUrl: env.PUBLIC_APP_URL,
   })
 
   const breadcrumb = buildBreadcrumbSchema([
-    { name: 'Home', url: `${BASE_URL}/` },
-    { name: 'Blog', url: `${BASE_URL}/blog` },
-    { name: fm.title as string, url: `${BASE_URL}/blog/${slug}` },
+    { name: 'Home', url: `${env.PUBLIC_APP_URL}/` },
+    { name: 'Blog', url: `${env.PUBLIC_APP_URL}/blog` },
+    { name: fm.title as string, url: `${env.PUBLIC_APP_URL}/blog/${slug}` },
   ])
 
   return c.html(
@@ -86,8 +87,10 @@ blogRoutes.get('/:slug', async (c) => {
       {
         title: `${fm.title as string} — The Right Decision`,
         description: fm.description as string,
-        // ogImage: deferred until lyon-3tt.12 (OG image generation)
-        canonical: `${BASE_URL}/blog/${slug}`,
+        keywords: (fm.keywords as string[]) ?? [],
+        ogImage: `${env.PUBLIC_APP_URL}/og/${slug}.png`,
+        ogType: 'article',
+        canonical: `${env.PUBLIC_APP_URL}/blog/${slug}`,
       },
     ).replace('</head>', `${renderJsonLd(articleSchema)}\n${renderJsonLd(breadcrumb)}\n</head>`),
   )

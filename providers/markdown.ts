@@ -65,6 +65,11 @@ const marked = new Marked({
       }
       return `<a href="${href}">${text}</a>`
     },
+    image({ href, title, text }) {
+      const alt = text ? ` alt="${text}"` : ' alt=""'
+      const titleAttr = title ? ` title="${title}"` : ''
+      return `<img src="${href}"${alt}${titleAttr} loading="lazy" />`
+    },
   },
 })
 

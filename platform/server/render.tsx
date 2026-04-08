@@ -6,7 +6,9 @@ interface PageOptions {
   description?: string
   ogImage?: string
   ogTitle?: string
+  ogType?: 'website' | 'article'
   canonical?: string
+  keywords?: string[]
   posthogKey?: string
   posthogHost?: string
 }
@@ -31,12 +33,12 @@ export function renderPage(component: VNode, options: PageOptions = {}): string 
   <meta name="description" content="${esc(desc)}" />
   <meta property="og:title" content="${esc(options.ogTitle || title)}" />
   <meta property="og:description" content="${esc(desc)}" />
-  ${options.ogImage ? `<meta property="og:image" content="${esc(options.ogImage)}" />` : ''}
-  <meta property="og:type" content="website" />
+  ${options.ogImage ? `<meta property="og:image" content="${esc(options.ogImage)}" />\n  <meta name="twitter:card" content="summary_large_image" />\n  <meta name="twitter:image" content="${esc(options.ogImage)}" />` : ''}
+  <meta property="og:type" content="${options.ogType ?? 'website'}" />
   ${options.canonical ? `<link rel="canonical" href="${esc(options.canonical)}" />` : ''}
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+  ${options.keywords?.length ? `<meta name="keywords" content="${esc(options.keywords.join(', '))}" />` : ''}
+  <link rel="preload" href="/fonts/InstrumentSerif-Regular.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/fonts/InstrumentSans-Regular.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body class="bg-cream text-ink font-body">

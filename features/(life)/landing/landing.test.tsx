@@ -95,10 +95,11 @@ describe('Landing Page', () => {
     expect(html).toContain('The only thing missing is the decision')
   })
 
-  test('contains Google Fonts link', () => {
+  test('preloads self-hosted fonts', () => {
     const html = renderLanding()
-    expect(html).toContain('fonts.googleapis.com')
-    expect(html).toContain('Instrument')
+    expect(html).not.toContain('fonts.googleapis.com')
+    expect(html).toContain('InstrumentSerif-Regular.woff2')
+    expect(html).toContain('InstrumentSans-Regular.woff2')
   })
 
   test('contains /styles.css link', () => {
