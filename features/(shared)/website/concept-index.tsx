@@ -12,8 +12,8 @@ export function ConceptIndex({ concepts }: ConceptIndexProps) {
         <div class="max-w-[800px] mx-auto px-md">
           <h1 class="font-display text-4xl text-ink mb-sm">Concepts</h1>
           <p class="text-secondary mb-xl">
-            Key ideas behind the Right Decision methodology. Each concept is explained with practical
-            steps and answers to common questions.
+            Key ideas behind the Right Decision methodology. Each concept is explained with
+            practical steps and answers to common questions.
           </p>
 
           {concepts.length === 0 ? (

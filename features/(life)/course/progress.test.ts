@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 import { getModule } from '@/providers/content'
+
 // getCurrentClass is pure (only uses content provider, no DB)
 // But it lives in progress.ts which imports db at module level
 // So we test the logic directly here

@@ -40,10 +40,7 @@ export async function createWin(userId: string, lifeArea: LifeArea, description:
 
 export async function getPublicFeed(lifeArea?: LifeArea, limit = 50, offset = 0) {
   // Count real (non-seed) wins
-  const [realCount] = await db
-    .select({ count: count() })
-    .from(wins)
-    .where(eq(wins.isSeed, false))
+  const [realCount] = await db.select({ count: count() }).from(wins).where(eq(wins.isSeed, false))
 
   const showSeeds = !realCount || realCount.count < 20
 

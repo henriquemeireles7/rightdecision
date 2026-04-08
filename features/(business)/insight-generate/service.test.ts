@@ -1,9 +1,11 @@
-import { describe, it, expect, mock, beforeEach } from 'bun:test'
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
 
 mock.module('@/platform/env', () => ({ env: { DATABASE_URL: 'postgres://test' } }))
 
 const mockSelectCount = mock(() => Promise.resolve([{ count: 100 }]))
-const mockInsertReturning = mock(() => Promise.resolve([{ id: 'insight-1', recommendation: 'Post more TikToks' }]))
+const mockInsertReturning = mock(() =>
+  Promise.resolve([{ id: 'insight-1', recommendation: 'Post more TikToks' }]),
+)
 const mockFindMany = mock(() => Promise.resolve([]))
 
 mock.module('@/platform/db/client', () => ({
@@ -15,6 +17,7 @@ mock.module('@/platform/db/client', () => ({
 }))
 
 import { mockSchema } from '@/features/(business)/test-helpers'
+
 mock.module('@/platform/db/schema', () => mockSchema())
 
 const { saveInsight, listInsights } = await import('./service')
@@ -24,7 +27,9 @@ describe('features/(business)/insight-generate/service', () => {
     mockSelectCount.mockReset()
     mockInsertReturning.mockReset()
     mockSelectCount.mockResolvedValue([{ count: 100 }] as never)
-    mockInsertReturning.mockResolvedValue([{ id: 'insight-1', recommendation: 'Post more TikToks' }] as never)
+    mockInsertReturning.mockResolvedValue([
+      { id: 'insight-1', recommendation: 'Post more TikToks' },
+    ] as never)
   })
 
   it('saves a valid insight', async () => {

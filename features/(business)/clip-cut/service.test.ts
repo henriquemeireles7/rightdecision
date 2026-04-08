@@ -1,4 +1,4 @@
-import { describe, it, expect, mock, beforeEach, spyOn } from 'bun:test'
+import { beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
 import { ProviderError } from '@/providers/errors'
 
 mock.module('@/platform/env', () => ({
@@ -19,7 +19,8 @@ mock.module('@/platform/db/client', () => ({
   },
 }))
 
-import { mockSchema, casResult } from '@/features/(business)/test-helpers'
+import { casResult, mockSchema } from '@/features/(business)/test-helpers'
+
 mock.module('@/platform/db/schema', () => mockSchema())
 
 // Don't mock state-machine — it's pure logic, no external deps
@@ -52,7 +53,9 @@ describe('features/(business)/clip-cut/service', () => {
 
   it('returns CLIP_CUT_NO_APPROVED_CLIPS when none approved', async () => {
     mockFindFirstRun.mockResolvedValueOnce({
-      id: 'run-1', status: 'selected', inputVideoUrl: 'https://r2.example.com/bucket/video.mp4',
+      id: 'run-1',
+      status: 'selected',
+      inputVideoUrl: 'https://r2.example.com/bucket/video.mp4',
     } as never)
     mockFindManyClips.mockResolvedValueOnce([] as never)
     const result = await cutClipsForRun('run-1')
@@ -61,10 +64,18 @@ describe('features/(business)/clip-cut/service', () => {
 
   it('returns CLIP_CUT_VIDEO_NOT_FOUND when source missing', async () => {
     mockFindFirstRun.mockResolvedValueOnce({
-      id: 'run-1', status: 'selected', inputVideoUrl: 'https://r2.example.com/bucket/video.mp4',
+      id: 'run-1',
+      status: 'selected',
+      inputVideoUrl: 'https://r2.example.com/bucket/video.mp4',
     } as never)
     mockFindManyClips.mockResolvedValueOnce([
-      { id: 'clip-1', pipelineRunId: 'run-1', sourceTimestampStart: 10, duration: 30, approved: true },
+      {
+        id: 'clip-1',
+        pipelineRunId: 'run-1',
+        sourceTimestampStart: 10,
+        duration: 30,
+        approved: true,
+      },
     ] as never)
     mockDownload.mockRejectedValueOnce(new ProviderError('r2', 'download', 404, 'not found'))
     const result = await cutClipsForRun('run-1')

@@ -24,5 +24,7 @@ bookmarkRoutes.post('/toggle', requireAuth, zValidator('json', bookmarkSchema), 
 bookmarkRoutes.get('/', requireAuth, async (c) => {
   const user = c.get('user')
   const bmarks = await getUserBookmarks(user.id)
-  return success(c, { bookmarks: bmarks.map((b) => ({ classId: b.classId, createdAt: b.createdAt })) })
+  return success(c, {
+    bookmarks: bmarks.map((b) => ({ classId: b.classId, createdAt: b.createdAt })),
+  })
 })

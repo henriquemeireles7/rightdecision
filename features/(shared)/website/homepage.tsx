@@ -1,14 +1,19 @@
 import { join } from 'node:path'
 import { listContentFiles, type ParsedContentItem } from '@/providers/markdown'
 import { Layout } from './layout'
-import { renderJsonLd, buildOrganizationSchema } from './seo'
+import { buildOrganizationSchema, renderJsonLd } from './seo'
 
 const BLOG_DIR = join(import.meta.dir, '../../../content/blog')
 const BASE_URL = 'https://rightdecisions.io'
 
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr.includes('T') ? dateStr : `${dateStr}T12:00:00Z`)
-  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })
+  return d.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    timeZone: 'UTC',
+  })
 }
 
 type HomepageProps = {
@@ -33,8 +38,8 @@ export function Homepage({ latestPosts }: HomepageProps) {
           </h1>
           <p class="text-secondary text-lg mb-sm max-w-[600px] mx-auto leading-relaxed">
             You've read the books, done the therapy, taken the courses. And you're still stuck. Not
-            because you're broken. Because you keep doing everything except the one thing that actually
-            changes your life: deciding.
+            because you're broken. Because you keep doing everything except the one thing that
+            actually changes your life: deciding.
           </p>
           <p class="text-secondary text-lg mb-xl max-w-[600px] mx-auto leading-relaxed">
             We're building AI that helps you make the right decision — and then do the thing.
@@ -60,9 +65,7 @@ export function Homepage({ latestPosts }: HomepageProps) {
                 A course + AI skills for personal life decisions. You learn the methodology, run the
                 skills, make the decisions that change your life.
               </p>
-              <span class="inline-block mt-md text-gold text-sm font-semibold">
-                Learn more →
-              </span>
+              <span class="inline-block mt-md text-gold text-sm font-semibold">Learn more →</span>
             </a>
 
             {/* Business Decisions — coming soon */}
@@ -118,7 +121,10 @@ export function Homepage({ latestPosts }: HomepageProps) {
                 </a>
               ))}
             </div>
-            <a href="/blog" class="inline-block mt-lg text-gold no-underline hover:underline font-medium">
+            <a
+              href="/blog"
+              class="inline-block mt-lg text-gold no-underline hover:underline font-medium"
+            >
               All articles →
             </a>
           </div>

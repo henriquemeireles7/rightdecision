@@ -1,5 +1,5 @@
-import { Hono } from 'hono'
 import { join } from 'node:path'
+import { Hono } from 'hono'
 import { renderPage } from '@/platform/server/render'
 import { getContentFile } from '@/providers/markdown'
 import { Layout } from './layout'
@@ -13,10 +13,7 @@ function LegalPage({ title, date, html }: { title: string; date: string; html: s
     <Layout>
       <article class="py-2xl">
         <div class="max-w-[800px] mx-auto px-md">
-          <div
-            class="prose prose-warm max-w-none"
-            dangerouslySetInnerHTML={{ __html: html }}
-          />
+          <div class="prose prose-warm max-w-none" dangerouslySetInnerHTML={{ __html: html }} />
         </div>
       </article>
     </Layout>

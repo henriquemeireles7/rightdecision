@@ -1,15 +1,21 @@
 import { Hono } from 'hono'
+import { serveStatic } from 'hono/bun'
 import { cors } from 'hono/cors'
 import { logger } from 'hono/logger'
-import { serveStatic } from 'hono/bun'
 import { env } from '@/platform/env'
-import { mountRoutes } from './routes'
 import { checkHealth } from './health'
+import { mountRoutes } from './routes'
 
 const app = new Hono()
 
 // Health checks — before middleware so they always respond
-app.get('/health', (c) => c.json({ status: 'ok', timestamp: new Date().toISOString(), uptime: Math.round(process.uptime()) }))
+app.get('/health', (c) =>
+  c.json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    uptime: Math.round(process.uptime()),
+  }),
+)
 app.get('/health/ready', async (c) => {
   const { httpStatus, body } = await checkHealth()
   return c.json(body, httpStatus as 200)

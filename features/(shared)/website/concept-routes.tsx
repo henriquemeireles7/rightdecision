@@ -1,10 +1,10 @@
-import { Hono } from 'hono'
 import { join } from 'node:path'
+import { Hono } from 'hono'
 import { renderPage } from '@/platform/server/render'
-import { listContentFiles, getContentFile } from '@/providers/markdown'
-import { renderJsonLd, buildArticleSchema, buildFaqSchema, buildBreadcrumbSchema } from './seo'
+import { getContentFile, listContentFiles } from '@/providers/markdown'
 import { ConceptIndex } from './concept-index'
 import { ConceptPage } from './concept-page'
+import { buildArticleSchema, buildBreadcrumbSchema, buildFaqSchema, renderJsonLd } from './seo'
 
 const CONCEPTS_DIR = join(import.meta.dir, '../../../content/concepts')
 const BASE_URL = 'https://rightdecisions.io'

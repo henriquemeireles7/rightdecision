@@ -1,6 +1,6 @@
+import { and, eq, sql } from 'drizzle-orm'
 import { db } from '@/platform/db/client'
-import { clips, pipelineRuns, posts } from '@/platform/db/schema'
-import { eq, and, sql } from 'drizzle-orm'
+import { clips, type pipelineRuns, posts } from '@/platform/db/schema'
 import type { PipelineStatus } from './state-machine'
 
 type PipelineRun = typeof pipelineRuns.$inferSelect
@@ -8,9 +8,7 @@ type PipelineRun = typeof pipelineRuns.$inferSelect
 export function assertStatus(run: PipelineRun, expected: PipelineStatus | PipelineStatus[]): void {
   const allowed = Array.isArray(expected) ? expected : [expected]
   if (!allowed.includes(run.status as PipelineStatus)) {
-    throw new PreconditionError(
-      `Expected status ${allowed.join(' or ')}, got ${run.status}`,
-    )
+    throw new PreconditionError(`Expected status ${allowed.join(' or ')}, got ${run.status}`)
   }
 }
 

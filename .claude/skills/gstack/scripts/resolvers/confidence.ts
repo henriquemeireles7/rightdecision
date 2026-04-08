@@ -7,7 +7,7 @@
  *   5-6: show with caveat
  *   <5: suppress from main report
  */
-import type { TemplateContext } from './types';
+import type { TemplateContext } from './types'
 
 export function generateConfidenceCalibration(_ctx: TemplateContext): string {
   return `## Confidence Calibration
@@ -33,5 +33,5 @@ Example:
 **Calibration learning:** If you report a finding with confidence < 7 and the user
 confirms it IS a real issue, that is a calibration event. Your initial confidence was
 too low. Log the corrected pattern as a learning so future reviews catch it with
-higher confidence.`;
+higher confidence.`
 }

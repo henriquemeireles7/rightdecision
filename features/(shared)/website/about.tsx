@@ -1,5 +1,5 @@
 import { Layout } from './layout'
-import { renderJsonLd, buildPersonSchema, buildBreadcrumbSchema } from './seo'
+import { buildBreadcrumbSchema, buildPersonSchema, renderJsonLd } from './seo'
 
 const BASE_URL = 'https://rightdecisions.io'
 
@@ -50,15 +50,15 @@ export function AboutPage() {
 
             <p class="text-secondary leading-relaxed mb-md">
               After a few weeks, clarity arrived. Not before the action. After. It was through doing
-              that everything became clear. The theories I had been juggling for months collapsed into
-              one insight: the decision was the thing. Not the information. Not the motivation. The
-              decision to do it, and then doing it.
+              that everything became clear. The theories I had been juggling for months collapsed
+              into one insight: the decision was the thing. Not the information. Not the motivation.
+              The decision to do it, and then doing it.
             </p>
 
             <p class="text-secondary leading-relaxed mb-md">
               I felt like maybe decision is the universal primitive of human beings. We are here to
-              make decisions. Depression and not making decisions are related. Anxiety and making bad
-              decisions are related. Everything in life could be linked to decisions.
+              make decisions. Depression and not making decisions are related. Anxiety and making
+              bad decisions are related. Everything in life could be linked to decisions.
             </p>
 
             <p class="text-secondary leading-relaxed">
@@ -90,9 +90,9 @@ export function AboutPage() {
             <h2 class="font-display text-2xl text-ink mb-lg">What We're Building</h2>
 
             <p class="text-secondary leading-relaxed mb-md">
-              We got tired of recommending other people's programs to our friends — and watching those
-              friends stay stuck. We were making other creators money while our friends stayed in the
-              same place.
+              We got tired of recommending other people's programs to our friends — and watching
+              those friends stay stuck. We were making other creators money while our friends stayed
+              in the same place.
             </p>
 
             <p class="text-secondary leading-relaxed mb-md">
@@ -123,10 +123,10 @@ export function AboutPage() {
 
             <p class="text-secondary leading-relaxed">
               The Right Decision is built on one idea: you are stuck because you're not making
-              decisions, not because you lack understanding. The methodology is a cycle: map where you
-              are, define where you want to be, find the one thing in the way, decide, decompose the
-              decision into daily actions, do the thing, re-evaluate. Each cycle is faster than the
-              last.
+              decisions, not because you lack understanding. The methodology is a cycle: map where
+              you are, define where you want to be, find the one thing in the way, decide, decompose
+              the decision into daily actions, do the thing, re-evaluate. Each cycle is faster than
+              the last.
             </p>
           </section>
         </div>

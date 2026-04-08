@@ -44,5 +44,7 @@ progressRoutes.get('/', requireAuth, async (c) => {
     orderBy: (cp, { asc }) => [asc(cp.completedAt)],
   })
 
-  return success(c, { completedClasses: progress.map((p) => ({ classId: p.classId, courseId: p.courseId })) })
+  return success(c, {
+    completedClasses: progress.map((p) => ({ classId: p.classId, courseId: p.courseId })),
+  })
 })

@@ -1,8 +1,8 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
-import { z } from 'zod'
 import matter from 'gray-matter'
 import { Marked } from 'marked'
+import { z } from 'zod'
 
 // ─── Zod Schemas ────────────────────────────────────────────────────────────
 
@@ -70,7 +70,10 @@ const marked = new Marked({
 
 // ─── Public API ─────────────────────────────────────────────────────────────
 
-export function parseFrontmatter(raw: string): { frontmatter: Record<string, unknown>; body: string } {
+export function parseFrontmatter(raw: string): {
+  frontmatter: Record<string, unknown>
+  body: string
+} {
   const parsed = matter(raw)
   if (!parsed.data || Object.keys(parsed.data).length === 0) {
     throw new Error('Missing frontmatter')
@@ -117,9 +120,7 @@ export async function listContentFiles(dir: string): Promise<ParsedContentItem[]
       if (frontmatter.status === 'draft') continue
       const slug = (frontmatter.slug as string) || file.replace('.md', '')
       items.push({ frontmatter: { ...frontmatter, slug }, slug })
-    } catch {
-      continue
-    }
+    } catch {}
   }
 
   items.sort((a, b) => {

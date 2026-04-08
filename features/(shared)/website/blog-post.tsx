@@ -24,7 +24,12 @@ const CLUSTER_LABELS: Record<string, string> = {
 
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr.includes('T') ? dateStr : `${dateStr}T12:00:00Z`)
-  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })
+  return d.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    timeZone: 'UTC',
+  })
 }
 
 export function BlogPost({ title, author, date, cluster, readTime, html }: BlogPostProps) {
@@ -47,10 +52,7 @@ export function BlogPost({ title, author, date, cluster, readTime, html }: BlogP
             </div>
           </header>
 
-          <div
-            class="prose prose-warm max-w-none"
-            dangerouslySetInnerHTML={{ __html: html }}
-          />
+          <div class="prose prose-warm max-w-none" dangerouslySetInnerHTML={{ __html: html }} />
         </div>
       </article>
     </Layout>

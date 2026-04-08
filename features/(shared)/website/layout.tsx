@@ -20,7 +20,10 @@ function Header() {
           <a href="/blog" class="text-secondary no-underline hover:text-ink text-sm font-medium">
             Blog
           </a>
-          <a href="/concepts" class="text-secondary no-underline hover:text-ink text-sm font-medium">
+          <a
+            href="/concepts"
+            class="text-secondary no-underline hover:text-ink text-sm font-medium"
+          >
             Concepts
           </a>
           <a
@@ -41,21 +44,42 @@ function Header() {
           </a>
           <details class="relative">
             <summary class="list-none cursor-pointer p-xs" aria-label="Menu">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                role="img"
+                aria-label="Menu"
+              >
                 <path d="M3 12h18M3 6h18M3 18h18" />
               </svg>
             </summary>
             <div class="absolute right-0 top-full mt-xs bg-white border border-linen rounded-md shadow-lg py-xs min-w-[180px] z-dropdown">
-              <a href="/about" class="block px-md py-xs text-secondary hover:text-ink hover:bg-cream no-underline text-sm">
+              <a
+                href="/about"
+                class="block px-md py-xs text-secondary hover:text-ink hover:bg-cream no-underline text-sm"
+              >
                 About
               </a>
-              <a href="/blog" class="block px-md py-xs text-secondary hover:text-ink hover:bg-cream no-underline text-sm">
+              <a
+                href="/blog"
+                class="block px-md py-xs text-secondary hover:text-ink hover:bg-cream no-underline text-sm"
+              >
                 Blog
               </a>
-              <a href="/concepts" class="block px-md py-xs text-secondary hover:text-ink hover:bg-cream no-underline text-sm">
+              <a
+                href="/concepts"
+                class="block px-md py-xs text-secondary hover:text-ink hover:bg-cream no-underline text-sm"
+              >
                 Concepts
               </a>
-              <a href="/life" class="block px-md py-xs text-gold hover:bg-cream no-underline text-sm font-semibold">
+              <a
+                href="/life"
+                class="block px-md py-xs text-gold hover:bg-cream no-underline text-sm font-semibold"
+              >
                 Life Decisions →
               </a>
             </div>

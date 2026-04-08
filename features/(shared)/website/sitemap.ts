@@ -1,7 +1,7 @@
-import { Hono } from 'hono'
-import { join } from 'node:path'
 import { statSync } from 'node:fs'
-import { listContentFiles, getContentFile } from '@/providers/markdown'
+import { join } from 'node:path'
+import { Hono } from 'hono'
+import { getContentFile, listContentFiles } from '@/providers/markdown'
 
 const BLOG_DIR = join(import.meta.dir, '../../../content/blog')
 const CONCEPTS_DIR = join(import.meta.dir, '../../../content/concepts')
@@ -24,10 +24,12 @@ sitemapRoutes.get('/sitemap.xml', async (c) => {
   const concepts = await listContentFiles(CONCEPTS_DIR)
 
   const urls = [
-    ...staticPages.map((p) => `  <url>
+    ...staticPages.map(
+      (p) => `  <url>
     <loc>${BASE_URL}${p.loc}</loc>
     <priority>${p.priority}</priority>
-  </url>`),
+  </url>`,
+    ),
     ...blogPosts.map((post) => {
       let lastmod = ''
       try {

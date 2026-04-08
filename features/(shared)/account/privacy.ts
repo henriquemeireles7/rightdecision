@@ -29,9 +29,7 @@ export async function exportUserData(userId: string) {
   })
 
   return {
-    user: user
-      ? { email: user.email, name: user.name, createdAt: user.createdAt }
-      : null,
+    user: user ? { email: user.email, name: user.name, createdAt: user.createdAt } : null,
     onboardingProfile: profile,
     courseProgress: progress,
     wins: userWins,

@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'bun:test'
 import {
-  renderMetaTags,
-  renderJsonLd,
   buildArticleSchema,
+  buildBreadcrumbSchema,
   buildFaqSchema,
   buildOrganizationSchema,
   buildPersonSchema,
-  buildBreadcrumbSchema,
+  renderJsonLd,
+  renderMetaTags,
 } from './seo'
 
 describe('renderMetaTags', () => {

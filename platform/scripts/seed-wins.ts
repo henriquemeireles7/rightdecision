@@ -41,7 +41,7 @@ const seedWins = [
   {
     lifeArea: 'relationships' as const,
     description:
-      'Set a boundary with my mother-in-law. She was surprised but respected it. I spent 4 years assuming she wouldn\'t.',
+      "Set a boundary with my mother-in-law. She was surprised but respected it. I spent 4 years assuming she wouldn't.",
   },
   {
     lifeArea: 'health' as const,
@@ -51,7 +51,7 @@ const seedWins = [
   {
     lifeArea: 'money' as const,
     description:
-      'Negotiated my rate up 20%. The constraint wasn\'t the market — it was that I never asked. Three emails. Done.',
+      "Negotiated my rate up 20%. The constraint wasn't the market — it was that I never asked. Three emails. Done.",
   },
 ]
 

@@ -1,10 +1,10 @@
-import { Hono } from 'hono'
 import { join } from 'node:path'
+import { Hono } from 'hono'
 import { renderPage } from '@/platform/server/render'
-import { listContentFiles, getContentFile } from '@/providers/markdown'
-import { renderJsonLd, buildArticleSchema, buildBreadcrumbSchema } from './seo'
+import { getContentFile, listContentFiles } from '@/providers/markdown'
 import { BlogIndex } from './blog-index'
 import { BlogPost } from './blog-post'
+import { buildArticleSchema, buildBreadcrumbSchema, renderJsonLd } from './seo'
 
 const BLOG_DIR = join(import.meta.dir, '../../../content/blog')
 const PER_PAGE = 10
@@ -41,7 +41,8 @@ blogRoutes.get('/', async (c) => {
       />,
       {
         title: 'Blog — The Right Decision',
-        description: 'Essays on decision-making, getting unstuck, and why self-help keeps you stuck.',
+        description:
+          'Essays on decision-making, getting unstuck, and why self-help keeps you stuck.',
         canonical: `${BASE_URL}/blog${cluster ? `?cluster=${cluster}` : ''}${page > 1 ? `${cluster ? '&' : '?'}page=${page}` : ''}`,
       },
     ).replace('</head>', `${renderJsonLd(breadcrumb)}\n</head>`),

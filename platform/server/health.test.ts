@@ -5,7 +5,11 @@ describe('/health (liveness)', () => {
   test('returns 200 with status ok', async () => {
     const app = new Hono()
     app.get('/health', (c) =>
-      c.json({ status: 'ok', timestamp: new Date().toISOString(), uptime: Math.round(process.uptime()) }),
+      c.json({
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        uptime: Math.round(process.uptime()),
+      }),
     )
 
     const res = await app.request('/health')

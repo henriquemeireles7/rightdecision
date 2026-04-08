@@ -54,19 +54,17 @@ export function WinsBoard({ wins, isLoggedIn, selectedArea }: WinsBoardProps) {
       {/* Win cards */}
       <div class="space-y-4">
         {wins.length === 0 && (
-          <div class="text-center py-12 text-neutral-500">
-            No wins yet. Be the first to share.
-          </div>
+          <div class="text-center py-12 text-neutral-500">No wins yet. Be the first to share.</div>
         )}
         {wins.map((win) => (
           <div key={win.id} class="bg-white border border-neutral-200 rounded-lg p-6">
             <div class="flex items-center gap-2 mb-3">
-              <span class={`text-xs px-2 py-1 rounded-full border ${AREA_COLORS[win.lifeArea] ?? 'bg-neutral-50 text-neutral-600'}`}>
+              <span
+                class={`text-xs px-2 py-1 rounded-full border ${AREA_COLORS[win.lifeArea] ?? 'bg-neutral-50 text-neutral-600'}`}
+              >
                 {AREA_LABELS[win.lifeArea] ?? win.lifeArea}
               </span>
-              {win.isSeed && (
-                <span class="text-xs text-amber-600">Founding win</span>
-              )}
+              {win.isSeed && <span class="text-xs text-amber-600">Founding win</span>}
             </div>
             <p class="text-neutral-900">{win.description}</p>
             <p class="text-xs text-neutral-400 mt-3">{win.createdAt}</p>
@@ -77,7 +75,10 @@ export function WinsBoard({ wins, isLoggedIn, selectedArea }: WinsBoardProps) {
       {/* Share CTA */}
       {isLoggedIn && (
         <div class="mt-8 text-center">
-          <a href="/wins/share" class="bg-amber-700 text-white px-6 py-3 rounded-lg hover:bg-amber-800 transition-colors">
+          <a
+            href="/wins/share"
+            class="bg-amber-700 text-white px-6 py-3 rounded-lg hover:bg-amber-800 transition-colors"
+          >
             Share a win
           </a>
         </div>

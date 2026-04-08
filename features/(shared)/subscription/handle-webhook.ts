@@ -17,7 +17,7 @@ webhookRoutes.post('/', async (c) => {
     return throwError(c, 'VALIDATION_ERROR', 'No signature')
   }
 
-  let event
+  let event: ReturnType<typeof payments.webhooks.constructEvent>
   try {
     event = payments.webhooks.constructEvent(body, signature, env.STRIPE_WEBHOOK_SECRET)
   } catch (err) {
@@ -64,7 +64,11 @@ webhookRoutes.post('/', async (c) => {
         status: string
         current_period_end: number
       }
-      const status = sub.cancel_at_period_end ? 'cancelled' : (sub.status === 'active' ? 'active' : 'past_due')
+      const status = sub.cancel_at_period_end
+        ? 'cancelled'
+        : sub.status === 'active'
+          ? 'active'
+          : 'past_due'
 
       await db
         .update(subscriptions)

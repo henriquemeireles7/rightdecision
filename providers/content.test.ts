@@ -1,5 +1,12 @@
 import { describe, expect, test } from 'bun:test'
-import { getAllModules, getClass, getClassesByCourse, getModule, getTotalClasses, searchClasses } from './content'
+import {
+  getAllModules,
+  getClass,
+  getClassesByCourse,
+  getModule,
+  getTotalClasses,
+  searchClasses,
+} from './content'
 
 describe('content provider', () => {
   test('loads all modules', () => {

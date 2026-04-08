@@ -22,11 +22,9 @@ export function Step1Welcome() {
     <div class="min-h-screen bg-stone-50 flex items-center justify-center px-6">
       <div class="max-w-lg text-center">
         <h1 class="text-4xl font-serif mb-4">One decision changes everything.</h1>
-        <p class="text-lg text-neutral-600 mb-8">
-          Not ten. Not five. One. Let's find yours.
-        </p>
+        <p class="text-lg text-neutral-600 mb-8">Not ten. Not five. One. Let's find yours.</p>
         <p class="text-sm text-neutral-500 mb-8">Takes about 3 minutes. No account needed.</p>
-        <button
+        <button type="button"
           class="bg-amber-700 text-white px-8 py-4 rounded-lg text-lg hover:bg-amber-800 transition-colors"
           hx-post="/api/onboarding/start"
         >
@@ -47,7 +45,7 @@ export function Step2Intro({ currentStep, totalSteps, sessionId }: StepProps) {
           Most people who feel stuck aren't missing motivation. They're missing clarity on which
           thing to focus on. That's what we're going to find.
         </p>
-        <button
+        <button type="button"
           class="w-full bg-amber-700 text-white px-6 py-4 rounded-lg text-lg hover:bg-amber-800 transition-colors"
           hx-put={`/api/onboarding/step/${currentStep}`}
           hx-headers={JSON.stringify({ 'x-onboarding-session': sessionId })}
@@ -73,14 +71,17 @@ export function Step3Question({ currentStep, totalSteps, sessionId }: StepProps)
           class="w-full border rounded-lg px-4 py-3 min-h-32 mb-6 resize-none"
           placeholder="Type honestly. No one sees this but you."
         />
-        <button
+        <button type="button"
           class="w-full bg-amber-700 text-white px-6 py-4 rounded-lg text-lg hover:bg-amber-800 transition-colors"
           hx-put={`/api/onboarding/step/${currentStep}`}
           hx-headers={JSON.stringify({ 'x-onboarding-session': sessionId })}
         >
           Continue
         </button>
-        <a href={`/onboarding/step/${currentStep - 1}`} class="block text-center text-sm text-neutral-500 mt-4">
+        <a
+          href={`/onboarding/step/${currentStep - 1}`}
+          class="block text-center text-sm text-neutral-500 mt-4"
+        >
           &larr; Back
         </a>
       </div>
@@ -96,22 +97,23 @@ export function Step4Question({ currentStep, totalSteps, sessionId }: StepProps)
         <h2 class="text-2xl font-serif mb-2 text-center">
           If one thing changed in the next 90 days, what would it be?
         </h2>
-        <p class="text-sm text-neutral-500 mb-6 text-center">
-          Not everything. One thing.
-        </p>
+        <p class="text-sm text-neutral-500 mb-6 text-center">Not everything. One thing.</p>
         <textarea
           name="throughlineQ2"
           class="w-full border rounded-lg px-4 py-3 min-h-32 mb-6 resize-none"
           placeholder="Be specific. 'Feel better' doesn't count."
         />
-        <button
+        <button type="button"
           class="w-full bg-amber-700 text-white px-6 py-4 rounded-lg text-lg hover:bg-amber-800 transition-colors"
           hx-put={`/api/onboarding/step/${currentStep}`}
           hx-headers={JSON.stringify({ 'x-onboarding-session': sessionId })}
         >
           Continue
         </button>
-        <a href={`/onboarding/step/${currentStep - 1}`} class="block text-center text-sm text-neutral-500 mt-4">
+        <a
+          href={`/onboarding/step/${currentStep - 1}`}
+          class="block text-center text-sm text-neutral-500 mt-4"
+        >
           &larr; Back
         </a>
       </div>
@@ -134,14 +136,17 @@ export function Step5Decision({ currentStep, totalSteps, sessionId }: StepProps)
           class="w-full border rounded-lg px-4 py-4 text-lg mb-6"
           placeholder="I am deciding to..."
         />
-        <button
+        <button type="button"
           class="w-full bg-amber-700 text-white px-6 py-4 rounded-lg text-lg hover:bg-amber-800 transition-colors"
           hx-put={`/api/onboarding/step/${currentStep}`}
           hx-headers={JSON.stringify({ 'x-onboarding-session': sessionId })}
         >
           Continue
         </button>
-        <a href={`/onboarding/step/${currentStep - 1}`} class="block text-center text-sm text-neutral-500 mt-4">
+        <a
+          href={`/onboarding/step/${currentStep - 1}`}
+          class="block text-center text-sm text-neutral-500 mt-4"
+        >
           &larr; Back
         </a>
       </div>
@@ -165,7 +170,7 @@ export function Step6Email({ currentStep, totalSteps, sessionId }: StepProps) {
           placeholder="your@email.com"
           required
         />
-        <button
+        <button type="button"
           class="w-full bg-amber-700 text-white px-6 py-4 rounded-lg text-lg hover:bg-amber-800 transition-colors"
           hx-put={`/api/onboarding/step/${currentStep}`}
           hx-headers={JSON.stringify({ 'x-onboarding-session': sessionId })}

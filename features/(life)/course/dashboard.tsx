@@ -25,7 +25,14 @@ function DecisionAnchor({ throughlineNamed }: { throughlineNamed?: string }) {
 }
 
 export function CourseDashboard(props: DashboardProps) {
-  const { accessTier, throughlineNamed, modules, overallPercent, currentClassId, currentClassName } = props
+  const {
+    accessTier,
+    throughlineNamed,
+    modules,
+    overallPercent,
+    currentClassId,
+    currentClassName,
+  } = props
   const isComplete = overallPercent === 100
 
   return (
@@ -42,7 +49,10 @@ export function CourseDashboard(props: DashboardProps) {
             {isComplete && <span class="text-green-700 font-medium">Course complete</span>}
           </div>
           <div class="h-2 bg-neutral-200 rounded-full overflow-hidden">
-            <div class="h-full bg-amber-700 rounded-full transition-all" style={{ width: `${overallPercent}%` }} />
+            <div
+              class="h-full bg-amber-700 rounded-full transition-all"
+              style={{ width: `${overallPercent}%` }}
+            />
           </div>
         </div>
 
@@ -53,7 +63,9 @@ export function CourseDashboard(props: DashboardProps) {
               href={`/class/${currentClassId}`}
               class="block bg-amber-700 text-white px-6 py-4 rounded-lg hover:bg-amber-800 transition-colors text-center text-lg"
             >
-              {overallPercent === 0 ? 'Begin Module 1' : `Continue: ${currentClassName ?? 'Next class'}`}
+              {overallPercent === 0
+                ? 'Begin Module 1'
+                : `Continue: ${currentClassName ?? 'Next class'}`}
             </a>
             {overallPercent === 0 && accessTier === 'paid' && (
               <a
@@ -80,7 +92,10 @@ export function CourseDashboard(props: DashboardProps) {
           {modules.map((mod) => {
             const isLocked = mod.id > 1 && accessTier !== 'paid'
             return (
-              <div key={mod.id} class={`border rounded-lg p-6 ${isLocked ? 'opacity-50' : 'bg-white'}`}>
+              <div
+                key={mod.id}
+                class={`border rounded-lg p-6 ${isLocked ? 'opacity-50' : 'bg-white'}`}
+              >
                 <div class="flex items-center justify-between mb-2">
                   <h3 class="font-serif text-lg">
                     Module {mod.id}: {mod.name}
@@ -95,7 +110,10 @@ export function CourseDashboard(props: DashboardProps) {
                 </div>
                 {!isLocked && (
                   <div class="h-1.5 bg-neutral-100 rounded-full overflow-hidden">
-                    <div class="h-full bg-amber-700 rounded-full" style={{ width: `${mod.progress.percent}%` }} />
+                    <div
+                      class="h-full bg-amber-700 rounded-full"
+                      style={{ width: `${mod.progress.percent}%` }}
+                    />
                   </div>
                 )}
               </div>

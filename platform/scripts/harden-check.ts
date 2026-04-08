@@ -49,7 +49,8 @@ function walkDir(dir: string, exts: string[]): string[] {
         entry.name === 'mcp_agent_mail' ||
         entry.name === '.git' ||
         entry.name === '.beads'
-      ) continue
+      )
+        continue
       if (entry.isDirectory()) {
         results.push(...walkDir(full, exts))
       } else if (exts.some((ext) => entry.name.endsWith(ext))) {
@@ -63,22 +64,20 @@ function walkDir(dir: string, exts: string[]): string[] {
 }
 
 const tsFiles = walkDir(ROOT, ['.ts', '.tsx']).filter(
-  (f) => !f.endsWith('.test.ts') && !f.endsWith('.d.ts') && !f.includes('CLAUDE.md')
+  (f) => !f.endsWith('.test.ts') && !f.endsWith('.d.ts') && !f.includes('CLAUDE.md'),
 )
 
 const routeFiles = tsFiles.filter(
-  (f) => f.includes('features/') && (f.includes('routes.ts') || f.includes('route'))
+  (f) => f.includes('features/') && (f.includes('routes.ts') || f.includes('route')),
 )
 
 const allCodeFiles = tsFiles.filter(
   (f) =>
     (f.includes('platform/') || f.includes('features/') || f.includes('providers/')) &&
-    !f.includes('platform/scripts/')
+    !f.includes('platform/scripts/'),
 )
 
-const uiFiles = walkDir(ROOT, ['.tsx', '.jsx', '.html']).filter(
-  (f) => !f.includes('node_modules')
-)
+const uiFiles = walkDir(ROOT, ['.tsx', '.jsx', '.html']).filter((f) => !f.includes('node_modules'))
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -86,14 +85,23 @@ function rel(abs: string): string {
   return relative(ROOT, abs)
 }
 
-function scanFile(filePath: string, checks: Array<{ pattern: RegExp; rule: string; message: string; severity: Severity }>) {
+function scanFile(
+  filePath: string,
+  checks: Array<{ pattern: RegExp; rule: string; message: string; severity: Severity }>,
+) {
   const content = readFileSync(filePath, 'utf-8')
   const lines = content.split('\n')
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]!
     for (const check of checks) {
       if (check.pattern.test(line)) {
-        report({ file: rel(filePath), line: i + 1, severity: check.severity, rule: check.rule, message: check.message })
+        report({
+          file: rel(filePath),
+          line: i + 1,
+          severity: check.severity,
+          rule: check.rule,
+          message: check.message,
+        })
       }
     }
   }
@@ -175,7 +183,10 @@ for (const f of routeFiles) {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]!
     // Match route definitions that accept body (post, put, patch) without zValidator
-    if (/\.(post|put|patch)\s*\(/.test(line) && !content.slice(0, content.indexOf(line) + line.length + 200).includes('zValidator')) {
+    if (
+      /\.(post|put|patch)\s*\(/.test(line) &&
+      !content.slice(0, content.indexOf(line) + line.length + 200).includes('zValidator')
+    ) {
       // More precise: check if zValidator appears as an argument in the same route chain
       const routeBlock = lines.slice(i, Math.min(i + 5, lines.length)).join('\n')
       if (!routeBlock.includes('zValidator') && !routeBlock.includes('webhook')) {
@@ -195,7 +206,8 @@ for (const f of routeFiles) {
 for (const f of allCodeFiles) {
   scanFile(f, [
     {
-      pattern: /console\.(log|info|debug)\s*\([^)]*\b(password|secret|token|apiKey|api_key|auth_token|private_key)\b/i,
+      pattern:
+        /console\.(log|info|debug)\s*\([^)]*\b(password|secret|token|apiKey|api_key|auth_token|private_key)\b/i,
       rule: 'no-log-secrets',
       message: 'Logging sensitive variable — remove or redact',
       severity: 'error',
@@ -226,10 +238,18 @@ for (const f of allCodeFiles) {
   const content = readFileSync(f, 'utf-8')
   const lines = content.split('\n')
   for (let i = 0; i < lines.length; i++) {
-    if (/\bfetch\s*\(/.test(lines[i]!) && !lines[i]!.includes('AbortSignal') && !lines[i]!.includes('signal')) {
+    if (
+      /\bfetch\s*\(/.test(lines[i]!) &&
+      !lines[i]!.includes('AbortSignal') &&
+      !lines[i]!.includes('signal')
+    ) {
       // Check next few lines for signal option
       const block = lines.slice(i, Math.min(i + 5, lines.length)).join('\n')
-      if (!block.includes('signal') && !block.includes('AbortSignal') && !block.includes('timeout')) {
+      if (
+        !block.includes('signal') &&
+        !block.includes('AbortSignal') &&
+        !block.includes('timeout')
+      ) {
         report({
           file: rel(f),
           line: i + 1,
@@ -272,13 +292,19 @@ for (const f of uiFiles) {
           line: i + 1,
           severity: 'warn',
           rule: 'img-needs-alt',
-          message: '<img> missing alt attribute — add alt="" for decorative or descriptive alt for content',
+          message:
+            '<img> missing alt attribute — add alt="" for decorative or descriptive alt for content',
         })
       }
     }
 
     // Inline style= instead of Tailwind (skip dynamic width/height for progress bars)
-    if (/\bstyle\s*=\s*[{"]/.test(line) && f.endsWith('.tsx') && !line.includes('width:') && !line.includes('height:')) {
+    if (
+      /\bstyle\s*=\s*[{"]/.test(line) &&
+      f.endsWith('.tsx') &&
+      !line.includes('width:') &&
+      !line.includes('height:')
+    ) {
       report({
         file: rel(f),
         line: i + 1,

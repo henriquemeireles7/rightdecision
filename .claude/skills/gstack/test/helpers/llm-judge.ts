@@ -7,22 +7,22 @@
  * Requires: ANTHROPIC_API_KEY env var
  */
 
-import Anthropic from '@anthropic-ai/sdk';
+import Anthropic from '@anthropic-ai/sdk'
 
 export interface JudgeScore {
-  clarity: number;       // 1-5
-  completeness: number;  // 1-5
-  actionability: number; // 1-5
-  reasoning: string;
+  clarity: number // 1-5
+  completeness: number // 1-5
+  actionability: number // 1-5
+  reasoning: string
 }
 
 export interface OutcomeJudgeResult {
-  detected: string[];
-  missed: string[];
-  false_positives: number;
-  detection_rate: number;
-  evidence_quality: number;
-  reasoning: string;
+  detected: string[]
+  missed: string[]
+  false_positives: number
+  detection_rate: number
+  evidence_quality: number
+  reasoning: string
 }
 
 /**
@@ -30,30 +30,31 @@ export interface OutcomeJudgeResult {
  * Retries once on 429 rate limit errors.
  */
 export async function callJudge<T>(prompt: string): Promise<T> {
-  const client = new Anthropic();
+  const client = new Anthropic()
 
-  const makeRequest = () => client.messages.create({
-    model: 'claude-sonnet-4-6',
-    max_tokens: 1024,
-    messages: [{ role: 'user', content: prompt }],
-  });
+  const makeRequest = () =>
+    client.messages.create({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 1024,
+      messages: [{ role: 'user', content: prompt }],
+    })
 
-  let response;
+  let response
   try {
-    response = await makeRequest();
+    response = await makeRequest()
   } catch (err: any) {
     if (err.status === 429) {
-      await new Promise(r => setTimeout(r, 1000));
-      response = await makeRequest();
+      await new Promise((r) => setTimeout(r, 1000))
+      response = await makeRequest()
     } else {
-      throw err;
+      throw err
     }
   }
 
-  const text = response.content[0].type === 'text' ? response.content[0].text : '';
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) throw new Error(`Judge returned non-JSON: ${text.slice(0, 200)}`);
-  return JSON.parse(jsonMatch[0]) as T;
+  const text = response.content[0].type === 'text' ? response.content[0].text : ''
+  const jsonMatch = text.match(/\{[\s\S]*\}/)
+  if (!jsonMatch) throw new Error(`Judge returned non-JSON: ${text.slice(0, 200)}`)
+  return JSON.parse(jsonMatch[0]) as T
 }
 
 /**
@@ -86,17 +87,14 @@ Respond with ONLY valid JSON in this exact format:
 
 Here is the ${section} to evaluate:
 
-${content}`);
+${content}`)
 }
 
 /**
  * Evaluate a QA report against planted-bug ground truth.
  * Returns detection metrics for the planted bugs.
  */
-export async function outcomeJudge(
-  groundTruth: any,
-  report: string,
-): Promise<OutcomeJudgeResult> {
+export async function outcomeJudge(groundTruth: any, report: string): Promise<OutcomeJudgeResult> {
   return callJudge<OutcomeJudgeResult>(`You are evaluating a QA testing report against known ground truth bugs.
 
 GROUND TRUTH (${groundTruth.total_bugs} planted bugs):
@@ -126,5 +124,5 @@ Rules:
 - "detected" and "missed" arrays must only contain IDs from the ground truth: ${groundTruth.bugs.map((b: any) => b.id).join(', ')}
 - detection_rate = length of detected array
 - evidence_quality (1-5): Do detected bugs have screenshots, repro steps, or specific element references?
-  5 = excellent evidence for every bug, 1 = no evidence at all`);
+  5 = excellent evidence for every bug, 1 = no evidence at all`)
 }

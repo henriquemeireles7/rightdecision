@@ -1,4 +1,4 @@
-import { describe, it, expect, mock, beforeEach } from 'bun:test'
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
 
 // Mock env
 mock.module('@/platform/env', () => ({
@@ -9,17 +9,27 @@ mock.module('@/platform/env', () => ({
 }))
 
 // Mock DB
-const mockInsert = mock(() => ({ returning: () => [{ id: 'run-1', inputVideoUrl: 'episodes/video.mp4', status: 'queued' }] }))
+const mockInsert = mock(() => ({
+  returning: () => [{ id: 'run-1', inputVideoUrl: 'episodes/video.mp4', status: 'queued' }],
+}))
 const mockUpdate = mock(() => ({ set: mock(() => ({ where: mock(() => Promise.resolve()) })) }))
 const mockSelect = mock(() => ({ from: mock(() => [{ count: 5 }]) }))
-const mockFindFirst = mock(() => Promise.resolve({ id: 'run-1', inputVideoUrl: 'episodes/video.mp4', status: 'queued', transcript: null }))
+const mockFindFirst = mock(() =>
+  Promise.resolve({
+    id: 'run-1',
+    inputVideoUrl: 'episodes/video.mp4',
+    status: 'queued',
+    transcript: null,
+  }),
+)
 const mockFindMany = mock(() => Promise.resolve([]))
 
 mock.module('@/platform/db/client', () => ({
   db: {
     insert: () => ({
       values: () => ({
-        returning: () => Promise.resolve([{ id: 'run-1', inputVideoUrl: 'episodes/video.mp4', status: 'queued' }]),
+        returning: () =>
+          Promise.resolve([{ id: 'run-1', inputVideoUrl: 'episodes/video.mp4', status: 'queued' }]),
       }),
     }),
     update: () => ({
@@ -46,7 +56,8 @@ mock.module('@/platform/db/client', () => ({
   },
 }))
 
-import { mockSchema, casResult } from '@/features/(business)/test-helpers'
+import { casResult, mockSchema } from '@/features/(business)/test-helpers'
+
 mock.module('@/platform/db/schema', () => mockSchema())
 
 // Mock state machine
@@ -57,7 +68,9 @@ mock.module('@/platform/db/schema', () => mockSchema())
 const mockDownload = mock(() => Promise.resolve(Buffer.from('fake-video-data')))
 mock.module('@/providers/storage', () => ({ download: mockDownload }))
 
-const mockTranscribe = mock(() => Promise.resolve('[00:00:01] Hello world\n[00:00:05] Test transcript'))
+const mockTranscribe = mock(() =>
+  Promise.resolve('[00:00:01] Hello world\n[00:00:05] Test transcript'),
+)
 mock.module('@/providers/transcription', () => ({ transcribe: mockTranscribe }))
 
 // Mock fs
@@ -66,7 +79,9 @@ mock.module('node:fs/promises', () => ({
   unlink: mock(() => Promise.resolve()),
 }))
 
-const { startTranscription, processTranscription, getPipelineRun, getClipsForRun } = await import('./service')
+const { startTranscription, processTranscription, getPipelineRun, getClipsForRun } = await import(
+  './service'
+)
 
 describe('features/(business)/transcribe/service', () => {
   beforeEach(() => {
@@ -134,7 +149,9 @@ describe('features/(business)/transcribe/service', () => {
 
     it('returns TRANSCRIBE_TIMEOUT on whisper timeout', async () => {
       const { ProviderError } = await import('@/providers/errors')
-      mockTranscribe.mockRejectedValueOnce(new ProviderError('whisper', 'transcribe', 504, 'timeout'))
+      mockTranscribe.mockRejectedValueOnce(
+        new ProviderError('whisper', 'transcribe', 504, 'timeout'),
+      )
       const result = await processTranscription('run-1')
       expect(result).toEqual({ error: 'TRANSCRIBE_TIMEOUT' })
     })

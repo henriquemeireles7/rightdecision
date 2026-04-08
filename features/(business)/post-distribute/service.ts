@@ -1,10 +1,10 @@
-import { eq, and, inArray } from 'drizzle-orm'
-import { db } from '@/platform/db/client'
-import { pipelineRuns, clips, posts } from '@/platform/db/schema'
+import { and, eq, inArray } from 'drizzle-orm'
 import { findRunInState, transitionPipeline } from '@/features/(business)/workflow/transitions'
+import { db } from '@/platform/db/client'
+import { clips, pipelineRuns, posts } from '@/platform/db/schema'
+import { ProviderError } from '@/providers/errors'
 import { post as uploadPost } from '@/providers/social-posting'
 import { getSignedUrl } from '@/providers/storage'
-import { ProviderError } from '@/providers/errors'
 
 export async function distributePostsForRun(pipelineRunId: string) {
   const found = await findRunInState(pipelineRunId, 'metadata_ready', 'awaiting_metadata_approval')
@@ -33,7 +33,7 @@ export async function distributePostsForRun(pipelineRunId: string) {
   const clipMap = new Map(runClips.map((c) => [c.id, c]))
 
   // Atomic CAS: metadata_ready → posting
-  if (!await transitionPipeline(pipelineRunId, run.status, 'posting')) {
+  if (!(await transitionPipeline(pipelineRunId, run.status, 'posting'))) {
     return { error: 'PIPELINE_INVALID_STATE' as const }
   }
 
@@ -43,12 +43,18 @@ export async function distributePostsForRun(pipelineRunId: string) {
     try {
       const clip = clipMap.get(postRow.clipId)
       if (!clip) {
-        await db.update(posts).set({ status: 'failed', failureReason: 'Clip not found' }).where(eq(posts.id, postRow.id))
+        await db
+          .update(posts)
+          .set({ status: 'failed', failureReason: 'Clip not found' })
+          .where(eq(posts.id, postRow.id))
         results.push({ postId: postRow.id, success: false, error: 'Clip not found' })
         continue
       }
       if (!clip.storageUrl) {
-        await db.update(posts).set({ status: 'failed', failureReason: 'Clip has no storage URL' }).where(eq(posts.id, postRow.id))
+        await db
+          .update(posts)
+          .set({ status: 'failed', failureReason: 'Clip has no storage URL' })
+          .where(eq(posts.id, postRow.id))
         results.push({ postId: postRow.id, success: false, error: 'No clip storage URL' })
         continue
       }
@@ -63,21 +69,30 @@ export async function distributePostsForRun(pipelineRunId: string) {
         postRow.platformAccountId,
       )
 
-      await db.update(posts).set({
-        status: 'posted',
-        uploadPostId: result.id,
-        uploadPostResponse: result,
-        postedAt: new Date(),
-      }).where(eq(posts.id, postRow.id))
+      await db
+        .update(posts)
+        .set({
+          status: 'posted',
+          uploadPostId: result.id,
+          uploadPostResponse: result,
+          postedAt: new Date(),
+        })
+        .where(eq(posts.id, postRow.id))
 
       results.push({ postId: postRow.id, success: true })
     } catch (error) {
-      const reason = error instanceof ProviderError ? `${error.provider}.${error.operation}: ${error.statusCode}` : String(error)
-      await db.update(posts).set({
-        status: 'failed',
-        failureReason: reason,
-        retryCount: postRow.retryCount + 1,
-      }).where(eq(posts.id, postRow.id))
+      const reason =
+        error instanceof ProviderError
+          ? `${error.provider}.${error.operation}: ${error.statusCode}`
+          : String(error)
+      await db
+        .update(posts)
+        .set({
+          status: 'failed',
+          failureReason: reason,
+          retryCount: postRow.retryCount + 1,
+        })
+        .where(eq(posts.id, postRow.id))
       results.push({ postId: postRow.id, success: false, error: reason })
     }
   }
@@ -86,16 +101,22 @@ export async function distributePostsForRun(pipelineRunId: string) {
   const failCount = results.filter((r) => !r.success).length
 
   if (failCount === scheduledPosts.length) {
-    await db.update(pipelineRuns).set({ status: 'failed', stepFailedAt: 'post-distribute', clipsFailed: failCount }).where(and(eq(pipelineRuns.id, pipelineRunId), eq(pipelineRuns.status, 'posting')))
+    await db
+      .update(pipelineRuns)
+      .set({ status: 'failed', stepFailedAt: 'post-distribute', clipsFailed: failCount })
+      .where(and(eq(pipelineRuns.id, pipelineRunId), eq(pipelineRuns.status, 'posting')))
     return { error: 'POST_PARTIAL_FAILURE' as const }
   }
 
   // CAS: only update if still in posting state
-  await db.update(pipelineRuns).set({
-    status: 'posted',
-    clipsPosted: successCount,
-    clipsFailed: failCount,
-  }).where(and(eq(pipelineRuns.id, pipelineRunId), eq(pipelineRuns.status, 'posting')))
+  await db
+    .update(pipelineRuns)
+    .set({
+      status: 'posted',
+      clipsPosted: successCount,
+      clipsFailed: failCount,
+    })
+    .where(and(eq(pipelineRuns.id, pipelineRunId), eq(pipelineRuns.status, 'posting')))
 
   if (failCount > 0 && successCount > 0) {
     return { posts: results, partial: true }
