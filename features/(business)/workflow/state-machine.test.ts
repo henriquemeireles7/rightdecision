@@ -1,5 +1,10 @@
-import { describe, it, expect } from 'bun:test'
-import { assertTransition, getValidTransitions, InvalidTransitionError, type PipelineStatus } from './state-machine'
+import { describe, expect, it } from 'bun:test'
+import {
+  assertTransition,
+  getValidTransitions,
+  InvalidTransitionError,
+  type PipelineStatus,
+} from './state-machine'
 
 describe('assertTransition', () => {
   it('allows queued → transcribing', () => {
@@ -28,8 +33,17 @@ describe('assertTransition', () => {
 
   it('allows any step to transition to failed', () => {
     const steps: PipelineStatus[] = [
-      'queued', 'transcribing', 'transcribed', 'selecting', 'selected',
-      'cutting', 'cut', 'generating_metadata', 'metadata_ready', 'posting', 'posted',
+      'queued',
+      'transcribing',
+      'transcribed',
+      'selecting',
+      'selected',
+      'cutting',
+      'cut',
+      'generating_metadata',
+      'metadata_ready',
+      'posting',
+      'posted',
     ]
     for (const step of steps) {
       expect(() => assertTransition(step, 'failed')).not.toThrow()

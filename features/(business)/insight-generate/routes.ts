@@ -1,12 +1,12 @@
 import { zValidator } from '@hono/zod-validator'
 import { Hono } from 'hono'
 import { z } from 'zod'
-import { throwError } from '@/platform/errors'
-import type { ErrorCode } from '@/platform/errors'
-import { success, paginated } from '@/platform/server/responses'
-import type { AppEnv } from '@/platform/types'
 import { requireAuth } from '@/platform/auth/middleware'
-import { insightInputSchema, saveInsight, listInsights } from './service'
+import type { ErrorCode } from '@/platform/errors'
+import { throwError } from '@/platform/errors'
+import { paginated, success } from '@/platform/server/responses'
+import type { AppEnv } from '@/platform/types'
+import { insightInputSchema, listInsights, saveInsight } from './service'
 
 const listQuerySchema = z.object({
   page: z.coerce.number().min(1).default(1),

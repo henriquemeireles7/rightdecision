@@ -1,8 +1,8 @@
-import { eq, and } from 'drizzle-orm'
-import { db } from '@/platform/db/client'
-import { pipelineRuns, clips, posts, platformAccounts } from '@/platform/db/schema'
-import { findRunInState, transitionPipeline } from '@/features/(business)/workflow/transitions'
+import { and, eq } from 'drizzle-orm'
 import { z } from 'zod'
+import { findRunInState, transitionPipeline } from '@/features/(business)/workflow/transitions'
+import { db } from '@/platform/db/client'
+import { clips, pipelineRuns, platformAccounts, posts } from '@/platform/db/schema'
 
 export const metadataItemSchema = z.object({
   clipId: z.string().uuid(),
@@ -25,7 +25,7 @@ export async function saveMetadata(pipelineRunId: string, metadataItems: Metadat
   const { run } = found
 
   // Atomic CAS: cut → generating_metadata
-  if (!await transitionPipeline(pipelineRunId, run.status, 'generating_metadata')) {
+  if (!(await transitionPipeline(pipelineRunId, run.status, 'generating_metadata'))) {
     return { error: 'PIPELINE_INVALID_STATE' as const }
   }
 
@@ -53,7 +53,10 @@ export async function saveMetadata(pipelineRunId: string, metadataItems: Metadat
       const account = accountMap.get(item.platformAccountId)!
       // Check for existing (idempotency)
       const existing = await tx.query.posts.findFirst({
-        where: and(eq(posts.clipId, item.clipId), eq(posts.platformAccountId, item.platformAccountId)),
+        where: and(
+          eq(posts.clipId, item.clipId),
+          eq(posts.platformAccountId, item.platformAccountId),
+        ),
       })
       if (existing) {
         results.push(existing)
@@ -76,7 +79,12 @@ export async function saveMetadata(pipelineRunId: string, metadataItems: Metadat
     }
 
     // CAS: only update if still generating_metadata
-    await tx.update(pipelineRuns).set({ status: 'metadata_ready' }).where(and(eq(pipelineRuns.id, pipelineRunId), eq(pipelineRuns.status, 'generating_metadata')))
+    await tx
+      .update(pipelineRuns)
+      .set({ status: 'metadata_ready' })
+      .where(
+        and(eq(pipelineRuns.id, pipelineRunId), eq(pipelineRuns.status, 'generating_metadata')),
+      )
 
     return results
   })

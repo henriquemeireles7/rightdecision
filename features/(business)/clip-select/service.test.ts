@@ -1,4 +1,4 @@
-import { describe, it, expect, mock, beforeEach } from 'bun:test'
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
 
 mock.module('@/platform/env', () => ({
   env: { DATABASE_URL: 'postgres://test' },
@@ -6,9 +6,18 @@ mock.module('@/platform/env', () => ({
 
 const mockFindFirst = mock(() => Promise.resolve(null))
 const mockDelete = mock(() => ({ where: () => Promise.resolve() }))
-const mockInsertReturning = mock(() => Promise.resolve([
-  { id: 'clip-1', pipelineRunId: 'run-1', sourceTimestampStart: 10, sourceTimestampEnd: 40, duration: 30, score: 8 },
-]))
+const mockInsertReturning = mock(() =>
+  Promise.resolve([
+    {
+      id: 'clip-1',
+      pipelineRunId: 'run-1',
+      sourceTimestampStart: 10,
+      sourceTimestampEnd: 40,
+      duration: 30,
+      score: 8,
+    },
+  ]),
+)
 const mockUpdateSet = mock(() => ({ where: () => Promise.resolve() }))
 
 const mockTx = {
@@ -29,7 +38,8 @@ mock.module('@/platform/db/client', () => ({
   },
 }))
 
-import { mockSchema, casResult, mockTransaction } from '@/features/(business)/test-helpers'
+import { casResult, mockSchema, mockTransaction } from '@/features/(business)/test-helpers'
+
 mock.module('@/platform/db/schema', () => mockSchema())
 
 // Don't mock state-machine — it's pure logic, no external deps
@@ -46,14 +56,31 @@ describe('features/(business)/clip-select/service', () => {
     mockFindFirst.mockReset()
     mockInsertReturning.mockReset()
     mockInsertReturning.mockResolvedValue([
-      { id: 'clip-1', pipelineRunId: 'run-1', sourceTimestampStart: 10, sourceTimestampEnd: 40, duration: 30, score: 8 },
-      { id: 'clip-2', pipelineRunId: 'run-1', sourceTimestampStart: 60, sourceTimestampEnd: 90, duration: 30, score: 7 },
+      {
+        id: 'clip-1',
+        pipelineRunId: 'run-1',
+        sourceTimestampStart: 10,
+        sourceTimestampEnd: 40,
+        duration: 30,
+        score: 8,
+      },
+      {
+        id: 'clip-2',
+        pipelineRunId: 'run-1',
+        sourceTimestampStart: 60,
+        sourceTimestampEnd: 90,
+        duration: 30,
+        score: 7,
+      },
     ] as never)
   })
 
   it('saves clips for a transcribed run', async () => {
     mockFindFirst.mockResolvedValueOnce({
-      id: 'run-1', status: 'transcribed', transcript: '[00:00:01] Hello', durationSeconds: 120,
+      id: 'run-1',
+      status: 'transcribed',
+      transcript: '[00:00:01] Hello',
+      durationSeconds: 120,
     } as never)
     const result = await saveClipSelections('run-1', validClips)
     expect(result).toHaveProperty('clips')
@@ -67,20 +94,31 @@ describe('features/(business)/clip-select/service', () => {
   })
 
   it('returns PIPELINE_INVALID_STATE if not transcribed', async () => {
-    mockFindFirst.mockResolvedValueOnce({ id: 'run-1', status: 'queued', transcript: 'test' } as never)
+    mockFindFirst.mockResolvedValueOnce({
+      id: 'run-1',
+      status: 'queued',
+      transcript: 'test',
+    } as never)
     const result = await saveClipSelections('run-1', validClips)
     expect(result).toEqual({ error: 'PIPELINE_INVALID_STATE' })
   })
 
   it('returns CLIP_SELECT_NO_TRANSCRIPT when transcript empty', async () => {
-    mockFindFirst.mockResolvedValueOnce({ id: 'run-1', status: 'transcribed', transcript: '' } as never)
+    mockFindFirst.mockResolvedValueOnce({
+      id: 'run-1',
+      status: 'transcribed',
+      transcript: '',
+    } as never)
     const result = await saveClipSelections('run-1', validClips)
     expect(result).toEqual({ error: 'CLIP_SELECT_NO_TRANSCRIPT' })
   })
 
   it('returns CLIP_SELECT_INVALID_TIMESTAMPS when clip exceeds duration', async () => {
     mockFindFirst.mockResolvedValueOnce({
-      id: 'run-1', status: 'transcribed', transcript: 'test', durationSeconds: 30,
+      id: 'run-1',
+      status: 'transcribed',
+      transcript: 'test',
+      durationSeconds: 30,
     } as never)
     const result = await saveClipSelections('run-1', validClips) // clips go to 90s, duration is 30s
     expect(result).toEqual({ error: 'CLIP_SELECT_INVALID_TIMESTAMPS' })
@@ -88,7 +126,10 @@ describe('features/(business)/clip-select/service', () => {
 
   it('returns CLIP_SELECT_VALIDATION_FAILED when end <= start', async () => {
     mockFindFirst.mockResolvedValueOnce({
-      id: 'run-1', status: 'transcribed', transcript: 'test', durationSeconds: 120,
+      id: 'run-1',
+      status: 'transcribed',
+      transcript: 'test',
+      durationSeconds: 120,
     } as never)
     const badClips = [{ sourceTimestampStart: 40, sourceTimestampEnd: 10 }]
     const result = await saveClipSelections('run-1', badClips)
@@ -96,7 +137,11 @@ describe('features/(business)/clip-select/service', () => {
   })
 
   it('returns CLIP_SELECT_NO_TRANSCRIPT when transcript is null', async () => {
-    mockFindFirst.mockResolvedValueOnce({ id: 'run-1', status: 'transcribed', transcript: null } as never)
+    mockFindFirst.mockResolvedValueOnce({
+      id: 'run-1',
+      status: 'transcribed',
+      transcript: null,
+    } as never)
     const result = await saveClipSelections('run-1', validClips)
     expect(result).toEqual({ error: 'CLIP_SELECT_NO_TRANSCRIPT' })
   })

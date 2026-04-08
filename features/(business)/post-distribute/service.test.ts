@@ -1,6 +1,8 @@
-import { describe, it, expect, mock, beforeEach } from 'bun:test'
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
 
-mock.module('@/platform/env', () => ({ env: { DATABASE_URL: 'postgres://test', UPLOAD_POST_API_KEY: 'key' } }))
+mock.module('@/platform/env', () => ({
+  env: { DATABASE_URL: 'postgres://test', UPLOAD_POST_API_KEY: 'key' },
+}))
 
 const mockFindFirstRun = mock(() => Promise.resolve(null))
 const mockFindManyPosts = mock(() => Promise.resolve([]))
@@ -17,7 +19,8 @@ mock.module('@/platform/db/client', () => ({
   },
 }))
 
-import { mockSchema, casResult } from '@/features/(business)/test-helpers'
+import { casResult, mockSchema } from '@/features/(business)/test-helpers'
+
 mock.module('@/platform/db/schema', () => mockSchema())
 
 // Don't mock state-machine — it's pure logic, no external deps
@@ -74,7 +77,14 @@ describe('features/(business)/post-distribute/service', () => {
       { id: 'clip-1', storageUrl: 'https://r2.example.com/clips/clip-1.mp4' },
     ] as never)
     mockFindManyPosts.mockResolvedValueOnce([
-      { id: 'post-1', clipId: 'clip-1', platformAccountId: 'acc-1', description: 'test', hashtags: [], retryCount: 0 },
+      {
+        id: 'post-1',
+        clipId: 'clip-1',
+        platformAccountId: 'acc-1',
+        description: 'test',
+        hashtags: [],
+        retryCount: 0,
+      },
     ] as never)
 
     const result = await distributePostsForRun('run-1')

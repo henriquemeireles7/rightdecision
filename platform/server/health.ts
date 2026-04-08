@@ -1,9 +1,9 @@
+import { HeadBucketCommand, S3Client } from '@aws-sdk/client-s3'
 import { sql } from 'drizzle-orm'
-import { S3Client, HeadBucketCommand } from '@aws-sdk/client-s3'
 import { db } from '@/platform/db/client'
 import { env } from '@/platform/env'
-import { payments } from '@/providers/payments'
 import { email } from '@/providers/email'
+import { payments } from '@/providers/payments'
 
 const startTime = Date.now()
 

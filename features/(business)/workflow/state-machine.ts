@@ -1,11 +1,22 @@
 import { errors } from '@/platform/errors'
 
 export type PipelineStatus =
-  | 'queued' | 'transcribing' | 'transcribed'
-  | 'selecting' | 'selected' | 'awaiting_clip_approval'
-  | 'cutting' | 'cut' | 'generating_metadata'
-  | 'metadata_ready' | 'awaiting_metadata_approval'
-  | 'posting' | 'posted' | 'analyzing' | 'completed' | 'failed'
+  | 'queued'
+  | 'transcribing'
+  | 'transcribed'
+  | 'selecting'
+  | 'selected'
+  | 'awaiting_clip_approval'
+  | 'cutting'
+  | 'cut'
+  | 'generating_metadata'
+  | 'metadata_ready'
+  | 'awaiting_metadata_approval'
+  | 'posting'
+  | 'posted'
+  | 'analyzing'
+  | 'completed'
+  | 'failed'
 
 const validTransitions: Record<PipelineStatus, PipelineStatus[]> = {
   queued: ['transcribing', 'failed'],
@@ -24,7 +35,13 @@ const validTransitions: Record<PipelineStatus, PipelineStatus[]> = {
   analyzing: ['completed', 'failed'],
   completed: [],
   failed: [
-    'queued', 'transcribing', 'selecting', 'cutting', 'generating_metadata', 'posting', 'analyzing',
+    'queued',
+    'transcribing',
+    'selecting',
+    'cutting',
+    'generating_metadata',
+    'posting',
+    'analyzing',
   ],
 }
 

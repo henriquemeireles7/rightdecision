@@ -8,8 +8,10 @@ export async function transcribe(videoPath: string): Promise<string> {
     const proc = Bun.spawn(
       [
         'whisper-cpp',
-        '--model', env.WHISPER_MODEL_PATH,
-        '--output-format', 'txt',
+        '--model',
+        env.WHISPER_MODEL_PATH,
+        '--output-format',
+        'txt',
         '--timestamps',
         videoPath,
       ],

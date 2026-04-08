@@ -4,14 +4,10 @@ import { onboardingProfiles, onboardingSessions } from '@/platform/db/schema'
 
 export async function getOnboardingAnalytics() {
   // Total profiles completed
-  const [profileCount] = await db
-    .select({ count: count() })
-    .from(onboardingProfiles)
+  const [profileCount] = await db.select({ count: count() }).from(onboardingProfiles)
 
   // Active sessions (not expired)
-  const [activeSessionCount] = await db
-    .select({ count: count() })
-    .from(onboardingSessions)
+  const [activeSessionCount] = await db.select({ count: count() }).from(onboardingSessions)
 
   // Step-by-step drop-off (sessions grouped by current_step)
   const stepDropoff = await db

@@ -1,10 +1,10 @@
 import { zValidator } from '@hono/zod-validator'
 import { Hono } from 'hono'
-import { throwError } from '@/platform/errors'
+import { requireAuth } from '@/platform/auth/middleware'
 import type { ErrorCode } from '@/platform/errors'
+import { throwError } from '@/platform/errors'
 import { success } from '@/platform/server/responses'
 import type { AppEnv } from '@/platform/types'
-import { requireAuth } from '@/platform/auth/middleware'
 import { clipSelectInputSchema, saveClipSelections } from './service'
 
 export const clipSelectRoutes = new Hono<AppEnv>()

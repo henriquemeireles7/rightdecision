@@ -64,7 +64,11 @@ webhookRoutes.post('/', async (c) => {
         status: string
         current_period_end: number
       }
-      const status = sub.cancel_at_period_end ? 'cancelled' : (sub.status === 'active' ? 'active' : 'past_due')
+      const status = sub.cancel_at_period_end
+        ? 'cancelled'
+        : sub.status === 'active'
+          ? 'active'
+          : 'past_due'
 
       await db
         .update(subscriptions)

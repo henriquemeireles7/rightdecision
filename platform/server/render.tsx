@@ -1,5 +1,5 @@
-import { renderToString } from 'preact-render-to-string'
 import type { VNode } from 'preact'
+import { renderToString } from 'preact-render-to-string'
 
 interface PageOptions {
   title?: string

@@ -1,19 +1,36 @@
-import { eq, and } from 'drizzle-orm'
-import { db } from '@/platform/db/client'
-import { pipelineRuns, clips } from '@/platform/db/schema'
-import { findRunInState, transitionPipeline } from '@/features/(business)/workflow/transitions'
-import { download, upload } from '@/providers/storage'
-import { ProviderError } from '@/providers/errors'
-import { writeFile, unlink } from 'node:fs/promises'
-import { join } from 'node:path'
-import { tmpdir } from 'node:os'
 import { randomUUID } from 'node:crypto'
+import { unlink, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { and, eq } from 'drizzle-orm'
+import { findRunInState, transitionPipeline } from '@/features/(business)/workflow/transitions'
+import { db } from '@/platform/db/client'
+import { clips, pipelineRuns } from '@/platform/db/schema'
+import { ProviderError } from '@/providers/errors'
+import { download, upload } from '@/providers/storage'
 
 const FFMPEG_TIMEOUT_MS = 5 * 60 * 1000 // 5 minutes per clip
 
-async function cutClipWithFfmpeg(videoPath: string, outputPath: string, start: number, duration: number): Promise<void> {
+async function cutClipWithFfmpeg(
+  videoPath: string,
+  outputPath: string,
+  start: number,
+  duration: number,
+): Promise<void> {
   const proc = Bun.spawn(
-    ['ffmpeg', '-y', '-i', videoPath, '-ss', String(start), '-t', String(duration), '-c', 'copy', outputPath],
+    [
+      'ffmpeg',
+      '-y',
+      '-i',
+      videoPath,
+      '-ss',
+      String(start),
+      '-t',
+      String(duration),
+      '-c',
+      'copy',
+      outputPath,
+    ],
     { stdout: 'ignore', stderr: 'pipe' },
   )
 
@@ -48,7 +65,7 @@ export async function cutClipsForRun(pipelineRunId: string) {
   }
 
   // Atomic CAS: selected → cutting
-  if (!await transitionPipeline(pipelineRunId, run.status, 'cutting')) {
+  if (!(await transitionPipeline(pipelineRunId, run.status, 'cutting'))) {
     return { error: 'PIPELINE_INVALID_STATE' as const }
   }
 
@@ -63,7 +80,10 @@ export async function cutClipsForRun(pipelineRunId: string) {
     videoData = await download(key)
   } catch (error) {
     if (error instanceof ProviderError && error.statusCode === 404) {
-      await db.update(pipelineRuns).set({ status: 'failed', stepFailedAt: 'clip-cut', errorMessage: 'Source video not found' }).where(eq(pipelineRuns.id, pipelineRunId))
+      await db
+        .update(pipelineRuns)
+        .set({ status: 'failed', stepFailedAt: 'clip-cut', errorMessage: 'Source video not found' })
+        .where(eq(pipelineRuns.id, pipelineRunId))
       return { error: 'CLIP_CUT_VIDEO_NOT_FOUND' as const }
     }
     throw error
@@ -98,16 +118,27 @@ export async function cutClipsForRun(pipelineRunId: string) {
     const failCount = results.filter((r) => !r.success).length
 
     if (failCount === clipList.length) {
-      await db.update(pipelineRuns).set({ status: 'failed', stepFailedAt: 'clip-cut', errorMessage: 'All clips failed to cut', clipsFailed: failCount }).where(and(eq(pipelineRuns.id, pipelineRunId), eq(pipelineRuns.status, 'cutting')))
+      await db
+        .update(pipelineRuns)
+        .set({
+          status: 'failed',
+          stepFailedAt: 'clip-cut',
+          errorMessage: 'All clips failed to cut',
+          clipsFailed: failCount,
+        })
+        .where(and(eq(pipelineRuns.id, pipelineRunId), eq(pipelineRuns.status, 'cutting')))
       return { error: 'CLIP_CUT_PROCESSING_FAILED' as const }
     }
 
     // CAS: only update if still in cutting state
-    await db.update(pipelineRuns).set({
-      status: 'cut',
-      clipsApproved: clipList.length,
-      clipsFailed: failCount,
-    }).where(and(eq(pipelineRuns.id, pipelineRunId), eq(pipelineRuns.status, 'cutting')))
+    await db
+      .update(pipelineRuns)
+      .set({
+        status: 'cut',
+        clipsApproved: clipList.length,
+        clipsFailed: failCount,
+      })
+      .where(and(eq(pipelineRuns.id, pipelineRunId), eq(pipelineRuns.status, 'cutting')))
 
     if (failCount > 0 && successCount > 0) {
       return { clips: results, partial: true }
@@ -116,7 +147,11 @@ export async function cutClipsForRun(pipelineRunId: string) {
     return { clips: results }
   } finally {
     for (const f of tempFiles) {
-      try { await unlink(f) } catch { /* ignore */ }
+      try {
+        await unlink(f)
+      } catch {
+        /* ignore */
+      }
     }
   }
 }

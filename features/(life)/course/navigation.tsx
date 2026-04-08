@@ -44,16 +44,20 @@ export function Navigation(props: NavProps) {
 
   return (
     <nav class="flex items-center justify-between px-6 py-4 border-b border-neutral-200 bg-white">
-      <a href="/" class="text-xl font-serif text-neutral-900">Right Decision</a>
+      <a href="/" class="text-xl font-serif text-neutral-900">
+        Right Decision
+      </a>
       <div class="flex items-center gap-6">
         {items.map((item) => (
-          <a key={item.href} href={item.href} class="text-sm text-neutral-600 hover:text-neutral-900 transition-colors">
+          <a
+            key={item.href}
+            href={item.href}
+            class="text-sm text-neutral-600 hover:text-neutral-900 transition-colors"
+          >
             {item.label}
           </a>
         ))}
-        {props.userName && (
-          <span class="text-sm text-neutral-400">{props.userName}</span>
-        )}
+        {props.userName && <span class="text-sm text-neutral-400">{props.userName}</span>}
       </div>
     </nav>
   )

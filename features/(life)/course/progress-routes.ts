@@ -4,7 +4,12 @@ import { z } from 'zod'
 import { requireAuth } from '@/platform/auth/middleware'
 import { success } from '@/platform/server/responses'
 import type { AppEnv } from '@/platform/types'
-import { getModuleProgress, getOverallProgress, getUserProgress, markClassComplete } from './progress'
+import {
+  getModuleProgress,
+  getOverallProgress,
+  getUserProgress,
+  markClassComplete,
+} from './progress'
 
 const completeSchema = z.object({
   classId: z.string().min(1),

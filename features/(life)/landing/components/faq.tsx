@@ -13,7 +13,7 @@ const FAQS = [
   },
   {
     q: 'What are "AI skills"?',
-    a: "Each exercise IS an AI skill — think of it as a guided conversation that produces a real document. You run the skill, it asks you questions, you answer in your own words, it asks follow-ups to go deeper, and it saves a structured document to your personal folder. You do the thinking. The AI does the structuring. By the end, you have 10 documents that tell the complete story of your decision.",
+    a: 'Each exercise IS an AI skill — think of it as a guided conversation that produces a real document. You run the skill, it asks you questions, you answer in your own words, it asks follow-ups to go deeper, and it saves a structured document to your personal folder. You do the thinking. The AI does the structuring. By the end, you have 10 documents that tell the complete story of your decision.',
   },
   {
     q: 'What happens after the year?',
@@ -39,14 +39,8 @@ export function FAQSection() {
 
         <div class="divide-y divide-linen">
           {FAQS.map((faq, i) => (
-            <details
-              key={faq.q}
-              class="py-4"
-              open={i === 0 ? true : undefined}
-            >
-              <summary class="cursor-pointer font-semibold text-ink select-none">
-                {faq.q}
-              </summary>
+            <details key={faq.q} class="py-4" open={i === 0 ? true : undefined}>
+              <summary class="cursor-pointer font-semibold text-ink select-none">{faq.q}</summary>
               <p class="mt-3 text-body leading-[1.7]">{faq.a}</p>
             </details>
           ))}
