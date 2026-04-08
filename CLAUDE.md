@@ -224,6 +224,65 @@ Full document index: decisions/00-general/document.md
 Document pipeline: d-meta → d-input → d-plan → d-tasks (beads) → d-code (implement).
 Methodology: Meta → Draft → Document → Tasks → Code. Each phase catches problems before the next.
 
+## Stripe Skills
+- `/stripe-best-practices` — ALWAYS invoke before writing or reviewing any Stripe integration code. Covers API selection (Checkout vs PaymentIntents), subscriptions/billing, Connect, security (RAKs, webhooks, key management). Read the relevant reference file it surfaces before coding.
+- `/stripe-projects` — Only for bootstrapping a brand new Stripe project via CLI (`stripe projects init`). NOT needed for this repo — we already have Stripe wired up. Only use if starting a completely new Stripe integration from scratch.
+
+## External Service CLIs (DO stuff, don't ASK the user to do it)
+You have authenticated CLIs for all external services. Use them directly instead of telling the user to go to a dashboard.
+
+### Railway (`railway`) — Hosting & Infra
+Project: decisions | Environment: production | Service: rightdecision
+```sh
+railway variable list --kv              # list all env vars
+railway variable set KEY=value          # set env var (triggers redeploy)
+railway variable set KEY=value --skip-deploys  # set without redeploying
+railway variable delete KEY             # remove env var
+railway logs                            # tail production logs
+railway status                          # current project/env/service
+railway up                              # manual deploy
+railway redeploy                        # redeploy current
+```
+
+### Stripe (`stripe`) — Payments
+```sh
+stripe products list                    # list products
+stripe products create --name "..."     # create product
+stripe prices list                      # list prices
+stripe prices create --product <id> --unit-amount <cents> --currency usd -d "recurring[interval]=year"
+stripe customers list                   # list customers
+stripe listen --forward-to localhost:3000/api/stripe/webhook  # local webhook testing
+stripe logs tail                        # watch API request logs
+stripe trigger <event>                  # fire test webhook events
+```
+
+### GitHub (`gh`) — Code & PRs
+```sh
+gh pr create --title "..." --body "..."   # create PR
+gh pr list                                # list PRs
+gh pr merge <number>                      # merge PR
+gh issue list                             # list issues
+gh run list                               # list CI runs
+gh run watch <id>                         # watch CI run
+gh api repos/{owner}/{repo}/...           # raw API calls
+```
+
+### PostHog (MCP tools, not CLI)
+No CLI installed — use `mcp__posthog__*` tools directly:
+- `mcp__posthog__query-trends` — analytics trends
+- `mcp__posthog__query-funnel` — funnel analysis
+- `mcp__posthog__feature-flag-get-all` — list feature flags
+- `mcp__posthog__create-feature-flag` — create feature flag
+- `mcp__posthog__insights-get-all` — list saved insights
+- `mcp__posthog__error-tracking-issues-list` — production errors
+
+### Rule: Act First, Ask Never
+- Need to set an env var? `railway variable set` — don't tell the user to go to Railway dashboard.
+- Need a Stripe price ID? `stripe prices list` or `stripe prices create` — don't tell the user to check the dashboard.
+- Need to check CI? `gh run list` — don't send the user to GitHub Actions.
+- Need analytics? Use PostHog MCP tools — don't send the user to PostHog dashboard.
+- Only ask the user when: you need a secret value they must provide, or the action is destructive/irreversible.
+
 ## Deployment
 Railway. Dockerfile deploy. PostgreSQL on Railway.
 GitHub: henriquemeireles7. Email: hsameireles@gmail.com.

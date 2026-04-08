@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.1.0] - 2026-04-08
+
+### Added
+- Life Decisions landing page: 11-section sales page at therightdecision.com
+- SSR infrastructure: renderPage() function wraps any Preact component in full HTML document
+- Tailwind CSS v4 pipeline with design tokens from design.md (cream, gold, sand palette)
+- Static file serving via Hono serveStatic middleware
+- 4 A/B headline variants with server-side cookie persistence
+- GET /api/checkout/redirect endpoint for zero-JS CTA buttons (303 to Stripe)
+- 12 new components: CTAButton, Hero, Problem, Mechanism, Transformation, Curriculum, Founder, SocialProof, Offer, Disqualification, FAQ, FinalCTA
+- Mobile section reordering via CSS flexbox order (Offer moves to position 3)
+- Skip-to-content accessibility link, OG meta tags, XSS-safe meta escaping
+- 31 new tests (12 renderPage unit + 19 landing page integration)
+
+### Fixed
+- Dockerfile: copy public/ to runtime stage (CSS was missing in production)
+- Checkout redirect: null-check session.url, redirect to landing page on error
+- Cookie security: added secure flag to A/B variant cookie
+
 ## [0.1.0.0] - 2026-04-08
 
 ### Added

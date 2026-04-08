@@ -23,5 +23,8 @@ coverage/
 # bv (beads viewer) local config and caches
 .bv/
 
+# Compiled CSS (generated from styles/global.css)
+public/styles.css
+
 # ML models (large binaries)
 models/

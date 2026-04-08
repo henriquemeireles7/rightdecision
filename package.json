@@ -4,8 +4,10 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "bun run --hot platform/server/app.ts",
-    "build": "bun build platform/server/app.ts --outdir dist --target bun",
+    "dev": "bun run css:build && bun run --hot platform/server/app.ts",
+    "build": "bun run css:build && bun build platform/server/app.ts --outdir dist --target bun",
+    "css:build": "bunx @tailwindcss/cli -i styles/global.css -o public/styles.css --minify",
+    "css:dev": "bunx @tailwindcss/cli -i styles/global.css -o public/styles.css --watch",
     "start": "bun run dist/app.js",
     "check": "bunx biome ci . && tsc --noEmit && bun platform/scripts/harden-check.ts && bun test",
     "test": "bun test",
@@ -37,6 +39,7 @@
     "hono": "^4.12.10",
     "postgres": "^3.4.8",
     "preact": "^10.29.1",
+    "preact-render-to-string": "^6.6.7",
     "resend": "^6.10.0",
     "stripe": "^22.0.0",
     "zod": "^4.3.6"

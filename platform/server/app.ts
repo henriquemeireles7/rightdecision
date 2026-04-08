@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { logger } from 'hono/logger'
+import { serveStatic } from 'hono/bun'
 import { env } from '@/platform/env'
 import { mountRoutes } from './routes'
 
@@ -9,6 +10,7 @@ const app = new Hono()
 // Middleware stack
 app.use('*', logger())
 app.use('*', cors({ origin: env.PUBLIC_APP_URL, credentials: true }))
+app.use('/*', serveStatic({ root: './public' }))
 
 // Mount all routes
 const appRoutes = mountRoutes(app)
