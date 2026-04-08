@@ -22,7 +22,8 @@ export function MicroDecision({
         <div class="decision-quote">{existingDecision.response}</div>
         <div class="flex items-center gap-3 mt-2 text-sm text-muted">
           <span>
-            Decided · {new Date(existingDecision.createdAt).toLocaleDateString('en-US', {
+            Decided ·{' '}
+            {new Date(existingDecision.createdAt).toLocaleDateString('en-US', {
               month: 'short',
               day: 'numeric',
             })}

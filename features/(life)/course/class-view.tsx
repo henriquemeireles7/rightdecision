@@ -1,11 +1,11 @@
 import type { CourseClass, CourseModule } from '@/providers/content'
 import { renderCourseMarkdown } from '@/providers/markdown'
+import type { AccessTier } from './access'
 import { BottomNav } from './bottom-nav'
 import { MenuOverlay } from './menu-overlay'
 import { MicroDecision } from './micro-decision'
 import { getReadingAnalyticsScript } from './reading-analytics-client'
 import { getSessionMemoryScript } from './session-memory'
-import type { AccessTier } from './access'
 
 type ClassViewProps = {
   cls: CourseClass
@@ -86,10 +86,7 @@ export function ClassView({
         </div>
 
         {/* Rendered editorial content */}
-        <div
-          class="prose-editorial"
-          dangerouslySetInnerHTML={{ __html: renderedContent }}
-        />
+        <div class="prose-editorial" dangerouslySetInnerHTML={{ __html: renderedContent }} />
 
         {/* Micro-Decision (if practice class has a decision prompt) */}
         {cls.decisionPrompt && (

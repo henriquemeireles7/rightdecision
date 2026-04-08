@@ -1,5 +1,5 @@
-import satori from 'satori'
 import { Resvg } from '@resvg/resvg-js'
+import satori from 'satori'
 
 const MAX_CACHE_SIZE = 500
 const imageCache = new Map<string, Buffer>()

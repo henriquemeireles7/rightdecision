@@ -19,23 +19,40 @@ export function MenuOverlay({ accessTier, modules }: MenuOverlayProps) {
             data-action="close-menu"
           >
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-              <path d="M5 5L15 15M15 5L5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+              <path
+                d="M5 5L15 15M15 5L5 15"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              />
             </svg>
           </button>
         </div>
 
         {/* Navigation links */}
         <nav class="space-y-6 mb-10">
-          <a href="/courses/life-decisions" class="block font-display text-xl text-ink hover:text-gold transition-colors">
+          <a
+            href="/courses/life-decisions"
+            class="block font-display text-xl text-ink hover:text-gold transition-colors"
+          >
             Course
           </a>
-          <a href="/journey" class="block font-display text-xl text-ink hover:text-gold transition-colors">
+          <a
+            href="/journey"
+            class="block font-display text-xl text-ink hover:text-gold transition-colors"
+          >
             Journey
           </a>
-          <a href="/bookmarks" class="block font-display text-xl text-ink hover:text-gold transition-colors">
+          <a
+            href="/bookmarks"
+            class="block font-display text-xl text-ink hover:text-gold transition-colors"
+          >
             Bookmarks
           </a>
-          <a href="/account" class="block font-display text-xl text-ink hover:text-gold transition-colors">
+          <a
+            href="/account"
+            class="block font-display text-xl text-ink hover:text-gold transition-colors"
+          >
             Account
           </a>
         </nav>

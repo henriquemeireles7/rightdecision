@@ -15,9 +15,7 @@ function CourseCard({ course, progress }: CourseCardProps) {
       <p class="text-body text-sm mb-4">{course.subtitle}</p>
       <div class="flex items-center justify-between text-sm text-muted">
         <span>{course.modules.length} modules</span>
-        {progress && (
-          <span class="text-gold">{progress.percent}% read</span>
-        )}
+        {progress && <span class="text-gold">{progress.percent}% read</span>}
       </div>
     </a>
   )

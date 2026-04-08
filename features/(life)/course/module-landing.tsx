@@ -45,9 +45,7 @@ export function ModuleLandingPage({
                 key={cls.id}
                 href={`/courses/${courseSlug}/class/${cls.id}`}
                 class={`block p-4 rounded-md border transition-colors ${
-                  isCurrent
-                    ? 'border-gold bg-surface-white'
-                    : 'border-linen hover:border-gold'
+                  isCurrent ? 'border-gold bg-surface-white' : 'border-linen hover:border-gold'
                 }`}
               >
                 <div class="flex items-center justify-between">

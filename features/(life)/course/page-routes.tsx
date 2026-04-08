@@ -2,15 +2,15 @@ import { Hono } from 'hono'
 import { auth } from '@/platform/auth/config'
 import { renderPage } from '@/platform/server/render'
 import type { AppEnv } from '@/platform/types'
-import { getClass, getAllCourses, getAllModules, getModule } from '@/providers/content'
+import { getAllCourses, getAllModules, getClass, getModule } from '@/providers/content'
 import { canAccessClass, getModuleFromClassId, getUserAccessTier } from './access'
+import { isBookmarked } from './bookmarks'
 import { ClassView } from './class-view'
 import { CourseDashboard } from './dashboard'
 import { getDecision, isDecisionEditable } from './decisions'
 import { CourseListing } from './listing'
 import { ModuleLandingPage } from './module-landing'
 import { getOverallProgress, getUserProgress } from './progress'
-import { isBookmarked } from './bookmarks'
 
 export const coursePageRoutes = new Hono<AppEnv>()
 
@@ -41,10 +41,10 @@ coursePageRoutes.get('/', async (c) => {
   }
 
   return c.html(
-    renderPage(
-      <CourseListing courses={courses} courseProgress={courseProgress} />,
-      { title: 'Courses — The Right Decision', description: 'Your reading list.' },
-    ),
+    renderPage(<CourseListing courses={courses} courseProgress={courseProgress} />, {
+      title: 'Courses — The Right Decision',
+      description: 'Your reading list.',
+    }),
   )
 })
 

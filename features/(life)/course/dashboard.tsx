@@ -40,12 +40,8 @@ export function CourseDashboard(props: DashboardProps) {
         {/* Header with subtle progress */}
         <div class="flex items-baseline justify-between mb-2">
           <h1 class="text-3xl font-display text-ink">Your Course</h1>
-          {!isComplete && (
-            <span class="text-sm text-muted">{overallPercent}% read</span>
-          )}
-          {isComplete && (
-            <span class="text-sm text-success font-medium">Complete</span>
-          )}
+          {!isComplete && <span class="text-sm text-muted">{overallPercent}% read</span>}
+          {isComplete && <span class="text-sm text-success font-medium">Complete</span>}
         </div>
 
         {/* Thin progress line */}
@@ -126,9 +122,7 @@ export function CourseDashboard(props: DashboardProps) {
                         key={cls.id}
                         href={`/class/${cls.id}`}
                         class={`block text-sm py-1 transition-colors ${
-                          isCurrent
-                            ? 'text-gold font-medium'
-                            : 'text-body hover:text-ink'
+                          isCurrent ? 'text-gold font-medium' : 'text-body hover:text-ink'
                         }`}
                       >
                         {cls.title}
