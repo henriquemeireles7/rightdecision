@@ -1,12 +1,12 @@
 ---
 name: d-autoreview
-description: "Unified review chain before shipping: d-review → /review → /simplify → /ship. One command, fully reviewed code out. Triggers: 'd-autoreview', 'full review', 'review and ship'."
+description: "Unified review chain before shipping: d-harden -> /review -> /simplify -> d-review -> /qa -> /ship. One command, fully reviewed code out. Triggers: 'd-autoreview', 'full review', 'review and ship'."
 ---
 
 # d-autoreview — Unified Review Chain
 
 ## What this does
-Chains all quality checks into a single pre-ship pipeline. Runs four review steps sequentially,
+Chains all quality checks into a single pre-ship pipeline. Runs six review steps sequentially,
 fixing issues found at each step before proceeding to the next. The output is a fully reviewed
 PR ready for merge.
 
@@ -15,11 +15,13 @@ d-code (implement) → **d-autoreview** (review + ship)
 
 ## The Chain
 
-### Step 1: Fresh Eyes Review (d-review)
-Run a deep code review using fresh eyes methodology:
-- Reread ALL changed code looking for bugs, security issues, performance problems
-- Check TDD coverage — are there missing test cases?
-- Check architecture — does the code follow DSA patterns?
+### Step 1: Security & Performance Hardening (d-harden)
+Run security and performance hardening as the foundational first step:
+- Check for SQL injection, missing parameterization, unsafe queries
+- Check for missing auth/permission guards on routes
+- Check for exposed secrets, unsafe env access, missing rate limiting
+- Check Dockerfile runtime stage includes all files needed by railway.toml commands
+- Check for performance anti-patterns (N+1 queries, missing indexes)
 - Fix any issues found before proceeding
 
 If critical issues found: fix them, re-run `bun run check`, then proceed.
@@ -44,7 +46,30 @@ Review changed code for reuse opportunities and quality:
 
 If issues found: fix them, re-run `bun run check`, then proceed.
 
-### Step 4: Ship (/ship)
+### Step 4: Fresh Eyes Review (d-review)
+Run a deep code review using fresh eyes methodology:
+- Reread ALL changed code looking for bugs, security issues, performance problems
+- Check TDD coverage — are there missing test cases?
+- Check architecture — does the code follow DSA patterns?
+- Check dependency direction (features/ must not import from other features/)
+- Check test coverage (every .ts file needs a .test.ts)
+- Fix any issues found before proceeding
+- Creates beads for deferred fixes that are not blocking
+
+If critical issues found: fix them, re-run `bun run check`, then proceed.
+
+### Step 5: QA — Runtime Bug Check (/qa)
+Run QA to catch runtime bugs that static analysis misses:
+- Test all changed routes/endpoints manually
+- Verify error paths return correct status codes and error shapes
+- Check edge cases: empty inputs, missing fields, invalid types
+- Verify database operations work end-to-end
+- Check browser rendering if pages/ changed
+- Fix any issues found before proceeding
+
+If critical issues found: fix them, re-run `bun run check`, then proceed.
+
+### Step 6: Ship (/ship)
 Run the ship workflow:
 - Merge base branch, run tests, review diff
 - Bump VERSION, update CHANGELOG
@@ -57,6 +82,9 @@ Run the ship workflow:
 - If a step reveals issues that require significant rework, stop and inform the user
 - The chain is mandatory before any code hits master (founder decision from eng review)
 - No individual gates on beads during d-code — this chain catches everything at once
+- d-harden is FIRST because security/performance issues are foundational
+- d-review is late because it creates beads for deferred fixes — do quick fixes first
+- /qa is before /ship to catch runtime bugs before creating the PR
 
 ## When to use
 - After completing all beads in a d-code session
@@ -67,10 +95,12 @@ Run the ship workflow:
 After completion, report:
 ```
 === AUTOREVIEW SUMMARY ===
-Step 1 (d-review): X issues found, X fixed
+Step 1 (d-harden): X issues found, X fixed
 Step 2 (/review): X issues found, X fixed
 Step 3 (/simplify): X issues found, X fixed
-Step 4 (/ship): PR created → [URL]
+Step 4 (d-review): X issues found, X fixed, X deferred as beads
+Step 5 (/qa): X issues found, X fixed
+Step 6 (/ship): PR created → [URL]
 
 Total issues caught: X
 All checks passing: ✅

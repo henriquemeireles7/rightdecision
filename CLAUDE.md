@@ -378,3 +378,4 @@ Key routing rules:
 - PRD, product requirements → invoke d-prd
 - Full coding pipeline end-to-end → invoke autocode
 - Review and ship, full review chain → invoke d-autoreview
+- Build/deploy error, prevent this, learn from error → invoke d-harness
