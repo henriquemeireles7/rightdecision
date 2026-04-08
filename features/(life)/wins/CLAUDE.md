@@ -24,3 +24,23 @@ import { env } from '@/platform/env'
 ```sh
 bun test features/wins/
 ```
+
+---
+<!-- AUTO-GENERATED BELOW — do not edit manually -->
+
+## Files
+| File | Exports |
+|------|---------|
+| routes.ts | winsRoutes |
+| service.ts | LifeArea, createWin, getPublicFeed, getMyWins |
+| wins-board.tsx | WinsBoard |
+
+## Internal Dependencies
+- platform/auth
+- platform/db
+- platform/env
+- platform/errors
+- platform/server
+- platform/types
+
+<!-- Generated: 2026-04-08T05:22:13.831Z -->

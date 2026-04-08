@@ -24,3 +24,24 @@ import { env } from '@/platform/env'
 ```sh
 bun test features/onboarding/
 ```
+
+---
+<!-- AUTO-GENERATED BELOW — do not edit manually -->
+
+## Files
+| File | Exports |
+|------|---------|
+| ab-test.ts | ABVariant, ABTest, ACTIVE_TESTS, assignVariant, assignAllVariants, getVariantContent |
+| link-subscription.ts | linkAccountAfterCreation |
+| onboarding-steps.tsx | Step1Welcome, Step2Intro, Step3Question, Step4Question, Step5Decision, Step6Email |
+| rich-profile.tsx | RichProfileScreen |
+| routes.ts | onboardingRoutes |
+| session.ts | SessionData, OnboardingSession, createSession, getSession, updateSession, consumeSession, expireSessions |
+
+## Internal Dependencies
+- platform/db
+- platform/env
+- platform/errors
+- platform/server
+
+<!-- Generated: 2026-04-08T05:22:13.831Z -->
