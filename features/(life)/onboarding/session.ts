@@ -92,7 +92,7 @@ export async function consumeSession(
 
   await db.delete(onboardingSessions).where(eq(onboardingSessions.id, sessionId))
 
-  return { profileId: profile?.id }
+  return { profileId: profile?.id ?? '' }
 }
 
 export async function expireSessions(): Promise<number> {

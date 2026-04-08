@@ -99,7 +99,7 @@ describe('wins service', () => {
       mockSelectFrom.mockReturnValueOnce({ where: mockWhere } as never)
 
       const result = await getPublicFeed()
-      expect(result).toEqual(feedItems)
+      expect(result).toEqual(feedItems as never)
     })
   })
 
@@ -109,7 +109,7 @@ describe('wins service', () => {
       mockFindMany.mockResolvedValueOnce(userWins as never)
 
       const result = await getMyWins('u1')
-      expect(result).toEqual(userWins)
+      expect(result).toEqual(userWins as never)
     })
 
     it('returns empty array when no wins', async () => {

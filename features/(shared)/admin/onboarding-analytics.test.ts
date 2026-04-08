@@ -31,7 +31,7 @@ describe('onboarding-analytics', () => {
     const mockFromGroupBy = mock(() => ({ groupBy: mockGroupByResult }))
 
     let callCount = 0
-    mockSelect.mockImplementation(() => {
+    mockSelect.mockImplementation((() => {
       callCount++
       if (callCount <= 2) {
         // Profile count, session count
@@ -39,7 +39,7 @@ describe('onboarding-analytics', () => {
       }
       // Step dropoff, age ranges, time stuck
       return { from: mockFromGroupBy }
-    })
+    }) as never)
   })
 
   it('returns all analytics fields', async () => {
@@ -53,7 +53,7 @@ describe('onboarding-analytics', () => {
 
   it('returns 0 for completedProfiles when no profiles exist', async () => {
     let callCount = 0
-    mockSelect.mockImplementation(() => {
+    mockSelect.mockImplementation((() => {
       callCount++
       if (callCount === 1) {
         // Profile count returns undefined
@@ -64,7 +64,7 @@ describe('onboarding-analytics', () => {
       }
       const mockGroupByOrderBy = mock(() => Promise.resolve([]))
       return { from: mock(() => ({ groupBy: mock(() => ({ orderBy: mockGroupByOrderBy })) })) }
-    })
+    }) as never)
 
     const result = await getOnboardingAnalytics()
     expect(result.completedProfiles).toBe(0)
@@ -72,14 +72,14 @@ describe('onboarding-analytics', () => {
 
   it('handles empty step dropoff', async () => {
     let callCount = 0
-    mockSelect.mockImplementation(() => {
+    mockSelect.mockImplementation((() => {
       callCount++
       if (callCount <= 2) {
         return { from: mock(() => Promise.resolve([{ count: 0 }])) }
       }
       const mockGroupByOrderBy = mock(() => Promise.resolve([]))
       return { from: mock(() => ({ groupBy: mock(() => ({ orderBy: mockGroupByOrderBy })) })) }
-    })
+    }) as never)
 
     const result = await getOnboardingAnalytics()
     expect(result.stepDropoff).toEqual([])

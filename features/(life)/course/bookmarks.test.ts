@@ -63,8 +63,8 @@ describe('bookmarks', () => {
   describe('getUserBookmarks', () => {
     it('returns user bookmarks', async () => {
       const bookmarkList = [
-        { id: 'b1', userId: 'u1', classId: 'c1' },
-        { id: 'b2', userId: 'u1', classId: 'c2' },
+        { id: 'b1', userId: 'u1', classId: 'c1', createdAt: new Date() },
+        { id: 'b2', userId: 'u1', classId: 'c2', createdAt: new Date() },
       ]
       mockFindMany.mockResolvedValueOnce(bookmarkList as never)
 

@@ -87,7 +87,7 @@ function loadContent() {
 
       const moduleNum = Number.parseInt(moduleMatch[1] ?? '0', 10)
       const moduleSlug = moduleDir.name
-      const moduleName = moduleMatch[2]?.replace(/-/g, ' ')
+      const moduleName = moduleMatch[2]?.replace(/-/g, ' ') ?? ''
 
       const modulePath = join(CONTENT_DIR, moduleDir.name)
       const files = readdirSync(modulePath)

@@ -113,7 +113,7 @@ describe('transitions', () => {
       mockFindFirst.mockResolvedValueOnce(run as never)
 
       const result = await findRunInState('run-1', 'transcribed', 'selecting')
-      expect(result).toEqual({ run })
+      expect(result).toEqual({ run } as never)
     })
 
     it('returns NOT_FOUND when run does not exist', async () => {

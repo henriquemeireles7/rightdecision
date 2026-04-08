@@ -99,7 +99,8 @@ describe('reminders', () => {
 
       await sendModuleCompletionEmail('u1', 1)
       expect(mockSendEmail).toHaveBeenCalledTimes(1)
-      expect(mockSendEmail.mock.calls[0]?.[1].subject).toContain('The Wake-Up Call')
+      expect((mockSendEmail.mock.calls[0] as unknown[])?.[1] as { subject: string }).toBeTruthy()
+      expect(((mockSendEmail.mock.calls[0] as unknown[])[1] as { subject: string }).subject).toContain('The Wake-Up Call')
     })
 
     it('does not send email when user not found', async () => {
@@ -118,7 +119,8 @@ describe('reminders', () => {
 
       await sendModuleCompletionEmail('u1', 99)
       expect(mockSendEmail).toHaveBeenCalledTimes(1)
-      expect(mockSendEmail.mock.calls[0]?.[1].subject).toContain('Module 99')
+      expect((mockSendEmail.mock.calls[0] as unknown[])?.[1] as { subject: string }).toBeTruthy()
+      expect(((mockSendEmail.mock.calls[0] as unknown[])[1] as { subject: string }).subject).toContain('Module 99')
     })
   })
 

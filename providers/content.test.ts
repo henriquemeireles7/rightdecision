@@ -19,7 +19,7 @@ describe('content provider', () => {
   test('modules are sorted by id', () => {
     const modules = getAllModules()
     for (let i = 1; i < modules.length; i++) {
-      expect(modules[i]?.id).toBeGreaterThan(modules[i - 1]?.id)
+      expect(modules[i]?.id).toBeGreaterThan(modules[i - 1]?.id ?? 0)
     }
   })
 
@@ -75,7 +75,7 @@ describe('content provider', () => {
     expect(cls?.slug).toBeTruthy()
     expect(cls?.durationMinutes).toBeGreaterThan(0)
     expect(cls?.content.length).toBeGreaterThan(0)
-    expect(['theory', 'practical']).toContain(cls?.type)
+    expect(['theory', 'practical']).toContain(cls?.type as string)
   })
 
   test('practical classes are detected from slug', () => {
