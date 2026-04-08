@@ -1,8 +1,9 @@
 # Engineering Automation & Infrastructure Strategy
 
 > Written: 2026-04-07
-> Status: Ready for implementation
+> Status: Eng-reviewed, ready for implementation
 > Next step: `/d-tasks` to extract beads
+> Eng review: 2026-04-07 — 10 issues found, all resolved
 
 ## 1. Current State Audit
 
@@ -85,7 +86,7 @@ Integration tests hit real services but in test/sandbox mode. No mocks for the d
 
 | Service | Test Mode | How |
 |---------|-----------|-----|
-| PostgreSQL | Test database | Separate Railway DB or in-memory pg for CI |
+| PostgreSQL | Test database | PostgreSQL service container in GitHub Actions (localhost, zero cost, isolated per run) |
 | Stripe | Test mode keys | `STRIPE_SECRET_KEY=sk_test_...` — Stripe provides test clocks, test cards |
 | Better Auth | Test sessions | Create test users, exercise auth flows |
 | Resend | Sandbox mode | Resend sandbox catches emails without delivering |
@@ -235,7 +236,7 @@ Add E2E as final CI step (runs on staging after deploy, blocks promotion to prod
 Push → CI (lint/type/test) → Deploy to staging → E2E smoke on staging → Promote to production
 ```
 
-This requires a staging environment on Railway (same app, different env vars). Until then, E2E runs post-deploy on production with `/canary`.
+**Decision (eng review):** No staging environment. Post-deploy canary on production is sufficient for current scale. Revisit when user count justifies the cost.
 
 ---
 
@@ -367,7 +368,7 @@ Enhanced: biome ci → tsc --noEmit → harden-check → bun test → security s
 ```
 
 **New CI steps:**
-1. **Security scan:** `bun audit` for known vulnerabilities in dependencies
+1. **Security scan:** GitHub Dependabot (free, zero config, auto-PRs for vulnerable deps — not in CI, runs async)
 2. **Post-deploy canary:** Hit /health/ready, run 3 critical E2E flows
 3. **Auto-rollback:** If canary fails, Railway redeploys previous version
 
@@ -501,8 +502,10 @@ These run via GitHub Actions or Conductor workspace on PR creation:
 
 ### 6e. Autonomy Rules
 
-| Change Type | Auto-merge? | Requires PR? |
-|-------------|-------------|--------------|
+**Key clarification (eng review):** "Auto-merge" means "agent creates PR → CI passes → agent self-approves via /review → auto-merge." ALL changes go through PRs. Branch protection is strict. Nothing pushes directly to master.
+
+| Change Type | Agent self-approves? | Human review required? |
+|-------------|---------------------|----------------------|
 | Dependency patch update (tests pass) | Yes | No |
 | Lint/format fix | Yes | No |
 | Typo fix in docs | Yes | No |
@@ -564,21 +567,22 @@ If any fail: agent creates a bead describing the opportunity, waits for human pr
 
 ### 8a. Technical Setup
 
-**Client-side (Preact):**
+**Client-side (Preact app shell):**
 ```ts
-// providers/analytics.ts — expand existing file
-// Add: posthog-js SDK
-// Initialize in app shell with env.POSTHOG_API_KEY
+// Lazy-load posthog-js AFTER page renders (45KB gzipped — don't block initial paint)
+// import('posthog-js').then(ph => ph.init(env.POSTHOG_API_KEY))
 // Auto-capture: page views, clicks, form submissions
+// Session replay enabled
 // Custom events: see taxonomy in Section 4a
 ```
 
-**Server-side (Hono):**
+**Server-side (providers/analytics.ts):**
 ```ts
-// providers/analytics.ts — add server-side PostHog
+// PostHog Node SDK — separate file from client (providers are one file each)
 // Hono middleware: capture API request/response metrics
 // Error middleware: report unhandled errors
 // Auth hooks: track signup/login/logout server-side
+// Must gracefully degrade if PostHog is unreachable
 ```
 
 **Environment variables (add to platform/env.ts):**
@@ -622,12 +626,19 @@ const isEnabled = await posthog.isFeatureEnabled('new_onboarding', userId)
 
 ### Phase 1: Testing Foundation (Week 1-2)
 
+**Test priority order (eng review decision):** auth → payment/Stripe → BD pipeline → content → remaining.
+Test platform helpers first so feature tests reuse them (DRY).
+
 | Task | Effort | Priority |
 |------|--------|----------|
-| Create platform/test/ helpers (factories, setup, helpers) | 2h | P0 |
-| Write feature-level tests for all existing features/ services | 8h | P0 |
-| Add integration tests for auth flows (signup, login, session) | 3h | P0 |
-| Add integration tests for Stripe flows (checkout, webhook) | 3h | P0 |
+| Create `platform/test/setup.ts` — Drizzle migration in beforeAll, transaction rollback in afterEach, DATABASE_URL override for CI | 1h | **P0** |
+| Create `platform/test/factories.ts` — createTestUser(), createTestSubscription(), etc. | 1h | P0 |
+| Create `platform/test/helpers.ts` — common assertions, API call wrappers | 1h | P0 |
+| Add PostgreSQL service container to GitHub Actions workflow | 30m | P0 |
+| Write feature tests: auth flows (signup, login, session, permissions) | 3h | P0 |
+| Write feature tests: Stripe flows (checkout, webhook, subscription) | 3h | P0 |
+| Write BD Pipeline integration test — full 7-step pipeline with mock data | 3h | P0 |
+| Write feature tests: remaining features/ services (~30 files) | 6h | P0 |
 | Add `bun test --coverage` to CI and track coverage | 1h | P0 |
 | Wire `/qa` as E2E smoke test for critical flows | 2h | P1 |
 
@@ -650,7 +661,7 @@ const isEnabled = await posthog.isFeatureEnabled('new_onboarding', userId)
 |------|--------|----------|
 | Enable GitHub branch protection on master (require CI pass) | 30m | **P0** |
 | Add `preDeployCommand = "bun run db:migrate"` to railway.toml | 15m | P0 |
-| Add security scan (`bun audit`) to CI | 30m | P1 |
+| Enable GitHub Dependabot for dependency vulnerability PRs | 15m | P1 |
 | Set up post-deploy canary check | 2h | P1 |
 | Document multi-agent coordination protocol in CLAUDE.md | 1h | P1 |
 | Add Agent Mail session-start/end protocol to harness hooks | 2h | P1 |
@@ -681,12 +692,12 @@ const isEnabled = await posthog.isFeatureEnabled('new_onboarding', userId)
 | Competitor analysis agent | 3h | P3 |
 
 ### Total Estimated Effort
-- **Phase 1 (Testing):** ~19h of agent time
+- **Phase 1 (Testing):** ~22h of agent time (added: test setup, BD pipeline integration, Postgres in CI)
 - **Phase 2 (Monitoring):** ~14h of agent time
 - **Phase 3 (CI/CD + Multi-Agent + DRY + Sync):** ~11h of agent time
 - **Phase 4 (Scheduling):** ~8h of agent time
 - **Phase 5 (Autonomous):** ~16h of agent time
-- **Total:** ~68h of agent time over 4 weeks
+- **Total:** ~71h of agent time over 4 weeks
 
 ---
 
@@ -842,7 +853,23 @@ Add to review checklist:
 - Flag any error handling that should use `throwError()` with existing codes
 - Suggest extraction when 3+ similar code blocks exist
 
-### 12d. Helper Creation Rules (from coding.md)
+### 12d. Unified Review Chain (d-autoreview)
+
+**Decision (eng review):** `/simplify` is NOT a gate on individual beads. Instead, create a unified review chain that runs before shipping:
+
+```
+d-autoreview: d-review → /review → /simplify → /ship
+```
+
+Each step feeds the next:
+1. **d-review** — fresh eyes, security, performance, TDD, architecture
+2. **/review** — pre-landing diff review (SQL safety, trust boundaries, side effects)
+3. **/simplify** — DRY violations, code reuse opportunities, cleanup
+4. **/ship** — commit, push, create PR
+
+No individual gates on beads during d-code. The full chain is mandatory before anything hits master. This means agents code freely during d-code, then the review chain catches everything at once.
+
+### 12e. Helper Creation Rules (from coding.md)
 
 - **No abstraction until the 3rd duplication** — don't premature-abstract
 - When creating a helper: put it in the nearest shared ancestor folder
@@ -917,3 +944,42 @@ Every universal file has a `> Last verified: YYYY-MM-DD` header. Rules:
 | decisions/coding.md | Add test coverage requirements, integration test patterns |
 | decisions/hardening.md | Update after first /d-harden run with PostHog + tests in place |
 | CLAUDE.md (root) | Add /e2e skill reference, PostHog MCP usage patterns |
+
+---
+
+## Eng Review Decisions Log (2026-04-07)
+
+| # | Issue | Decision | Why |
+|---|-------|----------|-----|
+| 1 | `bun audit` doesn't exist | Use GitHub Dependabot (free, auto-PRs) | Boring technology, zero maintenance |
+| 2 | PostHog client + server in one file | Split: server in providers/analytics.ts, client lazy-loaded in Preact shell | Follows provider pattern, prevents cross-bundling |
+| 3 | Integration test database | PostgreSQL service container in GitHub Actions | Zero cost, isolated per run, boring |
+| 4 | Staging environment | No staging. Post-deploy canary on prod | Sufficient for pre-revenue, saves $5-10/month |
+| 5 | Feature test priority | auth → Stripe → BD pipeline → content → rest | Business risk ordering, platform helpers first for DRY |
+| 6 | /simplify as gate | Not a gate. Unified review chain: d-review → /review → /simplify → /ship | Agents code freely, chain catches everything before shipping |
+| 7 | Auto-merge vs branch protection | All changes go through PRs. "Auto-merge" = agent self-approves via /review | Branch protection is non-negotiable safety net |
+| 8 | Test database lifecycle | `platform/test/setup.ts` with Drizzle migration + transaction rollback | Explicit import, every integration test uses it |
+| 9 | BD Pipeline testing | Add pipeline integration test as P0 | 7-step composition bugs need integration coverage |
+| 10 | PostHog bundle size | Full SDK, lazy-loaded after page render | Full features (session replay), zero paint impact |
+
+## Worktree Parallelization Strategy
+
+| Lane | Tasks | Modules Touched | Depends On |
+|------|-------|-----------------|------------|
+| A | Phase 1: test infra + unit tests | platform/test/, features/ | — |
+| B | Phase 2: PostHog setup | providers/, platform/env.ts, pages/ (client init) | — |
+| C | Phase 3: CI/CD + branch protection | .github/workflows/, railway.toml, CLAUDE.md | — |
+| D | Phase 3: multi-agent + DRY + sync | .claude/skills/, CLAUDE.md, decisions/ | — |
+
+**Execution:** Launch A + B + C in parallel (no shared modules). D depends on C finishing (both touch CLAUDE.md). Phase 4-5 depend on Phase 1+2.
+
+```
+Week 1-2:  [A: Testing] ──────────────┐
+           [B: PostHog] ──────────────┤
+           [C: CI/CD] ───────┐        │
+                              ├─ [D: Multi-agent/DRY] ──┤
+Week 3-4:                                                ├─ [Phase 4: Scheduling]
+                                                         └─ [Phase 5: Autonomous]
+```
+
+3 parallel lanes in Weeks 1-2, then sequential for Phases 4-5.
