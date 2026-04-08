@@ -26,10 +26,19 @@ mock.module('@/platform/db/schema', () => mockSchema())
 // Don't mock state-machine — it's pure logic, no external deps
 
 const mockPost = mock(() => Promise.resolve({ id: 'upload-123', status: 'queued' }))
-mock.module('@/providers/social-posting', () => ({ post: mockPost }))
+mock.module('@/providers/social-posting', () => ({
+  post: mockPost,
+  listProfiles: mock(() => Promise.resolve([])),
+  getPostStatus: mock(() => Promise.resolve({ id: 'test', status: 'queued' })),
+}))
 
 const mockGetSignedUrl = mock(() => Promise.resolve('https://signed.example.com/clip.mp4'))
-mock.module('@/providers/storage', () => ({ getSignedUrl: mockGetSignedUrl }))
+mock.module('@/providers/storage', () => ({
+  getSignedUrl: mockGetSignedUrl,
+  upload: mock(() => Promise.resolve('test-key')),
+  download: mock(() => Promise.resolve(Buffer.from('test'))),
+  remove: mock(() => Promise.resolve()),
+}))
 
 const { distributePostsForRun } = await import('./service')
 
@@ -71,8 +80,28 @@ describe('features/(business)/post-distribute/service', () => {
     expect(result).toEqual({ error: 'NOT_FOUND' })
   })
 
+  it('skips actual posting when dryRun is true', async () => {
+    mockFindFirstRun.mockResolvedValueOnce({
+      id: 'run-1',
+      status: 'metadata_ready',
+      config: { dryRun: true },
+    } as never)
+    mockFindManyClips.mockResolvedValueOnce([
+      { id: 'clip-1', storageUrl: 'clips/clip-1.mp4' },
+    ] as never)
+    mockFindManyPosts.mockResolvedValueOnce([
+      { id: 'post-1', clipId: 'clip-1', platformAccountId: 'acc-1', description: 'test', hashtags: [], retryCount: 0 },
+    ] as never)
+
+    const result = await distributePostsForRun('run-1')
+    expect(result).toHaveProperty('dryRun', true)
+    expect(result).toHaveProperty('posts')
+    expect(mockPost).not.toHaveBeenCalled()
+    expect(mockGetSignedUrl).not.toHaveBeenCalled()
+  })
+
   it('distributes posts successfully', async () => {
-    mockFindFirstRun.mockResolvedValueOnce({ id: 'run-1', status: 'metadata_ready' } as never)
+    mockFindFirstRun.mockResolvedValueOnce({ id: 'run-1', status: 'metadata_ready', config: {} } as never)
     mockFindManyClips.mockResolvedValueOnce([
       { id: 'clip-1', storageUrl: 'https://r2.example.com/clips/clip-1.mp4' },
     ] as never)

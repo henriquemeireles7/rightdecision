@@ -66,7 +66,12 @@ mock.module('@/platform/db/schema', () => mockSchema())
 
 // Mock providers
 const mockDownload = mock(() => Promise.resolve(Buffer.from('fake-video-data')))
-mock.module('@/providers/storage', () => ({ download: mockDownload }))
+mock.module('@/providers/storage', () => ({
+  download: mockDownload,
+  upload: mock(() => Promise.resolve('test-key')),
+  getSignedUrl: mock(() => Promise.resolve('https://signed.example.com')),
+  remove: mock(() => Promise.resolve()),
+}))
 
 const mockTranscribe = mock(() =>
   Promise.resolve('[00:00:01] Hello world\n[00:00:05] Test transcript'),

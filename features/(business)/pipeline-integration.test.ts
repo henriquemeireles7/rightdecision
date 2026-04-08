@@ -17,13 +17,18 @@ mock.module('@/providers/storage', () => ({
   download: mockDownload,
   upload: mockUpload,
   getSignedUrl: mockGetSignedUrl,
+  remove: mock(() => Promise.resolve()),
 }))
 
 const mockTranscribe = mock(() => Promise.resolve('[00:00:01] Hello world\n[00:00:30] Great insight'))
 mock.module('@/providers/transcription', () => ({ transcribe: mockTranscribe }))
 
 const mockPost = mock(() => Promise.resolve({ id: 'upload-post-1', url: 'https://social.com/post/1' }))
-mock.module('@/providers/social-posting', () => ({ post: mockPost }))
+mock.module('@/providers/social-posting', () => ({
+  post: mockPost,
+  listProfiles: mock(() => Promise.resolve([{ id: 'acct-1', platform: 'instagram', handle: 'test' }])),
+  getPostStatus: mock(() => Promise.resolve({ id: 'test', status: 'queued' })),
+}))
 
 const mockGetMetrics = mock(() =>
   Promise.resolve({

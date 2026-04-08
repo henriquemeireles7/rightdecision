@@ -1,4 +1,5 @@
 import type { Hono } from 'hono'
+import { healthRoutes } from '@/features/(business)/health/routes'
 import { analyticsRoutes } from '@/features/(business)/analytics-collect/routes'
 import { clipCutRoutes } from '@/features/(business)/clip-cut/routes'
 import { clipSelectRoutes } from '@/features/(business)/clip-select/routes'
@@ -36,6 +37,7 @@ export function mountRoutes(app: Hono) {
       .route('/api/search', searchRoutes)
       .route('/api/admin', adminRoutes)
       // ─── BD Pipeline ───
+      .route('/api/pipeline/health', healthRoutes)
       .route('/api/pipeline-runs', transcribeRoutes)
       .route('/api/clip-select', clipSelectRoutes)
       .route('/api/clip-cut', clipCutRoutes)
