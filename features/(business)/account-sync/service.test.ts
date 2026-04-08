@@ -8,10 +8,12 @@ const mockFindFirst = mock(() => Promise.resolve(null))
 const mockInsertValues = mock(() => Promise.resolve())
 const mockUpdateSet = mock(() => ({ where: mock(() => Promise.resolve()) }))
 
+const mockFindMany = mock(() => Promise.resolve([]))
+
 mock.module('@/platform/db/client', () => ({
 	db: {
 		query: {
-			platformAccounts: { findFirst: () => mockFindFirst() },
+			platformAccounts: { findFirst: () => mockFindFirst(), findMany: () => mockFindMany() },
 		},
 		insert: () => ({ values: mockInsertValues }),
 		update: () => ({ set: mockUpdateSet }),
@@ -36,7 +38,7 @@ mock.module('@/providers/social-posting', () => ({
 	getPostStatus: mock(() => Promise.resolve({ id: 'test', status: 'queued' })),
 }))
 
-const { syncPlatformAccounts } = await import('./service')
+const { syncPlatformAccounts, listPlatformAccounts } = await import('./service')
 
 describe('features/(business)/account-sync/service', () => {
 	beforeEach(() => {
@@ -82,5 +84,14 @@ describe('features/(business)/account-sync/service', () => {
 	it('handles Upload-Post API errors', async () => {
 		mockListProfiles.mockRejectedValueOnce(new Error('API down'))
 		await expect(syncPlatformAccounts()).rejects.toThrow('API down')
+	})
+
+	it('lists active platform accounts', async () => {
+		mockFindMany.mockResolvedValueOnce([
+			{ id: 'acc-1', platform: 'instagram', accountHandle: '@test', isActive: true },
+		] as never)
+		const accounts = await listPlatformAccounts()
+		expect(accounts).toHaveLength(1)
+		expect(mockFindMany).toHaveBeenCalled()
 	})
 })

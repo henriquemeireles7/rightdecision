@@ -13,6 +13,12 @@ const PLATFORM_DEFAULTS: Record<string, { charLimit: number; hashtagLimit: numbe
   linkedin: { charLimit: 3000, hashtagLimit: 5 },
 }
 
+export async function listPlatformAccounts() {
+  return db.query.platformAccounts.findMany({
+    where: eq(platformAccounts.isActive, true),
+  })
+}
+
 export async function syncPlatformAccounts() {
   const profiles = await listProfiles()
 

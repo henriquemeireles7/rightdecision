@@ -28,10 +28,10 @@ Do not proceed with a degraded pipeline.
 
 ```bash
 # 2. Platform accounts check
-curl -s -H "Authorization: Bearer $TOKEN" $BASE_URL/api/platform-accounts | jq
+curl -s -H "Authorization: Bearer $TOKEN" $BASE_URL/api/platform-accounts | jq '.data.accounts | length'
 ```
 
-If no platform accounts exist, tell the user:
+If the accounts array is empty (length 0), tell the user:
 "No social media accounts configured. Run `POST /api/platform-accounts/sync` first to import your Upload-Post profiles."
 
 ## Pipeline Flow
