@@ -1,8 +1,10 @@
 import { describe, expect, test } from 'bun:test'
 import {
+  getAllCourses,
   getAllModules,
   getClass,
   getClassesByCourse,
+  getCourse,
   getModule,
   getTotalClasses,
   searchClasses,
@@ -98,5 +100,28 @@ describe('content provider', () => {
 
   test('getTotalClasses returns positive number', () => {
     expect(getTotalClasses()).toBeGreaterThan(0)
+  })
+
+  test('classes have courseSlug field', () => {
+    const cls = getClass('module-01/class-01')
+    expect(cls).toBeDefined()
+    expect(cls!.courseSlug).toBe('life-decisions')
+  })
+
+  test('getCourse returns life-decisions course', () => {
+    const course = getCourse('life-decisions')
+    expect(course).toBeDefined()
+    expect(course!.title).toBe('Life Decisions')
+    expect(course!.modules.length).toBeGreaterThan(0)
+  })
+
+  test('getCourse returns undefined for nonexistent course', () => {
+    expect(getCourse('nonexistent')).toBeUndefined()
+  })
+
+  test('getAllCourses returns published courses', () => {
+    const courses = getAllCourses()
+    expect(courses.length).toBeGreaterThan(0)
+    expect(courses[0]!.slug).toBe('life-decisions')
   })
 })

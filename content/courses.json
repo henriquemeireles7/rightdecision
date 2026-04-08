@@ -1,0 +1,11 @@
+{
+  "courses": [
+    {
+      "slug": "life-decisions",
+      "title": "Life Decisions",
+      "subtitle": "The one decision methodology",
+      "contentDir": "content/courses/life-decisions/en",
+      "status": "published"
+    }
+  ]
+}

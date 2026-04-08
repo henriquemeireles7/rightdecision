@@ -8,6 +8,7 @@ export type ClassType = 'theory' | 'practical'
 export type CourseClass = {
   id: string
   courseId: string
+  courseSlug: string
   title: string
   slug: string
   module: number
@@ -22,6 +23,14 @@ export type CourseModule = {
   name: string
   slug: string
   classes: CourseClass[]
+}
+
+export type Course = {
+  slug: string
+  title: string
+  subtitle: string
+  status: string
+  modules: CourseModule[]
 }
 
 // ─── Frontmatter Parser ──────────────────────────────────────────────────────
@@ -47,12 +56,13 @@ function parseFrontmatter(raw: string): { meta: Record<string, string>; content:
 
 // ─── Content Loading ─────────────────────────────────────────────────────────
 
-const CONTENT_DIR = join(import.meta.dir, '../content/course/en')
+const COURSES_JSON_PATH = join(import.meta.dir, '../content/courses.json')
 const REDIRECTS_PATH = join(import.meta.dir, '../content/redirects.json')
 
 let redirects: Record<string, string> = {}
 const classMap = new Map<string, CourseClass>()
-const moduleMap = new Map<number, CourseModule>()
+const moduleMap = new Map<string, CourseModule>() // key: `${courseSlug}/${moduleId}`
+const courseMap = new Map<string, Course>()
 let loaded = false
 
 function inferClassType(slug: string): ClassType {
@@ -65,19 +75,20 @@ function buildClassId(moduleNum: number, lessonNum: number): string {
   return `module-${mod}/class-${les}`
 }
 
-function loadContent() {
-  if (loaded) return
+type CourseConfig = {
+  slug: string
+  title: string
+  subtitle: string
+  contentDir: string
+  status: string
+}
 
-  // Load redirects map
-  try {
-    const raw = readFileSync(REDIRECTS_PATH, 'utf-8')
-    redirects = JSON.parse(raw) as Record<string, string>
-  } catch {
-    redirects = {}
-  }
+function loadCourseContent(config: CourseConfig) {
+  const contentDir = join(import.meta.dir, '..', config.contentDir)
+  const courseModules: CourseModule[] = []
 
   try {
-    const moduleDirs = readdirSync(CONTENT_DIR, { withFileTypes: true })
+    const moduleDirs = readdirSync(contentDir, { withFileTypes: true })
       .filter((d) => d.isDirectory() && d.name.startsWith('module-'))
       .sort((a, b) => a.name.localeCompare(b.name))
 
@@ -89,7 +100,7 @@ function loadContent() {
       const moduleSlug = moduleDir.name
       const moduleName = moduleMatch[2]!.replace(/-/g, ' ')
 
-      const modulePath = join(CONTENT_DIR, moduleDir.name)
+      const modulePath = join(contentDir, moduleDir.name)
       const files = readdirSync(modulePath)
         .filter((f) => f.endsWith('.mdx'))
         .sort()
@@ -107,6 +118,7 @@ function loadContent() {
         const courseClass: CourseClass = {
           id: classId,
           courseId,
+          courseSlug: config.slug,
           title: meta.title ?? file.replace('.mdx', ''),
           slug: meta.slug ?? file.replace('.mdx', ''),
           module: moduleNum,
@@ -120,15 +132,52 @@ function loadContent() {
         classMap.set(classId, courseClass)
       }
 
-      moduleMap.set(moduleNum, {
+      const courseModule: CourseModule = {
         id: moduleNum,
         name: moduleName,
         slug: moduleSlug,
         classes,
-      })
+      }
+
+      courseModules.push(courseModule)
+      moduleMap.set(`${config.slug}/${moduleNum}`, courseModule)
     }
   } catch {
     // Content dir may not exist in test environments
+  }
+
+  return courseModules
+}
+
+function loadContent() {
+  if (loaded) return
+
+  // Load redirects map
+  try {
+    const raw = readFileSync(REDIRECTS_PATH, 'utf-8')
+    redirects = JSON.parse(raw) as Record<string, string>
+  } catch {
+    redirects = {}
+  }
+
+  // Load courses from registry
+  try {
+    const raw = readFileSync(COURSES_JSON_PATH, 'utf-8')
+    const registry = JSON.parse(raw) as { courses: CourseConfig[] }
+
+    for (const config of registry.courses) {
+      if (config.status !== 'published') continue
+      const modules = loadCourseContent(config)
+      courseMap.set(config.slug, {
+        slug: config.slug,
+        title: config.title,
+        subtitle: config.subtitle,
+        status: config.status,
+        modules,
+      })
+    }
+  } catch {
+    // courses.json may not exist in test environments
   }
 
   loaded = true
@@ -158,12 +207,16 @@ export function getClass(classId: string): CourseClass | undefined {
 
 export function getModule(moduleNum: number): CourseModule | undefined {
   loadContent()
-  return moduleMap.get(moduleNum)
+  // Default to life-decisions for backwards compatibility
+  return moduleMap.get(`life-decisions/${moduleNum}`)
 }
 
 export function getAllModules(): CourseModule[] {
   loadContent()
-  return Array.from(moduleMap.values()).sort((a, b) => a.id - b.id)
+  // Default to life-decisions for backwards compatibility
+  const course = courseMap.get('life-decisions')
+  if (!course) return []
+  return course.modules.sort((a, b) => a.id - b.id)
 }
 
 export function getClassesByCourse(courseId: string): CourseClass[] {
@@ -182,4 +235,16 @@ export function searchClasses(query: string): CourseClass[] {
 export function getTotalClasses(): number {
   loadContent()
   return classMap.size
+}
+
+// ─── Multi-Course API ────────────────────────────────────────────────────────
+
+export function getCourse(slug: string): Course | undefined {
+  loadContent()
+  return courseMap.get(slug)
+}
+
+export function getAllCourses(): Course[] {
+  loadContent()
+  return Array.from(courseMap.values())
 }
