@@ -7,6 +7,8 @@ import { metadataRoutes } from '@/features/(business)/metadata-generate/routes'
 import { postDistributeRoutes } from '@/features/(business)/post-distribute/routes'
 import { transcribeRoutes } from '@/features/(business)/transcribe/routes'
 import { bookmarkRoutes } from '@/features/(life)/course/bookmark-routes'
+import { analyticsReadingRoutes } from '@/features/(life)/course/analytics-routes'
+import { decisionRoutes } from '@/features/(life)/course/decision-routes'
 import { progressApiRoutes } from '@/features/(life)/course/progress-routes'
 import { searchRoutes } from '@/features/(life)/course/search-routes'
 import { courseRoutes } from '@/features/(life)/course-player/routes'
@@ -37,6 +39,8 @@ export function mountRoutes(app: Hono) {
       .route('/api/progress/v2', progressApiRoutes)
       .route('/api/wins', winsRoutes)
       .route('/api/bookmarks', bookmarkRoutes)
+      .route('/api/decisions', decisionRoutes)
+      .route('/api/analytics/reading', analyticsReadingRoutes)
       .route('/api/account', accountRoutes)
       .route('/api/search', searchRoutes)
       .route('/api/admin', adminRoutes)
