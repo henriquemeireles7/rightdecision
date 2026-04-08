@@ -10,7 +10,7 @@ import { onboardingRoutes } from '@/features/(life)/onboarding/routes'
 import { checkoutRoutes } from '@/features/(shared)/subscription/create-checkout'
 import { winsRoutes } from '@/features/(life)/wins/routes'
 import { webhookRoutes } from '@/features/(shared)/subscription/handle-webhook'
-import { landingRoutes } from '@/features/(life)/landing/routes'
+import { websiteRoutes } from '@/features/(shared)/website/routes.tsx'
 import { authRoutes } from '@/platform/auth/routes'
 import { transcribeRoutes } from '@/features/(business)/transcribe/routes'
 import { clipSelectRoutes } from '@/features/(business)/clip-select/routes'
@@ -42,6 +42,6 @@ export function mountRoutes(app: Hono) {
     .route('/api/post-distribute', postDistributeRoutes)
     .route('/api/analytics-collect', analyticsRoutes)
     .route('/api/insights', insightRoutes)
-    // Landing page — AFTER all /api/* routes
-    .route('/', landingRoutes)
+    // Website — AFTER all /api/* routes (homepage, LP at /life, blog, concepts, legal)
+    .route('/', websiteRoutes)
 }
