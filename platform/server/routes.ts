@@ -19,12 +19,14 @@ import { metadataRoutes } from '@/features/(business)/metadata-generate/routes'
 import { postDistributeRoutes } from '@/features/(business)/post-distribute/routes'
 import { analyticsRoutes } from '@/features/(business)/analytics-collect/routes'
 import { insightRoutes } from '@/features/(business)/insight-generate/routes'
+import { completeCheckoutRoutes } from '@/features/(shared)/subscription/complete-checkout'
 
 export function mountRoutes(app: Hono) {
   return app
     .route('/api/auth', authRoutes)
     .route('/api/onboarding', onboardingRoutes)
     .route('/api/checkout', checkoutRoutes)
+    .route('/api/checkout/flow', completeCheckoutRoutes)
     .route('/api/webhook', webhookRoutes)
     .route('/api/courses', courseRoutes)
     .route('/api/progress', progressRoutes)
