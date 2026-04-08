@@ -16,3 +16,17 @@ Before working in this folder, read:
 
 ## Rules
 - Follow the project-wide rules in the root CLAUDE.md.
+
+---
+<!-- AUTO-GENERATED BELOW — do not edit manually -->
+
+## Files
+| File | Exports |
+|------|---------|
+| action-plan.md | SEO/GEO Action Plan — What Henry Does Manually |
+| document.md | Website & SEO/GEO Strategy — The Right Decision |
+| input.md | INPUT: Website & SEO/GEO Strategy |
+| meta.md | META-DOC: Website & SEO/GEO Strategy |
+| raw.md | RAW FOUNDER ANSWERS — Website & SEO/GEO Strategy |
+
+<!-- Generated: 2026-04-08T09:09:15.690Z -->
