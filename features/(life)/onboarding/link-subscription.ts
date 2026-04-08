@@ -10,7 +10,7 @@ import { consumeSession } from './session'
  */
 export async function linkAccountAfterCreation(
   userId: string,
-  email: string,
+  _email: string,
   onboardingSessionId?: string,
 ) {
   const results = { subscriptionLinked: false, profileCreated: false }

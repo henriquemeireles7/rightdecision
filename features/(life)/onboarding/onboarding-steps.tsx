@@ -25,6 +25,7 @@ export function Step1Welcome() {
         <p class="text-lg text-neutral-600 mb-8">Not ten. Not five. One. Let's find yours.</p>
         <p class="text-sm text-neutral-500 mb-8">Takes about 3 minutes. No account needed.</p>
         <button
+          type="button"
           class="bg-amber-700 text-white px-8 py-4 rounded-lg text-lg hover:bg-amber-800 transition-colors"
           hx-post="/api/onboarding/start"
         >
@@ -46,6 +47,7 @@ export function Step2Intro({ currentStep, totalSteps, sessionId }: StepProps) {
           thing to focus on. That's what we're going to find.
         </p>
         <button
+          type="button"
           class="w-full bg-amber-700 text-white px-6 py-4 rounded-lg text-lg hover:bg-amber-800 transition-colors"
           hx-put={`/api/onboarding/step/${currentStep}`}
           hx-headers={JSON.stringify({ 'x-onboarding-session': sessionId })}
@@ -72,6 +74,7 @@ export function Step3Question({ currentStep, totalSteps, sessionId }: StepProps)
           placeholder="Type honestly. No one sees this but you."
         />
         <button
+          type="button"
           class="w-full bg-amber-700 text-white px-6 py-4 rounded-lg text-lg hover:bg-amber-800 transition-colors"
           hx-put={`/api/onboarding/step/${currentStep}`}
           hx-headers={JSON.stringify({ 'x-onboarding-session': sessionId })}
@@ -104,6 +107,7 @@ export function Step4Question({ currentStep, totalSteps, sessionId }: StepProps)
           placeholder="Be specific. 'Feel better' doesn't count."
         />
         <button
+          type="button"
           class="w-full bg-amber-700 text-white px-6 py-4 rounded-lg text-lg hover:bg-amber-800 transition-colors"
           hx-put={`/api/onboarding/step/${currentStep}`}
           hx-headers={JSON.stringify({ 'x-onboarding-session': sessionId })}
@@ -137,6 +141,7 @@ export function Step5Decision({ currentStep, totalSteps, sessionId }: StepProps)
           placeholder="I am deciding to..."
         />
         <button
+          type="button"
           class="w-full bg-amber-700 text-white px-6 py-4 rounded-lg text-lg hover:bg-amber-800 transition-colors"
           hx-put={`/api/onboarding/step/${currentStep}`}
           hx-headers={JSON.stringify({ 'x-onboarding-session': sessionId })}
@@ -171,6 +176,7 @@ export function Step6Email({ currentStep, totalSteps, sessionId }: StepProps) {
           required
         />
         <button
+          type="button"
           class="w-full bg-amber-700 text-white px-6 py-4 rounded-lg text-lg hover:bg-amber-800 transition-colors"
           hx-put={`/api/onboarding/step/${currentStep}`}
           hx-headers={JSON.stringify({ 'x-onboarding-session': sessionId })}

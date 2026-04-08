@@ -75,7 +75,7 @@ export async function consumeSession(
   userId: string,
 ): Promise<{ profileId: string } | null> {
   const session = await getSession(sessionId)
-  if (!session || !session.sessionData) return null
+  if (!session?.sessionData) return null
 
   const data = session.sessionData
 

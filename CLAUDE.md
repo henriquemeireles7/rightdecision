@@ -64,6 +64,8 @@ The auto-generated footer (Files, Internal Dependencies) is added by the Stop ho
 7. providers/analytics.ts — all trackable events
 
 ## Rules
+- ALWAYS run `bun run check` before committing — CI runs the same command, if it fails locally it WILL fail in CI
+- biome.json excludes vendored code (.claude/) and generated files (public/styles.css) — NEVER remove these exclusions
 - 100% test coverage, no exceptions
 - Tests colocated: foo.ts → foo.test.ts same folder
 - No types defined manually — infer from Zod/Drizzle
@@ -376,27 +378,4 @@ Key routing rules:
 - PRD, product requirements → invoke d-prd
 - Full coding pipeline end-to-end → invoke autocode
 - Review and ship, full review chain → invoke d-autoreview
-
-## gstack (REQUIRED — global install)
-
-**Before doing ANY work, verify gstack is installed:**
-
-```bash
-test -d ~/.claude/skills/gstack/bin && echo "GSTACK_OK" || echo "GSTACK_MISSING"
-```
-
-If GSTACK_MISSING: STOP. Do not proceed. Tell the user:
-
-> gstack is required for all AI-assisted work in this repo.
-> Install it:
-> ```bash
-> git clone --depth 1 https://github.com/garrytan/gstack.git ~/.claude/skills/gstack
-> cd ~/.claude/skills/gstack && ./setup --team
-> ```
-> Then restart your AI coding tool.
-
-Do not skip skills, ignore gstack errors, or work around missing gstack.
-
-Using gstack skills: After install, skills like /qa, /ship, /review, /investigate,
-and /browse are available. Use /browse for all web browsing.
-Use ~/.claude/skills/gstack/... for gstack file paths (the global path).
+- Build/deploy error, prevent this, learn from error → invoke d-harness

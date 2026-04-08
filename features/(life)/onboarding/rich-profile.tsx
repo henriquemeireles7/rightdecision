@@ -34,8 +34,14 @@ export function RichProfileScreen({ throughlineNamed, userName }: RichProfilePro
 
         <form class="space-y-6" method="POST" action="/api/onboarding/profile">
           <div>
-            <label class="block text-sm font-medium text-neutral-700 mb-2">Age range</label>
-            <select name="ageRange" class="w-full border rounded-lg px-4 py-3 bg-white">
+            <label htmlFor="ageRange" class="block text-sm font-medium text-neutral-700 mb-2">
+              Age range
+            </label>
+            <select
+              id="ageRange"
+              name="ageRange"
+              class="w-full border rounded-lg px-4 py-3 bg-white"
+            >
               <option value="">Select...</option>
               {AGE_RANGES.map((range) => (
                 <option value={range}>{range}</option>
@@ -44,9 +50,9 @@ export function RichProfileScreen({ throughlineNamed, userName }: RichProfilePro
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-neutral-700 mb-2">
+            <span id="lifeAreasLabel" class="block text-sm font-medium text-neutral-700 mb-2">
               Which life areas feel most stuck? (select all that apply)
-            </label>
+            </span>
             <div class="space-y-2">
               {LIFE_AREAS.map((area) => (
                 <label class="flex items-center gap-3 px-4 py-3 bg-white border rounded-lg cursor-pointer hover:border-amber-300">
@@ -63,9 +69,9 @@ export function RichProfileScreen({ throughlineNamed, userName }: RichProfilePro
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-neutral-700 mb-2">
+            <span id="triedBeforeLabel" class="block text-sm font-medium text-neutral-700 mb-2">
               Have you tried self-help or coaching before?
-            </label>
+            </span>
             <div class="space-y-2">
               {['Books', 'Coaching', 'Therapy', 'Courses', 'Nothing — this is my first'].map(
                 (opt) => (
@@ -84,10 +90,14 @@ export function RichProfileScreen({ throughlineNamed, userName }: RichProfilePro
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-neutral-700 mb-2">
+            <label htmlFor="timeStuck" class="block text-sm font-medium text-neutral-700 mb-2">
               How long have you felt stuck in this area?
             </label>
-            <select name="timeStuck" class="w-full border rounded-lg px-4 py-3 bg-white">
+            <select
+              id="timeStuck"
+              name="timeStuck"
+              class="w-full border rounded-lg px-4 py-3 bg-white"
+            >
               <option value="">Select...</option>
               {TIME_STUCK.map((t) => (
                 <option value={t}>{t}</option>

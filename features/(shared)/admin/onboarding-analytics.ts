@@ -1,4 +1,4 @@
-import { count, eq, sql } from 'drizzle-orm'
+import { count } from 'drizzle-orm'
 import { db } from '@/platform/db/client'
 import { onboardingProfiles, onboardingSessions } from '@/platform/db/schema'
 
