@@ -17,13 +17,24 @@ mock.module('@/providers/storage', () => ({
   download: mockDownload,
   upload: mockUpload,
   getSignedUrl: mockGetSignedUrl,
+  remove: mock(() => Promise.resolve()),
 }))
 
-const mockTranscribe = mock(() => Promise.resolve('[00:00:01] Hello world\n[00:00:30] Great insight'))
+const mockTranscribe = mock(() =>
+  Promise.resolve('[00:00:01] Hello world\n[00:00:30] Great insight'),
+)
 mock.module('@/providers/transcription', () => ({ transcribe: mockTranscribe }))
 
-const mockPost = mock(() => Promise.resolve({ id: 'upload-post-1', url: 'https://social.com/post/1' }))
-mock.module('@/providers/social-posting', () => ({ post: mockPost }))
+const mockPost = mock(() =>
+  Promise.resolve({ id: 'upload-post-1', url: 'https://social.com/post/1' }),
+)
+mock.module('@/providers/social-posting', () => ({
+  post: mockPost,
+  listProfiles: mock(() =>
+    Promise.resolve([{ id: 'acct-1', platform: 'instagram', handle: 'test' }]),
+  ),
+  getPostStatus: mock(() => Promise.resolve({ id: 'test', status: 'queued' })),
+}))
 
 const mockGetMetrics = mock(() =>
   Promise.resolve({
@@ -109,7 +120,11 @@ function makeDbMock() {
           }
           if (table === mockSchemaRef.postAnalytics) {
             const d = Array.isArray(data) ? data[0] : data
-            analyticsState.push({ id: `analytics-${analyticsState.length + 1}`, snapshotAt: new Date(), ...d })
+            analyticsState.push({
+              id: `analytics-${analyticsState.length + 1}`,
+              snapshotAt: new Date(),
+              ...d,
+            })
             return Promise.resolve([analyticsState.at(-1)])
           }
           if (table === mockSchemaRef.insights) {
@@ -158,10 +173,11 @@ function makeDbMock() {
       where: () => Promise.resolve(),
     }),
     select: () => ({
-      from: (table: unknown) => ({
+      from: (_table: unknown) => ({
         where: () => Promise.resolve([{ count: analyticsState.length || 1 }]),
         innerJoin: () => ({
-          where: () => Promise.resolve([{ count: postsState.filter((p) => p.status === 'scheduled').length }]),
+          where: () =>
+            Promise.resolve([{ count: postsState.filter((p) => p.status === 'scheduled').length }]),
         }),
       }),
     }),
@@ -435,12 +451,15 @@ describe('BD Pipeline Integration', () => {
       expect(result).toHaveProperty('run')
     })
 
-    it('processTranscription moves run to transcribed with transcript', async () => {
+    it('processTranscription returns immediately with transcribing status', async () => {
       const result = await processTranscription('run-1')
       expect('error' in result).toBe(false)
       expect(result).toHaveProperty('run')
-      expect(mockTranscribe).toHaveBeenCalledTimes(1)
-      expect(mockDownload).toHaveBeenCalledTimes(1)
+      if (!('error' in result)) {
+        expect(result.run.status).toBe('transcribing')
+      }
+      // Background processing is fire-and-forget, so download/transcribe
+      // may not be called yet. The async pattern is tested separately.
     })
   })
 
@@ -484,7 +503,13 @@ describe('BD Pipeline Integration', () => {
     it('saveMetadata creates posts with descriptions and hashtags', async () => {
       pipelineRunState.status = 'cut'
       clipsState = [
-        { id: 'clip-1', pipelineRunId: 'run-1', storageUrl: 'https://r2.example.com/clip.mp4', cutStatus: 'cut', approved: true },
+        {
+          id: 'clip-1',
+          pipelineRunId: 'run-1',
+          storageUrl: 'https://r2.example.com/clip.mp4',
+          cutStatus: 'cut',
+          approved: true,
+        },
       ]
 
       const metadata = [
@@ -522,7 +547,12 @@ describe('BD Pipeline Integration', () => {
     it('distributes posts for a metadata_ready run', async () => {
       pipelineRunState.status = 'metadata_ready'
       clipsState = [
-        { id: 'clip-1', pipelineRunId: 'run-1', storageUrl: 'clips/run-1/clip-1.mp4', cutStatus: 'cut' },
+        {
+          id: 'clip-1',
+          pipelineRunId: 'run-1',
+          storageUrl: 'clips/run-1/clip-1.mp4',
+          cutStatus: 'cut',
+        },
       ]
       postsState = [
         {
@@ -563,9 +593,7 @@ describe('BD Pipeline Integration', () => {
     })
 
     it('skips posts without uploadPostId', async () => {
-      postsState = [
-        { id: 'post-1', status: 'posted', uploadPostId: null, postedAt: new Date() },
-      ]
+      postsState = [{ id: 'post-1', status: 'posted', uploadPostId: null, postedAt: new Date() }]
 
       const result = await collectAnalytics(['post-1'])
       expect(result.collected).toBe(0)
@@ -636,9 +664,9 @@ describe('BD Pipeline Integration', () => {
         },
       ]
 
-      expect(clipSelectOutput[0]!.approved).toBe(true)
-      expect(clipSelectOutput[0]!.sourceTimestampStart).toBeGreaterThanOrEqual(0)
-      expect(clipSelectOutput[0]!.duration).toBeGreaterThan(0)
+      expect(clipSelectOutput[0]?.approved).toBe(true)
+      expect(clipSelectOutput[0]?.sourceTimestampStart).toBeGreaterThanOrEqual(0)
+      expect(clipSelectOutput[0]?.duration).toBeGreaterThan(0)
     })
 
     it('clip-cut output (storageUrl on clips) is what metadata-generate expects', () => {

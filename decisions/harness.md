@@ -1,6 +1,6 @@
 # Harness — AI Development System
 
-> Last verified: 2026-04-06
+> Last verified: 2026-04-08
 
 ## Dual Purpose
 The harness serves two roles:
@@ -134,3 +134,63 @@ If contradictions exist between universal files, folder CLAUDE.md, or strategy d
 | 2026-04-07 | Beads for task tracking | Queryable dependency graph replaces markdown tasks — agents use bd ready |
 | 2026-04-07 | d-code skill | Implements beads with TDD + fix loop + quality gate → review → ship |
 | 2026-04-07 | TDD Methodology in coding.md | Red/Green/Refactor cycle documented with test structure template |
+| 2026-04-08 | d-autoreview 6-step chain | d-harden → /review → /simplify → d-review → /qa → /ship |
+| 2026-04-08 | Scripts in skills | Mechanical checks as TypeScript scripts in skills/*/scripts/ folders |
+| 2026-04-08 | Error feedback loop | d-harness skill analyzes errors and creates prevention rules |
+
+## Error Feedback Loop
+
+The d-harness skill closes the loop between production errors and prevention:
+
+```
+Error occurs → d-harness analyzes → creates prevention artifact → error class eliminated
+```
+
+Prevention artifacts (in order of preference):
+1. **Hook** — blocks the error pattern before it reaches code (PreToolUse/PostToolUse)
+2. **Script** — mechanical check that runs during review chain (skills/*/scripts/)
+3. **CLAUDE.md rule** — NEVER/ALWAYS directive in the relevant folder's CLAUDE.md
+4. **Config** — biome.json rule, tsconfig strictness, Dockerfile change
+
+The goal is zero recurring errors. Every error that reaches production should produce a prevention artifact that makes the same class of error impossible.
+
+## Review Chain
+
+The d-autoreview skill chains all quality checks into a single pre-ship pipeline:
+
+```
+d-harden → /review → /simplify → d-review → /qa → /ship
+```
+
+| Step | Skill | What it catches |
+|------|-------|-----------------|
+| 1 | d-harden | Security holes, performance issues, Dockerfile gaps |
+| 2 | /review | SQL safety, trust boundaries, conditional side effects |
+| 3 | /simplify | DRY violations, missed reuse, schema duplication |
+| 4 | d-review | Bugs via fresh eyes, missing tests, architecture violations |
+| 5 | /qa | Runtime bugs that static analysis misses |
+| 6 | /ship | Version bump, changelog, PR creation |
+
+Order rationale:
+- d-harden is first because security/performance issues are foundational — fix before reviewing style
+- d-review is late because it creates beads for deferred fixes — do quick fixes in steps 2-3 first
+- /qa is before /ship to catch runtime bugs before creating the PR
+
+## Scripts in Skills
+
+Skills can include a `scripts/` folder for mechanical checks that augment the skill's AI-driven analysis. These scripts:
+- Are TypeScript files runnable with `bun`
+- Accept CLI args (typically `--base <branch>`)
+- Output JSON for machine consumption
+- Use `spawnSync` for git/rg commands
+- Use `resolve(import.meta.dir)` for repo-relative paths
+
+Current scripts:
+| Skill | Script | What it checks |
+|-------|--------|---------------|
+| d-review | dep-check.ts | Dependency direction violations (features/ cross-imports) |
+| d-review | coverage-check.ts | Missing .test.ts files for changed .ts files |
+| d-code | build-order-check.ts | Build Order compliance (schema before features, etc.) |
+| d-code | lockfile-check.ts | package.json changed but bun.lock not committed |
+| d-harden | dockerfile-check.ts | Dockerfile runtime stage missing files needed by railway.toml |
+| d-autoreview | chain-verify.ts | All 6 review chain steps produced output |

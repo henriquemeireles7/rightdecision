@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 export const workflowConfigSchema = z.object({
+  dryRun: z.boolean().default(false),
   autoApproveClips: z.boolean().default(true),
   autoApproveMetadata: z.boolean().default(true),
   maxClipsPerEpisode: z.number().min(1).max(30).default(15),

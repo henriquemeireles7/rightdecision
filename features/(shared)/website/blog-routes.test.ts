@@ -76,15 +76,15 @@ describe('Blog data layer', () => {
   test('lists published posts sorted by date desc', async () => {
     const posts = await listContentFiles(TEST_DIR)
     expect(posts.length).toBe(2)
-    expect(posts[0]!.slug).toBe('post-one') // 2026-04-07, newer
-    expect(posts[1]!.slug).toBe('post-two') // 2026-04-06, older
+    expect(posts[0]?.slug).toBe('post-one') // 2026-04-07, newer
+    expect(posts[1]?.slug).toBe('post-two') // 2026-04-06, older
   })
 
   test('filters by cluster', async () => {
     const posts = await listContentFiles(TEST_DIR)
     const filtered = posts.filter((p) => p.frontmatter.cluster === 'anti-self-help')
     expect(filtered.length).toBe(1)
-    expect(filtered[0]!.slug).toBe('post-one')
+    expect(filtered[0]?.slug).toBe('post-one')
   })
 
   test('excludes drafts', async () => {
@@ -96,9 +96,9 @@ describe('Blog data layer', () => {
   test('gets individual post', async () => {
     const post = await getContentFile(TEST_DIR, 'post-one')
     expect(post).not.toBeNull()
-    expect(post!.frontmatter.title).toBe('First Post')
-    expect(post!.html).toContain('<h1')
-    expect(post!.readTime).toBeGreaterThan(0)
+    expect(post?.frontmatter.title).toBe('First Post')
+    expect(post?.html).toContain('<h1')
+    expect(post?.readTime).toBeGreaterThan(0)
   })
 
   test('returns null for non-existent post', async () => {
@@ -117,8 +117,8 @@ describe('Blog data layer', () => {
     const page1 = posts.slice(0, perPage)
     const page2 = posts.slice(perPage, perPage * 2)
     expect(page1.length).toBe(1)
-    expect(page1[0]!.slug).toBe('post-one')
+    expect(page1[0]?.slug).toBe('post-one')
     expect(page2.length).toBe(1)
-    expect(page2[0]!.slug).toBe('post-two')
+    expect(page2[0]?.slug).toBe('post-two')
   })
 })

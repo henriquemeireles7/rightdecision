@@ -1,6 +1,6 @@
 # Deploy — How We Ship
 
-> Last verified: 2026-04-06
+> Last verified: 2026-04-08
 
 ## Infrastructure
 - **Hosting:** Railway (app + PostgreSQL, same provider = zero network hop)
@@ -81,3 +81,20 @@ bun run db:studio    # Open Drizzle Studio for inspection
 - Primary: therightdecision.com (TBD)
 - App: app.therightdecision.com (course platform)
 - API: api.therightdecision.com (Business Decisions automation)
+
+## Dockerfile Rules
+
+### Runtime Stage Must Include All Files Needed by railway.toml
+The Dockerfile runtime stage (final `FROM`) must COPY all files and directories referenced by `railway.toml` commands (`preDeployCommand`, `startCommand`). If `startCommand = "bun run dist/app.js"`, then `dist/` must be in a COPY statement. If `preDeployCommand = "bun run db:migrate"`, then migration files and `package.json` must be copied.
+
+Use `bun .claude/skills/d-harden/scripts/dockerfile-check.ts` to verify automatically.
+
+### Lockfile Sync Rule
+If `package.json` is modified (new dependencies, version bumps), `bun.lock` MUST also be committed. Otherwise Docker builds use a stale lockfile and `bun install` installs wrong versions or fails entirely.
+
+Use `bun .claude/skills/d-code/scripts/lockfile-check.ts` to verify automatically.
+
+### Incident: 2026-04-08 — Lockfile + Migration Files Missing
+**What happened:** Railway build failed because `package.json` had new dependencies but `bun.lock` wasn't committed. Additionally, migration files needed by `preDeployCommand` were not included in the Dockerfile runtime COPY stage.
+**Root cause:** No automated check for lockfile sync or Dockerfile completeness.
+**Fix:** Added `lockfile-check.ts` and `dockerfile-check.ts` scripts to catch these issues before shipping. Added to the d-autoreview chain (d-harden step).

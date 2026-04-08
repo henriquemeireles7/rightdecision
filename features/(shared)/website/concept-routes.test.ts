@@ -82,8 +82,8 @@ describe('Concept data layer', () => {
     concepts.sort((a, b) =>
       ((a.frontmatter.title as string) || '').localeCompare((b.frontmatter.title as string) || ''),
     )
-    expect(concepts[0]!.slug).toBe('analysis-paralysis')
-    expect(concepts[1]!.slug).toBe('decision-fatigue')
+    expect(concepts[0]?.slug).toBe('analysis-paralysis')
+    expect(concepts[1]?.slug).toBe('decision-fatigue')
   })
 
   test('excludes drafts', async () => {
@@ -95,16 +95,16 @@ describe('Concept data layer', () => {
   test('gets concept with faq', async () => {
     const concept = await getContentFile(TEST_DIR, 'analysis-paralysis')
     expect(concept).not.toBeNull()
-    expect(concept!.frontmatter.title).toBe('Analysis Paralysis')
-    const faq = concept!.frontmatter.faq as Array<{ question: string; answer: string }>
+    expect(concept?.frontmatter.title).toBe('Analysis Paralysis')
+    const faq = concept?.frontmatter.faq as Array<{ question: string; answer: string }>
     expect(faq).toHaveLength(2)
-    expect(faq[0]!.question).toBe('What is analysis paralysis?')
+    expect(faq[0]?.question).toBe('What is analysis paralysis?')
   })
 
   test('gets related concepts', async () => {
     const concept = await getContentFile(TEST_DIR, 'analysis-paralysis')
     expect(concept).not.toBeNull()
-    const related = concept!.frontmatter.relatedConcepts as string[]
+    const related = concept?.frontmatter.relatedConcepts as string[]
     expect(related).toContain('decision-fatigue')
   })
 
@@ -121,7 +121,7 @@ describe('Concept data layer', () => {
   test('extracts first paragraph for DefinedTerm', async () => {
     const concept = await getContentFile(TEST_DIR, 'analysis-paralysis')
     expect(concept).not.toBeNull()
-    const firstPara = concept!.body.split('\n\n')[0]?.trim()
+    const firstPara = concept?.body.split('\n\n')[0]?.trim()
     expect(firstPara).toContain('Analysis paralysis is the state')
   })
 })

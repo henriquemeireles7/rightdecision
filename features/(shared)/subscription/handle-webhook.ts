@@ -55,7 +55,7 @@ webhookRoutes.post('/', async (c) => {
     .values({ stripeEventId: event.id, eventType: event.type })
     .onConflictDoNothing({ target: webhookEvents.stripeEventId })
 
-  if (inserted.rowCount === 0) {
+  if ((inserted as unknown as { rowCount: number }).rowCount === 0) {
     console.info(`[webhook] Duplicate: ${event.type} ${event.id}`)
     return success(c, { received: true })
   }

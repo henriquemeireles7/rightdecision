@@ -128,7 +128,7 @@ for (const f of routeFiles) {
   const lines = content.split('\n')
   for (let i = 0; i < lines.length; i++) {
     // Match c.json( but not inside error handler or comment
-    if (/\bc\.json\s*\(/.test(lines[i]!) && !lines[i]!.trim().startsWith('//')) {
+    if (/\bc\.json\s*\(/.test(lines[i]!) && !lines[i]?.trim().startsWith('//')) {
       report({
         file: rel(f),
         line: i + 1,
@@ -240,8 +240,8 @@ for (const f of allCodeFiles) {
   for (let i = 0; i < lines.length; i++) {
     if (
       /\bfetch\s*\(/.test(lines[i]!) &&
-      !lines[i]!.includes('AbortSignal') &&
-      !lines[i]!.includes('signal')
+      !lines[i]?.includes('AbortSignal') &&
+      !lines[i]?.includes('signal')
     ) {
       // Check next few lines for signal option
       const block = lines.slice(i, Math.min(i + 5, lines.length)).join('\n')

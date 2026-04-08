@@ -267,8 +267,8 @@ describe('listContentFiles', () => {
   test('returns only published posts sorted by date desc', async () => {
     const posts = await listContentFiles(join(TEST_DIR, 'blog'))
     expect(posts.length).toBe(2) // excludes draft
-    expect(posts[0]!.frontmatter.slug).toBe('test-post') // newer first
-    expect(posts[1]!.frontmatter.slug).toBe('older-post')
+    expect(posts[0]?.frontmatter.slug).toBe('test-post') // newer first
+    expect(posts[1]?.frontmatter.slug).toBe('older-post')
   })
 
   test('filters out draft posts', async () => {
@@ -280,7 +280,7 @@ describe('listContentFiles', () => {
   test('returns concept pages', async () => {
     const concepts = await listContentFiles(join(TEST_DIR, 'concepts'))
     expect(concepts.length).toBe(1)
-    expect(concepts[0]!.frontmatter.slug).toBe('analysis-paralysis')
+    expect(concepts[0]?.frontmatter.slug).toBe('analysis-paralysis')
   })
 })
 
@@ -290,9 +290,9 @@ describe('getContentFile', () => {
   test('returns parsed content for valid slug', async () => {
     const post = await getContentFile(join(TEST_DIR, 'blog'), 'test-post')
     expect(post).not.toBeNull()
-    expect(post!.frontmatter.title).toBe('Test Post')
-    expect(post!.html).toContain('<strong>test</strong>')
-    expect(post!.readTime).toBeGreaterThan(0)
+    expect(post?.frontmatter.title).toBe('Test Post')
+    expect(post?.html).toContain('<strong>test</strong>')
+    expect(post?.readTime).toBeGreaterThan(0)
   })
 
   test('returns null for non-existent slug', async () => {
@@ -317,9 +317,9 @@ describe('getContentFile', () => {
   test('parses concept page with faq', async () => {
     const concept = await getContentFile(join(TEST_DIR, 'concepts'), 'analysis-paralysis')
     expect(concept).not.toBeNull()
-    const faq = concept!.frontmatter.faq as Array<{ question: string; answer: string }>
+    const faq = concept?.frontmatter.faq as Array<{ question: string; answer: string }>
     expect(faq).toHaveLength(2)
-    expect(faq[0]!.question).toBe('What is analysis paralysis?')
+    expect(faq[0]?.question).toBe('What is analysis paralysis?')
   })
 })
 

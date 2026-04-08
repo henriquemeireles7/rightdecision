@@ -9,7 +9,7 @@ describe('progress tracking logic', () => {
   test('module 1 has classes', () => {
     const mod = getModule(1)
     expect(mod).toBeDefined()
-    expect(mod!.classes.length).toBeGreaterThan(0)
+    expect(mod?.classes.length).toBeGreaterThan(0)
   })
 
   test('getCurrentClass logic: first class when none completed', () => {
@@ -17,15 +17,15 @@ describe('progress tracking logic', () => {
     const completedSet = new Set<string>()
     const first = mod.classes.find((c) => !completedSet.has(c.id))
     expect(first).toBeDefined()
-    expect(first!.id).toContain('module-01')
+    expect(first?.id).toContain('module-01')
   })
 
   test('getCurrentClass logic: next uncompleted after first', () => {
     const mod = getModule(1)!
-    const completedSet = new Set([mod.classes[0]!.id])
+    const completedSet = new Set([mod.classes[0]?.id])
     const next = mod.classes.find((c) => !completedSet.has(c.id))
     expect(next).toBeDefined()
-    expect(next!.id).not.toBe(mod.classes[0]!.id)
+    expect(next?.id).not.toBe(mod.classes[0]?.id)
   })
 
   test('getCurrentClass logic: null when all completed', () => {

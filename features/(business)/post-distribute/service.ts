@@ -1,9 +1,14 @@
 import { and, eq, inArray } from 'drizzle-orm'
-import { findRunInState, transitionPipeline } from '@/features/(business)/workflow/transitions'
+import { workflowConfigSchema } from '@/features/(business)/workflow/config'
+import {
+  failPipeline,
+  findRunInState,
+  transitionPipeline,
+} from '@/features/(business)/workflow/transitions'
 import { db } from '@/platform/db/client'
 import { clips, pipelineRuns, posts } from '@/platform/db/schema'
-import { ProviderError } from '@/providers/errors'
 import { track } from '@/providers/analytics'
+import { ProviderError } from '@/providers/errors'
 import { post as uploadPost } from '@/providers/social-posting'
 import { getSignedUrl } from '@/providers/storage'
 
@@ -36,6 +41,26 @@ export async function distributePostsForRun(pipelineRunId: string) {
   // Atomic CAS: metadata_ready → posting
   if (!(await transitionPipeline(pipelineRunId, run.status, 'posting'))) {
     return { error: 'PIPELINE_INVALID_STATE' as const }
+  }
+
+  // Dry-run: skip actual posting, mark all as posted
+  const config = workflowConfigSchema.safeParse(run.config)
+  if (config.success && config.data.dryRun) {
+    for (const postRow of scheduledPosts) {
+      await db
+        .update(posts)
+        .set({ status: 'posted', postedAt: new Date() })
+        .where(eq(posts.id, postRow.id))
+    }
+    await db
+      .update(pipelineRuns)
+      .set({ status: 'posted', clipsPosted: scheduledPosts.length })
+      .where(and(eq(pipelineRuns.id, pipelineRunId), eq(pipelineRuns.status, 'posting')))
+
+    return {
+      posts: scheduledPosts.map((p) => ({ postId: p.id, success: true })),
+      dryRun: true,
+    }
   }
 
   const results: Array<{ postId: string; success: boolean; error?: string }> = []
@@ -103,10 +128,7 @@ export async function distributePostsForRun(pipelineRunId: string) {
   const failCount = results.filter((r) => !r.success).length
 
   if (failCount === scheduledPosts.length) {
-    await db
-      .update(pipelineRuns)
-      .set({ status: 'failed', stepFailedAt: 'post-distribute', clipsFailed: failCount })
-      .where(and(eq(pipelineRuns.id, pipelineRunId), eq(pipelineRuns.status, 'posting')))
+    await failPipeline(pipelineRunId, 'post-distribute', `All ${failCount} posts failed`)
     return { error: 'POST_PARTIAL_FAILURE' as const }
   }
 

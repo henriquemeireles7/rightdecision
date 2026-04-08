@@ -5,7 +5,7 @@ mock.module('@/platform/env', () => ({
 }))
 
 const mockFindFirst = mock(() => Promise.resolve(null))
-const mockDelete = mock(() => ({ where: () => Promise.resolve() }))
+const _mockDelete = mock(() => ({ where: () => Promise.resolve() }))
 const mockInsertReturning = mock(() =>
   Promise.resolve([
     {
@@ -18,7 +18,7 @@ const mockInsertReturning = mock(() =>
     },
   ]),
 )
-const mockUpdateSet = mock(() => ({ where: () => Promise.resolve() }))
+const _mockUpdateSet = mock(() => ({ where: () => Promise.resolve() }))
 
 const mockTx = {
   delete: () => ({ where: () => Promise.resolve() }),
