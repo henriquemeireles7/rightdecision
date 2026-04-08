@@ -97,6 +97,12 @@ The bead description + acceptance criteria contain everything needed:
 - Test obligations (specific test cases)
 - Acceptance criteria
 
+**CRITICAL: Complete the REUSE CHECK before implementing:**
+- Search for existing helpers that overlap with this task (`rg "functionName"`)
+- Check `platform/errors.ts` for applicable error codes (don't create new ones if they exist)
+- Check `providers/` for existing integration patterns (don't duplicate)
+- Don't create new utilities if an existing one can be extended
+
 **CRITICAL: Read the CLAUDE.md of EVERY folder you're about to modify.**
 If the bead says "CREATE features/onboarding/session.ts", read `features/` CLAUDE.md first.
 If the folder doesn't exist yet, create its CLAUDE.md FIRST (using the template from root CLAUDE.md).

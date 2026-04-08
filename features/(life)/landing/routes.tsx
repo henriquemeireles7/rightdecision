@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
 import { getCookie, setCookie } from 'hono/cookie'
+import { env } from '@/platform/env'
 import { renderPage } from '@/platform/server/render'
 import { LandingPage } from './landing'
 
@@ -34,6 +35,8 @@ landingRoutes.get('/', (c) => {
       title: 'The Right Decision — Life Decisions Course',
       description:
         'A methodology + AI that turns stuck goals into clear decisions. $197/year. 7-day guarantee.',
+      posthogKey: env.PUBLIC_POSTHOG_KEY,
+      posthogHost: env.POSTHOG_HOST,
     }),
   )
 })

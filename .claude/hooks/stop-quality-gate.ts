@@ -1,4 +1,5 @@
 import { spawnSync } from 'node:child_process'
+import { resolve } from 'node:path'
 
 const input = await Bun.stdin.json()
 
@@ -7,7 +8,8 @@ if (input.stop_hook_active) {
   process.exit(0)
 }
 
-const cwd = '/Users/henriquemeireles/conductor/workspaces/getzeny/da-nang'
+// Dynamic cwd: hooks live in .claude/hooks/, project root is two levels up
+const cwd = resolve(import.meta.dir, '../..')
 
 // Check if there are any modified .ts/.tsx files
 const gitResult = spawnSync('git', ['diff', '--name-only', '--diff-filter=ACM'], {
@@ -34,7 +36,8 @@ if (allFiles.length === 0) {
   process.exit(0)
 }
 
-// Run Biome on changed files
+// Run Biome with --write to auto-fix formatting, but do NOT auto-stage
+// Agents control what gets committed — no surprise git add
 console.log(`Running quality gate on ${allFiles.length} changed file(s)...`)
 
 const biomeResult = spawnSync('bunx', ['biome', 'check', '--write', '--unsafe', ...allFiles], {

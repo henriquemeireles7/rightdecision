@@ -1,23 +1,9 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.4.10/schema.json",
-  "assist": {
-    "actions": {
-      "source": {
-        "organizeImports": "on"
-      }
-    }
-  },
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "linter": {
     "enabled": true,
-    "rules": {
-      "recommended": true,
-      "style": {
-        "noNonNullAssertion": "off"
-      },
-      "correctness": {
-        "noUnknownProperty": "off"
-      }
-    }
+    "rules": { "recommended": true }
   },
   "formatter": {
     "enabled": true,
@@ -45,8 +31,9 @@
       "!**/dist",
       "!**/content/",
       "!**/bun.lock",
-      "!.claude",
-      "!public/styles.css"
+      "!.claude/skills/gstack/**",
+      "!.beads/.br_history/**",
+      "!mcp_agent_mail/**"
     ]
   }
 }

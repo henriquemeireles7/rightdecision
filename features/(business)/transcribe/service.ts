@@ -8,6 +8,7 @@ import { db } from '@/platform/db/client'
 import { clips, pipelineRuns } from '@/platform/db/schema'
 import { ProviderError } from '@/providers/errors'
 import { download } from '@/providers/storage'
+import { track } from '@/providers/analytics'
 import { transcribe as whisperTranscribe } from '@/providers/transcription'
 
 const SUPPORTED_FORMATS = ['mp4', 'webm', 'wav', 'mp3', 'ogg', 'm4a']
@@ -74,6 +75,7 @@ export async function processTranscription(runId: string) {
       throw error
     }
 
+    track('content_uploaded', { type: 'video', size: videoData.length })
     await writeFile(tempPath, videoData)
 
     // Run Whisper

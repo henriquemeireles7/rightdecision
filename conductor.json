@@ -1,7 +1,8 @@
 {
   "scripts": {
-    "setup": "bun install && [ -f .env ] || cp .env.example .env && sed -i '' \"s/PORT=3000/PORT=$CONDUCTOR_PORT/\" .env && sed -i '' \"s|localhost:3000|localhost:$CONDUCTOR_PORT|\" .env",
-    "run": "PORT=$CONDUCTOR_PORT bun run dev"
+    "setup": "bun install --frozen-lockfile && [ -s .env ] || cp .env.example .env && sed -i '' \"s/PORT=3000/PORT=$CONDUCTOR_PORT/\" .env && sed -i '' \"s|localhost:3000|localhost:$CONDUCTOR_PORT|\" .env && if ! curl -s -o /dev/null http://127.0.0.1:8765/api/ 2>/dev/null; then cd mcp_agent_mail && HTTP_BEARER_TOKEN=$(grep HTTP_BEARER_TOKEN .env | cut -d= -f2) nohup uv run python -m mcp_agent_mail.cli serve-http --port 8765 > /tmp/agent-mail.log 2>&1 & cd .. && sleep 2; fi && PORT=$CONDUCTOR_PORT nohup bun run dev > /tmp/dev-server-$CONDUCTOR_PORT.log 2>&1 &",
+    "run": "",
+    "archive": "kill $(lsof -t -i :8765) 2>/dev/null; kill $(lsof -t -i :$CONDUCTOR_PORT) 2>/dev/null; true"
   },
   "runScriptMode": "concurrent"
 }

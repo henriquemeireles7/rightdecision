@@ -13,9 +13,12 @@ import { courseRoutes } from '@/features/(life)/course-player/routes'
 import { progressRoutes } from '@/features/(life)/course-progress/routes'
 import { onboardingRoutes } from '@/features/(life)/onboarding/routes'
 import { winsRoutes } from '@/features/(life)/wins/routes'
+import { authPageRoutes } from '@/features/(life)/auth/routes'
 import { accountRoutes } from '@/features/(shared)/account/routes'
 import { adminRoutes } from '@/features/(shared)/admin/routes'
 import { checkoutRoutes } from '@/features/(shared)/subscription/create-checkout'
+import { completeCheckoutRoutes } from '@/features/(shared)/subscription/complete-checkout'
+import { portalRoutes } from '@/features/(shared)/subscription/customer-portal'
 import { webhookRoutes } from '@/features/(shared)/subscription/handle-webhook'
 import { websiteRoutes } from '@/features/(shared)/website/routes.tsx'
 import { authRoutes } from '@/platform/auth/routes'
@@ -26,7 +29,9 @@ export function mountRoutes(app: Hono) {
       .route('/api/auth', authRoutes)
       .route('/api/onboarding', onboardingRoutes)
       .route('/api/checkout', checkoutRoutes)
+      .route('/api/checkout/flow', completeCheckoutRoutes)
       .route('/api/webhook', webhookRoutes)
+      .route('/api/subscription/portal', portalRoutes)
       .route('/api/courses', courseRoutes)
       .route('/api/progress', progressRoutes)
       .route('/api/progress/v2', progressApiRoutes)
@@ -43,6 +48,8 @@ export function mountRoutes(app: Hono) {
       .route('/api/post-distribute', postDistributeRoutes)
       .route('/api/analytics-collect', analyticsRoutes)
       .route('/api/insights', insightRoutes)
+      // Auth pages — BEFORE website catch-all
+      .route('/', authPageRoutes)
       // Website — AFTER all /api/* routes (homepage, LP at /life, blog, concepts, legal)
       .route('/', websiteRoutes)
   )

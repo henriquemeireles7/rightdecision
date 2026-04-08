@@ -8,6 +8,7 @@ import { courseProgress, subscriptions } from '@/platform/db/schema'
 import { throwError } from '@/platform/errors'
 import { success } from '@/platform/server/responses'
 import type { AppEnv } from '@/platform/types'
+import { track } from '@/providers/analytics'
 
 const completeSchema = z.object({
   classId: z.string().min(1),
@@ -32,6 +33,8 @@ progressRoutes.post('/complete', requireAuth, zValidator('json', completeSchema)
     .insert(courseProgress)
     .values({ userId: user.id, classId, courseId })
     .onConflictDoNothing()
+
+  track('course_module_completed', { module_id: classId, course_id: courseId }, user.id)
 
   return success(c, { classId, courseId, completed: true })
 })

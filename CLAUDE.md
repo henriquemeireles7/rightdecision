@@ -83,6 +83,27 @@ The auto-generated footer (Files, Internal Dependencies) is added by the Stop ho
 - bun test — run tests
 - bun run lint — fix lint + format issues
 
+## Local Test Database (required for integration tests)
+Integration tests need a real PostgreSQL. Start before testing, stop when done.
+```sh
+# Start (Homebrew — installed via `brew install postgresql@16`)
+brew services start postgresql@16
+
+# First-time setup (create test user + DB)
+export PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH"
+createuser test --superuser 2>/dev/null
+createdb test --owner=test 2>/dev/null
+psql -c "ALTER USER test WITH PASSWORD 'test';"
+
+# Run tests with test DB
+DATABASE_URL=postgresql://test:test@localhost:5432/test bun test
+
+# Stop when done
+brew services stop postgresql@16
+```
+CI uses a PostgreSQL service container automatically (see .github/workflows/ci.yml).
+NEVER use the production Railway DATABASE_URL for tests — teardown truncates all tables.
+
 ## CLI & Tooling Best Practices
 - Use rg (ripgrep) instead of grep — faster, fewer tokens, Rust-based.
 - Use fd instead of find — faster file discovery.
@@ -123,6 +144,14 @@ Read the files that match your task. Read as many as needed:
 - Improving the AI harness → decisions/harness.md
 
 Each folder's CLAUDE.md has Critical Rules, Import Maps, and Recipes specific to that module.
+
+### Universal File Sync (ship workflow)
+Before creating a PR via /ship, check if the diff touches areas covered by universal reference files:
+1. Map changed files to relevant universal files (e.g., changes in platform/ → coding.md, deploy.md; changes in features/ → architecture.md)
+2. Read each relevant universal file and check the `> Last verified: YYYY-MM-DD` date
+3. If stale (content doesn't match code reality): update the file and bump the date
+4. Include updated universal files in the same PR
+5. This prevents reference files from going stale as the codebase evolves
 
 ## Design System
 Always read decisions/design.md before making any visual or UI decisions.
@@ -173,10 +202,29 @@ bv --robot-suggest                 # hygiene: duplicates, missing deps
 ### Multi-Agent Coordination
 When multiple agents work simultaneously (Conductor workspaces):
 - All agents target the same branch (master). No worktree isolation.
-- Use Agent Mail for file reservations to prevent edit conflicts.
 - Each agent claims beads before working (`--claim`).
 - Discovered issues: `br create "Fix: ..." --deps "discovered-from:<current-id>"`
 - NEVER stash, revert, or overwrite other agents' work.
+
+#### Agent Mail (MCP) — File Reservations
+Agent Mail is configured as HTTP MCP at `127.0.0.1:8765`. If tools aren't available, the server needs starting:
+```sh
+cd mcp_agent_mail && HTTP_BEARER_TOKEN=$(grep HTTP_BEARER_TOKEN .env | cut -d= -f2) uv run python -m mcp_agent_mail.cli serve-http --port 8765 &
+```
+
+**At session start (MANDATORY for multi-agent):**
+1. `mcp__mcp-agent-mail__ensure_project(human_key: "<absolute repo path>")`
+2. `mcp__mcp-agent-mail__register_agent(project_key: "<repo path>", agent_name: "<workspace-name>")`
+3. `mcp__mcp-agent-mail__fetch_inbox(project_key: "<repo path>", agent_name: "<workspace-name>")`
+4. Reserve files you'll edit:
+   `mcp__mcp-agent-mail__file_reservation_paths(project_key, agent_name, paths: ["platform/env.ts", ...], ttl_seconds: 3600, exclusive: true)`
+
+**Before editing a shared file:**
+- Check reservations first. If another agent reserved it, pick a different bead.
+
+**At session end:**
+- `mcp__mcp-agent-mail__release_file_reservations(project_key, agent_name)`
+- `mcp__mcp-agent-mail__send_message(project_key, from_agent, to_agent: "all", body: "Completed beads: ...")`
 
 ### Key Rules
 - NEVER skip dependencies — if `br ready` returns nothing, blocked tasks need deps completed first
@@ -329,3 +377,4 @@ Key routing rules:
 - JTBD, validate demand, what to build → invoke d-jtbd
 - PRD, product requirements → invoke d-prd
 - Full coding pipeline end-to-end → invoke autocode
+- Review and ship, full review chain → invoke d-autoreview
