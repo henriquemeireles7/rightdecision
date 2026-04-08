@@ -36,10 +36,11 @@ if (allFiles.length === 0) {
   process.exit(0)
 }
 
-// Run Biome on changed files
+// Run Biome in report-only mode (no --write, no auto-staging)
+// Agents run `bun run lint` explicitly before committing
 console.log(`Running quality gate on ${allFiles.length} changed file(s)...`)
 
-const biomeResult = spawnSync('bunx', ['biome', 'check', '--write', '--unsafe', ...allFiles], {
+const biomeResult = spawnSync('bunx', ['biome', 'check', ...allFiles], {
   cwd,
   stdio: ['ignore', 'pipe', 'pipe'],
 })
@@ -49,9 +50,6 @@ if (biomeOutput.trim()) {
   const lines = biomeOutput.trim().split('\n')
   console.log('Biome:', lines.slice(-3).join('\n'))
 }
-
-// Stage formatted files so they're included in the next commit (prevents drift)
-spawnSync('git', ['add', ...allFiles], { cwd, stdio: 'ignore' })
 
 // Run TypeScript check
 const tscResult = spawnSync('bunx', ['tsc', '--noEmit'], {
