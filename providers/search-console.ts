@@ -39,6 +39,7 @@ export async function getAccessToken(): Promise<string | null> {
       grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
       assertion: jwt,
     }),
+    signal: AbortSignal.timeout(10_000),
   })
 
   if (!res.ok) {
@@ -69,6 +70,7 @@ export async function inspectUrl(siteUrl: string, inspectionUrl: string): Promis
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ inspectionUrl, siteUrl }),
+    signal: AbortSignal.timeout(15_000),
   })
 
   if (!res.ok) {
@@ -123,6 +125,7 @@ export async function getSearchAnalytics(
       dimensions: opts.dimensions ?? ['query'],
       rowLimit: 100,
     }),
+    signal: AbortSignal.timeout(15_000),
   })
 
   if (!res.ok) {

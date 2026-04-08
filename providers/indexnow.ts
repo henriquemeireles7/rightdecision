@@ -33,6 +33,7 @@ export async function submitUrls(urls: string[]): Promise<{ submitted: number; s
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
+      signal: AbortSignal.timeout(10_000),
     })
 
     if (res.status === 200 || res.status === 202) {
