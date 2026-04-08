@@ -3,6 +3,7 @@ import { serveStatic } from 'hono/bun'
 import { cors } from 'hono/cors'
 import { logger } from 'hono/logger'
 import { env } from '@/platform/env'
+import { track } from '@/providers/analytics'
 import { checkHealth } from './health'
 import { mountRoutes } from './routes'
 
@@ -32,6 +33,13 @@ const appRoutes = mountRoutes(app)
 // Global error handler
 app.onError((err, c) => {
   console.error('Unhandled error:', err)
+  track('error_occurred', {
+    error_code: 'INTERNAL_ERROR',
+    path: c.req.path,
+    method: c.req.method,
+    stack: err.stack,
+    message: err.message,
+  })
   return c.json({ ok: false, code: 'INTERNAL_ERROR', message: 'Something went wrong' }, 500)
 })
 

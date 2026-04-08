@@ -7,6 +7,8 @@ interface PageOptions {
   ogImage?: string
   ogTitle?: string
   canonical?: string
+  posthogKey?: string
+  posthogHost?: string
 }
 
 const esc = (s: string) =>
@@ -39,6 +41,34 @@ export function renderPage(component: VNode, options: PageOptions = {}): string 
   <main id="main-content">
     ${html}
   </main>
+  ${options.posthogKey ? `<script>
+    window.addEventListener('load', function() {
+      var s = document.createElement('script');
+      s.src = 'https://us-assets.i.posthog.com/static/array.js';
+      s.onload = function() {
+        posthog.init('${esc(options.posthogKey)}', {
+          api_host: '${esc(options.posthogHost || 'https://us.i.posthog.com')}',
+          autocapture: true,
+          capture_pageview: true,
+          capture_pageleave: true,
+          session_recording: { maskAllInputs: true, maskTextSelector: '[data-ph-mask]' }
+        });
+        window.onerror = function(msg, src, line, col, err) {
+          posthog.capture('client_error_occurred', {
+            message: String(msg), source: src, line: line, column: col,
+            stack: err && err.stack, path: location.pathname
+          });
+        };
+        window.onunhandledrejection = function(e) {
+          posthog.capture('client_error_occurred', {
+            message: e.reason && e.reason.message || String(e.reason),
+            stack: e.reason && e.reason.stack, path: location.pathname
+          });
+        };
+      };
+      document.head.appendChild(s);
+    });
+  </script>` : ''}
 </body>
 </html>`
 }
