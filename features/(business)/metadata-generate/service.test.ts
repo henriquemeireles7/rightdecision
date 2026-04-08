@@ -7,6 +7,12 @@ const mockFindManyAccounts = mock(() => Promise.resolve([]))
 const mockFindFirstPost = mock(() => Promise.resolve(null))
 const mockInsertPost = mock(() => Promise.resolve([{ id: 'post-1', clipId: 'clip-1', platformAccountId: 'acc-1', status: 'scheduled' }]))
 
+const mockTx = {
+  query: { posts: { findFirst: () => mockFindFirstPost() } },
+  insert: () => ({ values: () => ({ returning: () => mockInsertPost() }) }),
+  update: () => ({ set: () => ({ where: () => Promise.resolve() }) }),
+}
+
 mock.module('@/platform/db/client', () => ({
   db: {
     query: {
@@ -16,6 +22,7 @@ mock.module('@/platform/db/client', () => ({
     },
     update: () => ({ set: () => ({ where: () => Object.assign(Promise.resolve(), { returning: () => Promise.resolve([{ id: 'run-1' }]) }) }) }),
     insert: () => ({ values: () => ({ returning: () => mockInsertPost() }) }),
+    transaction: (fn: (tx: typeof mockTx) => Promise<unknown>) => fn(mockTx),
   },
 }))
 

@@ -9,17 +9,17 @@ mock.module('@/platform/env', () => ({
 }))
 
 // Mock DB
-const mockInsert = mock(() => ({ returning: () => [{ id: 'run-1', inputVideoUrl: 'https://r2.example.com/bucket/video.mp4', status: 'queued' }] }))
+const mockInsert = mock(() => ({ returning: () => [{ id: 'run-1', inputVideoUrl: 'episodes/video.mp4', status: 'queued' }] }))
 const mockUpdate = mock(() => ({ set: mock(() => ({ where: mock(() => Promise.resolve()) })) }))
 const mockSelect = mock(() => ({ from: mock(() => [{ count: 5 }]) }))
-const mockFindFirst = mock(() => Promise.resolve({ id: 'run-1', inputVideoUrl: 'https://r2.example.com/bucket/video.mp4', status: 'queued', transcript: null }))
+const mockFindFirst = mock(() => Promise.resolve({ id: 'run-1', inputVideoUrl: 'episodes/video.mp4', status: 'queued', transcript: null }))
 const mockFindMany = mock(() => Promise.resolve([]))
 
 mock.module('@/platform/db/client', () => ({
   db: {
     insert: () => ({
       values: () => ({
-        returning: () => Promise.resolve([{ id: 'run-1', inputVideoUrl: 'https://r2.example.com/bucket/video.mp4', status: 'queued' }]),
+        returning: () => Promise.resolve([{ id: 'run-1', inputVideoUrl: 'episodes/video.mp4', status: 'queued' }]),
       }),
     }),
     update: () => ({
@@ -92,7 +92,7 @@ describe('features/(business)/transcribe/service', () => {
     // Default: return a queued run
     mockFindFirst.mockResolvedValue({
       id: 'run-1',
-      inputVideoUrl: 'https://r2.example.com/bucket/video.mp4',
+      inputVideoUrl: 'episodes/video.mp4',
       status: 'queued',
       transcript: null,
     } as never)
@@ -102,18 +102,18 @@ describe('features/(business)/transcribe/service', () => {
 
   describe('startTranscription', () => {
     it('creates a pipeline run for valid video URL', async () => {
-      const result = await startTranscription('https://r2.example.com/bucket/video.mp4')
+      const result = await startTranscription('episodes/video.mp4')
       expect(result).toHaveProperty('run')
       expect('error' in result).toBe(false)
     })
 
     it('rejects unsupported formats', async () => {
-      const result = await startTranscription('https://r2.example.com/bucket/image.gif')
+      const result = await startTranscription('episodes/image.gif')
       expect(result).toEqual({ error: 'TRANSCRIBE_INVALID_FORMAT' })
     })
 
     it('rejects txt files', async () => {
-      const result = await startTranscription('https://r2.example.com/bucket/file.txt')
+      const result = await startTranscription('episodes/file.txt')
       expect(result).toEqual({ error: 'TRANSCRIBE_INVALID_FORMAT' })
     })
   })

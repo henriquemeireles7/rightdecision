@@ -24,6 +24,11 @@ export async function startTranscription(videoUrl: string, config?: Record<strin
     return { error: 'TRANSCRIBE_INVALID_FORMAT' as const }
   }
 
+  // Reject path traversal and non-alphanumeric keys
+  if (videoUrl.includes('..') || videoUrl.startsWith('/') || /[^a-zA-Z0-9._\-\/]/.test(videoUrl)) {
+    return { error: 'TRANSCRIBE_INVALID_FORMAT' as const }
+  }
+
   const [run] = await db
     .insert(pipelineRuns)
     .values({
@@ -91,11 +96,11 @@ export async function processTranscription(runId: string) {
       throw error
     }
 
-    // Save transcript
+    // Save transcript (CAS: only if still transcribing)
     await db
       .update(pipelineRuns)
       .set({ status: 'transcribed', transcript })
-      .where(eq(pipelineRuns.id, runId))
+      .where(and(eq(pipelineRuns.id, runId), eq(pipelineRuns.status, 'transcribing')))
 
     const updated = await db.query.pipelineRuns.findFirst({
       where: eq(pipelineRuns.id, runId),

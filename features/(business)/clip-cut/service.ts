@@ -9,14 +9,26 @@ import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { randomUUID } from 'node:crypto'
 
+const FFMPEG_TIMEOUT_MS = 5 * 60 * 1000 // 5 minutes per clip
+
 async function cutClipWithFfmpeg(videoPath: string, outputPath: string, start: number, duration: number): Promise<void> {
   const proc = Bun.spawn(
     ['ffmpeg', '-y', '-i', videoPath, '-ss', String(start), '-t', String(duration), '-c', 'copy', outputPath],
-    { stdout: 'pipe', stderr: 'pipe' },
+    { stdout: 'ignore', stderr: 'pipe' },
   )
-  const exitCode = await proc.exited
+
+  // Read stderr concurrently with exit to prevent pipe buffer deadlock
+  const [exitCode, stderr] = await Promise.race([
+    Promise.all([proc.exited, new Response(proc.stderr).text()]),
+    new Promise<never>((_, reject) =>
+      setTimeout(() => {
+        proc.kill()
+        reject(new Error('ffmpeg timed out'))
+      }, FFMPEG_TIMEOUT_MS),
+    ),
+  ])
+
   if (exitCode !== 0) {
-    const stderr = await new Response(proc.stderr).text()
     throw new Error(`ffmpeg failed (exit ${exitCode}): ${stderr}`)
   }
 }
@@ -97,15 +109,16 @@ export async function cutClipsForRun(pipelineRunId: string) {
     const failCount = results.filter((r) => !r.success).length
 
     if (failCount === clipList.length) {
-      await db.update(pipelineRuns).set({ status: 'failed', stepFailedAt: 'clip-cut', errorMessage: 'All clips failed to cut', clipsFailed: failCount }).where(eq(pipelineRuns.id, pipelineRunId))
+      await db.update(pipelineRuns).set({ status: 'failed', stepFailedAt: 'clip-cut', errorMessage: 'All clips failed to cut', clipsFailed: failCount }).where(and(eq(pipelineRuns.id, pipelineRunId), eq(pipelineRuns.status, 'cutting')))
       return { error: 'CLIP_CUT_PROCESSING_FAILED' as const }
     }
 
+    // CAS: only update if still in cutting state
     await db.update(pipelineRuns).set({
       status: 'cut',
       clipsApproved: clipList.length,
       clipsFailed: failCount,
-    }).where(eq(pipelineRuns.id, pipelineRunId))
+    }).where(and(eq(pipelineRuns.id, pipelineRunId), eq(pipelineRuns.status, 'cutting')))
 
     if (failCount > 0 && successCount > 0) {
       return { clips: results, partial: true }

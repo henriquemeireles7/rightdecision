@@ -97,15 +97,16 @@ export async function distributePostsForRun(pipelineRunId: string) {
   const failCount = results.filter((r) => !r.success).length
 
   if (failCount === scheduledPosts.length) {
-    await db.update(pipelineRuns).set({ status: 'failed', stepFailedAt: 'post-distribute', clipsFailed: failCount }).where(eq(pipelineRuns.id, pipelineRunId))
+    await db.update(pipelineRuns).set({ status: 'failed', stepFailedAt: 'post-distribute', clipsFailed: failCount }).where(and(eq(pipelineRuns.id, pipelineRunId), eq(pipelineRuns.status, 'posting')))
     return { error: 'POST_PARTIAL_FAILURE' as const }
   }
 
+  // CAS: only update if still in posting state
   await db.update(pipelineRuns).set({
     status: 'posted',
     clipsPosted: successCount,
     clipsFailed: failCount,
-  }).where(eq(pipelineRuns.id, pipelineRunId))
+  }).where(and(eq(pipelineRuns.id, pipelineRunId), eq(pipelineRuns.status, 'posting')))
 
   if (failCount > 0 && successCount > 0) {
     return { posts: results, partial: true }
