@@ -34,7 +34,8 @@ async function check(label: string, fn: () => Promise<unknown>): Promise<Service
     const latency = await withTimeout(timed(fn), label)
     return { status: 'ok', latency }
   } catch (e) {
-    return { status: 'error', error: e instanceof Error ? e.message : 'Unknown error' }
+    console.error(`[health] ${label} check failed:`, e instanceof Error ? e.message : e)
+    return { status: 'error', error: `${label} unavailable` }
   }
 }
 

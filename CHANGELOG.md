@@ -10,7 +10,6 @@ All notable changes to this project will be documented in this file.
 ### Removed
 - Duplicate legacy feature folders (account, admin, course, email, onboarding, paywall, wins) that existed outside parenthesized groups
 
-
 ## [0.1.1.0] - 2026-04-08
 
 ### Added
