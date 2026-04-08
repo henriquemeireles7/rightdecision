@@ -12,8 +12,8 @@ mock.module('@/platform/env', () => ({
 const mockInsert = mock(() => ({
   returning: () => [{ id: 'run-1', inputVideoUrl: 'episodes/video.mp4', status: 'queued' }],
 }))
-const mockUpdate = mock(() => ({ set: mock(() => ({ where: mock(() => Promise.resolve()) })) }))
-const mockSelect = mock(() => ({ from: mock(() => [{ count: 5 }]) }))
+const _mockUpdate = mock(() => ({ set: mock(() => ({ where: mock(() => Promise.resolve()) })) }))
+const _mockSelect = mock(() => ({ from: mock(() => [{ count: 5 }]) }))
 const mockFindFirst = mock(() =>
   Promise.resolve({
     id: 'run-1',

@@ -11,55 +11,55 @@
  * Output: JSON with pass/fail and message
  */
 
-import { spawnSync } from "node:child_process";
-import { resolve } from "node:path";
+import { spawnSync } from 'node:child_process'
+import { resolve } from 'node:path'
 
-const repoRoot = resolve(import.meta.dir, "../../..");
+const repoRoot = resolve(import.meta.dir, '../../..')
 
 function getChangedFiles(base: string): string[] {
-	const result = spawnSync("git", ["diff", "--name-only", "--diff-filter=ACMR", base], {
-		cwd: repoRoot,
-	});
-	if (result.status !== 0) return [];
-	return result.stdout
-		.toString()
-		.trim()
-		.split("\n")
-		.filter((f) => f.length > 0);
+  const result = spawnSync('git', ['diff', '--name-only', '--diff-filter=ACMR', base], {
+    cwd: repoRoot,
+  })
+  if (result.status !== 0) return []
+  return result.stdout
+    .toString()
+    .trim()
+    .split('\n')
+    .filter((f) => f.length > 0)
 }
 
 // --- Main ---
-const args = process.argv.slice(2);
-const baseIdx = args.indexOf("--base");
-const base = baseIdx !== -1 && args[baseIdx + 1] ? args[baseIdx + 1] : "master";
+const args = process.argv.slice(2)
+const baseIdx = args.indexOf('--base')
+const base = baseIdx !== -1 && args[baseIdx + 1] ? args[baseIdx + 1] : 'master'
 
-const changedFiles = getChangedFiles(base);
+const changedFiles = getChangedFiles(base)
 
-const packageJsonChanged = changedFiles.includes("package.json");
-const lockfileChanged = changedFiles.includes("bun.lock") || changedFiles.includes("bun.lockb");
+const packageJsonChanged = changedFiles.includes('package.json')
+const lockfileChanged = changedFiles.includes('bun.lock') || changedFiles.includes('bun.lockb')
 
-let pass = true;
-let message = "No lockfile issues detected.";
+let pass = true
+let message = 'No lockfile issues detected.'
 
 if (packageJsonChanged && !lockfileChanged) {
-	pass = false;
-	message =
-		"package.json was modified but bun.lock was not updated. " +
-		"Run `bun install` to regenerate the lockfile, then commit bun.lock. " +
-		"This prevents broken builds where Docker uses a stale lockfile.";
+  pass = false
+  message =
+    'package.json was modified but bun.lock was not updated. ' +
+    'Run `bun install` to regenerate the lockfile, then commit bun.lock. ' +
+    'This prevents broken builds where Docker uses a stale lockfile.'
 }
 
 if (!packageJsonChanged && lockfileChanged) {
-	// Not an error, but worth noting
-	message = "bun.lock changed without package.json changes — likely a dependency resolution update.";
+  // Not an error, but worth noting
+  message = 'bun.lock changed without package.json changes — likely a dependency resolution update.'
 }
 
 const result = {
-	pass,
-	packageJsonChanged,
-	lockfileChanged,
-	message,
-};
+  pass,
+  packageJsonChanged,
+  lockfileChanged,
+  message,
+}
 
-console.log(JSON.stringify(result, null, 2));
-process.exit(pass ? 0 : 1);
+console.log(JSON.stringify(result, null, 2))
+process.exit(pass ? 0 : 1)

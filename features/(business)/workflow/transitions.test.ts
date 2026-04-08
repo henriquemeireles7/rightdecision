@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
 
 mock.module('@/platform/env', () => ({
-	env: { DATABASE_URL: 'postgres://test' },
+  env: { DATABASE_URL: 'postgres://test' },
 }))
 
 const mockFindFirst = mock(() => Promise.resolve(null))
@@ -11,122 +11,123 @@ const mockUpdateSet = mock(() => ({ where: mockUpdateWhere }))
 const mockUpdate = mock(() => ({ set: mockUpdateSet }))
 
 mock.module('@/platform/db/client', () => ({
-	db: {
-		query: {
-			pipelineRuns: { findFirst: mockFindFirst },
-		},
-		update: mockUpdate,
-	},
+  db: {
+    query: {
+      pipelineRuns: { findFirst: mockFindFirst },
+    },
+    update: mockUpdate,
+  },
 }))
 
 import { mockSchema } from '@/features/(business)/test-helpers'
+
 mock.module('@/platform/db/schema', () => mockSchema())
 
 // Don't mock state-machine — it's pure logic
 const { transitionPipeline, findRunInState, failPipeline } = await import('./transitions')
 
 describe('transitions', () => {
-	beforeEach(() => {
-		mockFindFirst.mockReset()
-		mockUpdate.mockReset()
-		mockUpdateSet.mockReset()
-		mockUpdateWhere.mockReset()
-		mockReturning.mockReset()
+  beforeEach(() => {
+    mockFindFirst.mockReset()
+    mockUpdate.mockReset()
+    mockUpdateSet.mockReset()
+    mockUpdateWhere.mockReset()
+    mockReturning.mockReset()
 
-		mockUpdate.mockReturnValue({ set: mockUpdateSet } as never)
-		mockUpdateSet.mockReturnValue({ where: mockUpdateWhere } as never)
-		mockUpdateWhere.mockReturnValue({ returning: mockReturning } as never)
-		mockReturning.mockResolvedValue([{ id: 'run-1' }] as never)
-	})
+    mockUpdate.mockReturnValue({ set: mockUpdateSet } as never)
+    mockUpdateSet.mockReturnValue({ where: mockUpdateWhere } as never)
+    mockUpdateWhere.mockReturnValue({ returning: mockReturning } as never)
+    mockReturning.mockResolvedValue([{ id: 'run-1' }] as never)
+  })
 
-	describe('transitionPipeline', () => {
-		it('returns true on successful transition', async () => {
-			const result = await transitionPipeline('run-1', 'queued', 'transcribing')
-			expect(result).toBe(true)
-			expect(mockUpdate).toHaveBeenCalled()
-		})
+  describe('transitionPipeline', () => {
+    it('returns true on successful transition', async () => {
+      const result = await transitionPipeline('run-1', 'queued', 'transcribing')
+      expect(result).toBe(true)
+      expect(mockUpdate).toHaveBeenCalled()
+    })
 
-		it('returns false when no row matched (race condition)', async () => {
-			mockReturning.mockResolvedValueOnce([] as never)
+    it('returns false when no row matched (race condition)', async () => {
+      mockReturning.mockResolvedValueOnce([] as never)
 
-			const result = await transitionPipeline('run-1', 'queued', 'transcribing')
-			expect(result).toBe(false)
-		})
+      const result = await transitionPipeline('run-1', 'queued', 'transcribing')
+      expect(result).toBe(false)
+    })
 
-		it('throws on invalid transition', async () => {
-			await expect(
-				transitionPipeline('run-1', 'queued', 'completed'),
-			).rejects.toThrow('Invalid status transition')
-		})
+    it('throws on invalid transition', async () => {
+      await expect(transitionPipeline('run-1', 'queued', 'completed')).rejects.toThrow(
+        'Invalid status transition',
+      )
+    })
 
-		it('passes extraFields to set', async () => {
-			await transitionPipeline('run-1', 'transcribing', 'transcribed', { transcript: 'hello' })
-			expect(mockUpdateSet).toHaveBeenCalled()
-		})
-	})
+    it('passes extraFields to set', async () => {
+      await transitionPipeline('run-1', 'transcribing', 'transcribed', { transcript: 'hello' })
+      expect(mockUpdateSet).toHaveBeenCalled()
+    })
+  })
 
-	describe('failPipeline', () => {
-		it('sets status to failed with step and error message', async () => {
-			mockFindFirst.mockResolvedValueOnce({ id: 'run-1', status: 'transcribing' } as never)
+  describe('failPipeline', () => {
+    it('sets status to failed with step and error message', async () => {
+      mockFindFirst.mockResolvedValueOnce({ id: 'run-1', status: 'transcribing' } as never)
 
-			await failPipeline('run-1', 'transcribe', 'Video not found')
+      await failPipeline('run-1', 'transcribe', 'Video not found')
 
-			expect(mockUpdate).toHaveBeenCalled()
-			expect(mockUpdateSet).toHaveBeenCalledWith(
-				expect.objectContaining({
-					status: 'failed',
-					stepFailedAt: 'transcribe',
-					errorMessage: 'Video not found',
-				}),
-			)
-		})
+      expect(mockUpdate).toHaveBeenCalled()
+      expect(mockUpdateSet).toHaveBeenCalledWith(
+        expect.objectContaining({
+          status: 'failed',
+          stepFailedAt: 'transcribe',
+          errorMessage: 'Video not found',
+        }),
+      )
+    })
 
-		it('does not update if run is already failed', async () => {
-			mockFindFirst.mockResolvedValueOnce({ id: 'run-1', status: 'failed' } as never)
+    it('does not update if run is already failed', async () => {
+      mockFindFirst.mockResolvedValueOnce({ id: 'run-1', status: 'failed' } as never)
 
-			await failPipeline('run-1', 'transcribe', 'Some error')
+      await failPipeline('run-1', 'transcribe', 'Some error')
 
-			expect(mockUpdate).not.toHaveBeenCalled()
-		})
+      expect(mockUpdate).not.toHaveBeenCalled()
+    })
 
-		it('does not update if run is already completed', async () => {
-			mockFindFirst.mockResolvedValueOnce({ id: 'run-1', status: 'completed' } as never)
+    it('does not update if run is already completed', async () => {
+      mockFindFirst.mockResolvedValueOnce({ id: 'run-1', status: 'completed' } as never)
 
-			await failPipeline('run-1', 'transcribe', 'Some error')
+      await failPipeline('run-1', 'transcribe', 'Some error')
 
-			expect(mockUpdate).not.toHaveBeenCalled()
-		})
+      expect(mockUpdate).not.toHaveBeenCalled()
+    })
 
-		it('does not update if run not found', async () => {
-			mockFindFirst.mockResolvedValueOnce(null as never)
+    it('does not update if run not found', async () => {
+      mockFindFirst.mockResolvedValueOnce(null as never)
 
-			await failPipeline('run-1', 'transcribe', 'Some error')
+      await failPipeline('run-1', 'transcribe', 'Some error')
 
-			expect(mockUpdate).not.toHaveBeenCalled()
-		})
-	})
+      expect(mockUpdate).not.toHaveBeenCalled()
+    })
+  })
 
-	describe('findRunInState', () => {
-		it('returns run when found in allowed status', async () => {
-			const run = { id: 'run-1', status: 'transcribed' }
-			mockFindFirst.mockResolvedValueOnce(run as never)
+  describe('findRunInState', () => {
+    it('returns run when found in allowed status', async () => {
+      const run = { id: 'run-1', status: 'transcribed' }
+      mockFindFirst.mockResolvedValueOnce(run as never)
 
-			const result = await findRunInState('run-1', 'transcribed', 'selecting')
-			expect(result).toEqual({ run })
-		})
+      const result = await findRunInState('run-1', 'transcribed', 'selecting')
+      expect(result).toEqual({ run })
+    })
 
-		it('returns NOT_FOUND when run does not exist', async () => {
-			mockFindFirst.mockResolvedValueOnce(null as never)
+    it('returns NOT_FOUND when run does not exist', async () => {
+      mockFindFirst.mockResolvedValueOnce(null as never)
 
-			const result = await findRunInState('missing', 'transcribed')
-			expect(result).toEqual({ error: 'NOT_FOUND' })
-		})
+      const result = await findRunInState('missing', 'transcribed')
+      expect(result).toEqual({ error: 'NOT_FOUND' })
+    })
 
-		it('returns PIPELINE_INVALID_STATE when status not allowed', async () => {
-			mockFindFirst.mockResolvedValueOnce({ id: 'run-1', status: 'queued' } as never)
+    it('returns PIPELINE_INVALID_STATE when status not allowed', async () => {
+      mockFindFirst.mockResolvedValueOnce({ id: 'run-1', status: 'queued' } as never)
 
-			const result = await findRunInState('run-1', 'transcribed', 'selecting')
-			expect(result).toEqual({ error: 'PIPELINE_INVALID_STATE' })
-		})
-	})
+      const result = await findRunInState('run-1', 'transcribed', 'selecting')
+      expect(result).toEqual({ error: 'PIPELINE_INVALID_STATE' })
+    })
+  })
 })

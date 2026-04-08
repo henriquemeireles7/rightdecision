@@ -90,7 +90,14 @@ describe('features/(business)/post-distribute/service', () => {
       { id: 'clip-1', storageUrl: 'clips/clip-1.mp4' },
     ] as never)
     mockFindManyPosts.mockResolvedValueOnce([
-      { id: 'post-1', clipId: 'clip-1', platformAccountId: 'acc-1', description: 'test', hashtags: [], retryCount: 0 },
+      {
+        id: 'post-1',
+        clipId: 'clip-1',
+        platformAccountId: 'acc-1',
+        description: 'test',
+        hashtags: [],
+        retryCount: 0,
+      },
     ] as never)
 
     const result = await distributePostsForRun('run-1')
@@ -101,7 +108,11 @@ describe('features/(business)/post-distribute/service', () => {
   })
 
   it('distributes posts successfully', async () => {
-    mockFindFirstRun.mockResolvedValueOnce({ id: 'run-1', status: 'metadata_ready', config: {} } as never)
+    mockFindFirstRun.mockResolvedValueOnce({
+      id: 'run-1',
+      status: 'metadata_ready',
+      config: {},
+    } as never)
     mockFindManyClips.mockResolvedValueOnce([
       { id: 'clip-1', storageUrl: 'https://r2.example.com/clips/clip-1.mp4' },
     ] as never)

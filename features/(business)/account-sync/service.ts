@@ -4,7 +4,16 @@ import { platformAccounts } from '@/platform/db/schema'
 import { listProfiles } from '@/providers/social-posting'
 
 const VALID_PLATFORMS = [
-  'tiktok', 'instagram', 'facebook', 'x', 'youtube', 'threads', 'linkedin', 'pinterest', 'reddit', 'bluesky',
+  'tiktok',
+  'instagram',
+  'facebook',
+  'x',
+  'youtube',
+  'threads',
+  'linkedin',
+  'pinterest',
+  'reddit',
+  'bluesky',
 ] as const
 
 const PLATFORM_DEFAULTS: Record<string, { charLimit: number; hashtagLimit: number }> = {
@@ -32,7 +41,7 @@ export async function syncPlatformAccounts() {
   let skipped = 0
   for (const profile of profiles) {
     // Skip platforms not in our enum
-    if (!VALID_PLATFORMS.includes(profile.platform as typeof VALID_PLATFORMS[number])) {
+    if (!VALID_PLATFORMS.includes(profile.platform as (typeof VALID_PLATFORMS)[number])) {
       skipped++
       continue
     }
@@ -55,7 +64,7 @@ export async function syncPlatformAccounts() {
       updated++
     } else {
       await db.insert(platformAccounts).values({
-        platform: profile.platform as typeof VALID_PLATFORMS[number],
+        platform: profile.platform as (typeof VALID_PLATFORMS)[number],
         accountHandle: profile.handle,
         accountType: 'brand',
         uploadPostProfileId: profile.id,

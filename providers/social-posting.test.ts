@@ -85,7 +85,7 @@ describe('providers/social-posting', () => {
       )
       const profiles = await listProfiles()
       expect(profiles).toHaveLength(1)
-      expect(profiles[0]!.platform).toBe('tiktok')
+      expect(profiles[0]?.platform).toBe('tiktok')
     })
   })
 })

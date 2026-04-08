@@ -1,10 +1,6 @@
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
-import {
-  passwordChangedEmail,
-  passwordResetEmail,
-  verificationEmail,
-} from '@/features/(shared)/email/auth-emails'
+import { passwordResetEmail, verificationEmail } from '@/features/(shared)/email/auth-emails'
 import { db } from '@/platform/db/client'
 import { env } from '@/platform/env'
 import { sendEmail } from '@/providers/email'

@@ -1,7 +1,7 @@
 import { sql } from 'drizzle-orm'
 import { db } from '@/platform/db/client'
-import { upload, download, remove } from '@/providers/storage'
 import { listProfiles } from '@/providers/social-posting'
+import { download, remove, upload } from '@/providers/storage'
 
 interface ProviderStatus {
   ok: boolean
@@ -67,7 +67,8 @@ export async function checkHealth(skipBinaryChecks = false): Promise<HealthResul
     skipBinaryChecks ? Promise.resolve({ ok: true, latencyMs: 0 }) : checkBinary('ffmpeg'),
   ])
 
-  const allOk = dbStatus.ok && r2Status.ok && uploadPostStatus.ok && whisperStatus.ok && ffmpegStatus.ok
+  const allOk =
+    dbStatus.ok && r2Status.ok && uploadPostStatus.ok && whisperStatus.ok && ffmpegStatus.ok
 
   return {
     status: allOk ? 'healthy' : 'degraded',

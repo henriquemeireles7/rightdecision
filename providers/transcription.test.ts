@@ -11,8 +11,8 @@ mock.module('@/platform/env', () => ({
 function mockProc(exitCode: number, stdout = '', stderr = '') {
   return {
     exited: Promise.resolve(exitCode),
-    stdout: new Response(stdout).body!,
-    stderr: new Response(stderr).body!,
+    stdout: new Response(stdout).body as ReadableStream,
+    stderr: new Response(stderr).body as ReadableStream,
     kill: mock(() => {}),
   }
 }

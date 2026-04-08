@@ -12,7 +12,7 @@ const client = new S3Client({
   region: 'auto',
   endpoint: env.R2_ENDPOINT,
   credentials: env.R2_ACCESS_KEY_ID
-    ? { accessKeyId: env.R2_ACCESS_KEY_ID, secretAccessKey: env.R2_SECRET_ACCESS_KEY! }
+    ? { accessKeyId: env.R2_ACCESS_KEY_ID, secretAccessKey: env.R2_SECRET_ACCESS_KEY ?? '' }
     : undefined,
 })
 

@@ -1,5 +1,5 @@
-import { existsSync } from 'node:fs'
 import { describe, expect, it } from 'bun:test'
+import { existsSync } from 'node:fs'
 
 const whisperModelPath = process.env.WHISPER_MODEL_PATH || 'models/ggml-large-v3.bin'
 const hasWhisper = (() => {

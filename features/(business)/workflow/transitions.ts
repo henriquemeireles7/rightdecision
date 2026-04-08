@@ -4,7 +4,12 @@ import { db } from '@/platform/db/client'
 import { pipelineRuns } from '@/platform/db/schema'
 
 const PROCESSING_STATES: PipelineStatus[] = [
-  'transcribing', 'selecting', 'cutting', 'generating_metadata', 'posting', 'analyzing',
+  'transcribing',
+  'selecting',
+  'cutting',
+  'generating_metadata',
+  'posting',
+  'analyzing',
 ]
 
 const STEP_NAMES: Partial<Record<PipelineStatus, string>> = {
