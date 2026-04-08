@@ -58,7 +58,7 @@ Content pipeline (doc 08) powers distribution for BOTH tracks.
 - Doc 6 (VSL): DEFERRED — needs podcast recordings first
 - Docs 7-9: COMPLETE (social media setup, viral strategy, knowledge base)
 - Doc 10 (Company Branding): Not started
-- Doc 11 (Basic SEO/DR): Not started
+- Doc 11 (Website & SEO/GEO Strategy): COMPLETE — full website architecture, technical SEO, GEO optimization, keyword strategy (4 clusters), blog system, concept pages, content pipeline, phased launch plan (V1/V2/V3)
 
 ### Life Decisions Documents (in decisions/lifedecisions/)
 - 03-methodology: COMPLETE (moved from root) — updated 2026-04-06 with win-oriented reframing
