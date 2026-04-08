@@ -1,7 +1,7 @@
 import { eq, and, inArray } from 'drizzle-orm'
 import { db } from '@/platform/db/client'
 import { pipelineRuns, clips, posts } from '@/platform/db/schema'
-import { assertTransition } from '@/features/(business)/workflow/state-machine'
+import { findRunInState, transitionPipeline } from '@/features/(business)/workflow/transitions'
 import { post as uploadPost } from '@/providers/social-posting'
 import { getSignedUrl } from '@/providers/storage'
 import { ProviderError } from '@/providers/errors'

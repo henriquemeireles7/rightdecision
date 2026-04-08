@@ -75,6 +75,8 @@ export const errors = {
     status: 404,
     message: 'Course not found',
   },
+  // ─── BD Pipeline: Generic ───
+  PIPELINE_INVALID_STATE: { code: 'PIPELINE_INVALID_STATE', status: 409, message: 'Pipeline run is not in the correct state for this operation' },
   // ─── BD Pipeline: Transcribe (Step 1) ───
   TRANSCRIBE_VIDEO_NOT_FOUND: { code: 'TRANSCRIBE_VIDEO_NOT_FOUND', status: 404, message: 'Source video not found in storage' },
   TRANSCRIBE_INVALID_FORMAT: { code: 'TRANSCRIBE_INVALID_FORMAT', status: 400, message: 'Video format not supported. Use MP4, WebM, or WAV' },
