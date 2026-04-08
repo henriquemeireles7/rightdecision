@@ -55,3 +55,165 @@
     background-color: var(--color-cream);
   }
 }
+
+/* ─── Editorial Course Styles ─────────────────────────────────────────────── */
+
+@layer components {
+  /* Reading Room: centered single column, book-like */
+  .prose-editorial {
+    max-width: 65ch;
+    margin-inline: auto;
+    font-family: var(--font-body);
+    font-size: 1.125rem;
+    line-height: 1.6;
+    color: var(--color-ink);
+  }
+
+  .prose-editorial h1,
+  .prose-editorial h2,
+  .prose-editorial h3 {
+    font-family: var(--font-display);
+    color: var(--color-ink);
+    line-height: 1.2;
+  }
+
+  .prose-editorial h1 { font-size: 2.25rem; margin-top: 2.5rem; margin-bottom: 1rem; }
+  .prose-editorial h2 { font-size: 1.75rem; margin-top: 2rem; margin-bottom: 0.75rem; }
+  .prose-editorial h3 { font-size: 1.375rem; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+
+  .prose-editorial p { margin-bottom: 1.25rem; }
+  .prose-editorial ul,
+  .prose-editorial ol { margin-bottom: 1.25rem; padding-left: 1.5rem; }
+  .prose-editorial li { margin-bottom: 0.375rem; }
+  .prose-editorial strong { font-weight: 600; }
+  .prose-editorial em { font-style: italic; }
+
+  .prose-editorial a {
+    color: var(--color-gold);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .prose-editorial a:hover { color: var(--color-gold-hover); }
+
+  .prose-editorial blockquote {
+    border-left: 3px solid var(--color-linen);
+    padding-left: 1.25rem;
+    margin: 1.5rem 0;
+    color: var(--color-body);
+    font-style: italic;
+  }
+
+  .prose-editorial code {
+    background: var(--color-sand);
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
+    font-size: 0.875em;
+  }
+
+  .prose-editorial pre {
+    background: var(--color-ink);
+    color: var(--color-cream);
+    padding: 1.25rem;
+    border-radius: var(--radius-sm);
+    overflow-x: auto;
+    margin-bottom: 1.25rem;
+  }
+
+  .prose-editorial pre code {
+    background: none;
+    padding: 0;
+    color: inherit;
+  }
+
+  /* Drop cap on first paragraph */
+  .prose-editorial .drop-cap::first-letter {
+    font-family: var(--font-display);
+    float: left;
+    font-size: 3.5rem;
+    line-height: 0.8;
+    padding-right: 0.5rem;
+    padding-top: 0.25rem;
+    color: var(--color-ink);
+  }
+
+  /* Pull quote: [!quote] blockquote */
+  .prose-editorial .pull-quote {
+    border-left: 3px solid var(--color-gold);
+    padding: 1.25rem 1.5rem;
+    margin: 2rem 0;
+    background: transparent;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.25rem;
+    line-height: 1.5;
+    color: var(--color-ink);
+  }
+
+  /* Insight callout: [!insight] blockquote */
+  .prose-editorial .insight-callout {
+    border-left: 3px solid var(--color-gold);
+    padding: 1.25rem 1.5rem;
+    margin: 2rem 0;
+    background: var(--color-sand);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    font-style: normal;
+  }
+
+  .prose-editorial .insight-callout .insight-label {
+    font-family: var(--font-display);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-gold);
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  /* Decision quote (locked micro-decision) */
+  .decision-quote {
+    border-left: 3px solid var(--color-gold);
+    padding: 1rem 1.5rem;
+    margin: 1.5rem 0;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.125rem;
+    color: var(--color-ink);
+  }
+
+  /* Practice class background */
+  .bg-practice { background-color: var(--color-sand); }
+
+  /* Reading progress bar */
+  .reading-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0%;
+    height: 3px;
+    background: var(--color-gold);
+    z-index: 50;
+    transition: width 100ms linear;
+  }
+
+  /* Entry animation */
+  .fade-in-entry {
+    animation: fadeInEntry 300ms ease-out both;
+  }
+
+  @keyframes fadeInEntry {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-in-entry {
+    animation: none;
+  }
+}
