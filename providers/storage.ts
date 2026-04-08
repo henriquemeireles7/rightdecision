@@ -23,7 +23,7 @@ export async function upload(key: string, data: Buffer | Uint8Array, contentType
         ContentType: contentType,
       }),
     )
-    return `${env.R2_ENDPOINT}/${bucket}/${key}`
+    return key
   } catch (error) {
     throw new ProviderError('r2', 'upload', 500, error)
   }

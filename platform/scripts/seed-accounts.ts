@@ -6,7 +6,7 @@
  */
 import { db } from '@/platform/db/client'
 import { platformAccounts } from '@/platform/db/schema'
-import { eq } from 'drizzle-orm'
+import { eq, and } from 'drizzle-orm'
 
 const accounts = [
   // TikTok (3)
@@ -35,7 +35,7 @@ async function seed() {
 
   for (const account of accounts) {
     const existing = await db.query.platformAccounts.findFirst({
-      where: eq(platformAccounts.accountHandle, account.accountHandle),
+      where: and(eq(platformAccounts.platform, account.platform), eq(platformAccounts.accountHandle, account.accountHandle)),
     })
     if (existing) {
       skipped++

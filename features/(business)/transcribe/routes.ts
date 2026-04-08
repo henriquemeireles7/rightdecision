@@ -8,7 +8,7 @@ import type { AppEnv } from '@/platform/types'
 import { startTranscription, processTranscription, getPipelineRun, listPipelineRuns, getClipsForRun } from './service'
 
 const transcribeSchema = z.object({
-  videoUrl: z.string().url(),
+  videoUrl: z.string().min(1),
   config: z.record(z.string(), z.unknown()).optional(),
 })
 

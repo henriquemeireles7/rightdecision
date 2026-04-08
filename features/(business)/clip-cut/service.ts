@@ -46,13 +46,8 @@ export async function cutClipsForRun(pipelineRunId: string) {
   await db.update(pipelineRuns).set({ status: 'cutting' }).where(eq(pipelineRuns.id, pipelineRunId))
 
   // Download source video
-  let key: string
-  try {
-    key = new URL(run.inputVideoUrl).pathname.slice(1)
-  } catch {
-    await db.update(pipelineRuns).set({ status: 'failed', stepFailedAt: 'clip-cut', errorMessage: 'Invalid video URL' }).where(eq(pipelineRuns.id, pipelineRunId))
-    return { error: 'CLIP_CUT_VIDEO_NOT_FOUND' as const }
-  }
+  // inputVideoUrl is the R2 object key (e.g., "episodes/video.mp4")
+  const key = run.inputVideoUrl
   const ext = run.inputVideoUrl.split('.').pop()?.split('?')[0] ?? 'mp4'
   const tempVideoPath = join(tmpdir(), `source-${randomUUID()}.${ext}`)
 
@@ -95,6 +90,11 @@ export async function cutClipsForRun(pipelineRunId: string) {
     const successCount = results.filter((r) => r.success).length
     const failCount = results.filter((r) => !r.success).length
 
+    if (failCount === clipList.length) {
+      await db.update(pipelineRuns).set({ status: 'failed', stepFailedAt: 'clip-cut', errorMessage: 'All clips failed to cut', clipsFailed: failCount }).where(eq(pipelineRuns.id, pipelineRunId))
+      return { error: 'CLIP_CUT_PROCESSING_FAILED' as const }
+    }
+
     await db.update(pipelineRuns).set({
       status: 'cut',
       clipsApproved: clipList.length,
@@ -103,10 +103,6 @@ export async function cutClipsForRun(pipelineRunId: string) {
 
     if (failCount > 0 && successCount > 0) {
       return { clips: results, partial: true }
-    }
-    if (failCount === clipList.length) {
-      await db.update(pipelineRuns).set({ status: 'failed', stepFailedAt: 'clip-cut', errorMessage: 'All clips failed to cut' }).where(eq(pipelineRuns.id, pipelineRunId))
-      return { error: 'CLIP_CUT_PROCESSING_FAILED' as const }
     }
 
     return { clips: results }

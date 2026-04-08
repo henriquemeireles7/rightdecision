@@ -58,17 +58,8 @@ export async function distributePostsForRun(pipelineRunId: string) {
         continue
       }
 
-      // Get signed URL for the clip
-      let key: string
-      try {
-        key = new URL(clip.storageUrl).pathname.slice(1)
-      } catch {
-        await db.update(posts).set({ status: 'failed', failureReason: 'Invalid storage URL' }).where(eq(posts.id, postRow.id))
-        results.push({ postId: postRow.id, success: false, error: 'Invalid storage URL' })
-        continue
-      }
-
-      const signedUrl = await getSignedUrl(key)
+      // Get signed URL for the clip (storageUrl is the R2 key)
+      const signedUrl = await getSignedUrl(clip.storageUrl)
 
       const result = await uploadPost(
         signedUrl,
@@ -99,6 +90,11 @@ export async function distributePostsForRun(pipelineRunId: string) {
   const successCount = results.filter((r) => r.success).length
   const failCount = results.filter((r) => !r.success).length
 
+  if (failCount === scheduledPosts.length) {
+    await db.update(pipelineRuns).set({ status: 'failed', stepFailedAt: 'post-distribute', clipsFailed: failCount }).where(eq(pipelineRuns.id, pipelineRunId))
+    return { error: 'POST_PARTIAL_FAILURE' as const }
+  }
+
   await db.update(pipelineRuns).set({
     status: 'posted',
     clipsPosted: successCount,
@@ -107,10 +103,6 @@ export async function distributePostsForRun(pipelineRunId: string) {
 
   if (failCount > 0 && successCount > 0) {
     return { posts: results, partial: true }
-  }
-  if (failCount === scheduledPosts.length) {
-    await db.update(pipelineRuns).set({ status: 'failed', stepFailedAt: 'post-distribute' }).where(eq(pipelineRuns.id, pipelineRunId))
-    return { error: 'POST_PARTIAL_FAILURE' as const }
   }
 
   return { posts: results }
