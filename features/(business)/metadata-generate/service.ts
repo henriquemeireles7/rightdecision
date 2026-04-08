@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { findRunInState, transitionPipeline } from '@/features/(business)/workflow/transitions'
 import { db } from '@/platform/db/client'
 import { clips, pipelineRuns, platformAccounts, posts } from '@/platform/db/schema'
+import { track } from '@/providers/analytics'
 
 export const metadataItemSchema = z.object({
   clipId: z.string().uuid(),
@@ -89,5 +90,6 @@ export async function saveMetadata(pipelineRunId: string, metadataItems: Metadat
     return results
   })
 
+  track('content_processed', { type: 'metadata' })
   return { posts: createdPosts }
 }

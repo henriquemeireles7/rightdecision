@@ -3,6 +3,7 @@ import { findRunInState, transitionPipeline } from '@/features/(business)/workfl
 import { db } from '@/platform/db/client'
 import { clips, pipelineRuns, posts } from '@/platform/db/schema'
 import { ProviderError } from '@/providers/errors'
+import { track } from '@/providers/analytics'
 import { post as uploadPost } from '@/providers/social-posting'
 import { getSignedUrl } from '@/providers/storage'
 
@@ -79,6 +80,7 @@ export async function distributePostsForRun(pipelineRunId: string) {
         })
         .where(eq(posts.id, postRow.id))
 
+      track('content_distributed', { platform: postRow.platformName, status: 'posted' })
       results.push({ postId: postRow.id, success: true })
     } catch (error) {
       const reason =

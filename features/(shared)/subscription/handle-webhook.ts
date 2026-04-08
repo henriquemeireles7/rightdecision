@@ -5,6 +5,7 @@ import { subscriptions } from '@/platform/db/schema'
 import { env } from '@/platform/env'
 import { throwError } from '@/platform/errors'
 import { success } from '@/platform/server/responses'
+import { track } from '@/providers/analytics'
 import { payments } from '@/providers/payments'
 
 export const webhookRoutes = new Hono()
@@ -54,6 +55,12 @@ webhookRoutes.post('/', async (c) => {
         })
         .onConflictDoNothing({ target: subscriptions.stripeSubscriptionId })
 
+      track('checkout_completed', {
+        plan: 'course',
+        price: session.amount_total,
+        payment_method: session.payment_method_types?.[0],
+      }, customerId)
+
       break
     }
 
@@ -90,6 +97,10 @@ webhookRoutes.post('/', async (c) => {
           updatedAt: new Date(),
         })
         .where(eq(subscriptions.stripeSubscriptionId, event.data.object.id))
+
+      track('subscription_cancelled', {
+        plan: 'course',
+      })
 
       break
     }
