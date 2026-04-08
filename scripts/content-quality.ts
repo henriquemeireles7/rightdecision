@@ -25,7 +25,12 @@ function checkFile(filePath: string, type: 'blog' | 'concept'): Issue[] {
     frontmatter = parsed.frontmatter
     body = parsed.body
   } catch {
-    issues.push({ file, check: 'frontmatter', message: 'Missing or invalid frontmatter', severity: 'error' })
+    issues.push({
+      file,
+      check: 'frontmatter',
+      message: 'Missing or invalid frontmatter',
+      severity: 'error',
+    })
     return issues
   }
 
@@ -35,49 +40,99 @@ function checkFile(filePath: string, type: 'blog' | 'concept'): Issue[] {
   const wordCount = body.split(/\s+/).filter(Boolean).length
   const minWords = type === 'blog' ? 1000 : 800
   if (wordCount < minWords) {
-    issues.push({ file, check: 'word-count', message: `${wordCount} words (min ${minWords})`, severity: 'warning' })
+    issues.push({
+      file,
+      check: 'word-count',
+      message: `${wordCount} words (min ${minWords})`,
+      severity: 'warning',
+    })
   }
   if (wordCount > 2500) {
-    issues.push({ file, check: 'word-count', message: `${wordCount} words (max 2500)`, severity: 'warning' })
+    issues.push({
+      file,
+      check: 'word-count',
+      message: `${wordCount} words (max 2500)`,
+      severity: 'warning',
+    })
   }
 
   // Keywords present
   const keywords = frontmatter.keywords as string[] | undefined
   if (!keywords || keywords.length === 0) {
-    issues.push({ file, check: 'keywords', message: 'No keywords in frontmatter', severity: 'error' })
+    issues.push({
+      file,
+      check: 'keywords',
+      message: 'No keywords in frontmatter',
+      severity: 'error',
+    })
   } else if (keywords.length < 3) {
-    issues.push({ file, check: 'keywords', message: `Only ${keywords.length} keywords (min 3)`, severity: 'warning' })
+    issues.push({
+      file,
+      check: 'keywords',
+      message: `Only ${keywords.length} keywords (min 3)`,
+      severity: 'warning',
+    })
   }
 
   // Description length (120-160 chars for SEO)
   const desc = frontmatter.description as string | undefined
   if (!desc) {
-    issues.push({ file, check: 'description', message: 'No description in frontmatter', severity: 'error' })
+    issues.push({
+      file,
+      check: 'description',
+      message: 'No description in frontmatter',
+      severity: 'error',
+    })
   } else if (desc.length < 120) {
-    issues.push({ file, check: 'description', message: `Description too short (${desc.length} chars, min 120)`, severity: 'warning' })
+    issues.push({
+      file,
+      check: 'description',
+      message: `Description too short (${desc.length} chars, min 120)`,
+      severity: 'warning',
+    })
   } else if (desc.length > 160) {
-    issues.push({ file, check: 'description', message: `Description too long (${desc.length} chars, max 160)`, severity: 'warning' })
+    issues.push({
+      file,
+      check: 'description',
+      message: `Description too long (${desc.length} chars, max 160)`,
+      severity: 'warning',
+    })
   }
 
   // Internal links (min 3 for blog, min 2 for concepts)
   const internalLinks = (body.match(/\]\(\//g) || []).length
   const minLinks = type === 'blog' ? 3 : 2
   if (internalLinks < minLinks) {
-    issues.push({ file, check: 'internal-links', message: `${internalLinks} internal links (min ${minLinks})`, severity: 'warning' })
+    issues.push({
+      file,
+      check: 'internal-links',
+      message: `${internalLinks} internal links (min ${minLinks})`,
+      severity: 'warning',
+    })
   }
 
   // FAQ pairs (concepts only)
   if (type === 'concept') {
     const faq = frontmatter.faq as Array<{ question: string; answer: string }> | undefined
     if (!faq || faq.length < 4) {
-      issues.push({ file, check: 'faq', message: `${faq?.length ?? 0} FAQ pairs (min 4)`, severity: 'warning' })
+      issues.push({
+        file,
+        check: 'faq',
+        message: `${faq?.length ?? 0} FAQ pairs (min 4)`,
+        severity: 'warning',
+      })
     }
   }
 
   // H1 heading check (should have exactly 0 in body — title is in frontmatter)
   const h1Count = (body.match(/^# /gm) || []).length
   if (h1Count > 0) {
-    issues.push({ file, check: 'heading', message: `${h1Count} H1 heading(s) in body (use H2+)`, severity: 'warning' })
+    issues.push({
+      file,
+      check: 'heading',
+      message: `${h1Count} H1 heading(s) in body (use H2+)`,
+      severity: 'warning',
+    })
   }
 
   return issues

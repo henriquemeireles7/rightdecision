@@ -1,4 +1,4 @@
-import { SignJWT, importPKCS8 } from 'jose'
+import { importPKCS8, SignJWT } from 'jose'
 import { env } from '@/platform/env'
 import { ProviderError } from '@/providers/errors'
 
@@ -59,7 +59,10 @@ export type InspectionResult = {
   lastCrawlTime?: string
 }
 
-export async function inspectUrl(siteUrl: string, inspectionUrl: string): Promise<InspectionResult> {
+export async function inspectUrl(
+  siteUrl: string,
+  inspectionUrl: string,
+): Promise<InspectionResult> {
   const token = await getAccessToken()
   if (!token) throw new ProviderError('search-console', 'inspectUrl', 401, 'Not configured')
 

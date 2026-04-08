@@ -57,12 +57,12 @@ export function JourneyPage({
 
         {/* Timeline */}
         {!isEmpty && (
-          <div class="relative" role="list">
+          <ul class="relative list-none p-0 m-0">
             {/* Timeline line */}
             <div class="absolute left-[5px] top-0 bottom-0 w-0.5 bg-linen" />
 
             {decisions.map((decision) => (
-              <div key={decision.classId} class="relative pl-10 pb-10" role="listitem">
+              <li key={decision.classId} class="relative pl-10 pb-10">
                 {/* Node circle */}
                 <div class="absolute left-0 top-1 w-3 h-3 rounded-full bg-gold" />
 
@@ -80,9 +80,9 @@ export function JourneyPage({
                   </span>
                   <span class="text-xs text-muted">{decision.prompt}</span>
                 </div>
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
         )}
 
         {/* Course complete: share button */}

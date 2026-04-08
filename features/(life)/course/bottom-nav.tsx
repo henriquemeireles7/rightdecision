@@ -20,8 +20,8 @@ export function BottomNav({ prevClassId, nextClassId, classId, isBookmarked }: B
           <a
             href={`/class/${prevClassId}`}
             class="flex items-center justify-center w-11 h-11 text-muted hover:text-gold transition-colors focus-visible:outline-2 focus-visible:outline-gold focus-visible:outline-offset-2 rounded-md"
-            aria-label="Previous class"
           >
+            <span class="sr-only">Previous class</span>
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
               <path
                 d="M12.5 15L7.5 10L12.5 5"
@@ -41,8 +41,8 @@ export function BottomNav({ prevClassId, nextClassId, classId, isBookmarked }: B
           <a
             href={`/class/${nextClassId}`}
             class="flex items-center justify-center w-11 h-11 text-muted hover:text-gold transition-colors focus-visible:outline-2 focus-visible:outline-gold focus-visible:outline-offset-2 rounded-md"
-            aria-label="Next class"
           >
+            <span class="sr-only">Next class</span>
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
               <path
                 d="M7.5 5L12.5 10L7.5 15"
