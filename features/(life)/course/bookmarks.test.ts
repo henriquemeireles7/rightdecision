@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { mockSchema } from '@/platform/test/mocks'
 
 mock.module('@/platform/env', () => ({
 	env: { DATABASE_URL: 'postgres://test' },
@@ -22,14 +23,7 @@ mock.module('@/platform/db/client', () => ({
 	},
 }))
 
-mock.module('@/platform/db/schema', () => ({
-	users: {}, sessions: {}, accounts: {}, verifications: {}, purchases: {},
-	subscriptions: {}, courseProgress: {},
-	onboardingSessions: {}, onboardingProfiles: {},
-	wins: {},
-	bookmarks: { id: 'id', userId: 'user_id', classId: 'class_id' },
-	platformAccounts: {}, pipelineRuns: {}, clips: {}, posts: {}, postAnalytics: {}, insights: {},
-}))
+mock.module('@/platform/db/schema', () => mockSchema())
 
 const { toggleBookmark, getUserBookmarks, isBookmarked } = await import('./bookmarks')
 

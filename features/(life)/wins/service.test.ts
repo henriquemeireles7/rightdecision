@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { mockSchema } from '@/platform/test/mocks'
 
 mock.module('@/platform/env', () => ({
 	env: { DATABASE_URL: 'postgres://test', WIN_RATE_LIMIT_PER_DAY: 3 },
@@ -22,14 +23,7 @@ mock.module('@/platform/db/client', () => ({
 	},
 }))
 
-mock.module('@/platform/db/schema', () => ({
-	users: {}, sessions: {}, accounts: {}, verifications: {}, purchases: {},
-	subscriptions: {}, courseProgress: {},
-	onboardingSessions: {}, onboardingProfiles: {},
-	wins: { id: 'id', userId: 'user_id', lifeArea: 'life_area', createdAt: 'created_at', isSeed: 'is_seed', description: 'description' },
-	bookmarks: {},
-	platformAccounts: {}, pipelineRuns: {}, clips: {}, posts: {}, postAnalytics: {}, insights: {},
-}))
+mock.module('@/platform/db/schema', () => mockSchema())
 
 const { createWin, getPublicFeed, getMyWins } = await import('./service')
 

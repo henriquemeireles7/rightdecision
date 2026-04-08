@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { mockSchema } from '@/platform/test/mocks'
 
 mock.module('@/platform/env', () => ({
 	env: { DATABASE_URL: 'postgres://test' },
@@ -27,16 +28,7 @@ mock.module('@/platform/db/client', () => ({
 	},
 }))
 
-mock.module('@/platform/db/schema', () => ({
-	users: { id: 'id' }, sessions: {}, accounts: {}, verifications: {}, purchases: {},
-	subscriptions: { userId: 'user_id' },
-	courseProgress: { userId: 'user_id' },
-	onboardingSessions: {},
-	onboardingProfiles: { userId: 'user_id' },
-	wins: { userId: 'user_id' },
-	bookmarks: { userId: 'user_id' },
-	platformAccounts: {}, pipelineRuns: {}, clips: {}, posts: {}, postAnalytics: {}, insights: {},
-}))
+mock.module('@/platform/db/schema', () => mockSchema())
 
 const { exportUserData, deleteUserAccount } = await import('./privacy')
 

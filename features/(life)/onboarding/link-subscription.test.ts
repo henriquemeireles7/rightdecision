@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { mockSchema } from '@/platform/test/mocks'
 
 mock.module('@/platform/env', () => ({
 	env: { DATABASE_URL: 'postgres://test', ONBOARDING_SESSION_TTL_HOURS: 24 },
@@ -21,15 +22,7 @@ mock.module('@/platform/db/client', () => ({
 	},
 }))
 
-mock.module('@/platform/db/schema', () => ({
-	users: {}, sessions: {}, accounts: {}, verifications: {}, purchases: {},
-	subscriptions: { id: 'id', userId: 'user_id' },
-	courseProgress: {},
-	onboardingSessions: { id: 'id', expiresAt: 'expires_at' },
-	onboardingProfiles: { userId: 'user_id' },
-	wins: {}, bookmarks: {},
-	platformAccounts: {}, pipelineRuns: {}, clips: {}, posts: {}, postAnalytics: {}, insights: {},
-}))
+mock.module('@/platform/db/schema', () => mockSchema())
 
 // Mock the consumeSession dependency
 const mockConsumeSession = mock(() => Promise.resolve(null))

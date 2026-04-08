@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { mockSchema } from '@/platform/test/mocks'
 
 mock.module('@/platform/env', () => ({
 	env: { DATABASE_URL: 'postgres://test' },
@@ -14,14 +15,7 @@ mock.module('@/platform/db/client', () => ({
 	},
 }))
 
-mock.module('@/platform/db/schema', () => ({
-	users: {}, sessions: {}, accounts: {}, verifications: {}, purchases: {},
-	subscriptions: {}, courseProgress: {},
-	onboardingSessions: { currentStep: 'current_step' },
-	onboardingProfiles: { ageRange: 'age_range', timeStuck: 'time_stuck' },
-	wins: {}, bookmarks: {},
-	platformAccounts: {}, pipelineRuns: {}, clips: {}, posts: {}, postAnalytics: {}, insights: {},
-}))
+mock.module('@/platform/db/schema', () => mockSchema())
 
 const { getOnboardingAnalytics } = await import('./onboarding-analytics')
 

@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { mockSchema } from '@/platform/test/mocks'
 
 // ── Mock env ──────────────────────────────────────────────────────────
 mock.module('@/platform/env', () => ({
@@ -247,17 +248,7 @@ mock.module('@/platform/db/client', () => ({
 }))
 
 mock.module('@/platform/db/schema', () => ({
-  users: {},
-  sessions: {},
-  accounts: {},
-  verifications: {},
-  purchases: {},
-  subscriptions: {},
-  courseProgress: {},
-  onboardingSessions: {},
-  onboardingProfiles: {},
-  wins: {},
-  bookmarks: {},
+  ...mockSchema(),
   platformAccounts: mockSchemaRef.platformAccounts,
   pipelineRuns: mockSchemaRef.pipelineRuns,
   clips: mockSchemaRef.clips,

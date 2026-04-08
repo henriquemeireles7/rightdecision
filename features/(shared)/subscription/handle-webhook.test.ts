@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { mockSchema } from '@/platform/test/mocks'
 
 mock.module('@/platform/env', () => ({
 	env: { DATABASE_URL: 'postgres://test', STRIPE_WEBHOOK_SECRET: 'whsec_test' },
@@ -18,13 +19,7 @@ mock.module('@/platform/db/client', () => ({
 	},
 }))
 
-mock.module('@/platform/db/schema', () => ({
-	users: {}, sessions: {}, accounts: {}, verifications: {}, purchases: {},
-	subscriptions: { stripeSubscriptionId: 'stripe_subscription_id' },
-	courseProgress: {}, onboardingSessions: {}, onboardingProfiles: {},
-	wins: {}, bookmarks: {},
-	platformAccounts: {}, pipelineRuns: {}, clips: {}, posts: {}, postAnalytics: {}, insights: {},
-}))
+mock.module('@/platform/db/schema', () => mockSchema())
 
 const mockConstructEvent = mock((_body: string, _sig: string, _secret: string) => ({
 	type: 'checkout.session.completed',

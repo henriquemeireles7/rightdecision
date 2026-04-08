@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { mockSchema } from '@/platform/test/mocks'
 
 mock.module('@/platform/env', () => ({
 	env: { DATABASE_URL: 'postgres://test' },
@@ -19,15 +20,7 @@ mock.module('@/platform/db/client', () => ({
 	},
 }))
 
-mock.module('@/platform/db/schema', () => ({
-	users: { id: 'id' }, sessions: {}, accounts: {}, verifications: {}, purchases: {},
-	subscriptions: {},
-	courseProgress: { userId: 'user_id', completedAt: 'completed_at' },
-	onboardingSessions: { createdAt: 'created_at', sessionData: 'session_data' },
-	onboardingProfiles: {},
-	wins: {}, bookmarks: {},
-	platformAccounts: {}, pipelineRuns: {}, clips: {}, posts: {}, postAnalytics: {}, insights: {},
-}))
+mock.module('@/platform/db/schema', () => mockSchema())
 
 const mockSendEmail = mock(() => Promise.resolve())
 mock.module('@/providers/email', () => ({
