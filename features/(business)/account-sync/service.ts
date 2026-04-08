@@ -3,6 +3,10 @@ import { db } from '@/platform/db/client'
 import { platformAccounts } from '@/platform/db/schema'
 import { listProfiles } from '@/providers/social-posting'
 
+const VALID_PLATFORMS = [
+  'tiktok', 'instagram', 'facebook', 'x', 'youtube', 'threads', 'linkedin', 'pinterest', 'reddit', 'bluesky',
+] as const
+
 const PLATFORM_DEFAULTS: Record<string, { charLimit: number; hashtagLimit: number }> = {
   instagram: { charLimit: 2200, hashtagLimit: 30 },
   tiktok: { charLimit: 4000, hashtagLimit: 100 },
@@ -25,7 +29,14 @@ export async function syncPlatformAccounts() {
   let created = 0
   let updated = 0
 
+  let skipped = 0
   for (const profile of profiles) {
+    // Skip platforms not in our enum
+    if (!VALID_PLATFORMS.includes(profile.platform as typeof VALID_PLATFORMS[number])) {
+      skipped++
+      continue
+    }
+
     const existing = await db.query.platformAccounts.findFirst({
       where: eq(platformAccounts.uploadPostProfileId, profile.id),
     })
@@ -44,7 +55,7 @@ export async function syncPlatformAccounts() {
       updated++
     } else {
       await db.insert(platformAccounts).values({
-        platform: profile.platform as 'instagram',
+        platform: profile.platform as typeof VALID_PLATFORMS[number],
         accountHandle: profile.handle,
         accountType: 'brand',
         uploadPostProfileId: profile.id,
@@ -55,5 +66,5 @@ export async function syncPlatformAccounts() {
     }
   }
 
-  return { synced: profiles.length, created, updated }
+  return { synced: profiles.length, created, updated, skipped }
 }

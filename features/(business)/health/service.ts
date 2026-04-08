@@ -26,7 +26,9 @@ async function checkProvider(name: string, fn: () => Promise<void>): Promise<Pro
     await fn()
     return { ok: true, latencyMs: Date.now() - start }
   } catch (error) {
-    return { ok: false, latencyMs: Date.now() - start, error: String(error) }
+    // Sanitize error message: only expose provider name and error type, not stack/credentials
+    const msg = error instanceof Error ? error.message.slice(0, 100) : 'Unknown error'
+    return { ok: false, latencyMs: Date.now() - start, error: `${name}: ${msg}` }
   }
 }
 

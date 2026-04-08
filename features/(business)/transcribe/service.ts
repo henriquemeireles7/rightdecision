@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto'
 import { unlink, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { and, count, desc, eq } from 'drizzle-orm'
+import { count, desc, eq } from 'drizzle-orm'
 import { failPipeline, findRunInState, transitionPipeline } from '@/features/(business)/workflow/transitions'
 import { db } from '@/platform/db/client'
 import { clips, pipelineRuns } from '@/platform/db/schema'
@@ -80,11 +80,8 @@ async function transcribeInBackground(runId: string, inputVideoUrl: string): Pro
 
     const transcript = await whisperTranscribe(tempPath)
 
-    // Save transcript (CAS: only if still transcribing)
-    await db
-      .update(pipelineRuns)
-      .set({ status: 'transcribed', transcript })
-      .where(and(eq(pipelineRuns.id, runId), eq(pipelineRuns.status, 'transcribing')))
+    // Save transcript via transitionPipeline (records step timing)
+    await transitionPipeline(runId, 'transcribing', 'transcribed', { transcript })
   } finally {
     try {
       await unlink(tempPath)
