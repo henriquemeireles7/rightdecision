@@ -5,6 +5,7 @@ import {
   buildFaqSchema,
   buildOrganizationSchema,
   buildPersonSchema,
+  buildWebSiteSchema,
   renderJsonLd,
   renderMetaTags,
 } from './seo'
@@ -94,6 +95,7 @@ describe('buildArticleSchema', () => {
       author: 'henry',
       datePublished: '2026-04-07',
       url: 'https://rightdecisions.io/blog/test',
+      baseUrl: 'https://rightdecisions.io',
     })
     expect(schema['@type']).toBe('Article')
     expect(schema.headline).toBe('Test Article')
@@ -120,26 +122,51 @@ describe('buildFaqSchema', () => {
 })
 
 describe('buildOrganizationSchema', () => {
-  test('builds Organization schema', () => {
-    const schema = buildOrganizationSchema()
+  test('builds Organization schema with logo', () => {
+    const schema = buildOrganizationSchema('https://rightdecisions.io')
     expect(schema['@type']).toBe('Organization')
     expect(schema.name).toBe('The Right Decision')
+    expect(schema.url).toBe('https://rightdecisions.io')
+    expect(schema.logo).toBe('https://rightdecisions.io/logo.png')
     expect(schema.founders).toHaveLength(2)
   })
 })
 
 describe('buildPersonSchema', () => {
-  test('builds Person schema for Henry', () => {
-    const schema = buildPersonSchema('henry')
+  test('builds Person schema for Henry with description', () => {
+    const schema = buildPersonSchema('henry', 'https://rightdecisions.io')
     expect(schema['@type']).toBe('Person')
     expect(schema.name).toBe('Henry Meireles')
     expect(schema.jobTitle).toBe('Technical Founder')
+    expect(schema.description).toContain('Founder of The Right Decision')
+    expect(schema.url).toBe('https://rightdecisions.io/about')
+    expect(schema.sameAs).toEqual([])
   })
 
-  test('builds Person schema for Indy', () => {
-    const schema = buildPersonSchema('indy')
+  test('builds Person schema for Indy with description', () => {
+    const schema = buildPersonSchema('indy', 'https://rightdecisions.io')
     expect(schema.name).toBe('Indy')
     expect(schema.jobTitle).toBe('Content & Brand')
+    expect(schema.description).toContain('Content & Brand')
+  })
+})
+
+describe('buildWebSiteSchema', () => {
+  test('builds WebSite schema with SearchAction', () => {
+    const schema = buildWebSiteSchema('https://rightdecisions.io')
+    expect(schema['@type']).toBe('WebSite')
+    expect(schema.name).toBe('The Right Decision')
+    expect(schema.url).toBe('https://rightdecisions.io')
+    expect(schema.potentialAction['@type']).toBe('SearchAction')
+    expect(schema.potentialAction.target['@type']).toBe('EntryPoint')
+    expect(schema.potentialAction.target.urlTemplate).toContain('rightdecisions.io/blog?q=')
+    expect(schema.potentialAction['query-input']).toBe('required name=search_term_string')
+  })
+
+  test('uses baseUrl parameter', () => {
+    const schema = buildWebSiteSchema('https://staging.example.com')
+    expect(schema.url).toBe('https://staging.example.com')
+    expect(schema.potentialAction.target.urlTemplate).toContain('staging.example.com')
   })
 })
 

@@ -1,15 +1,6 @@
 import { Layout } from './layout'
-import { buildBreadcrumbSchema, buildPersonSchema, renderJsonLd } from './seo'
-
-const BASE_URL = 'https://rightdecisions.io'
 
 export function AboutPage() {
-  const henrySchema = buildPersonSchema('henry')
-  const indySchema = buildPersonSchema('indy')
-  const breadcrumb = buildBreadcrumbSchema([
-    { name: 'Home', url: `${BASE_URL}/` },
-    { name: 'About', url: `${BASE_URL}/about` },
-  ])
 
   return (
     <Layout>
@@ -132,17 +123,6 @@ export function AboutPage() {
         </div>
       </article>
 
-      {/* JSON-LD — injected via dangerouslySetInnerHTML in a hidden div */}
-      <div
-        style="display:none"
-        dangerouslySetInnerHTML={{
-          __html: [
-            renderJsonLd(henrySchema),
-            renderJsonLd(indySchema),
-            renderJsonLd(breadcrumb),
-          ].join('\n'),
-        }}
-      />
     </Layout>
   )
 }

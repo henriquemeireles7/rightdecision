@@ -1,11 +1,11 @@
 import { statSync } from 'node:fs'
 import { join } from 'node:path'
 import { Hono } from 'hono'
+import { env } from '@/platform/env'
 import { getContentFile, listContentFiles } from '@/providers/markdown'
 
 const BLOG_DIR = join(import.meta.dir, '../../../content/blog')
 const CONCEPTS_DIR = join(import.meta.dir, '../../../content/concepts')
-const BASE_URL = 'https://rightdecisions.io'
 
 export const sitemapRoutes = new Hono()
 
@@ -26,7 +26,7 @@ sitemapRoutes.get('/sitemap.xml', async (c) => {
   const urls = [
     ...staticPages.map(
       (p) => `  <url>
-    <loc>${BASE_URL}${p.loc}</loc>
+    <loc>${env.PUBLIC_APP_URL}${p.loc}</loc>
     <priority>${p.priority}</priority>
   </url>`,
     ),
@@ -37,7 +37,7 @@ sitemapRoutes.get('/sitemap.xml', async (c) => {
         lastmod = `\n    <lastmod>${statSync(filePath).mtime.toISOString().split('T')[0]}</lastmod>`
       } catch {}
       return `  <url>
-    <loc>${BASE_URL}/blog/${post.slug}</loc>${lastmod}
+    <loc>${env.PUBLIC_APP_URL}/blog/${post.slug}</loc>${lastmod}
     <priority>0.7</priority>
   </url>`
     }),
@@ -48,7 +48,7 @@ sitemapRoutes.get('/sitemap.xml', async (c) => {
         lastmod = `\n    <lastmod>${statSync(filePath).mtime.toISOString().split('T')[0]}</lastmod>`
       } catch {}
       return `  <url>
-    <loc>${BASE_URL}/concepts/${concept.slug}</loc>${lastmod}
+    <loc>${env.PUBLIC_APP_URL}/concepts/${concept.slug}</loc>${lastmod}
     <priority>0.8</priority>
   </url>`
     }),
@@ -80,7 +80,7 @@ Allow: /
 User-agent: Google-Extended
 Allow: /
 
-Sitemap: ${BASE_URL}/sitemap.xml`
+Sitemap: ${env.PUBLIC_APP_URL}/sitemap.xml`
 
   c.header('Content-Type', 'text/plain')
   return c.body(robots)
@@ -98,10 +98,10 @@ sitemapRoutes.get('/rss.xml', async (c) => {
 
       return `    <item>
       <title>${escapeXml(post.frontmatter.title as string)}</title>
-      <link>${BASE_URL}/blog/${post.slug}</link>
+      <link>${env.PUBLIC_APP_URL}/blog/${post.slug}</link>
       <description><![CDATA[${description}]]></description>
       <pubDate>${pubDate}</pubDate>
-      <guid>${BASE_URL}/blog/${post.slug}</guid>
+      <guid>${env.PUBLIC_APP_URL}/blog/${post.slug}</guid>
     </item>`
     }),
   )
@@ -110,7 +110,7 @@ sitemapRoutes.get('/rss.xml', async (c) => {
 <rss version="2.0">
   <channel>
     <title>The Right Decision Blog</title>
-    <link>${BASE_URL}/blog</link>
+    <link>${env.PUBLIC_APP_URL}/blog</link>
     <description>Essays on decision-making, getting unstuck, and why self-help keeps you stuck.</description>
     <language>en</language>
 ${items.join('\n')}

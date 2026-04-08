@@ -1,10 +1,8 @@
 import { join } from 'node:path'
 import { listContentFiles, type ParsedContentItem } from '@/providers/markdown'
 import { Layout } from './layout'
-import { buildOrganizationSchema, renderJsonLd } from './seo'
 
 const BLOG_DIR = join(import.meta.dir, '../../../content/blog')
-const BASE_URL = 'https://rightdecisions.io'
 
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr.includes('T') ? dateStr : `${dateStr}T12:00:00Z`)
@@ -21,13 +19,6 @@ type HomepageProps = {
 }
 
 export function Homepage({ latestPosts }: HomepageProps) {
-  const orgSchema = buildOrganizationSchema()
-  const websiteSchema = {
-    '@type': 'WebSite' as const,
-    name: 'The Right Decision',
-    url: BASE_URL,
-  }
-
   return (
     <Layout>
       {/* Hero */}
@@ -131,13 +122,6 @@ export function Homepage({ latestPosts }: HomepageProps) {
         </section>
       )}
 
-      {/* JSON-LD */}
-      <div
-        style="display:none"
-        dangerouslySetInnerHTML={{
-          __html: [renderJsonLd(orgSchema), renderJsonLd(websiteSchema)].join('\n'),
-        }}
-      />
     </Layout>
   )
 }

@@ -27,6 +27,24 @@ export const env = createEnv({
     // ─── PostHog: Server-side analytics ───
     POSTHOG_API_KEY: z.string().min(1).optional(),
     POSTHOG_HOST: z.string().url().default('https://us.i.posthog.com'),
+    // ─── SEO: IndexNow ───
+    INDEXNOW_KEY: z.string().min(8).optional(),
+    // ─── SEO: Google Search Console API ───
+    GOOGLE_SERVICE_ACCOUNT_JSON: z
+      .string()
+      .optional()
+      .refine(
+        (val) => {
+          if (!val) return true
+          try {
+            const p = JSON.parse(val)
+            return p.client_email && p.private_key
+          } catch {
+            return false
+          }
+        },
+        { message: 'Must be valid JSON with client_email and private_key' },
+      ),
   },
   clientPrefix: 'PUBLIC_',
   client: {

@@ -59,10 +59,23 @@ export function renderJsonLd(schema: Record<string, unknown>): string {
 
 // ─── Schema Builders ────────────────────────────────────────────────────────
 
-const AUTHORS: Record<string, { name: string; jobTitle: string }> = {
-  henry: { name: 'Henry Meireles', jobTitle: 'Technical Founder' },
-  indy: { name: 'Indy', jobTitle: 'Content & Brand' },
-  'henry-and-indy': { name: 'Henry Meireles & Indy', jobTitle: 'Founders' },
+const AUTHORS: Record<string, { name: string; jobTitle: string; description: string }> = {
+  henry: {
+    name: 'Henry Meireles',
+    jobTitle: 'Technical Founder',
+    description:
+      'Founder of The Right Decision. Built multiple companies, coached 400+ founders, rebuilding after losing everything.',
+  },
+  indy: {
+    name: 'Indy',
+    jobTitle: 'Content & Brand',
+    description: 'Content & Brand at The Right Decision. The voice, heart, and quality gate.',
+  },
+  'henry-and-indy': {
+    name: 'Henry Meireles & Indy',
+    jobTitle: 'Founders',
+    description: 'Founders of The Right Decision.',
+  },
 }
 
 export function buildArticleSchema(opts: {
@@ -72,6 +85,7 @@ export function buildArticleSchema(opts: {
   datePublished: string
   dateModified?: string
   url: string
+  baseUrl: string
 }) {
   const authorInfo = AUTHORS[opts.author] ?? AUTHORS.henry!
   return {
@@ -81,7 +95,7 @@ export function buildArticleSchema(opts: {
     author: {
       '@type': 'Person' as const,
       name: authorInfo.name,
-      url: 'https://rightdecisions.io/about',
+      url: `${opts.baseUrl}/about`,
     },
     datePublished: opts.datePublished,
     dateModified: opts.dateModified ?? opts.datePublished,
@@ -107,13 +121,15 @@ export function buildFaqSchema(faqs: Array<{ question: string; answer: string }>
   }
 }
 
-export function buildOrganizationSchema() {
+export function buildOrganizationSchema(baseUrl: string) {
   return {
     '@type': 'Organization' as const,
     name: 'The Right Decision',
     description:
       'Solving decision-making with AI. A methodology + AI platform for personal and business decisions.',
-    url: 'https://rightdecisions.io',
+    url: baseUrl,
+    // TODO: Replace with actual logo when designed (min 112x112px for Google Knowledge Panel)
+    logo: `${baseUrl}/logo.png`,
     founders: [
       { '@type': 'Person' as const, name: 'Henry Meireles' },
       { '@type': 'Person' as const, name: 'Indy' },
@@ -121,13 +137,31 @@ export function buildOrganizationSchema() {
   }
 }
 
-export function buildPersonSchema(person: 'henry' | 'indy') {
+export function buildWebSiteSchema(baseUrl: string) {
+  return {
+    '@type': 'WebSite' as const,
+    name: 'The Right Decision',
+    url: baseUrl,
+    potentialAction: {
+      '@type': 'SearchAction' as const,
+      target: {
+        '@type': 'EntryPoint' as const,
+        urlTemplate: `${baseUrl}/blog?q={search_term_string}`,
+      },
+      'query-input': 'required name=search_term_string',
+    },
+  }
+}
+
+export function buildPersonSchema(person: 'henry' | 'indy', baseUrl: string) {
   const info = AUTHORS[person]!
   return {
     '@type': 'Person' as const,
     name: info.name,
     jobTitle: info.jobTitle,
-    url: 'https://rightdecisions.io/about',
+    description: info.description,
+    url: `${baseUrl}/about`,
+    // TODO: Add LinkedIn, Crunchbase URLs when entity profiles are created (see action-plan.md)
     sameAs: [] as string[],
   }
 }

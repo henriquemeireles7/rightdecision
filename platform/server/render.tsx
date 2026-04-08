@@ -7,6 +7,7 @@ interface PageOptions {
   ogImage?: string
   ogTitle?: string
   canonical?: string
+  keywords?: string[]
   posthogKey?: string
   posthogHost?: string
 }
@@ -37,6 +38,7 @@ export function renderPage(component: VNode, options: PageOptions = {}): string 
   ${options.ogImage ? `<meta property="og:image" content="${esc(options.ogImage)}" />` : ''}
   <meta property="og:type" content="website" />
   ${options.canonical ? `<link rel="canonical" href="${esc(options.canonical)}" />` : ''}
+  ${options.keywords?.length ? `<meta name="keywords" content="${esc(options.keywords.join(', '))}" />` : ''}
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
