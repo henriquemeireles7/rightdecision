@@ -41,7 +41,8 @@ async function checkBinary(name: string): Promise<ProviderStatus> {
       ? { ok: true, latencyMs: Date.now() - start }
       : { ok: false, latencyMs: Date.now() - start, error: `${name} not found in PATH` }
   } catch (error) {
-    return { ok: false, latencyMs: Date.now() - start, error: String(error) }
+    const msg = error instanceof Error ? error.message.slice(0, 100) : 'Unknown error'
+    return { ok: false, latencyMs: Date.now() - start, error: `${name}: ${msg}` }
   }
 }
 
