@@ -194,8 +194,26 @@ Release file reservations via `mcp__mcp-agent-mail__release_file_reservations`.
 3. If no tasks ready but open tasks exist, check blockers: `br blocked`
 4. Start systematically executing beads in optimal logical order
 
-### Step 11: Final Quality Gate (when all beads are closed)
-When `br ready` returns nothing and all tasks are closed:
+### Step 11: Plan Audit (MANDATORY — when all beads are closed)
+When `br ready` returns nothing and all tasks are closed, **re-audit the original plan
+against what was actually implemented.** Beads can miss details that the plan captured.
+
+1. Read the source plan/design doc (referenced in the epic description)
+2. For EVERY requirement in the plan, verify it exists in actual code:
+   - Check the file exists (grep for function names, routes, schema columns)
+   - Check tests cover it
+   - Check DB migrations were generated if schema changed
+   - Check skill files reference correct API endpoints
+3. If ANY gaps found: create new beads with `--deps "discovered-from:<epic-id>"` and implement them
+4. Only proceed to Step 12 when zero gaps remain
+
+**Why this step exists:** In practice, beads cover ~90% of the plan. The remaining 10%
+are details like missing DB migrations, GET endpoints the plan assumed existed, or
+config flags referenced in the skill but not wired through the service layer. These
+gaps are invisible until you cross-reference the plan against the actual code.
+
+### Step 12: Final Quality Gate
+After the plan audit passes with zero gaps:
 1. Run full quality check: `bun run check` (lint + typecheck + test)
 2. If ANY errors remain, create beads to track them and fix them
 3. Verify the app builds (if applicable)
