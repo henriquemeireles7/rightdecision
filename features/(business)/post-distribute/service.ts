@@ -1,4 +1,4 @@
-import { eq, and } from 'drizzle-orm'
+import { eq, and, inArray } from 'drizzle-orm'
 import { db } from '@/platform/db/client'
 import { pipelineRuns, clips, posts } from '@/platform/db/schema'
 import { assertTransition } from '@/features/(business)/workflow/state-machine'
@@ -13,18 +13,30 @@ export async function distributePostsForRun(pipelineRunId: string) {
 
   if (!run) return { error: 'NOT_FOUND' as const }
 
-  if (run.status !== 'metadata_ready' && run.status !== 'awaiting_metadata_approval' && run.status !== 'posting') {
+  if (run.status !== 'metadata_ready' && run.status !== 'awaiting_metadata_approval') {
     return { error: 'CLIP_SELECT_INVALID_STATE' as const }
   }
 
-  // Get scheduled posts
+  // Get scheduled posts for this pipeline run's clips
+  const runClips = await db.query.clips.findMany({
+    where: eq(clips.pipelineRunId, pipelineRunId),
+  })
+  const clipIds = runClips.map((c) => c.id)
+
+  if (clipIds.length === 0) {
+    return { error: 'NOT_FOUND' as const }
+  }
+
   const scheduledPosts = await db.query.posts.findMany({
-    where: eq(posts.status, 'scheduled'),
+    where: and(eq(posts.status, 'scheduled'), inArray(posts.clipId, clipIds)),
   })
 
   if (scheduledPosts.length === 0) {
     return { error: 'NOT_FOUND' as const }
   }
+
+  // Pre-load all clips into a map (avoid N+1)
+  const clipMap = new Map(runClips.map((c) => [c.id, c]))
 
   // Transition: metadata_ready → posting
   assertTransition(run.status, 'posting')
@@ -34,21 +46,30 @@ export async function distributePostsForRun(pipelineRunId: string) {
 
   for (const postRow of scheduledPosts) {
     try {
-      // Get clip storage URL
-      const clip = await db.query.clips.findFirst({
-        where: eq(clips.id, postRow.clipId),
-      })
-      if (!clip?.storageUrl) {
+      const clip = clipMap.get(postRow.clipId)
+      if (!clip) {
+        await db.update(posts).set({ status: 'failed', failureReason: 'Clip not found' }).where(eq(posts.id, postRow.id))
+        results.push({ postId: postRow.id, success: false, error: 'Clip not found' })
+        continue
+      }
+      if (!clip.storageUrl) {
         await db.update(posts).set({ status: 'failed', failureReason: 'Clip has no storage URL' }).where(eq(posts.id, postRow.id))
         results.push({ postId: postRow.id, success: false, error: 'No clip storage URL' })
         continue
       }
 
       // Get signed URL for the clip
-      const key = new URL(clip.storageUrl).pathname.slice(1)
+      let key: string
+      try {
+        key = new URL(clip.storageUrl).pathname.slice(1)
+      } catch {
+        await db.update(posts).set({ status: 'failed', failureReason: 'Invalid storage URL' }).where(eq(posts.id, postRow.id))
+        results.push({ postId: postRow.id, success: false, error: 'Invalid storage URL' })
+        continue
+      }
+
       const signedUrl = await getSignedUrl(key)
 
-      // Post via Upload-Post
       const result = await uploadPost(
         signedUrl,
         postRow.description ?? '',

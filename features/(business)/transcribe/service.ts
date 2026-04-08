@@ -54,7 +54,16 @@ export async function processTranscription(runId: string) {
   const tempPath = join(tmpdir(), `transcribe-${randomUUID()}.${getExtension(run.inputVideoUrl)}`)
 
   try {
-    const key = new URL(run.inputVideoUrl).pathname.slice(1) // strip leading /
+    let key: string
+    try {
+      key = new URL(run.inputVideoUrl).pathname.slice(1)
+    } catch {
+      await db
+        .update(pipelineRuns)
+        .set({ status: 'failed', stepFailedAt: 'transcribe', errorMessage: 'Invalid video URL' })
+        .where(eq(pipelineRuns.id, runId))
+      return { error: 'TRANSCRIBE_VIDEO_NOT_FOUND' as const }
+    }
     let videoData: Buffer
     try {
       videoData = await download(key)

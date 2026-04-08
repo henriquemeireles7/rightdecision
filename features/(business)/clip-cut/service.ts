@@ -46,7 +46,13 @@ export async function cutClipsForRun(pipelineRunId: string) {
   await db.update(pipelineRuns).set({ status: 'cutting' }).where(eq(pipelineRuns.id, pipelineRunId))
 
   // Download source video
-  const key = new URL(run.inputVideoUrl).pathname.slice(1)
+  let key: string
+  try {
+    key = new URL(run.inputVideoUrl).pathname.slice(1)
+  } catch {
+    await db.update(pipelineRuns).set({ status: 'failed', stepFailedAt: 'clip-cut', errorMessage: 'Invalid video URL' }).where(eq(pipelineRuns.id, pipelineRunId))
+    return { error: 'CLIP_CUT_VIDEO_NOT_FOUND' as const }
+  }
   const ext = run.inputVideoUrl.split('.').pop()?.split('?')[0] ?? 'mp4'
   const tempVideoPath = join(tmpdir(), `source-${randomUUID()}.${ext}`)
 

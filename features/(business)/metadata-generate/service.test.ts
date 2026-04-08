@@ -20,15 +20,19 @@ mock.module('@/platform/db/client', () => ({
 }))
 
 mock.module('@/platform/db/schema', () => ({
-  pipelineRuns: { id: 'id', status: 'status' },
-  clips: { id: 'id', pipelineRunId: 'pipeline_run_id' },
-  posts: { clipId: 'clip_id', platformAccountId: 'platform_account_id' },
+  users: {}, sessions: {}, accounts: {}, verifications: {},
+  purchases: {}, subscriptions: {}, courseProgress: {},
+  onboardingSessions: {}, onboardingProfiles: {},
+  wins: {}, bookmarks: {},
   platformAccounts: { id: 'id', platform: 'platform' },
+  pipelineRuns: { id: 'id', status: 'status', createdAt: 'created_at', inputVideoUrl: 'input_video_url' },
+  clips: { id: 'id', pipelineRunId: 'pipeline_run_id', approved: 'approved', sourceTimestampStart: 'source_timestamp_start' },
+  posts: { id: 'id', status: 'status', clipId: 'clip_id', platformAccountId: 'platform_account_id', postedAt: 'posted_at', uploadPostId: 'upload_post_id' },
+  postAnalytics: { snapshotAt: 'snapshot_at', postId: 'post_id' },
+  insights: { createdAt: 'created_at' },
 }))
 
-mock.module('@/features/(business)/workflow/state-machine', () => ({
-  assertTransition: mock(() => {}),
-}))
+// Don't mock state-machine — it's pure logic, no external deps
 
 const { saveMetadata } = await import('./service')
 
