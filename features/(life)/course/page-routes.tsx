@@ -61,12 +61,19 @@ coursePageRoutes.get('/:slug', async (c) => {
   const completedIds = new Set(userProgress.map((p) => p.classId))
   const overall = await getOverallProgress(user.id)
 
-  const modulesWithProgress = await Promise.all(
-    modules.map(async (mod) => {
-      const progress = await getModuleProgress(user.id, mod.id)
-      return { ...mod, progress }
-    }),
-  )
+  // Compute progress per module from already-fetched data (avoids N+1 query)
+  const modulesWithProgress = modules.map((mod) => {
+    const total = mod.classes.length
+    const completed = mod.classes.filter((cls) => completedIds.has(cls.id)).length
+    return {
+      ...mod,
+      progress: {
+        total,
+        completed,
+        percent: total > 0 ? Math.round((completed / total) * 100) : 0,
+      },
+    }
+  })
 
   // Find current class
   let currentClassId: string | null = null

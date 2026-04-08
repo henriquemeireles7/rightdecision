@@ -1,19 +1,18 @@
-import { zValidator } from '@hono/zod-validator'
 import { Hono } from 'hono'
-import { z } from 'zod'
 import { requireAuth } from '@/platform/auth/middleware'
 import { throwError } from '@/platform/errors'
 import type { AppEnv } from '@/platform/types'
 import { getDecision } from './decisions'
 import { generateDecisionCard } from './share'
 
-const classIdSchema = z.object({ classId: z.string().min(1).regex(/^module-\d+\/class-\d+$/) })
+const classIdRegex = /^module-\d+\/class-\d+$/
 
 export const shareRoutes = new Hono<AppEnv>()
 
-shareRoutes.get('/decision/:classId', requireAuth, zValidator('param', classIdSchema), async (c) => {
+shareRoutes.get('/decision/:classId{.+}', requireAuth, async (c) => {
   const user = c.get('user')
-  const { classId } = c.req.valid('param')
+  const classId = c.req.param('classId')
+  if (!classIdRegex.test(classId)) return throwError(c, 'SHARE_NOT_FOUND')
 
   const decision = await getDecision(user.id, classId)
   if (!decision) {
