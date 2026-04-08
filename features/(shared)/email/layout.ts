@@ -14,14 +14,14 @@ const FONT_STACK = "'Instrument Sans', 'Segoe UI', Roboto, 'Helvetica Neue', Ari
 const SERIF_STACK = "Georgia, 'Times New Roman', serif"
 
 export function emailLayout(
-	content: string,
-	options?: { preheader?: string },
+  content: string,
+  options?: { preheader?: string },
 ): { html: string; text: string } {
-	const preheaderBlock = options?.preheader
-		? `<div style="display:none;font-size:1px;color:#FAF8F5;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">${options.preheader}</div>`
-		: ''
+  const preheaderBlock = options?.preheader
+    ? `<div style="display:none;font-size:1px;color:#FAF8F5;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">${options.preheader}</div>`
+    : ''
 
-	const html = `<!DOCTYPE html>
+  const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -56,23 +56,23 @@ Right Decision<br>
 </body>
 </html>`
 
-	const text = generatePlainText(content)
+  const text = generatePlainText(content)
 
-	return { html, text }
+  return { html, text }
 }
 
 /** Escape HTML special characters to prevent XSS in email templates. */
 export function escapeHtml(str: string): string {
-	return str
-		.replace(/&/g, '&amp;')
-		.replace(/</g, '&lt;')
-		.replace(/>/g, '&gt;')
-		.replace(/"/g, '&quot;')
-		.replace(/'/g, '&#39;')
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
 }
 
 export function ctaButton(label: string, url: string): string {
-	return `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:24px 0;">
+  return `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:24px 0;">
 <tr><td style="background-color:#C4956A;border-radius:8px;padding:14px 28px;text-align:center;">
 <a href="${url}" style="color:#FFFFFF;font-family:${FONT_STACK};font-size:16px;font-weight:600;text-decoration:none;display:inline-block;">${label}</a>
 </td></tr>
@@ -80,30 +80,30 @@ export function ctaButton(label: string, url: string): string {
 }
 
 export function stripHtml(html: string): string {
-	let text = html
-	// Convert <br> and block elements to newlines
-	text = text.replace(/<br\s*\/?>/gi, '\n')
-	text = text.replace(/<\/(p|div|h[1-6]|li|tr)>/gi, '\n')
-	// Convert <a> to markdown links
-	text = text.replace(/<a\s+href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, (_, url, inner) => {
-		const cleanInner = inner.replace(/<[^>]+>/g, '').trim()
-		return `[${cleanInner}](${url})`
-	})
-	// Remove all remaining HTML tags
-	text = text.replace(/<[^>]+>/g, '')
-	// Decode HTML entities
-	text = text.replace(/&amp;/g, '&')
-	text = text.replace(/&lt;/g, '<')
-	text = text.replace(/&gt;/g, '>')
-	text = text.replace(/&quot;/g, '"')
-	text = text.replace(/&#39;/g, "'")
-	text = text.replace(/&nbsp;/g, ' ')
-	// Clean up multiple newlines
-	text = text.replace(/\n{3,}/g, '\n\n')
-	return text.trim()
+  let text = html
+  // Convert <br> and block elements to newlines
+  text = text.replace(/<br\s*\/?>/gi, '\n')
+  text = text.replace(/<\/(p|div|h[1-6]|li|tr)>/gi, '\n')
+  // Convert <a> to markdown links
+  text = text.replace(/<a\s+href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, (_, url, inner) => {
+    const cleanInner = inner.replace(/<[^>]+>/g, '').trim()
+    return `[${cleanInner}](${url})`
+  })
+  // Remove all remaining HTML tags
+  text = text.replace(/<[^>]+>/g, '')
+  // Decode HTML entities
+  text = text.replace(/&amp;/g, '&')
+  text = text.replace(/&lt;/g, '<')
+  text = text.replace(/&gt;/g, '>')
+  text = text.replace(/&quot;/g, '"')
+  text = text.replace(/&#39;/g, "'")
+  text = text.replace(/&nbsp;/g, ' ')
+  // Clean up multiple newlines
+  text = text.replace(/\n{3,}/g, '\n\n')
+  return text.trim()
 }
 
 function generatePlainText(content: string): string {
-	const body = stripHtml(content)
-	return `${body}\n\n---\nRight Decision\n{PHYSICAL_ADDRESS_PLACEHOLDER}`
+  const body = stripHtml(content)
+  return `${body}\n\n---\nRight Decision\n{PHYSICAL_ADDRESS_PLACEHOLDER}`
 }

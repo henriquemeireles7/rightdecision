@@ -11,19 +11,19 @@ import { subscriptions, users } from '@/platform/db/schema'
  * Callers MUST handle null gracefully — skip the email, don't throw.
  */
 export async function getUserForSubscription(
-	stripeSubscriptionId: string,
+  stripeSubscriptionId: string,
 ): Promise<{ id: string; email: string; name: string } | null> {
-	const subscription = await db.query.subscriptions.findFirst({
-		where: eq(subscriptions.stripeSubscriptionId, stripeSubscriptionId),
-	})
+  const subscription = await db.query.subscriptions.findFirst({
+    where: eq(subscriptions.stripeSubscriptionId, stripeSubscriptionId),
+  })
 
-	if (!subscription?.userId) return null
+  if (!subscription?.userId) return null
 
-	const user = await db.query.users.findFirst({
-		where: eq(users.id, subscription.userId),
-	})
+  const user = await db.query.users.findFirst({
+    where: eq(users.id, subscription.userId),
+  })
 
-	if (!user) return null
+  if (!user) return null
 
-	return { id: user.id, email: user.email, name: user.name }
+  return { id: user.id, email: user.email, name: user.name }
 }

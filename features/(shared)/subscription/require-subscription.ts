@@ -18,28 +18,28 @@ import type { AppEnv } from '@/platform/types'
  *   missing                       → deny
  */
 export const requireActiveSubscription = createMiddleware<AppEnv>(async (c, next) => {
-	const user = c.get('user')
+  const user = c.get('user')
 
-	const subscription = await db.query.subscriptions.findFirst({
-		where: eq(subscriptions.userId, user.id),
-		orderBy: (s, { desc }) => [desc(s.createdAt)],
-	})
+  const subscription = await db.query.subscriptions.findFirst({
+    where: eq(subscriptions.userId, user.id),
+    orderBy: (s, { desc }) => [desc(s.createdAt)],
+  })
 
-	if (!subscription) {
-		return throwError(c, 'SUBSCRIPTION_REQUIRED')
-	}
+  if (!subscription) {
+    return throwError(c, 'SUBSCRIPTION_REQUIRED')
+  }
 
-	const activeStatuses = ['active', 'past_due', 'trialing']
-	if (!activeStatuses.includes(subscription.status)) {
-		return throwError(c, 'SUBSCRIPTION_REQUIRED')
-	}
+  const activeStatuses = ['active', 'past_due', 'trialing']
+  if (!activeStatuses.includes(subscription.status)) {
+    return throwError(c, 'SUBSCRIPTION_REQUIRED')
+  }
 
-	// Check period end: handles cancel_at_period_end where status stays 'active'
-	// but period has expired. 1-day grace buffer for clock skew.
-	const gracePeriod = 24 * 60 * 60 * 1000 // 1 day in ms
-	if (subscription.currentPeriodEnd.getTime() + gracePeriod < Date.now()) {
-		return throwError(c, 'SUBSCRIPTION_REQUIRED')
-	}
+  // Check period end: handles cancel_at_period_end where status stays 'active'
+  // but period has expired. 1-day grace buffer for clock skew.
+  const gracePeriod = 24 * 60 * 60 * 1000 // 1 day in ms
+  if (subscription.currentPeriodEnd.getTime() + gracePeriod < Date.now()) {
+    return throwError(c, 'SUBSCRIPTION_REQUIRED')
+  }
 
-	await next()
+  await next()
 })
