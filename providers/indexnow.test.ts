@@ -21,7 +21,7 @@ afterEach(() => {
 describe('submitUrls', () => {
   test('submits urls successfully', async () => {
     const fetchMock = mock(() => Promise.resolve(new Response('', { status: 200 })))
-    globalThis.fetch = fetchMock as typeof fetch
+    globalThis.fetch = fetchMock as unknown as typeof fetch
 
     const { submitUrls } = await import('./indexnow')
     const result = await submitUrls(['https://rightdecisions.io/blog/test'])
@@ -40,7 +40,7 @@ describe('submitUrls', () => {
   test('throws ProviderError on rate limit', async () => {
     globalThis.fetch = mock(() =>
       Promise.resolve(new Response('Rate limited', { status: 429 })),
-    ) as typeof fetch
+    ) as unknown as typeof fetch
 
     const { submitUrls } = await import('./indexnow')
     await expect(submitUrls(['https://rightdecisions.io/'])).rejects.toThrow(
@@ -51,7 +51,7 @@ describe('submitUrls', () => {
   test('throws ProviderError on 422', async () => {
     globalThis.fetch = mock(() =>
       Promise.resolve(new Response('Invalid', { status: 422 })),
-    ) as typeof fetch
+    ) as unknown as typeof fetch
 
     const { submitUrls } = await import('./indexnow')
     await expect(submitUrls(['https://rightdecisions.io/'])).rejects.toThrow(

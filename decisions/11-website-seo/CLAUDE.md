@@ -29,4 +29,4 @@ Before working in this folder, read:
 | meta.md | META-DOC: Website & SEO/GEO Strategy |
 | raw.md | RAW FOUNDER ANSWERS — Website & SEO/GEO Strategy |
 
-<!-- Generated: 2026-04-08T09:09:15.690Z -->
+<!-- Generated: 2026-04-08T09:47:54.718Z -->

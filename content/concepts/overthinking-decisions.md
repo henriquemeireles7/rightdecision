@@ -68,3 +68,7 @@ One woman calculated that three years of indecision about a career change cost h
 The people who make good [life decisions](/concepts/how-to-make-big-life-decisions) aren't the ones who think the longest. They're the ones who decide the fastest — not recklessly, but with structure. They're running a [system](/concepts/how-to-make-big-life-decisions), not relying on willpower.
 
 You already know what you need to do. You've known for a while. The only thing missing is the decision.
+
+---
+
+*Ready to stop analyzing and start deciding? [The Right Decision](/life) gives you a methodology + AI to make the one decision that changes everything.*

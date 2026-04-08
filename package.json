@@ -20,7 +20,10 @@
     "db:migrate": "bun platform/scripts/migrate.ts",
     "db:seed": "bun platform/scripts/seed.ts",
     "db:studio": "bun drizzle-kit studio",
-    "indexnow": "bun scripts/post-deploy-indexnow.ts"
+    "indexnow": "bun scripts/post-deploy-indexnow.ts",
+    "freshness": "bun scripts/freshness.ts",
+    "content:check": "bun scripts/content-quality.ts",
+    "seo-health": "bun scripts/seo-health.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.10",
@@ -36,12 +39,14 @@
     "@aws-sdk/client-s3": "^3.1026.0",
     "@aws-sdk/s3-request-presigner": "^3.1026.0",
     "@hono/zod-validator": "^0.7.6",
+    "@resvg/resvg-js": "^2.6.2",
     "@t3-oss/env-core": "^0.13.11",
     "better-auth": "^1.5.6",
     "drizzle-orm": "^0.45.2",
     "drizzle-zod": "^0.8.3",
     "gray-matter": "^4.0.3",
     "hono": "^4.12.10",
+    "jose": "^6.2.2",
     "marked": "^18.0.0",
     "postgres": "^3.4.8",
     "posthog-js": "^1.365.1",
@@ -49,6 +54,7 @@
     "preact": "^10.29.1",
     "preact-render-to-string": "^6.6.7",
     "resend": "^6.10.0",
+    "satori": "^0.26.0",
     "stripe": "^22.0.0",
     "zod": "^4.3.6"
   }

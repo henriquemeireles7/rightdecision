@@ -76,3 +76,7 @@ Here's the practical framework:
 Clarity arrives after action, not before. If you're [waiting to feel ready](/concepts/analysis-paralysis), you'll wait forever. The people who get unstuck aren't the ones who finally understand themselves. They're the ones who finally [decide](/concepts/overthinking-decisions).
 
 The most expensive thing in your life is the decision you haven't made.
+
+---
+
+*Ready to stop analyzing and start deciding? [The Right Decision](/life) gives you a methodology + AI to make the one decision that changes everything.*

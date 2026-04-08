@@ -70,3 +70,7 @@ If you have more questions — you were overthinking. The additional questions a
 The people who get things done aren't less anxious than you. They've just learned to [decide before the anxiety resolves](/concepts/how-to-make-big-life-decisions). Because it never fully resolves. You decide, and then you feel better. Not the other way around.
 
 Stop waiting to feel ready. You've been ready for a while.
+
+---
+
+*Ready to stop analyzing and start deciding? [The Right Decision](/life) gives you a methodology + AI to make the one decision that changes everything.*

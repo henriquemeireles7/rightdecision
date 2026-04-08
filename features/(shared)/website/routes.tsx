@@ -1,12 +1,15 @@
+import { join } from 'node:path'
 import { Hono } from 'hono'
 import { landingRoutes } from '@/features/(life)/landing/routes'
 import { env } from '@/platform/env'
 import { renderPage } from '@/platform/server/render'
+import { getContentFile } from '@/providers/markdown'
 import { AboutPage } from './about'
 import { blogRoutes } from './blog-routes'
 import { conceptRoutes } from './concept-routes'
 import { getHomepageProps, Homepage } from './homepage'
 import { legalRoutes } from './legal-routes'
+import { generateOgImage } from './og-image'
 import {
   buildBreadcrumbSchema,
   buildOrganizationSchema,
@@ -15,6 +18,9 @@ import {
   renderJsonLd,
 } from './seo'
 import { sitemapRoutes } from './sitemap'
+
+const BLOG_DIR = join(import.meta.dir, '../../../content/blog')
+const CONCEPTS_DIR = join(import.meta.dir, '../../../content/concepts')
 
 export const websiteRoutes = new Hono()
 
@@ -93,6 +99,23 @@ websiteRoutes.route('/blog', blogRoutes)
 
 // ─── Concepts ─────────────────────────────────────────────────────────────────
 websiteRoutes.route('/concepts', conceptRoutes)
+
+// ─── OG Image Generation ──────────────────────────────────────────────────────
+websiteRoutes.get('/og/:slug.png', async (c) => {
+  const slug = c.req.param('slug') as string
+
+  // Try blog first, then concepts
+  const post = (await getContentFile(BLOG_DIR, slug)) ?? (await getContentFile(CONCEPTS_DIR, slug))
+  if (!post) return c.notFound()
+
+  const png = await generateOgImage(post.frontmatter.title as string)
+  return new Response(new Uint8Array(png), {
+    headers: {
+      'Content-Type': 'image/png',
+      'Cache-Control': 'public, max-age=31536000, immutable',
+    },
+  })
+})
 
 // ─── Legal pages ─────────────────────────────────────────────────────────────
 websiteRoutes.route('/', legalRoutes)
