@@ -64,6 +64,8 @@ The auto-generated footer (Files, Internal Dependencies) is added by the Stop ho
 7. providers/analytics.ts — all trackable events
 
 ## Rules
+- ALWAYS run `bun run check` before committing — CI runs the same command, if it fails locally it WILL fail in CI
+- biome.json excludes vendored code (.claude/) and generated files (public/styles.css) — NEVER remove these exclusions
 - 100% test coverage, no exceptions
 - Tests colocated: foo.ts → foo.test.ts same folder
 - No types defined manually — infer from Zod/Drizzle

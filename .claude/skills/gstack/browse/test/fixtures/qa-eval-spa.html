@@ -32,7 +32,7 @@
     let cartCount = 0;
 
     // BUG 2: cart count never resets on route change — stale state
-    function addToCart() {
+    function _addToCart() {
       cartCount++;
       document.getElementById('cart-count').textContent = cartCount;
     }

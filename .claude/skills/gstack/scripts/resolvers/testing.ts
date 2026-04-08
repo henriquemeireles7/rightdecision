@@ -1,4 +1,4 @@
-import type { TemplateContext } from './types';
+import type { TemplateContext } from './types'
 
 export function generateTestBootstrap(_ctx: TemplateContext): string {
   return `## Test Framework Bootstrap
@@ -153,7 +153,7 @@ git status --porcelain
 Only commit if there are changes. Stage all bootstrap files (config, test directory, TESTING.md, CLAUDE.md, .github/workflows/test.yml if created):
 \`git commit -m "chore: bootstrap test framework ({framework name})"\`
 
----`;
+---`
 }
 
 // ─── Test Coverage Audit ────────────────────────────────────
@@ -177,18 +177,24 @@ Only commit if there are changes. Stage all bootstrap files (config, test direct
 //   │  review: Fix-First ASK, INFORMATIONAL gaps     │
 //   └────────────────────────────────────────────────┘
 
-type CoverageAuditMode = 'plan' | 'ship' | 'review';
+type CoverageAuditMode = 'plan' | 'ship' | 'review'
 
 function generateTestCoverageAuditInner(mode: CoverageAuditMode): string {
-  const sections: string[] = [];
+  const sections: string[] = []
 
   // ── Intro (mode-specific) ──
   if (mode === 'ship') {
-    sections.push(`100% coverage is the goal — every untested path is a path where bugs hide and vibe coding becomes yolo coding. Evaluate what was ACTUALLY coded (from the diff), not what was planned.`);
+    sections.push(
+      `100% coverage is the goal — every untested path is a path where bugs hide and vibe coding becomes yolo coding. Evaluate what was ACTUALLY coded (from the diff), not what was planned.`,
+    )
   } else if (mode === 'plan') {
-    sections.push(`100% coverage is the goal. Evaluate every codepath in the plan and ensure the plan includes tests for each one. If the plan is missing tests, add them — the plan should be complete enough that implementation includes full test coverage from the start.`);
+    sections.push(
+      `100% coverage is the goal. Evaluate every codepath in the plan and ensure the plan includes tests for each one. If the plan is missing tests, add them — the plan should be complete enough that implementation includes full test coverage from the start.`,
+    )
   } else {
-    sections.push(`100% coverage is the goal. Evaluate every codepath changed in the diff and identify test gaps. Gaps become INFORMATIONAL findings that follow the Fix-First flow.`);
+    sections.push(
+      `100% coverage is the goal. Evaluate every codepath changed in the diff and identify test gaps. Gaps become INFORMATIONAL findings that follow the Fix-First flow.`,
+    )
   }
 
   // ── Test framework detection (shared) ──
@@ -213,7 +219,7 @@ ls jest.config.* vitest.config.* playwright.config.* cypress.config.* .rspec pyt
 ls -d test/ tests/ spec/ __tests__/ cypress/ e2e/ 2>/dev/null
 \`\`\`
 
-3. **If no framework detected:**${mode === 'ship' ? ' falls through to the Test Framework Bootstrap step (Step 2.5) which handles full setup.' : ' still produce the coverage diagram, but skip test generation.'}`);
+3. **If no framework detected:**${mode === 'ship' ? ' falls through to the Test Framework Bootstrap step (Step 2.5) which handles full setup.' : ' still produce the coverage diagram, but skip test generation.'}`)
 
   // ── Before/after count (ship only) ──
   if (mode === 'ship') {
@@ -225,21 +231,23 @@ ls -d test/ tests/ spec/ __tests__/ cypress/ e2e/ 2>/dev/null
 find . -name '*.test.*' -o -name '*.spec.*' -o -name '*_test.*' -o -name '*_spec.*' | grep -v node_modules | wc -l
 \`\`\`
 
-Store this number for the PR body.`);
+Store this number for the PR body.`)
   }
 
   // ── Codepath tracing methodology (shared, with mode-specific source) ──
-  const traceSource = mode === 'plan'
-    ? `**Step 1. Trace every codepath in the plan:**
+  const traceSource =
+    mode === 'plan'
+      ? `**Step 1. Trace every codepath in the plan:**
 
 Read the plan document. For each new feature, service, endpoint, or component described, trace how data will flow through the code — don't just list planned functions, actually follow the planned execution:`
-    : `**${mode === 'ship' ? '1' : 'Step 1'}. Trace every codepath changed** using \`git diff origin/<base>...HEAD\`:
+      : `**${mode === 'ship' ? '1' : 'Step 1'}. Trace every codepath changed** using \`git diff origin/<base>...HEAD\`:
 
-Read every changed file. For each one, trace how data flows through the code — don't just list functions, actually follow the execution:`;
+Read every changed file. For each one, trace how data flows through the code — don't just list functions, actually follow the execution:`
 
-  const traceStep1 = mode === 'plan'
-    ? `1. **Read the plan.** For each planned component, understand what it does and how it connects to existing code.`
-    : `1. **Read the diff.** For each changed file, read the full file (not just the diff hunk) to understand context.`;
+  const traceStep1 =
+    mode === 'plan'
+      ? `1. **Read the plan.** For each planned component, understand what it does and how it connects to existing code.`
+      : `1. **Read the diff.** For each changed file, read the full file (not just the diff hunk) to understand context.`
 
   sections.push(`
 ${traceSource}
@@ -257,7 +265,7 @@ ${traceStep1}
    - Every call to another function (trace into it — does IT have untested branches?)
    - Every edge: what happens with null input? Empty array? Invalid type?
 
-This is the critical step — you're building a map of every line of code that can execute differently based on input. Every branch in this diagram needs a test.`);
+This is the critical step — you're building a map of every line of code that can execute differently based on input. Every branch in this diagram needs a test.`)
 
   // ── User flow coverage (shared) ──
   sections.push(`
@@ -278,7 +286,7 @@ Code coverage isn't enough — you need to cover how real users interact with th
   - What happens with no network? With a 500 from the API? With invalid data from the server?
 - **Empty/zero/boundary states:** What does the UI show with zero results? With 10,000 results? With a single character input? With maximum-length input?
 
-Add these to your diagram alongside the code branches. A user flow with no test is just as much a gap as an untested if/else.`);
+Add these to your diagram alongside the code branches. A user flow with no test is just as much a gap as an untested if/else.`)
 
   // ── Check branches against tests + quality rubric (shared) ──
   sections.push(`
@@ -295,7 +303,7 @@ Go through your diagram branch by branch — both code paths AND user flows. For
 Quality scoring rubric:
 - ★★★  Tests behavior with edge cases AND error paths
 - ★★   Tests correct behavior, happy path only
-- ★    Smoke test / existence check / trivial assertion (e.g., "it renders", "it doesn't throw")`);
+- ★    Smoke test / existence check / trivial assertion (e.g., "it renders", "it doesn't throw")`)
 
   // ── E2E test decision matrix (shared) ──
   sections.push(`
@@ -316,7 +324,7 @@ When checking each branch, also determine whether a unit test or E2E/integration
 - Pure function with clear inputs/outputs
 - Internal helper with no side effects
 - Edge case of a single function (null input, empty array)
-- Obscure/rare flow that isn't customer-facing`);
+- Obscure/rare flow that isn't customer-facing`)
 
   // ── Regression rule (shared) ──
   sections.push(`
@@ -329,7 +337,7 @@ A regression is when:
 - The existing test suite (if any) doesn't cover the changed path
 - The change introduces a new failure mode for existing callers
 
-When uncertain whether a change is a regression, err on the side of writing the test.${mode !== 'plan' ? '\n\nFormat: commit as `test: regression test for {what broke}`' : ''}`);
+When uncertain whether a change is a regression, err on the side of writing the test.${mode !== 'plan' ? '\n\nFormat: commit as `test: regression test for {what broke}`' : ''}`)
 
   // ── ASCII coverage diagram (shared) ──
   sections.push(`
@@ -379,7 +387,7 @@ GAPS: 8 paths need tests (2 need E2E, 1 needs eval)
 ─────────────────────────────────
 \`\`\`
 
-**Fast path:** All paths covered → "${mode === 'ship' ? 'Step 3.4' : mode === 'review' ? 'Step 4.75' : 'Test review'}: All new code paths have test coverage ✓" Continue.`);
+**Fast path:** All paths covered → "${mode === 'ship' ? 'Step 3.4' : mode === 'review' ? 'Step 4.75' : 'Test review'}: All new code paths have test coverage ✓" Continue.`)
 
   // ── Mode-specific action section ──
   if (mode === 'plan') {
@@ -392,7 +400,7 @@ For each GAP identified in the diagram, add a test requirement to the plan. Be s
 - Whether it's a unit test, E2E test, or eval (use the decision matrix)
 - For regressions: flag as **CRITICAL** and explain what broke
 
-The plan should be complete enough that when implementation begins, every test is written alongside the feature code — not deferred to a follow-up.`);
+The plan should be complete enough that when implementation begins, every test is written alongside the feature code — not deferred to a follow-up.`)
 
     // ── Test plan artifact (plan + ship) ──
     sections.push(`
@@ -427,7 +435,7 @@ Repo: {owner/repo}
 - {end-to-end flow that must work}
 \`\`\`
 
-This file is consumed by \`/qa\` and \`/qa-only\` as primary test input. Include only the information that helps a QA tester know **what to test and where** — not implementation details.`);
+This file is consumed by \`/qa\` and \`/qa-only\` as primary test input. Include only the information that helps a QA tester know **what to test and where** — not implementation details.`)
   } else if (mode === 'ship') {
     sections.push(`
 **5. Generate tests for uncovered paths:**
@@ -489,7 +497,7 @@ Using the coverage percentage from the diagram in substep 4 (the \`COVERAGE: X/Y
 
 **Test-only diffs:** Skip the gate (same as the existing fast-path).
 
-**100% coverage:** "Coverage gate: PASS (100%)." Continue.`);
+**100% coverage:** "Coverage gate: PASS (100%)." Continue.`)
 
     // ── Test plan artifact (ship mode) ──
     sections.push(`
@@ -522,7 +530,7 @@ Repo: {owner/repo}
 
 ## Critical Paths
 - {end-to-end flow that must work}
-\`\`\``);
+\`\`\``)
   } else {
     // review mode
     sections.push(`
@@ -554,20 +562,20 @@ Consider writing tests before running /ship.
 
 This is INFORMATIONAL — does not block /review. But it makes low coverage visible early so the developer can address it before reaching the /ship coverage gate.
 
-If coverage percentage cannot be determined, skip the warning silently.`);
+If coverage percentage cannot be determined, skip the warning silently.`)
   }
 
-  return sections.join('\n');
+  return sections.join('\n')
 }
 
 export function generateTestCoverageAuditPlan(_ctx: TemplateContext): string {
-  return generateTestCoverageAuditInner('plan');
+  return generateTestCoverageAuditInner('plan')
 }
 
 export function generateTestCoverageAuditShip(_ctx: TemplateContext): string {
-  return generateTestCoverageAuditInner('ship');
+  return generateTestCoverageAuditInner('ship')
 }
 
 export function generateTestCoverageAuditReview(_ctx: TemplateContext): string {
-  return generateTestCoverageAuditInner('review');
+  return generateTestCoverageAuditInner('review')
 }

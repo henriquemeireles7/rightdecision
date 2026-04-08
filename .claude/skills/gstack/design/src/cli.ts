@@ -12,245 +12,247 @@
  *   4. Print result JSON to stdout
  */
 
-import { COMMANDS } from "./commands";
-import { generate } from "./generate";
-import { checkCommand } from "./check";
-import { compare } from "./compare";
-import { variants } from "./variants";
-import { iterate } from "./iterate";
-import { resolveApiKey, saveApiKey } from "./auth";
-import { extractDesignLanguage, updateDesignMd } from "./memory";
-import { diffMockups, verifyAgainstMockup } from "./diff";
-import { evolve } from "./evolve";
-import { generateDesignToCodePrompt } from "./design-to-code";
-import { serve } from "./serve";
-import { gallery } from "./gallery";
+import { resolveApiKey, saveApiKey } from './auth'
+import { checkCommand } from './check'
+import { COMMANDS } from './commands'
+import { compare } from './compare'
+import { generateDesignToCodePrompt } from './design-to-code'
+import { diffMockups, verifyAgainstMockup } from './diff'
+import { evolve } from './evolve'
+import { gallery } from './gallery'
+import { generate } from './generate'
+import { iterate } from './iterate'
+import { extractDesignLanguage, updateDesignMd } from './memory'
+import { serve } from './serve'
+import { variants } from './variants'
 
 function parseArgs(argv: string[]): { command: string; flags: Record<string, string | boolean> } {
-  const args = argv.slice(2); // skip bun/node and script path
+  const args = argv.slice(2) // skip bun/node and script path
   if (args.length === 0) {
-    printUsage();
-    process.exit(0);
+    printUsage()
+    process.exit(0)
   }
 
-  const command = args[0];
-  const flags: Record<string, string | boolean> = {};
+  const command = args[0]
+  const flags: Record<string, string | boolean> = {}
 
   for (let i = 1; i < args.length; i++) {
-    const arg = args[i];
-    if (arg.startsWith("--")) {
-      const key = arg.slice(2);
-      const next = args[i + 1];
-      if (next && !next.startsWith("--")) {
-        flags[key] = next;
-        i++;
+    const arg = args[i]
+    if (arg.startsWith('--')) {
+      const key = arg.slice(2)
+      const next = args[i + 1]
+      if (next && !next.startsWith('--')) {
+        flags[key] = next
+        i++
       } else {
-        flags[key] = true;
+        flags[key] = true
       }
     }
   }
 
-  return { command, flags };
+  return { command, flags }
 }
 
 function printUsage(): void {
-  console.log("gstack design — AI-powered UI mockup generation\n");
-  console.log("Commands:");
+  console.log('gstack design — AI-powered UI mockup generation\n')
+  console.log('Commands:')
   for (const [name, info] of COMMANDS) {
-    console.log(`  ${name.padEnd(12)} ${info.description}`);
-    console.log(`  ${"".padEnd(12)} ${info.usage}`);
+    console.log(`  ${name.padEnd(12)} ${info.description}`)
+    console.log(`  ${''.padEnd(12)} ${info.usage}`)
   }
-  console.log("\nAuth: ~/.gstack/openai.json or OPENAI_API_KEY env var");
-  console.log("Setup: $D setup");
+  console.log('\nAuth: ~/.gstack/openai.json or OPENAI_API_KEY env var')
+  console.log('Setup: $D setup')
 }
 
 async function runSetup(): Promise<void> {
-  const existing = resolveApiKey();
+  const existing = resolveApiKey()
   if (existing) {
-    console.log("Existing API key found. Running smoke test...");
+    console.log('Existing API key found. Running smoke test...')
   } else {
-    console.log("No API key found. Please enter your OpenAI API key.");
-    console.log("Get one at: https://platform.openai.com/api-keys");
-    console.log("(Needs image generation permissions)\n");
+    console.log('No API key found. Please enter your OpenAI API key.')
+    console.log('Get one at: https://platform.openai.com/api-keys')
+    console.log('(Needs image generation permissions)\n')
 
     // Read from stdin
-    process.stdout.write("API key: ");
-    const reader = Bun.stdin.stream().getReader();
-    const { value } = await reader.read();
-    reader.releaseLock();
-    const key = new TextDecoder().decode(value).trim();
+    process.stdout.write('API key: ')
+    const reader = Bun.stdin.stream().getReader()
+    const { value } = await reader.read()
+    reader.releaseLock()
+    const key = new TextDecoder().decode(value).trim()
 
-    if (!key || !key.startsWith("sk-")) {
-      console.error("Invalid key. Must start with 'sk-'.");
-      process.exit(1);
+    if (!key?.startsWith('sk-')) {
+      console.error("Invalid key. Must start with 'sk-'.")
+      process.exit(1)
     }
 
-    saveApiKey(key);
-    console.log("Key saved to ~/.gstack/openai.json (0600 permissions).");
+    saveApiKey(key)
+    console.log('Key saved to ~/.gstack/openai.json (0600 permissions).')
   }
 
   // Smoke test
-  console.log("\nRunning smoke test (generating a simple image)...");
+  console.log('\nRunning smoke test (generating a simple image)...')
   try {
     await generate({
-      brief: "A simple blue square centered on a white background. Minimal, geometric, clean.",
-      output: "/tmp/gstack-design-smoke-test.png",
-      size: "1024x1024",
-      quality: "low",
-    });
-    console.log("\nSmoke test PASSED. Design generation is working.");
+      brief: 'A simple blue square centered on a white background. Minimal, geometric, clean.',
+      output: '/tmp/gstack-design-smoke-test.png',
+      size: '1024x1024',
+      quality: 'low',
+    })
+    console.log('\nSmoke test PASSED. Design generation is working.')
   } catch (err: any) {
-    console.error(`\nSmoke test FAILED: ${err.message}`);
-    console.error("Check your API key and organization verification status.");
-    process.exit(1);
+    console.error(`\nSmoke test FAILED: ${err.message}`)
+    console.error('Check your API key and organization verification status.')
+    process.exit(1)
   }
 }
 
 async function main(): Promise<void> {
-  const { command, flags } = parseArgs(process.argv);
+  const { command, flags } = parseArgs(process.argv)
 
   if (!COMMANDS.has(command)) {
-    console.error(`Unknown command: ${command}`);
-    printUsage();
-    process.exit(1);
+    console.error(`Unknown command: ${command}`)
+    printUsage()
+    process.exit(1)
   }
 
   switch (command) {
-    case "generate":
+    case 'generate':
       await generate({
         brief: flags.brief as string,
-        briefFile: flags["brief-file"] as string,
-        output: (flags.output as string) || "/tmp/gstack-mockup.png",
+        briefFile: flags['brief-file'] as string,
+        output: (flags.output as string) || '/tmp/gstack-mockup.png',
         check: !!flags.check,
-        retry: flags.retry ? parseInt(flags.retry as string) : 0,
+        retry: flags.retry ? parseInt(flags.retry as string, 10) : 0,
         size: flags.size as string,
         quality: flags.quality as string,
-      });
-      break;
+      })
+      break
 
-    case "check":
-      await checkCommand(flags.image as string, flags.brief as string);
-      break;
+    case 'check':
+      await checkCommand(flags.image as string, flags.brief as string)
+      break
 
-    case "compare": {
+    case 'compare': {
       // Parse --images as glob or multiple files
-      const imagesArg = flags.images as string;
-      const images = await resolveImagePaths(imagesArg);
-      const outputPath = (flags.output as string) || "/tmp/gstack-design-board.html";
-      compare({ images, output: outputPath });
+      const imagesArg = flags.images as string
+      const images = await resolveImagePaths(imagesArg)
+      const outputPath = (flags.output as string) || '/tmp/gstack-design-board.html'
+      compare({ images, output: outputPath })
       // If --serve flag is set, start HTTP server for the board
       if (flags.serve) {
         await serve({
           html: outputPath,
-          timeout: flags.timeout ? parseInt(flags.timeout as string) : 600,
-        });
+          timeout: flags.timeout ? parseInt(flags.timeout as string, 10) : 600,
+        })
       }
-      break;
+      break
     }
 
-    case "prompt": {
-      const promptImage = flags.image as string;
+    case 'prompt': {
+      const promptImage = flags.image as string
       if (!promptImage) {
-        console.error("--image is required");
-        process.exit(1);
+        console.error('--image is required')
+        process.exit(1)
       }
-      console.error(`Generating implementation prompt from ${promptImage}...`);
-      const proc2 = Bun.spawn(["git", "rev-parse", "--show-toplevel"]);
-      const root = (await new Response(proc2.stdout).text()).trim();
-      const d2c = await generateDesignToCodePrompt(promptImage, root || undefined);
-      console.log(JSON.stringify(d2c, null, 2));
-      break;
+      console.error(`Generating implementation prompt from ${promptImage}...`)
+      const proc2 = Bun.spawn(['git', 'rev-parse', '--show-toplevel'])
+      const root = (await new Response(proc2.stdout).text()).trim()
+      const d2c = await generateDesignToCodePrompt(promptImage, root || undefined)
+      console.log(JSON.stringify(d2c, null, 2))
+      break
     }
 
-    case "setup":
-      await runSetup();
-      break;
+    case 'setup':
+      await runSetup()
+      break
 
-    case "variants":
+    case 'variants':
       await variants({
         brief: flags.brief as string,
-        briefFile: flags["brief-file"] as string,
-        count: flags.count ? parseInt(flags.count as string) : 3,
-        outputDir: (flags["output-dir"] as string) || "/tmp/gstack-variants/",
+        briefFile: flags['brief-file'] as string,
+        count: flags.count ? parseInt(flags.count as string, 10) : 3,
+        outputDir: (flags['output-dir'] as string) || '/tmp/gstack-variants/',
         size: flags.size as string,
         quality: flags.quality as string,
         viewports: flags.viewports as string,
-      });
-      break;
+      })
+      break
 
-    case "iterate":
+    case 'iterate':
       await iterate({
         session: flags.session as string,
         feedback: flags.feedback as string,
-        output: (flags.output as string) || "/tmp/gstack-iterate.png",
-      });
-      break;
+        output: (flags.output as string) || '/tmp/gstack-iterate.png',
+      })
+      break
 
-    case "extract": {
-      const imagePath = flags.image as string;
+    case 'extract': {
+      const imagePath = flags.image as string
       if (!imagePath) {
-        console.error("--image is required");
-        process.exit(1);
+        console.error('--image is required')
+        process.exit(1)
       }
-      console.error(`Extracting design language from ${imagePath}...`);
-      const extracted = await extractDesignLanguage(imagePath);
-      const proc = Bun.spawn(["git", "rev-parse", "--show-toplevel"]);
-      const repoRoot = (await new Response(proc.stdout).text()).trim();
+      console.error(`Extracting design language from ${imagePath}...`)
+      const extracted = await extractDesignLanguage(imagePath)
+      const proc = Bun.spawn(['git', 'rev-parse', '--show-toplevel'])
+      const repoRoot = (await new Response(proc.stdout).text()).trim()
       if (repoRoot) {
-        updateDesignMd(repoRoot, extracted, imagePath);
+        updateDesignMd(repoRoot, extracted, imagePath)
       }
-      console.log(JSON.stringify(extracted, null, 2));
-      break;
+      console.log(JSON.stringify(extracted, null, 2))
+      break
     }
 
-    case "diff": {
-      const before = flags.before as string;
-      const after = flags.after as string;
+    case 'diff': {
+      const before = flags.before as string
+      const after = flags.after as string
       if (!before || !after) {
-        console.error("--before and --after are required");
-        process.exit(1);
+        console.error('--before and --after are required')
+        process.exit(1)
       }
-      console.error(`Comparing ${before} vs ${after}...`);
-      const diffResult = await diffMockups(before, after);
-      console.log(JSON.stringify(diffResult, null, 2));
-      break;
+      console.error(`Comparing ${before} vs ${after}...`)
+      const diffResult = await diffMockups(before, after)
+      console.log(JSON.stringify(diffResult, null, 2))
+      break
     }
 
-    case "verify": {
-      const mockup = flags.mockup as string;
-      const screenshot = flags.screenshot as string;
+    case 'verify': {
+      const mockup = flags.mockup as string
+      const screenshot = flags.screenshot as string
       if (!mockup || !screenshot) {
-        console.error("--mockup and --screenshot are required");
-        process.exit(1);
+        console.error('--mockup and --screenshot are required')
+        process.exit(1)
       }
-      console.error(`Verifying implementation against approved mockup...`);
-      const verifyResult = await verifyAgainstMockup(mockup, screenshot);
-      console.error(`Match: ${verifyResult.matchScore}/100 — ${verifyResult.pass ? "PASS" : "FAIL"}`);
-      console.log(JSON.stringify(verifyResult, null, 2));
-      break;
+      console.error(`Verifying implementation against approved mockup...`)
+      const verifyResult = await verifyAgainstMockup(mockup, screenshot)
+      console.error(
+        `Match: ${verifyResult.matchScore}/100 — ${verifyResult.pass ? 'PASS' : 'FAIL'}`,
+      )
+      console.log(JSON.stringify(verifyResult, null, 2))
+      break
     }
 
-    case "evolve":
+    case 'evolve':
       await evolve({
         screenshot: flags.screenshot as string,
         brief: flags.brief as string,
-        output: (flags.output as string) || "/tmp/gstack-evolved.png",
-      });
-      break;
+        output: (flags.output as string) || '/tmp/gstack-evolved.png',
+      })
+      break
 
-    case "gallery":
+    case 'gallery':
       gallery({
-        designsDir: flags["designs-dir"] as string,
-        output: (flags.output as string) || "/tmp/gstack-design-gallery.html",
-      });
-      break;
+        designsDir: flags['designs-dir'] as string,
+        output: (flags.output as string) || '/tmp/gstack-design-gallery.html',
+      })
+      break
 
-    case "serve":
+    case 'serve':
       await serve({
         html: flags.html as string,
-        timeout: flags.timeout ? parseInt(flags.timeout as string) : 600,
-      });
-      break;
+        timeout: flags.timeout ? parseInt(flags.timeout as string, 10) : 600,
+      })
+      break
   }
 }
 
@@ -259,27 +261,27 @@ async function main(): Promise<void> {
  */
 async function resolveImagePaths(input: string): Promise<string[]> {
   if (!input) {
-    console.error("--images is required. Provide glob pattern or comma-separated paths.");
-    process.exit(1);
+    console.error('--images is required. Provide glob pattern or comma-separated paths.')
+    process.exit(1)
   }
 
   // Check if it's a glob pattern
-  if (input.includes("*")) {
-    const glob = new Bun.Glob(input);
-    const paths: string[] = [];
+  if (input.includes('*')) {
+    const glob = new Bun.Glob(input)
+    const paths: string[] = []
     for await (const match of glob.scan({ absolute: true })) {
-      if (match.endsWith(".png") || match.endsWith(".jpg") || match.endsWith(".jpeg")) {
-        paths.push(match);
+      if (match.endsWith('.png') || match.endsWith('.jpg') || match.endsWith('.jpeg')) {
+        paths.push(match)
       }
     }
-    return paths.sort();
+    return paths.sort()
   }
 
   // Comma-separated or single path
-  return input.split(",").map(p => p.trim());
+  return input.split(',').map((p) => p.trim())
 }
 
-main().catch(err => {
-  console.error(err.message || err);
-  process.exit(1);
-});
+main().catch((err) => {
+  console.error(err.message || err)
+  process.exit(1)
+})

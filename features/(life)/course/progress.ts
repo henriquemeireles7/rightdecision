@@ -29,7 +29,7 @@ export async function getModuleProgress(userId: string, moduleNum: number) {
       ),
     )
 
-  const completedCount = completed[0]?.count ?? 0
+  const _completedCount = completed[0]?.count ?? 0
   // Filter to only classes in this module
   const userProgress = await getUserProgress(userId)
   const moduleClassIds = mod.classes.map((c) => c.id)

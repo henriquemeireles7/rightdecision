@@ -18,7 +18,7 @@
       // Simulate an XHR that takes 200ms
       const res = await fetch('/echo');
       const data = await res.json();
-      document.getElementById('result').textContent = 'Data loaded: ' + Object.keys(data).length + ' headers';
+      document.getElementById('result').textContent = `Data loaded: ${Object.keys(data).length} headers`;
     });
 
     document.getElementById('static-btn').addEventListener('click', () => {

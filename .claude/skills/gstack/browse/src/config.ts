@@ -10,16 +10,16 @@
  * spawned server. The server derives all paths from that env var.
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 
 export interface BrowseConfig {
-  projectDir: string;
-  stateDir: string;
-  stateFile: string;
-  consoleLog: string;
-  networkLog: string;
-  dialogLog: string;
+  projectDir: string
+  stateDir: string
+  stateFile: string
+  consoleLog: string
+  networkLog: string
+  dialogLog: string
 }
 
 /**
@@ -31,11 +31,11 @@ export function getGitRoot(): string | null {
       stdout: 'pipe',
       stderr: 'pipe',
       timeout: 2_000, // Don't hang if .git is broken
-    });
-    if (proc.exitCode !== 0) return null;
-    return proc.stdout.toString().trim() || null;
+    })
+    if (proc.exitCode !== 0) return null
+    return proc.stdout.toString().trim() || null
   } catch {
-    return null;
+    return null
   }
 }
 
@@ -46,21 +46,19 @@ export function getGitRoot(): string | null {
  * tests for isolation), all paths are derived from it. Otherwise, the
  * project root is detected via git or cwd.
  */
-export function resolveConfig(
-  env: Record<string, string | undefined> = process.env,
-): BrowseConfig {
-  let stateFile: string;
-  let stateDir: string;
-  let projectDir: string;
+export function resolveConfig(env: Record<string, string | undefined> = process.env): BrowseConfig {
+  let stateFile: string
+  let stateDir: string
+  let projectDir: string
 
   if (env.BROWSE_STATE_FILE) {
-    stateFile = env.BROWSE_STATE_FILE;
-    stateDir = path.dirname(stateFile);
-    projectDir = path.dirname(stateDir); // parent of .gstack/
+    stateFile = env.BROWSE_STATE_FILE
+    stateDir = path.dirname(stateFile)
+    projectDir = path.dirname(stateDir) // parent of .gstack/
   } else {
-    projectDir = getGitRoot() || process.cwd();
-    stateDir = path.join(projectDir, '.gstack');
-    stateFile = path.join(stateDir, 'browse.json');
+    projectDir = getGitRoot() || process.cwd()
+    stateDir = path.join(projectDir, '.gstack')
+    stateFile = path.join(stateDir, 'browse.json')
   }
 
   return {
@@ -70,7 +68,7 @@ export function resolveConfig(
     consoleLog: path.join(stateDir, 'browse-console.log'),
     networkLog: path.join(stateDir, 'browse-network.log'),
     dialogLog: path.join(stateDir, 'browse-dialog.log'),
-  };
+  }
 }
 
 /**
@@ -79,31 +77,36 @@ export function resolveConfig(
  */
 export function ensureStateDir(config: BrowseConfig): void {
   try {
-    fs.mkdirSync(config.stateDir, { recursive: true });
+    fs.mkdirSync(config.stateDir, { recursive: true })
   } catch (err: any) {
     if (err.code === 'EACCES') {
-      throw new Error(`Cannot create state directory ${config.stateDir}: permission denied`);
+      throw new Error(`Cannot create state directory ${config.stateDir}: permission denied`)
     }
     if (err.code === 'ENOTDIR') {
-      throw new Error(`Cannot create state directory ${config.stateDir}: a file exists at that path`);
+      throw new Error(
+        `Cannot create state directory ${config.stateDir}: a file exists at that path`,
+      )
     }
-    throw err;
+    throw err
   }
 
   // Ensure .gstack/ is in the project's .gitignore
-  const gitignorePath = path.join(config.projectDir, '.gitignore');
+  const gitignorePath = path.join(config.projectDir, '.gitignore')
   try {
-    const content = fs.readFileSync(gitignorePath, 'utf-8');
+    const content = fs.readFileSync(gitignorePath, 'utf-8')
     if (!content.match(/^\.gstack\/?$/m)) {
-      const separator = content.endsWith('\n') ? '' : '\n';
-      fs.appendFileSync(gitignorePath, `${separator}.gstack/\n`);
+      const separator = content.endsWith('\n') ? '' : '\n'
+      fs.appendFileSync(gitignorePath, `${separator}.gstack/\n`)
     }
   } catch (err: any) {
     if (err.code !== 'ENOENT') {
       // Write warning to server log (visible even in daemon mode)
-      const logPath = path.join(config.stateDir, 'browse-server.log');
+      const logPath = path.join(config.stateDir, 'browse-server.log')
       try {
-        fs.appendFileSync(logPath, `[${new Date().toISOString()}] Warning: could not update .gitignore at ${gitignorePath}: ${err.message}\n`);
+        fs.appendFileSync(
+          logPath,
+          `[${new Date().toISOString()}] Warning: could not update .gitignore at ${gitignorePath}: ${err.message}\n`,
+        )
       } catch {
         // stateDir write failed too — nothing more we can do
       }
@@ -122,17 +125,17 @@ export function getRemoteSlug(): string {
       stdout: 'pipe',
       stderr: 'pipe',
       timeout: 2_000,
-    });
-    if (proc.exitCode !== 0) throw new Error('no remote');
-    const url = proc.stdout.toString().trim();
+    })
+    if (proc.exitCode !== 0) throw new Error('no remote')
+    const url = proc.stdout.toString().trim()
     // SSH:   git@github.com:owner/repo.git → owner-repo
     // HTTPS: https://github.com/owner/repo.git → owner-repo
-    const match = url.match(/[:/]([^/]+)\/([^/]+?)(?:\.git)?$/);
-    if (match) return `${match[1]}-${match[2]}`;
-    throw new Error('unparseable');
+    const match = url.match(/[:/]([^/]+)\/([^/]+?)(?:\.git)?$/)
+    if (match) return `${match[1]}-${match[2]}`
+    throw new Error('unparseable')
   } catch {
-    const root = getGitRoot();
-    return path.basename(root || process.cwd());
+    const root = getGitRoot()
+    return path.basename(root || process.cwd())
   }
 }
 
@@ -142,9 +145,9 @@ export function getRemoteSlug(): string {
  */
 export function readVersionHash(execPath: string = process.execPath): string | null {
   try {
-    const versionFile = path.resolve(path.dirname(execPath), '.version');
-    return fs.readFileSync(versionFile, 'utf-8').trim() || null;
+    const versionFile = path.resolve(path.dirname(execPath), '.version')
+    return fs.readFileSync(versionFile, 'utf-8').trim() || null
   } catch {
-    return null;
+    return null
   }
 }

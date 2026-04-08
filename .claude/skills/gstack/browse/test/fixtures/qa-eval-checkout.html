@@ -79,9 +79,9 @@
 
     quantityInput.addEventListener('input', () => {
       // BUG 2: parseInt on empty string returns NaN, no fallback
-      const qty = parseInt(quantityInput.value);
+      const qty = parseInt(quantityInput.value, 10);
       const total = (qty * 99.99).toFixed(2);
-      totalEl.textContent = 'Total: $' + total;
+      totalEl.textContent = `Total: $${total}`;
       submitTotalEl.textContent = total;
     });
 

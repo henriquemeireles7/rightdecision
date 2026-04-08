@@ -46,6 +46,7 @@ export function ClassView({ cls, isComplete, isLocked, nextClassId }: ClassViewP
       <div class="border-t pt-8 flex items-center justify-between">
         {!isComplete ? (
           <button
+            type="button"
             class="bg-amber-700 text-white px-6 py-3 rounded-lg hover:bg-amber-800 transition-colors"
             hx-post="/api/progress/v2/complete"
             hx-vals={JSON.stringify({ classId: cls.id, courseId: cls.courseId })}

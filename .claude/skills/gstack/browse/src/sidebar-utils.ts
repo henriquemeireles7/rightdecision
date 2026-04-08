@@ -8,14 +8,14 @@
  * Returns null if the URL is invalid or uses a non-http scheme.
  */
 export function sanitizeExtensionUrl(url: string | null | undefined): string | null {
-  if (!url) return null;
+  if (!url) return null
   try {
-    const u = new URL(url);
+    const u = new URL(url)
     if (u.protocol === 'http:' || u.protocol === 'https:') {
-      return u.href.replace(/[\x00-\x1f\x7f]/g, '').slice(0, 2048);
+      return u.href.replace(/[\x00-\x1f\x7f]/g, '').slice(0, 2048)
     }
-    return null;
+    return null
   } catch {
-    return null;
+    return null
   }
 }

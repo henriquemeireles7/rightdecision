@@ -3,7 +3,7 @@
 /* Issue 1: [HIGH] Blacklisted font (Papyrus) */
 /* Issue 2: [HIGH] Body text < 16px (14px) */
 body {
-  font-family: 'Papyrus', sans-serif;
+  font-family: "Papyrus", sans-serif;
   font-size: 14px;
   margin: 0;
   padding: 0;
@@ -74,8 +74,8 @@ button {
 
 /* Issue 4: [HIGH] !important usage */
 .override {
-  color: red !important;
-  margin-left: 10px !important;
+  color: red;
+  margin-left: 10px;
 }
 
 .footer {

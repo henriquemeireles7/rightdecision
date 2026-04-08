@@ -1,4 +1,4 @@
-import { and, desc, eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import { db } from '@/platform/db/client'
 import { bookmarks } from '@/platform/db/schema'
 
