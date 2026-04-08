@@ -75,6 +75,33 @@ export const errors = {
     status: 404,
     message: 'Course not found',
   },
+  // ─── LD Course: Micro-Decisions ───
+  DECISION_LOCKED: {
+    code: 'DECISION_LOCKED',
+    status: 403,
+    message: 'This decision can no longer be edited',
+  },
+  DECISION_NOT_FOUND: {
+    code: 'DECISION_NOT_FOUND',
+    status: 404,
+    message: 'Decision not found',
+  },
+  DECISION_VALIDATION_ERROR: {
+    code: 'DECISION_VALIDATION_ERROR',
+    status: 400,
+    message: 'Invalid decision data',
+  },
+  // ─── LD Course: Share ───
+  SHARE_NOT_FOUND: {
+    code: 'SHARE_NOT_FOUND',
+    status: 404,
+    message: 'Share content not found',
+  },
+  SHARE_GENERATION_FAILED: {
+    code: 'SHARE_GENERATION_FAILED',
+    status: 500,
+    message: 'Failed to generate share image',
+  },
   // ─── BD Pipeline: Generic ───
   PIPELINE_INVALID_STATE: {
     code: 'PIPELINE_INVALID_STATE',

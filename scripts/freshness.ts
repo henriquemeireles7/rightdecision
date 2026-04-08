@@ -74,7 +74,9 @@ function main() {
   const fresh = content.filter((c) => !c.stale)
 
   console.log(`\n=== Content Freshness Report ===`)
-  console.log(`Total: ${content.length} | Fresh: ${fresh.length} | Stale (>${STALE_DAYS}d): ${stale.length}\n`)
+  console.log(
+    `Total: ${content.length} | Fresh: ${fresh.length} | Stale (>${STALE_DAYS}d): ${stale.length}\n`,
+  )
 
   if (stale.length > 0) {
     console.log('STALE CONTENT (needs refresh):')

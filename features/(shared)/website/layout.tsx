@@ -7,7 +7,10 @@ type LayoutProps = {
 function Header() {
   return (
     <header class="border-b border-linen">
-      <nav aria-label="Main navigation" class="max-w-[1200px] mx-auto px-md py-sm flex items-center justify-between">
+      <nav
+        aria-label="Main navigation"
+        class="max-w-[1200px] mx-auto px-md py-sm flex items-center justify-between"
+      >
         <a href="/" class="font-display text-xl text-ink no-underline hover:opacity-80">
           The Right Decision
         </a>

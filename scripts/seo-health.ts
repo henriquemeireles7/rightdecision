@@ -48,7 +48,7 @@ function scanContent(): ContentInfo[] {
           (frontmatter.updated as string) ??
           (frontmatter.date as string) ??
           statSync(filePath).mtime.toISOString().split('T')[0]
-        const lastUpdated = new Date(dateStr!.includes('T') ? dateStr! : `${dateStr}T12:00:00Z`)
+        const lastUpdated = new Date(dateStr?.includes('T') ? dateStr! : `${dateStr}T12:00:00Z`)
         const daysOld = Math.floor((now - lastUpdated.getTime()) / (1000 * 60 * 60 * 24))
 
         results.push({
@@ -77,22 +77,31 @@ async function main() {
   const concepts = published.filter((c) => c.type === 'concept')
 
   console.log('1. CONTENT INVENTORY')
-  console.log(`   Published: ${published.length} (${blogs.length} blog, ${concepts.length} concept)`)
+  console.log(
+    `   Published: ${published.length} (${blogs.length} blog, ${concepts.length} concept)`,
+  )
   console.log(`   Drafts: ${drafts.length}`)
   console.log()
 
   // ─── 2. Content Freshness ───
   const stale = published.filter((c) => c.daysOld > STALE_DAYS)
-  const freshPercent = published.length > 0 ? Math.round(((published.length - stale.length) / published.length) * 100) : 100
+  const freshPercent =
+    published.length > 0
+      ? Math.round(((published.length - stale.length) / published.length) * 100)
+      : 100
 
   console.log('2. CONTENT FRESHNESS')
-  console.log(`   Fresh (<${STALE_DAYS}d): ${published.length - stale.length} | Stale: ${stale.length} | ${freshPercent}% fresh`)
+  console.log(
+    `   Fresh (<${STALE_DAYS}d): ${published.length - stale.length} | Stale: ${stale.length} | ${freshPercent}% fresh`,
+  )
   if (stale.length > 0) {
     console.log('   Worst offenders:')
     stale
       .sort((a, b) => b.daysOld - a.daysOld)
       .slice(0, 5)
-      .forEach((c) => console.log(`     - ${c.title} (${c.daysOld} days)`))
+      .forEach((c) => {
+        console.log(`     - ${c.title} (${c.daysOld} days)`)
+      })
   }
   console.log()
 
@@ -106,7 +115,8 @@ async function main() {
     let errors = 0
 
     for (const page of published.slice(0, 10)) {
-      const url = page.type === 'blog' ? `${baseUrl}/blog/${page.slug}` : `${baseUrl}/concepts/${page.slug}`
+      const url =
+        page.type === 'blog' ? `${baseUrl}/blog/${page.slug}` : `${baseUrl}/concepts/${page.slug}`
       try {
         const result = await inspectUrl(siteUrl, url)
         if (result.verdict === 'PASS') indexed++
@@ -115,7 +125,9 @@ async function main() {
         errors++
       }
     }
-    console.log(`   Indexed: ${indexed} | Not indexed: ${notIndexed} | Errors: ${errors} (checked ${Math.min(published.length, 10)} pages)`)
+    console.log(
+      `   Indexed: ${indexed} | Not indexed: ${notIndexed} | Errors: ${errors} (checked ${Math.min(published.length, 10)} pages)`,
+    )
     console.log()
 
     // ─── 4. Search Performance ───
@@ -136,7 +148,9 @@ async function main() {
         rows
           .sort((a, b) => b.clicks - a.clicks)
           .slice(0, 5)
-          .forEach((r) => console.log(`     - "${r.keys[0]}" — ${r.clicks} clicks, pos ${r.position.toFixed(1)}`))
+          .forEach((r) => {
+            console.log(`     - "${r.keys[0]}" — ${r.clicks} clicks, pos ${r.position.toFixed(1)}`)
+          })
       } else {
         console.log('   No search data available yet.')
       }

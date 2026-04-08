@@ -360,6 +360,44 @@ export const webhookEvents = pgTable('webhook_events', {
   createdAt: timestamp('created_at').notNull().defaultNow(),
 })
 
+// ─── User Decisions (LD: in-class micro-decision responses) ───
+export const userDecisions = pgTable(
+  'user_decisions',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    classId: text('class_id').notNull(),
+    courseSlug: text('course_slug').notNull(),
+    decisionType: text('decision_type', { enum: ['text', 'choice'] }).notNull(),
+    prompt: text('prompt').notNull(),
+    response: text('response').notNull(),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  },
+  (table) => [uniqueIndex('user_decisions_user_class_idx').on(table.userId, table.classId)],
+)
+
+// ─── Reading Analytics (LD: reading behavior tracking) ───
+export const readingAnalytics = pgTable(
+  'reading_analytics',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    classId: text('class_id').notNull(),
+    courseSlug: text('course_slug').notNull(),
+    timeSpentSec: integer('time_spent_sec').notNull().default(0),
+    scrollDepth: integer('scroll_depth').notNull().default(0),
+    completedAt: timestamp('completed_at'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  },
+  (table) => [uniqueIndex('reading_analytics_user_class_idx').on(table.userId, table.classId)],
+)
+
 // ─── Insights (BD: AI-generated actionable recommendations) ───
 export const insights = pgTable('insights', {
   id: uuid('id').defaultRandom().primaryKey(),
