@@ -1,7 +1,7 @@
 import { eq, and, desc, count } from 'drizzle-orm'
 import { db } from '@/platform/db/client'
 import { pipelineRuns, clips } from '@/platform/db/schema'
-import { assertTransition } from '@/features/(business)/workflow/state-machine'
+import { findRunInState, transitionPipeline } from '@/features/(business)/workflow/transitions'
 import { transcribe as whisperTranscribe } from '@/providers/transcription'
 import { download } from '@/providers/storage'
 import { ProviderError } from '@/providers/errors'
@@ -42,21 +42,13 @@ export async function startTranscription(videoUrl: string, config?: Record<strin
 }
 
 export async function processTranscription(runId: string) {
-  const run = await db.query.pipelineRuns.findFirst({
-    where: eq(pipelineRuns.id, runId),
-  })
+  const found = await findRunInState(runId, 'queued')
+  if ('error' in found) return found
+  const { run } = found
 
-  if (!run) return { error: 'NOT_FOUND' as const }
-
-  // Atomic CAS: queued → transcribing (prevents race conditions)
-  assertTransition(run.status, 'transcribing')
-  const [transitioned] = await db
-    .update(pipelineRuns)
-    .set({ status: 'transcribing', startedAt: new Date() })
-    .where(and(eq(pipelineRuns.id, runId), eq(pipelineRuns.status, run.status)))
-    .returning({ id: pipelineRuns.id })
-
-  if (!transitioned) return { error: 'CLIP_SELECT_INVALID_STATE' as const }
+  if (!await transitionPipeline(runId, run.status, 'transcribing', { startedAt: new Date() })) {
+    return { error: 'PIPELINE_INVALID_STATE' as const }
+  }
 
   // Download video to temp file
   const tempPath = join(tmpdir(), `transcribe-${randomUUID()}.${getExtension(run.inputVideoUrl)}`)

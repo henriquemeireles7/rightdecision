@@ -18,9 +18,10 @@ export const clipCutRoutes = new Hono<AppEnv>()
     const { pipelineRunId } = c.req.valid('json')
     const result = await cutClipsForRun(pipelineRunId)
     if ('error' in result) return throwError(c, result.error as ErrorCode)
-    if ('partial' in result && result.partial) {
-      const failures = result.clips.filter((r) => !r.success).map((r) => ({ id: r.clipId, error: r.error ?? 'Unknown' }))
-      return partial(c, result.clips, failures)
+    if ('partial' in result) {
+      const r = result as { clips: Array<{ clipId: string; success: boolean; error?: string }>; partial: boolean }
+      const failures = r.clips.filter((x) => !x.success).map((x) => ({ id: x.clipId, error: x.error ?? 'Unknown' }))
+      return partial(c, r.clips, failures)
     }
-    return success(c, { clips: result.clips })
+    return success(c, result)
   })

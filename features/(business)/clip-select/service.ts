@@ -1,7 +1,7 @@
 import { eq, and } from 'drizzle-orm'
 import { db } from '@/platform/db/client'
 import { pipelineRuns, clips } from '@/platform/db/schema'
-import { assertTransition } from '@/features/(business)/workflow/state-machine'
+import { findRunInState, transitionPipeline } from '@/features/(business)/workflow/transitions'
 import { z } from 'zod'
 
 export const clipDefinitionSchema = z.object({
@@ -22,16 +22,9 @@ export const clipSelectInputSchema = z.object({
 
 export async function saveClipSelections(pipelineRunId: string, clipDefs: ClipDefinition[]) {
   // Find the pipeline run
-  const run = await db.query.pipelineRuns.findFirst({
-    where: eq(pipelineRuns.id, pipelineRunId),
-  })
-
-  if (!run) return { error: 'NOT_FOUND' as const }
-
-  // Check state
-  if (run.status !== 'transcribed' && run.status !== 'selecting') {
-    return { error: 'CLIP_SELECT_INVALID_STATE' as const }
-  }
+  const found = await findRunInState(pipelineRunId, 'transcribed', 'selecting')
+  if ('error' in found) return found
+  const { run } = found
 
   // Check transcript exists
   if (!run.transcript?.trim()) {
@@ -54,14 +47,9 @@ export async function saveClipSelections(pipelineRunId: string, clipDefs: ClipDe
   }
 
   // Atomic CAS: transcribed → selecting
-  assertTransition(run.status, 'selecting')
-  const [transitioned] = await db
-    .update(pipelineRuns)
-    .set({ status: 'selecting' })
-    .where(and(eq(pipelineRuns.id, pipelineRunId), eq(pipelineRuns.status, run.status)))
-    .returning({ id: pipelineRuns.id })
-
-  if (!transitioned) return { error: 'CLIP_SELECT_INVALID_STATE' as const }
+  if (!await transitionPipeline(pipelineRunId, run.status, 'selecting')) {
+    return { error: 'PIPELINE_INVALID_STATE' as const }
+  }
 
   // Delete + insert in transaction (prevents orphaned state if insert fails)
   const newClips = await db.transaction(async (tx) => {

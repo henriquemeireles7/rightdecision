@@ -1,7 +1,7 @@
 import { eq, and } from 'drizzle-orm'
 import { db } from '@/platform/db/client'
 import { pipelineRuns, clips, posts, platformAccounts } from '@/platform/db/schema'
-import { assertTransition } from '@/features/(business)/workflow/state-machine'
+import { findRunInState, transitionPipeline } from '@/features/(business)/workflow/transitions'
 import { z } from 'zod'
 
 export const metadataItemSchema = z.object({
@@ -20,25 +20,14 @@ export const metadataInputSchema = z.object({
 })
 
 export async function saveMetadata(pipelineRunId: string, metadataItems: MetadataItem[]) {
-  const run = await db.query.pipelineRuns.findFirst({
-    where: eq(pipelineRuns.id, pipelineRunId),
-  })
-
-  if (!run) return { error: 'NOT_FOUND' as const }
-
-  if (run.status !== 'cut' && run.status !== 'generating_metadata') {
-    return { error: 'CLIP_SELECT_INVALID_STATE' as const }
-  }
+  const found = await findRunInState(pipelineRunId, 'cut', 'generating_metadata')
+  if ('error' in found) return found
+  const { run } = found
 
   // Atomic CAS: cut → generating_metadata
-  assertTransition(run.status, 'generating_metadata')
-  const [transitioned] = await db
-    .update(pipelineRuns)
-    .set({ status: 'generating_metadata' })
-    .where(and(eq(pipelineRuns.id, pipelineRunId), eq(pipelineRuns.status, run.status)))
-    .returning({ id: pipelineRuns.id })
-
-  if (!transitioned) return { error: 'CLIP_SELECT_INVALID_STATE' as const }
+  if (!await transitionPipeline(pipelineRunId, run.status, 'generating_metadata')) {
+    return { error: 'PIPELINE_INVALID_STATE' as const }
+  }
 
   // Validate platform accounts exist and check char limits BEFORE any writes
   const accounts = await db.query.platformAccounts.findMany()
