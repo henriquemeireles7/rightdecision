@@ -1,6 +1,8 @@
 import { Hono } from 'hono'
 import { renderPage } from '@/platform/server/render'
 import { landingRoutes } from '@/features/(life)/landing/routes'
+import { blogRoutes } from './blog-routes'
+import { conceptRoutes } from './concept-routes'
 import { Layout } from './layout'
 
 export const websiteRoutes = new Hono()
@@ -64,39 +66,11 @@ websiteRoutes.get('/about', (c) => {
   )
 })
 
-// ─── Blog (placeholder — replaced by blog bead lyon-3tt.5) ──────────────────
-websiteRoutes.get('/blog', (c) => {
-  return c.html(
-    renderPage(
-      <Layout>
-        <section class="py-3xl">
-          <div class="max-w-[800px] mx-auto px-md">
-            <h1 class="font-display text-4xl text-ink mb-lg">Blog</h1>
-            <p class="text-secondary">Coming soon.</p>
-          </div>
-        </section>
-      </Layout>,
-      { title: 'Blog — The Right Decision' },
-    ),
-  )
-})
+// ─── Blog ────────────────────────────────────────────────────────────────────
+websiteRoutes.route('/blog', blogRoutes)
 
-// ─── Concepts (placeholder — replaced by concepts bead lyon-3tt.6) ──────────
-websiteRoutes.get('/concepts', (c) => {
-  return c.html(
-    renderPage(
-      <Layout>
-        <section class="py-3xl">
-          <div class="max-w-[800px] mx-auto px-md">
-            <h1 class="font-display text-4xl text-ink mb-lg">Concepts</h1>
-            <p class="text-secondary">Coming soon.</p>
-          </div>
-        </section>
-      </Layout>,
-      { title: 'Concepts — The Right Decision' },
-    ),
-  )
-})
+// ─── Concepts ─────────────────────────────────────────────────────────────────
+websiteRoutes.route('/concepts', conceptRoutes)
 
 // ─── Privacy (placeholder — replaced by legal bead lyon-3tt.9) ──────────────
 websiteRoutes.get('/privacy', (c) => {
