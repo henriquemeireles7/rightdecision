@@ -19,7 +19,7 @@ const ACTS = [
       {
         num: 3,
         title: 'Where You Want to Be',
-        desc: 'Define your target state as a specific Tuesday you\'d want to live.',
+        desc: "Define your target state as a specific Tuesday you'd want to live.",
       },
     ],
   },
@@ -77,8 +77,8 @@ export function CurriculumSection() {
           9 modules. 3 acts. 3 months.
         </h2>
         <p class="max-w-[640px] mx-auto mt-4 text-body text-center leading-[1.7]">
-          This is not a course you binge on a Sunday and forget by Wednesday.
-          It's a 3-month system. Two hours a week.
+          This is not a course you binge on a Sunday and forget by Wednesday. It's a 3-month system.
+          Two hours a week.
         </p>
 
         <div class="mt-10 space-y-6">
@@ -90,9 +90,7 @@ export function CurriculumSection() {
             >
               <summary class="p-6 cursor-pointer">
                 <span class="inline-flex items-center gap-3">
-                  <span class="text-gold font-semibold text-sm">
-                    Act {act.num}
-                  </span>
+                  <span class="text-gold font-semibold text-sm">Act {act.num}</span>
                   <span class="font-display text-xl text-ink">{act.title}</span>
                   <span class="text-muted text-sm">({act.months})</span>
                 </span>
@@ -101,9 +99,7 @@ export function CurriculumSection() {
                 <ol class="space-y-3">
                   {act.modules.map((mod) => (
                     <li key={mod.num} class="flex gap-3">
-                      <span class="text-gold font-semibold text-sm mt-0.5">
-                        {mod.num}.
-                      </span>
+                      <span class="text-gold font-semibold text-sm mt-0.5">{mod.num}.</span>
                       <div>
                         <span class="text-ink font-semibold">{mod.title}</span>
                         <span class="text-body"> — {mod.desc}</span>
@@ -117,8 +113,8 @@ export function CurriculumSection() {
         </div>
 
         <p class="mt-8 text-center text-body text-sm max-w-[640px] mx-auto">
-          By the end: 10 documents in your personal decision folder — including
-          your win story. AI skills you can run again for your next decision.
+          By the end: 10 documents in your personal decision folder — including your win story. AI
+          skills you can run again for your next decision.
         </p>
 
         <div class="mt-8 text-center">

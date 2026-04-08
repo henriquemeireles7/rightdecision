@@ -1,8 +1,8 @@
-import { eq, and } from 'drizzle-orm'
-import { db } from '@/platform/db/client'
-import { pipelineRuns, clips } from '@/platform/db/schema'
-import { findRunInState, transitionPipeline } from '@/features/(business)/workflow/transitions'
+import { and, eq } from 'drizzle-orm'
 import { z } from 'zod'
+import { findRunInState, transitionPipeline } from '@/features/(business)/workflow/transitions'
+import { db } from '@/platform/db/client'
+import { clips, pipelineRuns } from '@/platform/db/schema'
 
 export const clipDefinitionSchema = z.object({
   sourceTimestampStart: z.number().int().min(0),
@@ -47,7 +47,7 @@ export async function saveClipSelections(pipelineRunId: string, clipDefs: ClipDe
   }
 
   // Atomic CAS: transcribed → selecting
-  if (!await transitionPipeline(pipelineRunId, run.status, 'selecting')) {
+  if (!(await transitionPipeline(pipelineRunId, run.status, 'selecting'))) {
     return { error: 'PIPELINE_INVALID_STATE' as const }
   }
 

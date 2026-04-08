@@ -1,8 +1,8 @@
-import { eq, and, gte } from 'drizzle-orm'
+import { and, eq, gte } from 'drizzle-orm'
 import { db } from '@/platform/db/client'
-import { posts, postAnalytics } from '@/platform/db/schema'
-import { getMetrics } from '@/providers/social-analytics'
+import { postAnalytics, posts } from '@/platform/db/schema'
 import { ProviderError } from '@/providers/errors'
+import { getMetrics } from '@/providers/social-analytics'
 
 export async function collectAnalytics(postIds?: string[]) {
   // Default: all posted posts from last 7 days
@@ -51,7 +51,10 @@ export async function collectAnalytics(postIds?: string[]) {
 
       collected++
     } catch (error) {
-      if (error instanceof ProviderError && (error.statusCode === 404 || error.statusCode === 410)) {
+      if (
+        error instanceof ProviderError &&
+        (error.statusCode === 404 || error.statusCode === 410)
+      ) {
         // Post deleted from platform
         await db.update(posts).set({ status: 'deleted' }).where(eq(posts.id, post.id))
       }

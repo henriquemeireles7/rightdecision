@@ -21,3 +21,21 @@ import { workflowConfigSchema, type WorkflowConfig } from '@/features/(business)
 ```sh
 bun test features/\(business\)/workflow/
 ```
+
+---
+<!-- AUTO-GENERATED BELOW — do not edit manually -->
+
+## Files
+| File | Exports |
+|------|---------|
+| config.ts | workflowConfigSchema, WorkflowConfig, defaultConfig |
+| preconditions.ts | assertStatus, assertTranscriptExists, assertApprovedClipsExist, assertCutClipsExist, assertScheduledPostsExist, PreconditionError |
+| state-machine.ts | PipelineStatus, assertTransition, getValidTransitions, InvalidTransitionError |
+| transitions.ts | transitionPipeline, findRunInState |
+
+## Internal Dependencies
+- features/(business)
+- platform/db
+- platform/errors
+
+<!-- Generated: 2026-04-08T05:22:13.825Z -->

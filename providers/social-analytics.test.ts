@@ -1,4 +1,4 @@
-import { describe, it, expect, mock, beforeEach, spyOn } from 'bun:test'
+import { beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
 import { ProviderError } from '@/providers/errors'
 
 mock.module('@/platform/env', () => ({
@@ -15,7 +15,15 @@ describe('providers/social-analytics', () => {
   })
 
   it('returns metrics on success', async () => {
-    const metrics = { views: 1000, likes: 50, comments: 10, shares: 5, saves: 3, impressions: 1500, reach: 1200 }
+    const metrics = {
+      views: 1000,
+      likes: 50,
+      comments: 10,
+      shares: 5,
+      saves: 3,
+      impressions: 1500,
+      reach: 1200,
+    }
     mockFetch.mockResolvedValueOnce(new Response(JSON.stringify(metrics), { status: 200 }))
 
     const result = await getMetrics('post-123')

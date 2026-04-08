@@ -21,15 +21,13 @@ export function HeroSection({ variant = 'a' }: HeroProps) {
           {HEADLINES[variant]}
         </h1>
         <p class="max-w-[640px] mx-auto mt-6 text-lg text-body leading-relaxed">
-          A methodology + AI that turns stuck goals into clear decisions and
-          daily actions. Not therapy. Not motivation. Just clarity.
+          A methodology + AI that turns stuck goals into clear decisions and daily actions. Not
+          therapy. Not motivation. Just clarity.
         </p>
         <div class="mt-8">
           <CTAButton className="w-full md:w-auto" />
         </div>
-        <p class="mt-4 text-sm text-muted">
-          7-day money-back guarantee. Cancel anytime.
-        </p>
+        <p class="mt-4 text-sm text-muted">7-day money-back guarantee. Cancel anytime.</p>
       </div>
     </section>
   )

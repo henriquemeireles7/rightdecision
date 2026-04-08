@@ -1,4 +1,4 @@
-import { describe, it, expect, mock, beforeEach, spyOn } from 'bun:test'
+import { beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
 import { ProviderError } from '@/providers/errors'
 
 mock.module('@/platform/env', () => ({
@@ -19,7 +19,12 @@ describe('providers/social-posting', () => {
       mockFetch.mockResolvedValueOnce(
         new Response(JSON.stringify({ id: 'post-123', status: 'queued' }), { status: 200 }),
       )
-      const result = await post('https://r2.example.com/clip.mp4', 'Great clip!', ['#ai'], 'profile-1')
+      const result = await post(
+        'https://r2.example.com/clip.mp4',
+        'Great clip!',
+        ['#ai'],
+        'profile-1',
+      )
       expect(result.id).toBe('post-123')
       expect(mockFetch).toHaveBeenCalledTimes(1)
     })
@@ -37,7 +42,8 @@ describe('providers/social-posting', () => {
 
     it('throws ProviderError on 429 after retries exhausted', async () => {
       // Provider retries 3 times, so mock 4 responses (initial + 3 retries)
-      for (let i = 0; i < 4; i++) mockFetch.mockResolvedValueOnce(new Response('Rate limited', { status: 429 }))
+      for (let i = 0; i < 4; i++)
+        mockFetch.mockResolvedValueOnce(new Response('Rate limited', { status: 429 }))
       try {
         await post('url', 'desc', [], 'p1')
         expect(true).toBe(false)
@@ -48,7 +54,8 @@ describe('providers/social-posting', () => {
     })
 
     it('throws ProviderError on 503 after retries exhausted', async () => {
-      for (let i = 0; i < 4; i++) mockFetch.mockResolvedValueOnce(new Response('Service down', { status: 503 }))
+      for (let i = 0; i < 4; i++)
+        mockFetch.mockResolvedValueOnce(new Response('Service down', { status: 503 }))
       try {
         await post('url', 'desc', [], 'p1')
         expect(true).toBe(false)
@@ -72,7 +79,9 @@ describe('providers/social-posting', () => {
   describe('listProfiles', () => {
     it('returns list of profiles', async () => {
       mockFetch.mockResolvedValueOnce(
-        new Response(JSON.stringify([{ id: 'p1', platform: 'tiktok', handle: '@test' }]), { status: 200 }),
+        new Response(JSON.stringify([{ id: 'p1', platform: 'tiktok', handle: '@test' }]), {
+          status: 200,
+        }),
       )
       const profiles = await listProfiles()
       expect(profiles).toHaveLength(1)

@@ -72,4 +72,30 @@ describe('renderPage', () => {
     expect(html).toContain('og:image')
     expect(html).toContain('https://example.com/img.png')
   })
+
+  test('includes PostHog script when posthogKey is provided', () => {
+    const html = renderPage(<div />, { posthogKey: 'phc_test123', posthogHost: 'https://us.i.posthog.com' })
+    expect(html).toContain('posthog.init')
+    expect(html).toContain('phc_test123')
+    expect(html).toContain('us-assets.i.posthog.com/static/array.js')
+    expect(html).toContain('autocapture')
+    expect(html).toContain('session_recording')
+  })
+
+  test('omits PostHog script when posthogKey is not provided', () => {
+    const html = renderPage(<div />)
+    expect(html).not.toContain('posthog.init')
+  })
+
+  test('escapes XSS in PostHog key', () => {
+    const html = renderPage(<div />, { posthogKey: '<script>alert("xss")</script>' })
+    expect(html).not.toContain('<script>alert')
+    expect(html).toContain('\\u003cscript\\u003e')
+  })
+
+  test('escapes backslash in PostHog key (JS context)', () => {
+    const html = renderPage(<div />, { posthogKey: "test\\'" })
+    expect(html).not.toContain("test\\'")
+    expect(html).toContain("test\\\\'")
+  })
 })

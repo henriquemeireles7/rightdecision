@@ -26,5 +26,8 @@ coverage/
 # Compiled CSS (generated from styles/global.css)
 public/styles.css
 
+# Agent mail (local MCP coordination, not project code)
+mcp_agent_mail
+
 # ML models (large binaries)
 models/

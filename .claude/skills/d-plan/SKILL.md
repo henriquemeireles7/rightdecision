@@ -36,3 +36,14 @@ When input.md contains information that contradicts earlier documents (previous 
 - After saving, list any earlier documents that may need updating based on new decisions
 - Suggest: "Run /d-tasks to extract implementable tasks" (only if the document contains buildable work)
 - After saving, auto-commit and push all changed files. These are non-code docs — they can't break anything.
+
+## Step 10: Universal File Sync (after saving document)
+After writing and saving the document, automatically sync universal reference files:
+1. Read all 10 universal reference files in `decisions/` (company.md, roadmap.md, voice.md, architecture.md, coding.md, design.md, deploy.md, harness.md, lifedecisions.md, businessdecisions.md)
+2. Compare each file's content against decisions made in the new document
+3. For each file where the new document introduces new information, decisions, or changes that make the reference file stale:
+   - Update the stale references to match the new document
+   - Bump the `> Last verified: YYYY-MM-DD` date to today
+4. If a reference file is read and confirmed accurate (no changes needed), still bump its `Last verified` date
+5. Include all updated reference files in the same commit as the document
+6. Report: "Updated X universal files: [list]. Y files confirmed current."

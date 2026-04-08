@@ -25,9 +25,7 @@ describe('env sync', () => {
 
     // Keys with .default() or .optional() don't need to be in .env.example
     const requiredKeys = new Set<string>()
-    for (const match of envTsContent.matchAll(
-      /^\s+(\w+):\s*z\..*$/gm,
-    )) {
+    for (const match of envTsContent.matchAll(/^\s+(\w+):\s*z\..*$/gm)) {
       const key = match[1]
       const line = match[0]
       if (!line.includes('.optional()') && !line.includes('.default(')) {

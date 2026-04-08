@@ -18,8 +18,7 @@ export function FinalCTASection() {
           <CTAButton className="w-full md:w-auto" />
         </div>
         <p class="mt-4 text-sm text-muted">
-          7-day money-back guarantee. Cancel anytime. Your first decision
-          happens in Week 1.
+          7-day money-back guarantee. Cancel anytime. Your first decision happens in Week 1.
         </p>
       </div>
     </section>

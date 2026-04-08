@@ -1,11 +1,15 @@
-import { describe, it, expect, mock, beforeEach } from 'bun:test'
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
 
 mock.module('@/platform/env', () => ({ env: { DATABASE_URL: 'postgres://test' } }))
 
 const mockFindFirstRun = mock(() => Promise.resolve(null))
 const mockFindManyAccounts = mock(() => Promise.resolve([]))
 const mockFindFirstPost = mock(() => Promise.resolve(null))
-const mockInsertPost = mock(() => Promise.resolve([{ id: 'post-1', clipId: 'clip-1', platformAccountId: 'acc-1', status: 'scheduled' }]))
+const mockInsertPost = mock(() =>
+  Promise.resolve([
+    { id: 'post-1', clipId: 'clip-1', platformAccountId: 'acc-1', status: 'scheduled' },
+  ]),
+)
 
 const mockTx = {
   query: { posts: { findFirst: () => mockFindFirstPost() } },
@@ -26,7 +30,8 @@ mock.module('@/platform/db/client', () => ({
   },
 }))
 
-import { mockSchema, casResult, mockTransaction } from '@/features/(business)/test-helpers'
+import { casResult, mockSchema, mockTransaction } from '@/features/(business)/test-helpers'
+
 mock.module('@/platform/db/schema', () => mockSchema())
 
 // Don't mock state-machine — it's pure logic, no external deps
@@ -34,7 +39,12 @@ mock.module('@/platform/db/schema', () => mockSchema())
 const { saveMetadata } = await import('./service')
 
 const validMetadata = [
-  { clipId: 'clip-1', platformAccountId: 'acc-1', description: 'Great clip about AI!', hashtags: ['#ai'] },
+  {
+    clipId: 'clip-1',
+    platformAccountId: 'acc-1',
+    description: 'Great clip about AI!',
+    hashtags: ['#ai'],
+  },
 ]
 
 describe('features/(business)/metadata-generate/service', () => {
@@ -47,7 +57,9 @@ describe('features/(business)/metadata-generate/service', () => {
       { id: 'acc-1', platform: 'tiktok', charLimit: 300, hashtagLimit: 5 },
     ] as never)
     mockFindFirstPost.mockResolvedValue(null as never)
-    mockInsertPost.mockResolvedValue([{ id: 'post-1', clipId: 'clip-1', platformAccountId: 'acc-1', status: 'scheduled' }] as never)
+    mockInsertPost.mockResolvedValue([
+      { id: 'post-1', clipId: 'clip-1', platformAccountId: 'acc-1', status: 'scheduled' },
+    ] as never)
   })
 
   it('saves metadata for cut run', async () => {
@@ -81,7 +93,13 @@ describe('features/(business)/metadata-generate/service', () => {
     mockFindManyAccounts.mockResolvedValueOnce([
       { id: 'acc-1', platform: 'tiktok', charLimit: 10, hashtagLimit: 5 },
     ] as never)
-    const longMeta = [{ clipId: 'clip-1', platformAccountId: 'acc-1', description: 'This description is way too long for the limit' }]
+    const longMeta = [
+      {
+        clipId: 'clip-1',
+        platformAccountId: 'acc-1',
+        description: 'This description is way too long for the limit',
+      },
+    ]
     const result = await saveMetadata('run-1', longMeta)
     expect(result).toEqual({ error: 'METADATA_CHAR_LIMIT_EXCEEDED' })
   })

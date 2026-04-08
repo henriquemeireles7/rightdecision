@@ -1,5 +1,5 @@
-import { renderToString } from 'preact-render-to-string'
 import type { VNode } from 'preact'
+import { renderToString } from 'preact-render-to-string'
 
 interface PageOptions {
   title?: string
@@ -7,10 +7,18 @@ interface PageOptions {
   ogImage?: string
   ogTitle?: string
   canonical?: string
+  posthogKey?: string
+  posthogHost?: string
 }
 
 const esc = (s: string) =>
   s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;').replace(/</g, '&lt;')
+
+const escJs = (s: string) =>
+  JSON.stringify(s)
+    .slice(1, -1)
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
 
 export function renderPage(component: VNode, options: PageOptions = {}): string {
   const html = renderToString(component)
@@ -39,6 +47,38 @@ export function renderPage(component: VNode, options: PageOptions = {}): string 
   <main id="main-content">
     ${html}
   </main>
+  ${
+    options.posthogKey
+      ? `<script>
+    window.addEventListener('load', function() {
+      var s = document.createElement('script');
+      s.src = 'https://us-assets.i.posthog.com/static/array.js';
+      s.onload = function() {
+        posthog.init('${escJs(options.posthogKey)}', {
+          api_host: '${escJs(options.posthogHost || 'https://us.i.posthog.com')}',
+          autocapture: true,
+          capture_pageview: true,
+          capture_pageleave: true,
+          session_recording: { maskAllInputs: true, maskTextSelector: '[data-ph-mask]' }
+        });
+        window.onerror = function(msg, src, line, col, err) {
+          posthog.capture('client_error_occurred', {
+            message: String(msg), source: src, line: line, column: col,
+            stack: err && err.stack, path: location.pathname
+          });
+        };
+        window.onunhandledrejection = function(e) {
+          posthog.capture('client_error_occurred', {
+            message: e.reason && e.reason.message || String(e.reason),
+            stack: e.reason && e.reason.stack, path: location.pathname
+          });
+        };
+      };
+      document.head.appendChild(s);
+    });
+  </script>`
+      : ''
+  }
 </body>
 </html>`
 }

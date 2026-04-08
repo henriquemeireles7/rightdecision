@@ -4,10 +4,7 @@ import { courseProgress } from '@/platform/db/schema'
 import { getAllModules, getModule } from '@/providers/content'
 
 export async function markClassComplete(userId: string, classId: string, courseId: string) {
-  await db
-    .insert(courseProgress)
-    .values({ userId, classId, courseId })
-    .onConflictDoNothing()
+  await db.insert(courseProgress).values({ userId, classId, courseId }).onConflictDoNothing()
 }
 
 export async function getUserProgress(userId: string) {
@@ -63,10 +60,7 @@ export async function getOverallProgress(userId: string) {
   }
 }
 
-export function getCurrentClass(
-  completedClassIds: string[],
-  moduleNum: number,
-): string | null {
+export function getCurrentClass(completedClassIds: string[], moduleNum: number): string | null {
   const mod = getModule(moduleNum)
   if (!mod) return null
 

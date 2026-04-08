@@ -7,9 +7,7 @@ export function PaywallScreen({ throughlineNamed, checkoutUrl }: PaywallProps) {
   return (
     <div class="min-h-screen bg-stone-50 flex items-center justify-center px-6">
       <div class="max-w-lg text-center">
-        <h1 class="text-3xl font-serif mb-4 text-neutral-900">
-          You've named your decision.
-        </h1>
+        <h1 class="text-3xl font-serif mb-4 text-neutral-900">You've named your decision.</h1>
         <p class="text-lg text-neutral-600 mb-8">Now let's make it happen.</p>
 
         {throughlineNamed && (

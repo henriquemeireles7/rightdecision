@@ -24,11 +24,15 @@ export const env = createEnv({
     WHISPER_MODEL_PATH: z.string().default('models/ggml-large-v3.bin'),
     // ─── BD Pipeline: Configuration ───
     PIPELINE_AUTO_APPROVE: z.coerce.boolean().default(true),
+    // ─── PostHog: Server-side analytics ───
+    POSTHOG_API_KEY: z.string().min(1).optional(),
+    POSTHOG_HOST: z.string().url().default('https://us.i.posthog.com'),
   },
   clientPrefix: 'PUBLIC_',
   client: {
     PUBLIC_APP_URL: z.string().url(),
     PUBLIC_STRIPE_KEY: z.string().startsWith('pk_'),
+    PUBLIC_POSTHOG_KEY: z.string().min(1).optional(),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,
