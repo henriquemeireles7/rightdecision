@@ -3,7 +3,12 @@
   "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "linter": {
     "enabled": true,
-    "rules": { "recommended": true }
+    "rules": {
+      "recommended": true,
+      "style": {
+        "noNonNullAssertion": "off"
+      }
+    }
   },
   "formatter": {
     "enabled": true,
@@ -33,7 +38,8 @@
       "!**/bun.lock",
       "!.claude/skills/gstack",
       "!.beads/.br_history",
-      "!mcp_agent_mail"
+      "!mcp_agent_mail",
+      "!public/styles.css"
     ]
   }
 }

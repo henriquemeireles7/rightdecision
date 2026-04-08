@@ -48,7 +48,7 @@ function scanContent(): ContentInfo[] {
           (frontmatter.updated as string) ??
           (frontmatter.date as string) ??
           statSync(filePath).mtime.toISOString().split('T')[0]
-        const lastUpdated = new Date(dateStr!.includes('T') ? dateStr! : `${dateStr}T12:00:00Z`)
+        const lastUpdated = new Date(dateStr?.includes('T') ? dateStr! : `${dateStr}T12:00:00Z`)
         const daysOld = Math.floor((now - lastUpdated.getTime()) / (1000 * 60 * 60 * 24))
 
         results.push({
@@ -149,9 +149,7 @@ async function main() {
           .sort((a, b) => b.clicks - a.clicks)
           .slice(0, 5)
           .forEach((r) => {
-            console.log(
-              `     - "${r.keys[0]}" — ${r.clicks} clicks, pos ${r.position.toFixed(1)}`,
-            )
+            console.log(`     - "${r.keys[0]}" — ${r.clicks} clicks, pos ${r.position.toFixed(1)}`)
           })
       } else {
         console.log('   No search data available yet.')
