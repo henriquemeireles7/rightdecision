@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.4.1] - 2026-04-08
+
+### Fixed
+- Railway deploy: renamed auth routes file from `.ts` to `.tsx` so Bun's bundler recognizes JSX syntax during production build
+
 ## [0.1.4.0] - 2026-04-08
 
 ### Added
