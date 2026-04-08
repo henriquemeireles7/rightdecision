@@ -644,13 +644,19 @@ const isEnabled = await posthog.isFeatureEnabled('new_onboarding', userId)
 | Configure session replay | 1h | P1 |
 | Create initial feature flags | 1h | P2 |
 
-### Phase 3: CI/CD Hardening (Week 3)
+### Phase 3: CI/CD Hardening + Multi-Agent Setup (Week 3)
 
 | Task | Effort | Priority |
 |------|--------|----------|
+| Enable GitHub branch protection on master (require CI pass) | 30m | **P0** |
 | Add `preDeployCommand = "bun run db:migrate"` to railway.toml | 15m | P0 |
 | Add security scan (`bun audit`) to CI | 30m | P1 |
 | Set up post-deploy canary check | 2h | P1 |
+| Document multi-agent coordination protocol in CLAUDE.md | 1h | P1 |
+| Add Agent Mail session-start/end protocol to harness hooks | 2h | P1 |
+| Add DRY reuse checklist to d-tasks bead template | 1h | P1 |
+| Add universal file sync step to d-plan and /ship skills | 2h | P1 |
+| Wire CASS memory checks into d-code skill (before/after work) | 1h | P2 |
 | Document rollback procedure | 30m | P2 |
 
 ### Phase 4: Scheduled Automation (Week 3-4)
@@ -677,10 +683,10 @@ const isEnabled = await posthog.isFeatureEnabled('new_onboarding', userId)
 ### Total Estimated Effort
 - **Phase 1 (Testing):** ~19h of agent time
 - **Phase 2 (Monitoring):** ~14h of agent time
-- **Phase 3 (CI/CD):** ~3.5h of agent time
+- **Phase 3 (CI/CD + Multi-Agent + DRY + Sync):** ~11h of agent time
 - **Phase 4 (Scheduling):** ~8h of agent time
 - **Phase 5 (Autonomous):** ~16h of agent time
-- **Total:** ~60h of agent time over 4 weeks
+- **Total:** ~68h of agent time over 4 weeks
 
 ---
 
@@ -696,8 +702,209 @@ const isEnabled = await posthog.isFeatureEnabled('new_onboarding', userId)
 | PostHog events tracked | 0 | 15 event types | 25+ event types |
 | PRs auto-merged by agents | 0 | 5/week (small fixes) | 15/week |
 | Manual QA time per week | All manual | 30 min review | 5 min review |
+| Multi-agent merge conflicts | Frequent | 0 (branch protection) | 0 |
+| Universal files staleness | Unknown | <7 days avg | <3 days avg |
+| DRY violations per /simplify | Several | <3 per run | 0 |
+| CASS memory utilization | 0% | 50% of sessions | 90% of sessions |
 
 **The north star:** In 12 weeks, the founder spends 5 minutes per day reviewing agent work. Everything else runs autonomously — tests catch regressions, monitoring catches production issues, agents fix small bugs and improve DX, and everything that needs human judgment gets a PR with evidence.
+
+---
+
+## 11. Multi-Agent Coordination Protocol
+
+### The Problem We Hit
+Branch confusion, stale local master, merge conflicts from parallel work, branch deletion races. Root cause: multiple Conductor agents assuming they own the repo with no coordination protocol.
+
+### Principle: CI/CD Is the Coordination Layer
+
+Agents don't need to talk to each other if the pipeline enforces correctness. Each agent pushes to its own branch, CI validates, PRs gate the merge.
+
+### 11a. Branch Ownership
+
+- **One branch per Conductor workspace. One workspace per branch. Never share.**
+- Branch name = workspace purpose (e.g., `feat/health-endpoint`, `fix/checkout-redirect`)
+- No agent should ever switch branches mid-session. If work needs to move, create a new workspace.
+- Use worktree isolation (`isolation: "worktree"`) for code changes. Shared worktree only for read-only research/planning.
+
+### 11b. Defensive Git Habits (Every Agent Session)
+
+**At session start:**
+```bash
+git fetch origin master
+git log origin/master..HEAD --oneline  # what's mine
+git diff origin/master HEAD --stat     # what's actually different
+```
+
+**Before any commit:**
+```bash
+git fetch origin master
+git merge origin/master --no-edit  # stay current
+```
+
+**Before push:** run `bun run check`.
+
+**Rule:** Commit after each logical unit (new file, new function, config change). Push after each commit. Small, pushed commits merge cleanly. Big unpushed diffs create merge hell.
+
+### 11c. Agent Mail File Reservations
+
+At session start, each agent:
+1. Registers identity with Agent Mail
+2. Checks inbox for messages from other agents
+3. Reserves files it plans to edit (advisory lock)
+4. Checks reservations before editing shared files
+
+At session end:
+1. Releases all file reservations
+2. Announces completed beads
+3. Posts summary of changes made
+
+### 11d. CASS Memory (Prevent Duplicate Work)
+
+Before starting non-trivial work:
+```bash
+cass search "topic" --robot --limit 5  # check if this was already solved
+cm context "task description" --json    # get relevant patterns from past sessions
+```
+
+After completing work:
+```bash
+cm outcome success <bead-id> --summary "what was done"  # teach future agents
+```
+
+After a failure:
+```bash
+cm outcome failure <bead-id> --summary "what went wrong"  # learn from mistakes
+```
+
+**Key rule:** CASS memories have 90-day half-life. Recent patterns weighted higher. This prevents stale advice.
+
+### 11e. GitHub Branch Protection (The Real Safety Net)
+
+**Setup (one-time, 30 minutes):**
+- Enable branch protection on `master`
+- Require CI to pass before merge (biome + tsc + harden-check + bun test)
+- Require at least 1 review (can be the agent's own `/review`)
+- No force-push to master
+- No branch deletion without merge
+
+**This single change would have caught every multi-agent issue we hit.**
+
+### 11f. Branch Deletion Rule
+
+Current: `/ship` merges PR and deletes branch immediately.
+Better: Keep branch alive for 1 hour after merge. Let other workspaces detect the merge and rebase.
+
+Each agent checks `git fetch && git log origin/master..HEAD` before doing anything destructive. If master moved, rebase first.
+
+---
+
+## 12. DRY Enforcement & Code Quality in Planning
+
+### The Problem
+`/simplify` found several DRY violations across the codebase. These should be caught during planning, not after implementation.
+
+### 12a. DRY Check in Planning Phase (d-tasks)
+
+When `/d-tasks` creates beads from a document, each bead must include:
+
+**Reuse scan requirement:**
+```
+Before implementing, search for:
+- Existing helpers that do similar work (rg "functionName" or cass search)
+- Patterns already established in platform/ or providers/
+- Zod schemas that could be extended rather than duplicated
+- Error codes that already exist in platform/errors.ts
+```
+
+**Add to d-tasks bead template:**
+```
+## Reuse Checklist
+- [ ] Searched for existing helpers that overlap with this task
+- [ ] Checked platform/errors.ts for applicable error codes
+- [ ] Checked providers/ for existing integration patterns
+- [ ] No new utility created if existing one can be extended
+```
+
+### 12b. DRY Check in Coding Phase (d-code)
+
+After implementing each bead, before closing:
+
+1. **Self-review for duplication:** Reread new code. Is any pattern repeated 3+ times? Extract helper.
+2. **Cross-file check:** Does a similar function exist elsewhere? `rg "similar pattern"` before creating new ones.
+3. **The `/simplify` gate:** Run `/simplify` on changed files before closing the bead.
+
+### 12c. DRY Check in Review Phase (d-review, /review)
+
+Add to review checklist:
+- Flag any function that duplicates existing platform/ or provider/ utilities
+- Flag any Zod schema that could reuse existing schema via `.extend()` or `.pick()`
+- Flag any error handling that should use `throwError()` with existing codes
+- Suggest extraction when 3+ similar code blocks exist
+
+### 12d. Helper Creation Rules (from coding.md)
+
+- **No abstraction until the 3rd duplication** — don't premature-abstract
+- When creating a helper: put it in the nearest shared ancestor folder
+- Platform helpers go in `platform/`
+- Feature-specific helpers stay in `features/{feature}/`
+- Provider patterns go in `providers/`
+- Name helpers by what they do, not where they're used
+
+---
+
+## 13. Universal File Sync Workflow
+
+### The Problem
+We make decisions in strategy docs and code, but forget to update the universal reference files in `decisions/`. They go stale. Agents reading stale files make wrong assumptions.
+
+### 13a. When to Update Universal Files
+
+| Trigger | Files to Check |
+|---------|---------------|
+| New strategy doc written (d-plan) | company.md, roadmap.md, relevant product ref |
+| Feature shipped (/ship) | coding.md, architecture.md, deploy.md |
+| Infra change (deploy, CI, env) | deploy.md, harness.md |
+| Design change | design.md |
+| New hook or skill added | harness.md |
+| Product scope change | lifedecisions.md, businessdecisions.md |
+| Hardening audit | hardening.md |
+
+### 13b. Automatic Sync in Document Pipeline
+
+**Add to d-plan (Phase 3 — write):**
+After writing the document, the skill must:
+1. Read all 10 universal reference files
+2. Identify any references that are now stale given the new document
+3. List specific updates needed
+4. Apply updates to universal files
+5. Include updated files in the commit
+
+**Add to /ship workflow:**
+After creating the PR, the skill must:
+1. Check if the diff touches areas covered by universal files
+2. If yes: read the relevant universal file, check for staleness
+3. If stale: update the file and include in the PR
+
+### 13c. Weekly Documentation Sync Agent (from Section 6)
+
+Expanded scope for Loop 3 (Documentation Sync Agent):
+```
+1. Scan git log for merged PRs since last run
+2. For each PR: identify which universal files SHOULD have been updated
+3. Read each universal file, check "Last verified" date
+4. Compare file content against current code reality
+5. Update stale references, bump "Last verified" date
+6. Auto-merge (docs only, no code changes)
+7. Post summary: "Updated X files, Y references were stale"
+```
+
+### 13d. "Last Verified" Discipline
+
+Every universal file has a `> Last verified: YYYY-MM-DD` header. Rules:
+- Updated whenever the file is read AND confirmed accurate by an agent
+- If >7 days old: agent should verify before trusting
+- If >14 days old: flag as potentially stale in any report
 
 ---
 
