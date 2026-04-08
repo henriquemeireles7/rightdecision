@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
-import * as net from 'net'
-import * as path from 'path'
+import * as net from 'node:net'
+import * as path from 'node:path'
 
 const polyfillPath = path.resolve(import.meta.dir, '../src/bun-polyfill.cjs')
 

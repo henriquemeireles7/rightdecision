@@ -10,8 +10,8 @@
 
 'use strict'
 
-const http = require('http')
-const { spawnSync, spawn } = require('child_process')
+const http = require('node:http')
+const { spawnSync, spawn } = require('node:child_process')
 
 globalThis.Bun = {
   serve(options) {

@@ -3,8 +3,8 @@
  */
 
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
-import * as fs from 'fs'
-import * as path from 'path'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 import { generateGalleryHtml } from '../src/gallery'
 
 let tmpDir: string
@@ -18,7 +18,7 @@ function createTestPng(filePath: string): void {
 }
 
 beforeAll(() => {
-  tmpDir = '/tmp/gallery-test-' + Date.now()
+  tmpDir = `/tmp/gallery-test-${Date.now()}`
   fs.mkdirSync(tmpDir, { recursive: true })
 })
 

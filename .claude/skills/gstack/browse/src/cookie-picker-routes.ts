@@ -20,7 +20,6 @@ import {
   importCookies,
   listDomains,
   listProfiles,
-  type PlaywrightCookie,
 } from './cookie-import-browser'
 import { getCookiePickerHTML } from './cookie-picker-ui'
 

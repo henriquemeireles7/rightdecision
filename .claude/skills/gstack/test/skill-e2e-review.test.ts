@@ -1,21 +1,16 @@
-import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
-import { spawnSync } from 'child_process'
-import * as fs from 'fs'
-import * as os from 'os'
-import * as path from 'path'
+import { afterAll, beforeAll, expect } from 'bun:test'
+import { spawnSync } from 'node:child_process'
+import * as fs from 'node:fs'
+import * as os from 'node:os'
+import * as path from 'node:path'
 import {
-  browseBin,
-  copyDirSync,
   createEvalCollector,
   describeIfSelected,
-  evalsEnabled,
   finalizeEvalCollector,
   logCost,
   ROOT,
   recordE2E,
   runId,
-  selectedTests,
-  setupBrowseShims,
   testConcurrentIfSelected,
 } from './helpers/e2e-helpers'
 import { runSkillTest } from './helpers/session-runner'
@@ -424,7 +419,7 @@ Write your findings to ${dir}/review-output.md`,
 
         // Verify the review used "base branch" language (from Step 0)
         const toolOutputs = result.toolCalls.map((tc) => tc.output || '').join('\n')
-        const allOutput = (result.output || '') + toolOutputs
+        const _allOutput = (result.output || '') + toolOutputs
         // The agent should have run git diff against main (the fallback)
         const usedGitDiff = result.toolCalls.some((tc) => {
           if (tc.tool !== 'Bash') return false

@@ -8,10 +8,10 @@
  * Comparison functions are exported for reuse by the eval:compare CLI.
  */
 
-import { spawnSync } from 'child_process'
-import * as fs from 'fs'
-import * as os from 'os'
-import * as path from 'path'
+import { spawnSync } from 'node:child_process'
+import * as fs from 'node:fs'
+import * as os from 'node:os'
+import * as path from 'node:path'
 
 const SCHEMA_VERSION = 1
 const LEGACY_EVAL_DIR = path.join(os.homedir(), '.gstack-dev', 'evals')
@@ -37,7 +37,7 @@ export function getProjectEvalDir(): string {
     const output = localSlug.stdout?.toString().trim()
     if (output) {
       const slugMatch = output.match(/^SLUG=(.+)$/m)
-      if (slugMatch && slugMatch[1]) {
+      if (slugMatch?.[1]) {
         const dir = path.join(os.homedir(), '.gstack', 'projects', slugMatch[1], 'evals')
         fs.mkdirSync(dir, { recursive: true })
         return dir
@@ -398,7 +398,7 @@ export function formatComparison(c: ComparisonResult): string {
       detail = ` $${costBefore}→$${costAfter}`
     }
 
-    const name = d.name.length > 30 ? d.name.slice(0, 27) + '...' : d.name.padEnd(30)
+    const name = d.name.length > 30 ? `${d.name.slice(0, 27)}...` : d.name.padEnd(30)
     lines.push(
       `  ${name}  ${beforeStatus.padEnd(5)} → ${afterStatus.padEnd(5)}  ${arrow}${detail}${turnsDelta}${durDelta}`,
     )
@@ -682,8 +682,8 @@ export class EvalCollector {
 
       fs.mkdirSync(this.evalDir, { recursive: true })
       const partialPath = path.join(this.evalDir, '_partial-e2e.json')
-      const tmp = partialPath + '.tmp'
-      fs.writeFileSync(tmp, JSON.stringify(partial, null, 2) + '\n')
+      const tmp = `${partialPath}.tmp`
+      fs.writeFileSync(tmp, `${JSON.stringify(partial, null, 2)}\n`)
       fs.renameSync(tmp, partialPath)
     } catch {
       /* non-fatal — partial saves are best-effort */
@@ -724,7 +724,7 @@ export class EvalCollector {
     const safeBranch = git.branch.replace(/[^a-zA-Z0-9._-]/g, '-')
     const filename = `${version}-${safeBranch}-${this.tier}-${dateStr}.json`
     const filepath = path.join(this.evalDir, filename)
-    fs.writeFileSync(filepath, JSON.stringify(result, null, 2) + '\n')
+    fs.writeFileSync(filepath, `${JSON.stringify(result, null, 2)}\n`)
 
     // Print summary table
     this.printSummary(result, filepath, git)
@@ -735,7 +735,7 @@ export class EvalCollector {
       if (prevFile) {
         const prevResult: EvalResult = JSON.parse(fs.readFileSync(prevFile, 'utf-8'))
         const comparison = compareEvalResults(prevResult, result, prevFile, filepath)
-        process.stderr.write(formatComparison(comparison) + '\n')
+        process.stderr.write(`${formatComparison(comparison)}\n`)
       } else {
         process.stderr.write('\nFirst run — no comparison available.\n')
       }
@@ -772,7 +772,7 @@ export class EvalCollector {
         detail = scores
       }
 
-      const name = t.name.length > 35 ? t.name.slice(0, 32) + '...' : t.name.padEnd(35)
+      const name = t.name.length > 35 ? `${t.name.slice(0, 32)}...` : t.name.padEnd(35)
       lines.push(
         `  ${name}  ${status}  ${cost.padStart(6)}  ${turns.padStart(4)}  ${dur.padStart(5)}  ${detail}`,
       )
@@ -786,6 +786,6 @@ export class EvalCollector {
     )
     lines.push(`Saved: ${filepath}`)
 
-    process.stderr.write(lines.join('\n') + '\n')
+    process.stderr.write(`${lines.join('\n')}\n`)
   }
 }

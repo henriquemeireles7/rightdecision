@@ -8,9 +8,9 @@
  * Used by: ship-coverage-audit E2E, review-coverage-audit E2E
  */
 
-import { spawnSync } from 'child_process'
-import * as fs from 'fs'
-import * as path from 'path'
+import { spawnSync } from 'node:child_process'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 
 export function createCoverageAuditFixture(dir: string): void {
   // Create a Node.js project WITH test framework but coverage gaps

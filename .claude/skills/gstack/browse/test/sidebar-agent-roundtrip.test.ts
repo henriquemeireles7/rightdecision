@@ -6,10 +6,10 @@
  */
 
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
+import * as fs from 'node:fs'
+import * as os from 'node:os'
+import * as path from 'node:path'
 import { type Subprocess, spawn } from 'bun'
-import * as fs from 'fs'
-import * as os from 'os'
-import * as path from 'path'
 
 let serverProc: Subprocess | null = null
 let agentProc: Subprocess | null = null
@@ -25,8 +25,8 @@ async function api(pathname: string, opts: RequestInit = {}): Promise<Response> 
     'Content-Type': 'application/json',
     ...((opts.headers as Record<string, string>) || {}),
   }
-  if (!headers['Authorization'] && authToken) {
-    headers['Authorization'] = `Bearer ${authToken}`
+  if (!headers.Authorization && authToken) {
+    headers.Authorization = `Bearer ${authToken}`
   }
   return fetch(`http://127.0.0.1:${serverPort}${pathname}`, { ...opts, headers })
 }
@@ -192,7 +192,7 @@ exit 1
     })
 
     // Wait for agent_done (sidebar-agent sends agent_done even on crash via proc.on('close'))
-    const entries = await pollChatUntil(
+    const _entries = await pollChatUntil(
       (entries) => entries.some((e: any) => e.type === 'agent_done' || e.type === 'agent_error'),
       15000,
     )

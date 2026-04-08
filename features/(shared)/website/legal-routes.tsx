@@ -8,7 +8,7 @@ const LEGAL_DIR = join(import.meta.dir, '../../../content/legal')
 
 export const legalRoutes = new Hono()
 
-function LegalPage({ title, date, html }: { title: string; date: string; html: string }) {
+function LegalPage({ html }: { html: string }) {
   return (
     <Layout>
       <article class="py-2xl">
@@ -25,17 +25,10 @@ legalRoutes.get('/privacy', async (c) => {
   if (!page) return c.notFound()
 
   return c.html(
-    renderPage(
-      <LegalPage
-        title={page.frontmatter.title as string}
-        date={page.frontmatter.date as string}
-        html={page.html}
-      />,
-      {
-        title: `${page.frontmatter.title as string} — The Right Decision`,
-        description: page.frontmatter.description as string,
-      },
-    ),
+    renderPage(<LegalPage html={page.html} />, {
+      title: `${page.frontmatter.title as string} — The Right Decision`,
+      description: page.frontmatter.description as string,
+    }),
   )
 })
 
@@ -44,16 +37,9 @@ legalRoutes.get('/terms', async (c) => {
   if (!page) return c.notFound()
 
   return c.html(
-    renderPage(
-      <LegalPage
-        title={page.frontmatter.title as string}
-        date={page.frontmatter.date as string}
-        html={page.html}
-      />,
-      {
-        title: `${page.frontmatter.title as string} — The Right Decision`,
-        description: page.frontmatter.description as string,
-      },
-    ),
+    renderPage(<LegalPage html={page.html} />, {
+      title: `${page.frontmatter.title as string} — The Right Decision`,
+      description: page.frontmatter.description as string,
+    }),
   )
 })

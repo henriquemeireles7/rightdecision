@@ -5,9 +5,8 @@
  * Usage: bun run eval:list [--branch <name>] [--tier e2e|llm-judge] [--limit N]
  */
 
-import * as fs from 'fs'
-import * as os from 'os'
-import * as path from 'path'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 import { getProjectEvalDir } from '../test/helpers/eval-store'
 
 const EVAL_DIR = getProjectEvalDir()
@@ -103,7 +102,7 @@ console.log('─'.repeat(105))
 
 for (const run of displayed) {
   const date = run.timestamp.replace('T', ' ').slice(0, 16)
-  const branch = run.branch.length > 23 ? run.branch.slice(0, 20) + '...' : run.branch.padEnd(25)
+  const branch = run.branch.length > 23 ? `${run.branch.slice(0, 20)}...` : run.branch.padEnd(25)
   const pass = `${run.passed}/${run.total}`.padEnd(8)
   const cost = `$${run.cost.toFixed(2)}`.padEnd(8)
   const turns = run.turns > 0 ? `${run.turns}t`.padEnd(7) : ''.padEnd(7)

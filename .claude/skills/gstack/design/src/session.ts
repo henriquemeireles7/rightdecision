@@ -3,8 +3,8 @@
  * Session files are JSON in /tmp, keyed by PID + timestamp.
  */
 
-import fs from 'fs'
-import path from 'path'
+import fs from 'node:fs'
+import path from 'node:path'
 
 export interface DesignSession {
   id: string

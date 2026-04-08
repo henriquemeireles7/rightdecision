@@ -10,10 +10,18 @@
  *   gstack-global-discover --help
  */
 
-import { execSync } from 'child_process'
-import { closeSync, existsSync, openSync, readdirSync, readFileSync, readSync, statSync } from 'fs'
-import { homedir } from 'os'
-import { basename, join } from 'path'
+import { execSync } from 'node:child_process'
+import {
+  closeSync,
+  existsSync,
+  openSync,
+  readdirSync,
+  readFileSync,
+  readSync,
+  statSync,
+} from 'node:fs'
+import { homedir } from 'node:os'
+import { basename, join } from 'node:path'
 
 // ── Types ──────────────────────────────────────────────────────────────────
 

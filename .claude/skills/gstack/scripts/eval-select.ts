@@ -8,7 +8,7 @@
  *   bun run eval:select --base main  # override base branch
  */
 
-import * as path from 'path'
+import * as path from 'node:path'
 import {
   detectBaseBranch,
   E2E_TOUCHFILES,

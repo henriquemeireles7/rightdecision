@@ -6,7 +6,7 @@
  */
 
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
-import { BrowserManager, type BrowserState } from '../src/browser-manager'
+import { BrowserManager } from '../src/browser-manager'
 import { handleMetaCommand } from '../src/meta-commands'
 import { handleWriteCommand } from '../src/write-commands'
 import { startTestServer } from './test-server'
@@ -80,7 +80,7 @@ describe('failure tracking', () => {
 
 describe('saveState', () => {
   test('captures cookies and page URLs', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     await handleWriteCommand('cookie', ['testcookie=testvalue'], bm)
 
     const state = await bm.saveState()
@@ -92,7 +92,7 @@ describe('saveState', () => {
   }, 15000)
 
   test('captures localStorage and sessionStorage', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     const page = bm.getPage()
     await page.evaluate(() => {
       localStorage.setItem('lsKey', 'lsValue')
@@ -112,8 +112,8 @@ describe('saveState', () => {
     while (bm.getTabCount() > 1) {
       await bm.closeTab()
     }
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
-    await handleMetaCommand('newtab', [baseUrl + '/form.html'], bm, () => {})
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
+    await handleMetaCommand('newtab', [`${baseUrl}/form.html`], bm, () => {})
 
     const state = await bm.saveState()
     expect(state.pages.length).toBe(2)
@@ -127,7 +127,7 @@ describe('saveState', () => {
 
 describe('restoreState', () => {
   test('state survives recreateContext round-trip', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     await handleWriteCommand('cookie', ['restored=yes'], bm)
 
     const stateBefore = await bm.saveState()
@@ -161,7 +161,7 @@ describe('handoff edge cases', () => {
   })
 
   test('resume without prior handoff works via meta command', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     const result = await handleMetaCommand('resume', [], bm, () => {})
     expect(result).toContain('RESUMED')
   }, 15000)
@@ -178,7 +178,7 @@ describe('handoff integration', () => {
 
     try {
       // Set up state
-      await handleWriteCommand('goto', [baseUrl + '/basic.html'], hbm)
+      await handleWriteCommand('goto', [`${baseUrl}/basic.html`], hbm)
       await handleWriteCommand('cookie', ['handoff_test=preserved'], hbm)
 
       // Handoff
@@ -210,8 +210,8 @@ describe('handoff integration', () => {
     await hbm.launch()
 
     try {
-      await handleWriteCommand('goto', [baseUrl + '/basic.html'], hbm)
-      await handleMetaCommand('newtab', [baseUrl + '/form.html'], hbm, () => {})
+      await handleWriteCommand('goto', [`${baseUrl}/basic.html`], hbm)
+      await handleMetaCommand('newtab', [`${baseUrl}/form.html`], hbm, () => {})
       expect(hbm.getTabCount()).toBe(2)
 
       await hbm.handoff('multi-tab test')
@@ -227,7 +227,7 @@ describe('handoff integration', () => {
     await hbm.launch()
 
     try {
-      await handleWriteCommand('goto', [baseUrl + '/basic.html'], hbm)
+      await handleWriteCommand('goto', [`${baseUrl}/basic.html`], hbm)
       const result = await handleMetaCommand('handoff', ['CAPTCHA', 'stuck'], hbm, () => {})
       expect(result).toContain('CAPTCHA stuck')
     } finally {

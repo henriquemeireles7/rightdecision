@@ -13,12 +13,12 @@
     document.getElementById('file-input').addEventListener('change', (e) => {
       const files = e.target.files;
       const names = Array.from(files).map(f => f.name).join(', ');
-      document.getElementById('upload-result').textContent = 'Uploaded: ' + names;
+      document.getElementById('upload-result').textContent = `Uploaded: ${names}`;
     });
     document.getElementById('multi-input').addEventListener('change', (e) => {
       const files = e.target.files;
       const names = Array.from(files).map(f => f.name).join(', ');
-      document.getElementById('upload-result').textContent = 'Multi: ' + names;
+      document.getElementById('upload-result').textContent = `Multi: ${names}`;
     });
   </script>
 </body>

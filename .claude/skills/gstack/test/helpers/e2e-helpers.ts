@@ -6,14 +6,14 @@
  */
 
 import { afterAll, beforeAll, describe, test } from 'bun:test'
-import { spawnSync } from 'child_process'
-import * as fs from 'fs'
-import * as os from 'os'
-import * as path from 'path'
+import { spawnSync } from 'node:child_process'
+import * as fs from 'node:fs'
+import * as os from 'node:os'
+import * as path from 'node:path'
 import type { HarvestResult } from '../../lib/worktree'
 import { WorktreeManager } from '../../lib/worktree'
 import type { EvalTestEntry } from './eval-store'
-import { EvalCollector, judgePassed } from './eval-store'
+import { EvalCollector } from './eval-store'
 import type { SkillTestResult } from './session-runner'
 import {
   detectBaseBranch,

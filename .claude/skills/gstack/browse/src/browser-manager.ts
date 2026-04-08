@@ -122,8 +122,8 @@ export class BrowserManager {
    * Checks: repo root /extension, global install, dev install.
    */
   private findExtensionPath(): string | null {
-    const fs = require('fs')
-    const path = require('path')
+    const fs = require('node:fs')
+    const path = require('node:path')
     const candidates = [
       // Relative to this source file (dev mode: browse/src/ -> ../../extension)
       path.resolve(__dirname, '..', '..', 'extension'),
@@ -243,8 +243,8 @@ export class BrowserManager {
       launchArgs.push(`--load-extension=${extensionPath}`)
       // Write auth token for extension bootstrap (read via chrome.runtime.getURL)
       if (authToken) {
-        const fs = require('fs')
-        const path = require('path')
+        const fs = require('node:fs')
+        const path = require('node:path')
         const authFile = path.join(extensionPath, '.auth.json')
         try {
           fs.writeFileSync(authFile, JSON.stringify({ token: authToken }), { mode: 0o600 })
@@ -258,8 +258,8 @@ export class BrowserManager {
     // Extensions REQUIRE launchPersistentContext (not launch + newContext).
     // Real Chrome (executablePath/channel) silently blocks --load-extension,
     // so we use Playwright's bundled Chromium which reliably loads extensions.
-    const fs = require('fs')
-    const path = require('path')
+    const fs = require('node:fs')
+    const path = require('node:path')
     const userDataDir = path.join(process.env.HOME || '/tmp', '.gstack', 'chromium-profile')
     fs.mkdirSync(userDataDir, { recursive: true })
 
@@ -383,7 +383,7 @@ export class BrowserManager {
 
   /** Health check — verifies Chromium is connected AND responsive */
   async isHealthy(): Promise<boolean> {
-    if (!this.browser || !this.browser.isConnected()) return false
+    if (!this.browser?.isConnected()) return false
     try {
       const page = this.pages.get(this.activeTabId)
       if (!page) return true // connected but no pages — still healthy
@@ -846,8 +846,8 @@ export class BrowserManager {
     //    Uses launchPersistentContext so the extension auto-loads.
     let newContext: BrowserContext
     try {
-      const fs = require('fs')
-      const path = require('path')
+      const fs = require('node:fs')
+      const path = require('node:path')
       const extensionPath = this.findExtensionPath()
       const launchArgs = ['--hide-crash-restore-bubble']
       if (extensionPath) {

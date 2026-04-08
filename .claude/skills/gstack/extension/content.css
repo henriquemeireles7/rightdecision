@@ -3,7 +3,7 @@
  */
 
 #gstack-ref-overlays {
-  font-family: "JetBrains Mono", "SF Mono", "Fira Code", monospace !important;
+  font-family: "JetBrains Mono", "SF Mono", "Fira Code", monospace;
 }
 
 /* Connection status pill — bottom-right corner */
@@ -33,7 +33,7 @@
 }
 
 #gstack-status-pill:hover {
-  opacity: 1 !important;
+  opacity: 1;
 }
 
 .gstack-pill-dot {

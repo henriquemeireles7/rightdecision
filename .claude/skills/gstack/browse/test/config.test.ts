@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test'
-import * as fs from 'fs'
-import * as os from 'os'
-import * as path from 'path'
+import * as fs from 'node:fs'
+import * as os from 'node:os'
+import * as path from 'node:path'
 import {
   ensureStateDir,
   getGitRoot,
@@ -222,7 +222,7 @@ describe('resolveNodeServerScript', () => {
   test('finds server-node.mjs in dist from dev mode', () => {
     const srcDir = path.resolve(__dirname, '../src')
     const distFile = path.resolve(srcDir, '..', 'dist', 'server-node.mjs')
-    const fs = require('fs')
+    const fs = require('node:fs')
     // Only test if the file exists (it may not be built yet)
     if (fs.existsSync(distFile)) {
       const result = resolveNodeServerScript(srcDir, '')
@@ -238,7 +238,7 @@ describe('resolveNodeServerScript', () => {
   test('finds server-node.mjs adjacent to compiled binary', () => {
     const distDir = path.resolve(__dirname, '../dist')
     const distFile = path.join(distDir, 'server-node.mjs')
-    const fs = require('fs')
+    const fs = require('node:fs')
     if (fs.existsSync(distFile)) {
       const result = resolveNodeServerScript('/$bunfs/something', path.join(distDir, 'browse'))
       expect(result).toBe(distFile)
@@ -271,7 +271,7 @@ describe('version mismatch detection', () => {
 
 describe('isServerHealthy', () => {
   const { isServerHealthy } = require('../src/cli')
-  const http = require('http')
+  const http = require('node:http')
 
   test('returns true for a healthy server', async () => {
     const server = http.createServer((_req: any, res: any) => {

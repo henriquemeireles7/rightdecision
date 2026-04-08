@@ -14,7 +14,7 @@
  */
 
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
-import * as path from 'path'
+import * as path from 'node:path'
 import { createTestWorktree, harvestAndCleanup } from './helpers/e2e-helpers'
 import { EvalCollector } from './helpers/eval-store'
 import type { GeminiResult } from './helpers/gemini-session-runner'

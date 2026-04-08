@@ -11,8 +11,8 @@
  */
 
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
-import * as fs from 'fs'
-import * as path from 'path'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 import { generateCompareHtml } from '../../design/src/compare'
 import { BrowserManager } from '../src/browser-manager'
 import { handleReadCommand } from '../src/read-commands'
@@ -35,7 +35,7 @@ function createTestPng(filePath: string): void {
 
 beforeAll(async () => {
   // Create test PNG files
-  tmpDir = '/tmp/compare-board-test-' + Date.now()
+  tmpDir = `/tmp/compare-board-test-${Date.now()}`
   fs.mkdirSync(tmpDir, { recursive: true })
 
   createTestPng(path.join(tmpDir, 'variant-A.png'))

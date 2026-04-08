@@ -2,9 +2,9 @@
  * Meta commands — tabs, server control, screenshots, chain, diff, snapshot
  */
 
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 import * as Diff from 'diff'
-import * as fs from 'fs'
-import * as path from 'path'
 import type { Frame } from 'playwright'
 import type { BrowserManager } from './browser-manager'
 import {
@@ -70,7 +70,7 @@ export async function handleMetaCommand(
 
     case 'tab': {
       const id = parseInt(args[0], 10)
-      if (isNaN(id)) throw new Error('Usage: browse tab <id>')
+      if (Number.isNaN(id)) throw new Error('Usage: browse tab <id>')
       bm.switchTab(id)
       return `Switched to tab ${id}`
     }
@@ -134,7 +134,7 @@ export async function handleMetaCommand(
           const coords = args[++i]
           if (!coords) throw new Error('Usage: screenshot --clip x,y,w,h [path]')
           const parts = coords.split(',').map(Number)
-          if (parts.length !== 4 || parts.some(isNaN))
+          if (parts.length !== 4 || parts.some(Number.isNaN))
             throw new Error('Usage: screenshot --clip x,y,width,height — all must be numbers')
           clipRect = { x: parts[0], y: parts[1], width: parts[2], height: parts[3] }
         } else if (args[i].startsWith('--')) {
@@ -358,7 +358,7 @@ export async function handleMetaCommand(
         return 'focus requires headed mode. Run `$B connect` first.'
       }
       try {
-        const { execSync } = await import('child_process')
+        const { execSync } = await import('node:child_process')
         // Try common Chromium-based browser app names to bring to foreground
         const appNames = ['Comet', 'Google Chrome', 'Arc', 'Brave Browser', 'Microsoft Edge']
         let activated = false
@@ -430,7 +430,7 @@ export async function handleMetaCommand(
 
     // ─── Inbox ──────────────────────────────────────────
     case 'inbox': {
-      const { execSync } = await import('child_process')
+      const { execSync } = await import('node:child_process')
       let gitRoot: string
       try {
         gitRoot = execSync('git rev-parse --show-toplevel', {

@@ -1,7 +1,6 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { Hono } from 'hono'
 
 // We test the blog route logic by importing the markdown provider directly
 // and verifying the data flow, since the full routes need renderPage which

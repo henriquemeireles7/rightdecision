@@ -10,8 +10,8 @@
  *   - scripts/dev-skill.ts (watch mode)
  */
 
-import * as fs from 'fs'
-import * as path from 'path'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 import { ALL_COMMANDS } from '../../browse/src/commands'
 import { parseSnapshotArgs } from '../../browse/src/snapshot'
 
@@ -199,7 +199,7 @@ export function extractWeightsFromTable(content: string): Map<string, number> {
       const category = match[1].trim()
       const pct = parseInt(match[2], 10)
       // Skip header row
-      if (category !== 'Category' && !isNaN(pct)) {
+      if (category !== 'Category' && !Number.isNaN(pct)) {
         weights.set(category, pct)
       }
     }

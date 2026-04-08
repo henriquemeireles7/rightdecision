@@ -7,8 +7,8 @@
  * 3. null (caller handles guided setup or fallback)
  */
 
-import fs from 'fs'
-import path from 'path'
+import fs from 'node:fs'
+import path from 'node:path'
 
 const CONFIG_PATH = path.join(process.env.HOME || '~', '.gstack', 'openai.json')
 

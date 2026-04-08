@@ -13,8 +13,6 @@
  * - Message events are streamed with `delta: true` — must concatenate
  */
 
-import * as path from 'path'
-
 // --- Interfaces ---
 
 export interface GeminiResult {

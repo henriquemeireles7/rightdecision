@@ -9,9 +9,9 @@
  *   - Freshness check (generated files match committed files)
  */
 
-import { execSync } from 'child_process'
-import * as fs from 'fs'
-import * as path from 'path'
+import { execSync } from 'node:child_process'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 import { validateSkill } from '../test/helpers/skill-parser'
 import { discoverSkillFiles, discoverTemplates } from './discover-skills'
 
@@ -78,7 +78,7 @@ for (const { tmpl, output } of TEMPLATES) {
 
 // Skills without templates
 for (const file of SKILL_FILES) {
-  const tmplPath = path.join(ROOT, file + '.tmpl')
+  const tmplPath = path.join(ROOT, `${file}.tmpl`)
   if (!fs.existsSync(tmplPath) && !TEMPLATES.some((t) => t.output === file)) {
     console.log(`  \u26a0\ufe0f  ${file.padEnd(30)} — no template (OK if no $B commands)`)
   }

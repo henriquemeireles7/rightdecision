@@ -52,7 +52,7 @@ const MAX_RECONNECT_ATTEMPTS = 30 // 30 * 2s = 60s before showing "dead"
 // Auth headers for sidebar endpoints
 function authHeaders() {
   const h = { 'Content-Type': 'application/json' }
-  if (serverToken) h['Authorization'] = `Bearer ${serverToken}`
+  if (serverToken) h.Authorization = `Bearer ${serverToken}`
   return h
 }
 
@@ -573,7 +573,7 @@ async function pollTabs() {
     } catch {}
 
     const resp = await fetch(
-      `${serverUrl}/sidebar-tabs${activeTabUrl ? '?activeUrl=' + encodeURIComponent(activeTabUrl) : ''}`,
+      `${serverUrl}/sidebar-tabs${activeTabUrl ? `?activeUrl=${encodeURIComponent(activeTabUrl)}` : ''}`,
       {
         headers: authHeaders(),
         signal: AbortSignal.timeout(2000),
@@ -606,7 +606,7 @@ function renderTabBar(tabs) {
 
   for (const tab of tabs) {
     const el = document.createElement('div')
-    el.className = 'browser-tab' + (tab.active ? ' active' : '')
+    el.className = `browser-tab${tab.active ? ' active' : ''}`
     el.title = tab.url || ''
 
     // Show favicon-style domain + title
@@ -618,7 +618,7 @@ function renderTabBar(tabs) {
         label = tab.url
       }
     }
-    if (label.length > 20) label = label.slice(0, 20) + '…'
+    if (label.length > 20) label = `${label.slice(0, 20)}…`
 
     el.textContent = label || `Tab ${tab.id}`
     el.dataset.tabId = tab.id
@@ -836,7 +836,7 @@ async function fetchRefs() {
   if (!serverUrl) return
   try {
     const headers = {}
-    if (serverToken) headers['Authorization'] = `Bearer ${serverToken}`
+    if (serverToken) headers.Authorization = `Bearer ${serverToken}`
     const resp = await fetch(`${serverUrl}/refs`, { signal: AbortSignal.timeout(3000), headers })
     if (!resp.ok) return
     const data = await resp.json()
@@ -911,7 +911,7 @@ inspectorPickBtn.addEventListener('click', () => {
   }
 })
 
-function inspectorShowEmpty() {
+function _inspectorShowEmpty() {
   inspectorEmpty.style.display = ''
   inspectorLoading.style.display = 'none'
   inspectorError.style.display = 'none'
@@ -949,8 +949,8 @@ function inspectorShowData(data) {
 
   // Update toolbar
   const tag = data.tagName || '?'
-  const cls = data.classes && data.classes.length > 0 ? '.' + data.classes.join('.') : ''
-  const idStr = data.id ? '#' + data.id : ''
+  const cls = data.classes && data.classes.length > 0 ? `.${data.classes.join('.')}` : ''
+  const idStr = data.id ? `#${data.id}` : ''
   inspectorSelected.textContent = `<${tag}>${idStr}${cls}`
   inspectorSelected.title = data.selector
 
@@ -1020,7 +1020,7 @@ function renderBoxModel(data) {
 function fmtBoxVal(v) {
   if (v === undefined || v === null) return '-'
   const n = typeof v === 'number' ? v : parseFloat(v)
-  if (isNaN(n) || n === 0) return '0'
+  if (Number.isNaN(n) || n === 0) return '0'
   return Math.round(n * 10) / 10
 }
 
@@ -1087,10 +1087,10 @@ function renderMatchedRules(data) {
   }
 }
 
-function renderRule(rule, isUA) {
+function renderRule(rule, _isUA) {
   const selectorText = escapeHtml(rule.selector || '')
   const truncatedSelector =
-    selectorText.length > 35 ? selectorText.slice(0, 35) + '...' : selectorText
+    selectorText.length > 35 ? `${selectorText.slice(0, 35)}...` : selectorText
   const source = rule.source || ''
   const sourceDisplay = source.includes('/') ? source.split('/').pop() : source
   const specificity = rule.specificity || ''
@@ -1101,7 +1101,7 @@ function renderRule(rule, isUA) {
     const overridden = prop.overridden ? ' overridden' : ''
     const nameHtml = escapeHtml(prop.name)
     const valText = escapeHtml(prop.value || '')
-    const truncatedVal = valText.length > 30 ? valText.slice(0, 30) + '...' : valText
+    const truncatedVal = valText.length > 30 ? `${valText.slice(0, 30)}...` : valText
     const priority =
       prop.priority === 'important' ? ' <span class="inspector-important">!important</span>' : ''
     propsHtml += `<div class="inspector-prop${overridden}"><span class="inspector-prop-name">${nameHtml}</span>: <span class="inspector-prop-value" title="${valText}">${truncatedVal}</span>${priority};</div>`
@@ -1338,7 +1338,7 @@ async function runCleanup(...buttons) {
       addChatEntry({ type: 'notification', message: 'Failed to start cleanup' })
     }
   } catch (err) {
-    addChatEntry({ type: 'notification', message: 'Cleanup failed: ' + err.message })
+    addChatEntry({ type: 'notification', message: `Cleanup failed: ${err.message}` })
   } finally {
     // Remove loading after a short delay (agent runs async)
     setTimeout(() => buttons.forEach((b) => b?.classList.remove('loading')), 2000)
@@ -1362,10 +1362,10 @@ async function runScreenshot(...buttons) {
       addChatEntry({ type: 'notification', message: text || 'Screenshot saved' })
     } else {
       const err = JSON.parse(text).error || 'Screenshot failed'
-      addChatEntry({ type: 'notification', message: 'Error: ' + err })
+      addChatEntry({ type: 'notification', message: `Error: ${err}` })
     }
   } catch (err) {
-    addChatEntry({ type: 'notification', message: 'Screenshot failed: ' + err.message })
+    addChatEntry({ type: 'notification', message: `Screenshot failed: ${err.message}` })
   } finally {
     buttons.forEach((b) => b?.classList.remove('loading'))
   }
@@ -1543,7 +1543,7 @@ document.getElementById('conn-copy').addEventListener('click', () => {
 // Try to connect immediately, retry every 2s until connected
 function tryConnect() {
   chrome.runtime.sendMessage({ type: 'getPort' }, (resp) => {
-    if (resp && resp.port && resp.connected) {
+    if (resp?.port && resp.connected) {
       const url = `http://127.0.0.1:${resp.port}`
       // Token arrives via health broadcast from background.js
       updateConnection(url, null)
@@ -1629,7 +1629,7 @@ function applyChatEnabled(enabled) {
     if (banner) banner.style.display = 'none'
     if (clearBtn) clearBtn.style.display = 'none'
     // If currently on chat tab, switch to activity
-    if (chatTab && chatTab.classList.contains('active')) {
+    if (chatTab?.classList.contains('active')) {
       chatTab.classList.remove('active')
       // Open debug tabs and show activity
       const debugToggle = document.getElementById('debug-toggle')

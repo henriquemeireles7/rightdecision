@@ -11,9 +11,9 @@
  */
 
 import { afterAll, describe, expect, test } from 'bun:test'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 import Anthropic from '@anthropic-ai/sdk'
-import * as fs from 'fs'
-import * as path from 'path'
 import { EvalCollector } from './helpers/eval-store'
 import type { JudgeScore } from './helpers/llm-judge'
 import { callJudge, judge } from './helpers/llm-judge'
@@ -600,7 +600,7 @@ describeIfSelected('Baseline score pinning', ['baseline score pinning'], () => {
           completeness: cmdScores.completeness,
           actionability: cmdScores.actionability,
         }
-        fs.writeFileSync(baselinesPath, JSON.stringify(baselines, null, 2) + '\n')
+        fs.writeFileSync(baselinesPath, `${JSON.stringify(baselines, null, 2)}\n`)
         console.log('Updated eval baselines')
       }
 

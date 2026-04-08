@@ -5,8 +5,8 @@
  * Starts from reality, not blank canvas.
  */
 
-import fs from 'fs'
-import path from 'path'
+import fs from 'node:fs'
+import path from 'node:path'
 import { requireApiKey } from './auth'
 
 export interface EvolveOptions {

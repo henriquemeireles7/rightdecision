@@ -74,17 +74,17 @@
     if (!highlightEl || !tooltipEl) return
     const rect = el.getBoundingClientRect()
 
-    highlightEl.style.top = rect.top + 'px'
-    highlightEl.style.left = rect.left + 'px'
-    highlightEl.style.width = rect.width + 'px'
-    highlightEl.style.height = rect.height + 'px'
+    highlightEl.style.top = `${rect.top}px`
+    highlightEl.style.left = `${rect.left}px`
+    highlightEl.style.width = `${rect.width}px`
+    highlightEl.style.height = `${rect.height}px`
     highlightEl.style.display = 'block'
 
     // Build tooltip text: <tag> .classes WxH
     const tag = el.tagName.toLowerCase()
     const classes =
       el.className && typeof el.className === 'string'
-        ? '.' + el.className.trim().split(/\s+/).join('.')
+        ? `.${el.className.trim().split(/\s+/).join('.')}`
         : ''
     const dims = `${Math.round(rect.width)}x${Math.round(rect.height)}`
     tooltipEl.textContent = `<${tag}> ${classes} ${dims}`.trim()
@@ -97,8 +97,8 @@
     let tooltipLeft = rect.left
     if (tooltipLeft < 4) tooltipLeft = 4
 
-    tooltipEl.style.top = tooltipTop + 'px'
-    tooltipEl.style.left = tooltipLeft + 'px'
+    tooltipEl.style.top = `${tooltipTop}px`
+    tooltipEl.style.left = `${tooltipLeft}px`
     tooltipEl.style.display = 'block'
   }
 
@@ -107,7 +107,7 @@
   function buildSelector(el) {
     // If element has an id, use it directly
     if (el.id) {
-      const sel = '#' + CSS.escape(el.id)
+      const sel = `#${CSS.escape(el.id)}`
       if (isUnique(sel)) return sel
     }
 
@@ -120,7 +120,7 @@
 
       // If current has an id, use it and stop
       if (current.id) {
-        part = '#' + CSS.escape(current.id)
+        part = `#${CSS.escape(current.id)}`
         parts.unshift(part)
         break
       }
@@ -132,7 +132,7 @@
           .split(/\s+/)
           .filter((c) => c.length > 0)
         if (classes.length > 0) {
-          part += '.' + classes.map((c) => CSS.escape(c)).join('.')
+          part += `.${classes.map((c) => CSS.escape(c)).join('.')}`
         }
       }
 
@@ -141,7 +141,7 @@
       if (parent) {
         const siblings = Array.from(parent.children).filter((s) => s.tagName === current.tagName)
         if (siblings.length > 1) {
-          const idx = siblings.indexOf(current) + 1
+          const _idx = siblings.indexOf(current) + 1
           part += `:nth-child(${Array.from(parent.children).indexOf(current) + 1})`
         }
       }
@@ -489,7 +489,7 @@
 
   // ─── Message Listener ──────────────────────────────────────────
 
-  chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     if (msg.type === 'startPicker') {
       startPicker()
       sendResponse({ ok: true })

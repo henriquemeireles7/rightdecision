@@ -1,14 +1,12 @@
-import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
-import { spawnSync } from 'child_process'
-import * as fs from 'fs'
-import * as os from 'os'
-import * as path from 'path'
+import { afterAll, beforeAll, expect } from 'bun:test'
+import { spawnSync } from 'node:child_process'
+import * as fs from 'node:fs'
+import * as os from 'node:os'
+import * as path from 'node:path'
 import {
   browseBin,
-  copyDirSync,
   createEvalCollector,
   describeIfSelected,
-  evalsEnabled,
   finalizeEvalCollector,
   logCost,
   ROOT,
@@ -471,7 +469,7 @@ IMPORTANT: Do NOT try to browse any URLs or use a browse binary. This is a plan 
 
           // Check that the agent produced design ratings (0-10 scale)
           const output = result.output || ''
-          const hasRatings = /\d+\/10/.test(output)
+          const _hasRatings = /\d+\/10/.test(output)
           const hasDesignContent =
             output.toLowerCase().includes('information architecture') ||
             output.toLowerCase().includes('interaction state') ||
@@ -480,7 +478,7 @@ IMPORTANT: Do NOT try to browse any URLs or use a browse binary. This is a plan 
 
           // Check that the plan file was edited (the core new behavior)
           const planAfter = fs.readFileSync(path.join(reviewDir, 'plan.md'), 'utf-8')
-          const planOriginal = `# Plan: User Dashboard`
+          const _planOriginal = `# Plan: User Dashboard`
           const planWasEdited = planAfter.length > 300 // Original is ~450 chars, edited should be much longer
           const planHasDesignAdditions =
             planAfter.toLowerCase().includes('empty') ||

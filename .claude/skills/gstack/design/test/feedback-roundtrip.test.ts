@@ -14,8 +14,8 @@
  */
 
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
-import * as fs from 'fs'
-import * as path from 'path'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 import { BrowserManager } from '../../browse/src/browser-manager'
 import { handleReadCommand } from '../../browse/src/read-commands'
 import { handleWriteCommand } from '../../browse/src/write-commands'
@@ -37,7 +37,7 @@ function createTestPng(filePath: string): void {
 }
 
 beforeAll(async () => {
-  tmpDir = '/tmp/feedback-roundtrip-' + Date.now()
+  tmpDir = `/tmp/feedback-roundtrip-${Date.now()}`
   fs.mkdirSync(tmpDir, { recursive: true })
 
   createTestPng(path.join(tmpDir, 'variant-A.png'))

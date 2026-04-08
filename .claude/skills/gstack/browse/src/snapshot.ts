@@ -18,7 +18,7 @@
  */
 
 import * as Diff from 'diff'
-import type { Frame, Locator, Page } from 'playwright'
+import type { Locator } from 'playwright'
 import type { BrowserManager, RefEntry } from './browser-manager'
 import { isPathWithin, TEMP_DIR } from './platform'
 
@@ -147,7 +147,7 @@ export function parseSnapshotArgs(args: string[]): SnapshotOptions {
       if (!value) throw new Error(`Usage: snapshot ${flag.short} <value>`)
       if (flag.optionKey === 'depth') {
         ;(opts as any)[flag.optionKey] = parseInt(value, 10)
-        if (isNaN(opts.depth!)) throw new Error('Usage: snapshot -d <number>')
+        if (Number.isNaN(opts.depth!)) throw new Error('Usage: snapshot -d <number>')
       } else {
         ;(opts as any)[flag.optionKey] = value
       }
@@ -378,7 +378,7 @@ export async function handleSnapshot(args: string[], bm: BrowserManager): Promis
   if (opts.annotate) {
     const screenshotPath = opts.outputPath || `${TEMP_DIR}/browse-annotated.png`
     // Validate output path (consistent with screenshot/pdf/responsive)
-    const resolvedPath = require('path').resolve(screenshotPath)
+    const resolvedPath = require('node:path').resolve(screenshotPath)
     const safeDirs = [TEMP_DIR, process.cwd()]
     if (!safeDirs.some((dir: string) => isPathWithin(resolvedPath, dir))) {
       throw new Error(`Path must be within: ${safeDirs.join(', ')}`)

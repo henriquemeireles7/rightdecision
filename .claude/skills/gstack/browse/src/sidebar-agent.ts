@@ -9,9 +9,9 @@
  * Usage: BROWSE_BIN=/path/to/browse bun run browse/src/sidebar-agent.ts
  */
 
-import { spawn } from 'child_process'
-import * as fs from 'fs'
-import * as path from 'path'
+import { spawn } from 'node:child_process'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 
 const QUEUE =
   process.env.SIDEBAR_QUEUE_PATH ||
@@ -32,7 +32,7 @@ const processingTabs = new Set<number>()
 
 function getGitRoot(): string | null {
   try {
-    const { execSync } = require('child_process')
+    const { execSync } = require('node:child_process')
     return execSync('git rev-parse --show-toplevel', {
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
@@ -209,7 +209,7 @@ function describeToolCall(tool: string, input: any): string {
     // Non-browse bash commands
     if (cmd.includes('git ')) return `Running: ${shorten(cmd)}`
     const short = shorten(cmd)
-    return short.length > 100 ? short.slice(0, 100) + '…' : short
+    return short.length > 100 ? `${short.slice(0, 100)}…` : short
   }
 
   if (tool === 'Read' && input.file_path) return `Reading ${shorten(input.file_path)}`

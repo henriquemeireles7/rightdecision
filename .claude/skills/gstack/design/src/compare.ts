@@ -6,8 +6,8 @@
  * Design spec: single column, full-width mockups, APP UI aesthetic.
  */
 
-import fs from 'fs'
-import path from 'path'
+import fs from 'node:fs'
+import path from 'node:path'
 
 export interface CompareOptions {
   images: string[]

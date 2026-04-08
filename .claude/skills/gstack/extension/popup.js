@@ -6,7 +6,7 @@ const sidePanelBtn = document.getElementById('side-panel-btn')
 
 // Load saved port
 chrome.runtime.sendMessage({ type: 'getPort' }, (resp) => {
-  if (resp && resp.port) {
+  if (resp?.port) {
     portInput.value = resp.port
     updateStatus(resp.connected)
   }

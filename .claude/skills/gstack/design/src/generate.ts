@@ -2,8 +2,8 @@
  * Generate UI mockups via OpenAI Responses API with image_generation tool.
  */
 
-import fs from 'fs'
-import path from 'path'
+import fs from 'node:fs'
+import path from 'node:path'
 import { requireApiKey } from './auth'
 import { parseBrief } from './brief'
 import { checkMockup } from './check'

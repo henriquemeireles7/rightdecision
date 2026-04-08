@@ -10,24 +10,10 @@
  * Used by skill:check and CI freshness checks.
  */
 
-import * as fs from 'fs'
-import * as path from 'path'
-import { COMMAND_DESCRIPTIONS } from '../browse/src/commands'
-import { SNAPSHOT_FLAGS } from '../browse/src/snapshot'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 import { discoverTemplates } from './discover-skills'
-import {
-  condenseOpenAIShortDescription as _condenseOpenAIShortDescription,
-  extractHookSafetyProse as _extractHookSafetyProse,
-  extractNameAndDescription as _extractNameAndDescription,
-  generateOpenAIYaml as _generateOpenAIYaml,
-  externalSkillName,
-} from './resolvers/codex-helpers'
 import { RESOLVERS } from './resolvers/index'
-import {
-  generatePlanCompletionAuditReview,
-  generatePlanCompletionAuditShip,
-  generatePlanVerificationExec,
-} from './resolvers/review'
 import type { Host, TemplateContext } from './resolvers/types'
 import { HOST_PATHS } from './resolvers/types'
 
@@ -58,7 +44,7 @@ let HOST: Host = HOST_ARG_VAL === 'all' ? 'claude' : HOST_ARG_VAL
 // ─── Shared Design Constants ────────────────────────────────
 
 /** gstack's 10 AI slop anti-patterns — shared between DESIGN_METHODOLOGY and DESIGN_HARD_RULES */
-const AI_SLOP_BLACKLIST = [
+const _AI_SLOP_BLACKLIST = [
   'Purple/violet/indigo gradient backgrounds or blue-to-purple color schemes',
   '**The 3-column feature grid:** icon-in-colored-circle + bold title + 2-line description, repeated 3x symmetrically. THE most recognizable AI layout.',
   'Icons in colored circles as section decoration (SaaS starter template look)',
@@ -72,7 +58,7 @@ const AI_SLOP_BLACKLIST = [
 ]
 
 /** OpenAI hard rejection criteria (from "Designing Delightful Frontends with GPT-5.4", Mar 2026) */
-const OPENAI_HARD_REJECTIONS = [
+const _OPENAI_HARD_REJECTIONS = [
   'Generic SaaS card grid as first impression',
   'Beautiful image with weak brand',
   'Strong headline with no clear action',
@@ -83,7 +69,7 @@ const OPENAI_HARD_REJECTIONS = [
 ]
 
 /** OpenAI litmus checks — 7 yes/no tests for cross-model consensus scoring */
-const OPENAI_LITMUS_CHECKS = [
+const _OPENAI_LITMUS_CHECKS = [
   'Brand/product unmistakable in first screen?',
   'One strong visual anchor present?',
   'Page understandable by scanning headlines only?',
@@ -201,7 +187,7 @@ function transformFrontmatter(content: string, host: Host): string {
       .split('\n')
       .map((l) => `  ${l}`)
       .join('\n')
-    return `---\nname: ${name}\ndescription: |\n${indentedDesc}\n---` + body
+    return `---\nname: ${name}\ndescription: |\n${indentedDesc}\n---${body}`
   }
 
   if (host === 'factory') {
@@ -293,8 +279,7 @@ function processExternalHost(
   const claudePath = ctx.tmplPath.replace(/\.tmpl$/, '')
   try {
     const resolvedClaude = fs.realpathSync(claudePath)
-    const resolvedExternal =
-      fs.realpathSync(path.dirname(outputPath)) + '/' + path.basename(outputPath)
+    const resolvedExternal = `${fs.realpathSync(path.dirname(outputPath))}/${path.basename(outputPath)}`
     if (resolvedClaude === resolvedExternal) {
       symlinkLoop = true
     }
@@ -311,7 +296,7 @@ function processExternalHost(
   // Insert safety advisory at the top of the body (after frontmatter)
   if (safetyProse) {
     const bodyStart = result.indexOf('\n---') + 4
-    result = result.slice(0, bodyStart) + '\n' + safetyProse + '\n' + result.slice(bodyStart)
+    result = `${result.slice(0, bodyStart)}\n${safetyProse}\n${result.slice(bodyStart)}`
   }
 
   // Replace hardcoded Claude paths with host-appropriate paths
@@ -385,7 +370,7 @@ function processTemplate(
   }
 
   // Replace placeholders (supports parameterized: {{NAME:arg1:arg2}})
-  let content = tmplContent.replace(/\{\{(\w+(?::[^}]+)?)\}\}/g, (match, fullKey) => {
+  let content = tmplContent.replace(/\{\{(\w+(?::[^}]+)?)\}\}/g, (_match, fullKey) => {
     const parts = fullKey.split(':')
     const resolverName = parts[0]
     const args = parts.slice(1)

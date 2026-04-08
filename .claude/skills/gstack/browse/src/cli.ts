@@ -9,8 +9,8 @@
  *   5. Print response to stdout (or stderr for errors)
  */
 
-import * as fs from 'fs'
-import * as path from 'path'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 import { ensureStateDir, readVersionHash, resolveConfig } from './config'
 
 const config = resolveConfig()
@@ -393,7 +393,7 @@ async function ensureServer(): Promise<ServerState> {
     }
 
     // Kill the old server to avoid orphaned chromium processes
-    if (state && state.pid) {
+    if (state?.pid) {
       await killServer(state.pid)
     }
     console.error('[browse] Starting server...')
@@ -470,7 +470,7 @@ async function sendCommand(
       console.error('[browse] Server connection lost. Restarting...')
       // Kill the old server to avoid orphaned chromium processes
       const oldState = readState()
-      if (oldState && oldState.pid) {
+      if (oldState?.pid) {
         await killServer(oldState.pid)
       }
       const newState = await startServer()
@@ -650,7 +650,7 @@ Refs:           After 'snapshot', use @e1, @e2... as selectors:
         // Old agents have stale auth tokens and will silently fail to relay events,
         // causing the server to mark the agent as "hung".
         try {
-          const { spawnSync } = require('child_process')
+          const { spawnSync } = require('node:child_process')
           spawnSync('pkill', ['-f', 'sidebar-agent\\.ts'], { stdio: 'ignore', timeout: 3000 })
         } catch {}
 

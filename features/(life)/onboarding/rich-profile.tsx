@@ -34,8 +34,14 @@ export function RichProfileScreen({ throughlineNamed, userName }: RichProfilePro
 
         <form class="space-y-6" method="POST" action="/api/onboarding/profile">
           <div>
-            <label htmlFor="ageRange" class="block text-sm font-medium text-neutral-700 mb-2">Age range</label>
-            <select id="ageRange" name="ageRange" class="w-full border rounded-lg px-4 py-3 bg-white">
+            <label htmlFor="ageRange" class="block text-sm font-medium text-neutral-700 mb-2">
+              Age range
+            </label>
+            <select
+              id="ageRange"
+              name="ageRange"
+              class="w-full border rounded-lg px-4 py-3 bg-white"
+            >
               <option value="">Select...</option>
               {AGE_RANGES.map((range) => (
                 <option value={range}>{range}</option>
@@ -87,7 +93,11 @@ export function RichProfileScreen({ throughlineNamed, userName }: RichProfilePro
             <label htmlFor="timeStuck" class="block text-sm font-medium text-neutral-700 mb-2">
               How long have you felt stuck in this area?
             </label>
-            <select id="timeStuck" name="timeStuck" class="w-full border rounded-lg px-4 py-3 bg-white">
+            <select
+              id="timeStuck"
+              name="timeStuck"
+              class="w-full border rounded-lg px-4 py-3 bg-white"
+            >
               <option value="">Select...</option>
               {TIME_STUCK.map((t) => (
                 <option value={t}>{t}</option>

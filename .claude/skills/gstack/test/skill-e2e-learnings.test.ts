@@ -1,13 +1,12 @@
-import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
-import { spawnSync } from 'child_process'
-import * as fs from 'fs'
-import * as os from 'os'
-import * as path from 'path'
+import { afterAll, beforeAll, expect } from 'bun:test'
+import { spawnSync } from 'node:child_process'
+import * as fs from 'node:fs'
+import * as os from 'node:os'
+import * as path from 'node:path'
 import {
   copyDirSync,
   createEvalCollector,
   describeIfSelected,
-  evalsEnabled,
   finalizeEvalCollector,
   logCost,
   ROOT,
@@ -100,7 +99,7 @@ describeIfSelected('Learnings E2E', ['learnings-show'], () => {
 
     fs.writeFileSync(
       path.join(projectDir, 'learnings.jsonl'),
-      learnings.map((l) => JSON.stringify(l)).join('\n') + '\n',
+      `${learnings.map((l) => JSON.stringify(l)).join('\n')}\n`,
     )
   })
 

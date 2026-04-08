@@ -39,7 +39,7 @@ import {
   generateTestCoverageAuditReview,
   generateTestCoverageAuditShip,
 } from './testing'
-import type { ResolverFn, TemplateContext } from './types'
+import type { ResolverFn } from './types'
 import {
   generateBaseBranchDetect,
   generateChangelogWorkflow,

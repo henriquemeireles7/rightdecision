@@ -9,7 +9,7 @@ export async function collectAnalytics(postIds?: string[]) {
   const sevenDaysAgo = new Date()
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
 
-  let targetPosts
+  let targetPosts: (typeof posts.$inferSelect)[]
   if (postIds && postIds.length > 0) {
     targetPosts = []
     for (const id of postIds) {

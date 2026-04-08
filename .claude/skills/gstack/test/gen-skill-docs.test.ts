@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test'
-import * as fs from 'fs'
-import * as os from 'os'
-import * as path from 'path'
+import * as fs from 'node:fs'
+import * as os from 'node:os'
+import * as path from 'node:path'
 import { COMMAND_DESCRIPTIONS } from '../browse/src/commands'
 import { SNAPSHOT_FLAGS } from '../browse/src/snapshot'
 
@@ -459,7 +459,7 @@ describe('description quality evals', () => {
 
   // Regression: "is" lost the valid states enum
   test('is command lists valid state values', () => {
-    const desc = COMMAND_DESCRIPTIONS['is'].description
+    const desc = COMMAND_DESCRIPTIONS.is.description
     for (const state of [
       'visible',
       'hidden',
@@ -475,7 +475,7 @@ describe('description quality evals', () => {
 
   // Regression: "press" lost common key examples
   test('press command lists example keys', () => {
-    const desc = COMMAND_DESCRIPTIONS['press'].description
+    const desc = COMMAND_DESCRIPTIONS.press.description
     expect(desc).toContain('Enter')
     expect(desc).toContain('Tab')
     expect(desc).toContain('Escape')
@@ -483,7 +483,7 @@ describe('description quality evals', () => {
 
   // Regression: "console" lost --errors filter note
   test('console command describes --errors behavior', () => {
-    const desc = COMMAND_DESCRIPTIONS['console'].description
+    const desc = COMMAND_DESCRIPTIONS.console.description
     expect(desc).toContain('--errors')
   })
 
@@ -501,7 +501,7 @@ describe('description quality evals', () => {
 
   // Guard: every description must be at least 8 chars (catches empty or stub descriptions)
   test('all command descriptions have meaningful length', () => {
-    for (const [cmd, meta] of Object.entries(COMMAND_DESCRIPTIONS)) {
+    for (const [_cmd, meta] of Object.entries(COMMAND_DESCRIPTIONS)) {
       expect(meta.description.length).toBeGreaterThanOrEqual(8)
     }
   })
@@ -516,7 +516,7 @@ describe('description quality evals', () => {
   // Guard: descriptions must not contain pipe (breaks markdown table cells)
   // Usage strings are backtick-wrapped in the table so pipes there are safe.
   test('no command description contains pipe character', () => {
-    for (const [cmd, meta] of Object.entries(COMMAND_DESCRIPTIONS)) {
+    for (const [_cmd, meta] of Object.entries(COMMAND_DESCRIPTIONS)) {
       expect(meta.description).not.toContain('|')
     }
   })
@@ -2621,7 +2621,7 @@ describe('CONFIDENCE_CALIBRATION resolver', () => {
 })
 
 describe('gen-skill-docs prefix warning (#620/#578)', () => {
-  const { execSync } = require('child_process')
+  const { execSync } = require('node:child_process')
 
   test('warns about skill_prefix when config has prefix=true', () => {
     const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'gstack-prefix-warn-'))

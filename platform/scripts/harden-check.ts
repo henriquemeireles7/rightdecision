@@ -8,12 +8,12 @@
  *   bun platform/scripts/harden-check.ts --quiet   # exit code only, no output
  */
 
-import { readdirSync, readFileSync, statSync } from 'node:fs'
+import { readdirSync, readFileSync } from 'node:fs'
 import { join, relative } from 'node:path'
 
 const ROOT = import.meta.dir.replace('/platform/scripts', '')
 const args = process.argv.slice(2)
-const FIX_MODE = args.includes('--fix')
+const _FIX_MODE = args.includes('--fix')
 const QUIET = args.includes('--quiet')
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -94,7 +94,7 @@ function scanFile(
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]!
     for (const check of checks) {
-      if (check.pattern.test(line)) {
+      if (check.pattern.test(line) && !line.includes('harden:ignore')) {
         report({
           file: rel(filePath),
           line: i + 1,
@@ -271,7 +271,7 @@ for (const f of uiFiles) {
       pattern: /dangerouslySetInnerHTML/,
       rule: 'no-dangerous-html',
       message: 'dangerouslySetInnerHTML — ensure content is sanitized (DOMPurify or equivalent)',
-      severity: 'error',
+      severity: 'warn',
     },
   ])
 

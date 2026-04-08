@@ -7,9 +7,9 @@
  */
 
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
-import * as fs from 'fs'
-import * as os from 'os'
-import * as path from 'path'
+import * as fs from 'node:fs'
+import * as os from 'node:os'
+import * as path from 'node:path'
 
 // ─── Helpers: replicate sidebar-agent logic for unit testing ──────
 
@@ -163,7 +163,7 @@ function describeToolCall(tool: string, input: any): string {
     }
     if (cmd.includes('git ')) return `Running: ${shorten(cmd)}`
     const short = shorten(cmd)
-    return short.length > 100 ? short.slice(0, 100) + '…' : short
+    return short.length > 100 ? `${short.slice(0, 100)}…` : short
   }
 
   if (tool === 'Read' && input.file_path) return `Reading ${shorten(input.file_path)}`

@@ -11,7 +11,7 @@ const DEFAULT_PORT = 34567 // Well-known port used by `$B connect`
 let serverPort = null
 let authToken = null
 let isConnected = false
-let healthInterval = null
+let _healthInterval = null
 
 // ─── Port Discovery ────────────────────────────────────────────
 
@@ -148,7 +148,7 @@ async function fetchAndRelayRefs() {
 
   try {
     const headers = {}
-    if (authToken) headers['Authorization'] = `Bearer ${authToken}`
+    if (authToken) headers.Authorization = `Bearer ${authToken}`
     const resp = await fetch(`${base}/refs`, { signal: AbortSignal.timeout(3000), headers })
     if (!resp.ok) return
     const data = await resp.json()
@@ -166,7 +166,7 @@ async function fetchAndRelayRefs() {
 // ─── Inspector ──────────────────────────────────────────────────
 
 // Track inspector mode per tab — 'full' (inspector.js injected) or 'basic' (content.js fallback)
-let inspectorMode = 'full'
+let _inspectorMode = 'full'
 
 async function injectInspector(tabId) {
   // Try full inspector injection first
@@ -186,17 +186,17 @@ async function injectInspector(tabId) {
     try {
       await chrome.tabs.sendMessage(tabId, { type: 'startPicker' })
     } catch {}
-    inspectorMode = 'full'
+    _inspectorMode = 'full'
     return { ok: true, mode: 'full' }
   } catch {
     // Script injection failed (CSP, chrome:// page, etc.)
     // Fall back to content.js basic picker (loaded by manifest on most pages)
     try {
       await chrome.tabs.sendMessage(tabId, { type: 'startBasicPicker' })
-      inspectorMode = 'basic'
+      _inspectorMode = 'basic'
       return { ok: true, mode: 'basic' }
     } catch {
-      inspectorMode = 'full'
+      _inspectorMode = 'full'
       return { error: 'Cannot inspect this page' }
     }
   }
@@ -428,7 +428,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 // ─── Side Panel ─────────────────────────────────────────────────
 
 // Click extension icon → open side panel directly (no popup)
-if (chrome.sidePanel && chrome.sidePanel.setPanelBehavior) {
+if (chrome.sidePanel?.setPanelBehavior) {
   chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch(() => {})
 }
 
@@ -469,6 +469,6 @@ chrome.tabs.onActivated.addListener((activeInfo) => {
 loadAuthToken().then(() => {
   loadPort().then(() => {
     checkHealth()
-    healthInterval = setInterval(checkHealth, 10000)
+    _healthInterval = setInterval(checkHealth, 10000)
   })
 })

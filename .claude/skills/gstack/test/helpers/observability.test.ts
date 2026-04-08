@@ -7,9 +7,9 @@
  */
 
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
-import * as fs from 'fs'
-import * as os from 'os'
-import * as path from 'path'
+import * as fs from 'node:fs'
+import * as os from 'node:os'
+import * as path from 'node:path'
 import type { HeartbeatData, PartialData } from '../../scripts/eval-watch'
 import { renderDashboard } from '../../scripts/eval-watch'
 import { EvalCollector } from './eval-store'
@@ -39,7 +39,7 @@ describe('session-runner observability', () => {
 
   test('2: heartbeat file path uses ~/.gstack-dev/e2e-live.json', () => {
     // Just verify the constant is correct — actual write is tested by E2E
-    const expected = path.join(os.homedir(), '.gstack-dev', 'e2e-live.json')
+    const _expected = path.join(os.homedir(), '.gstack-dev', 'e2e-live.json')
     // Import the module and check HEARTBEAT_PATH exists in the file
     const sessionRunnerSrc = fs.readFileSync(path.resolve(__dirname, 'session-runner.ts'), 'utf-8')
     expect(sessionRunnerSrc).toContain("'e2e-live.json'")

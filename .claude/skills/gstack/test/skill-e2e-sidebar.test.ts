@@ -11,11 +11,11 @@
  *   Tests the complete message flow through the queue.
  */
 
-import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
+import { afterAll, beforeAll, expect } from 'bun:test'
+import * as fs from 'node:fs'
+import * as os from 'node:os'
+import * as path from 'node:path'
 import { type Subprocess, spawn } from 'bun'
-import * as fs from 'fs'
-import * as os from 'os'
-import * as path from 'path'
 import {
   createEvalCollector,
   describeIfSelected,
@@ -41,8 +41,8 @@ describeIfSelected('Sidebar URL accuracy E2E', ['sidebar-url-accuracy'], () => {
       'Content-Type': 'application/json',
       ...((opts.headers as Record<string, string>) || {}),
     }
-    if (!headers['Authorization'] && authToken) {
-      headers['Authorization'] = `Bearer ${authToken}`
+    if (!headers.Authorization && authToken) {
+      headers.Authorization = `Bearer ${authToken}`
     }
     return fetch(`http://127.0.0.1:${serverPort}${pathname}`, { ...opts, headers })
   }
@@ -175,18 +175,18 @@ describeIfSelected('Sidebar CSS interaction E2E', ['sidebar-css-interaction'], (
   let tmpDir: string = ''
   let stateFile: string = ''
   let queueFile: string = ''
-  let serverLogFile: string = ''
-  let serverErrFile: string = ''
-  let agentLogFile: string = ''
-  let agentErrFile: string = ''
+  let _serverLogFile: string = ''
+  let _serverErrFile: string = ''
+  let _agentLogFile: string = ''
+  let _agentErrFile: string = ''
 
   async function api(pathname: string, opts: RequestInit = {}): Promise<Response> {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       ...((opts.headers as Record<string, string>) || {}),
     }
-    if (!headers['Authorization'] && authToken) {
-      headers['Authorization'] = `Bearer ${authToken}`
+    if (!headers.Authorization && authToken) {
+      headers.Authorization = `Bearer ${authToken}`
     }
     return fetch(`http://127.0.0.1:${serverPort}${pathname}`, { ...opts, headers })
   }
@@ -199,8 +199,8 @@ describeIfSelected('Sidebar CSS interaction E2E', ['sidebar-css-interaction'], (
 
     // Start server WITH a real browser for CSS interaction
     const serverScript = path.resolve(ROOT, 'browse', 'src', 'server.ts')
-    serverLogFile = path.join(tmpDir, 'server.log')
-    serverErrFile = path.join(tmpDir, 'server.err')
+    _serverLogFile = path.join(tmpDir, 'server.log')
+    _serverErrFile = path.join(tmpDir, 'server.err')
     // Use 'pipe' stdio — closing file descriptors kills the child on macOS/bun
     serverProc = spawn(['bun', 'run', serverScript], {
       env: {
@@ -248,8 +248,8 @@ describeIfSelected('Sidebar CSS interaction E2E', ['sidebar-css-interaction'], (
     // Start sidebar-agent with the real browse binary
     const agentScript = path.resolve(ROOT, 'browse', 'src', 'sidebar-agent.ts')
     const browseBin = path.resolve(ROOT, 'browse', 'dist', 'browse')
-    agentLogFile = path.join(tmpDir, 'agent.log')
-    agentErrFile = path.join(tmpDir, 'agent.err')
+    _agentLogFile = path.join(tmpDir, 'agent.log')
+    _agentErrFile = path.join(tmpDir, 'agent.err')
     // Use 'pipe' stdio — closing file descriptors kills the child on macOS/bun
     agentProc = spawn(['bun', 'run', agentScript], {
       env: {
@@ -360,7 +360,7 @@ describeIfSelected('Sidebar CSS interaction E2E', ['sidebar-css-interaction'], (
       expect(toolUses.length).toBeGreaterThanOrEqual(2) // At minimum: goto + one more
 
       // Agent text should mention something about the comment it found
-      const agentText = entries
+      const _agentText = entries
         .filter((e: any) => e.role === 'agent' && (e.type === 'text' || e.type === 'result'))
         .map((e: any) => e.text || '')
         .join(' ')
@@ -414,8 +414,8 @@ describeIfSelected('Sidebar navigate E2E', ['sidebar-navigate'], () => {
       'Content-Type': 'application/json',
       ...((opts.headers as Record<string, string>) || {}),
     }
-    if (!headers['Authorization'] && authToken) {
-      headers['Authorization'] = `Bearer ${authToken}`
+    if (!headers.Authorization && authToken) {
+      headers.Authorization = `Bearer ${authToken}`
     }
     return fetch(`http://127.0.0.1:${serverPort}${pathname}`, { ...opts, headers })
   }

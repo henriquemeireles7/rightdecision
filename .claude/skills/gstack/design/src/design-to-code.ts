@@ -4,7 +4,7 @@
  * Produces a structured prompt the agent can use to implement the design.
  */
 
-import fs from 'fs'
+import fs from 'node:fs'
 import { requireApiKey } from './auth'
 import { readDesignConstraints } from './memory'
 

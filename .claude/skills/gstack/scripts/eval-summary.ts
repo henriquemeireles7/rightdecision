@@ -5,9 +5,8 @@
  * Usage: bun run eval:summary
  */
 
-import * as fs from 'fs'
-import * as os from 'os'
-import * as path from 'path'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 import type { EvalResult } from '../test/helpers/eval-store'
 import { getProjectEvalDir } from '../test/helpers/eval-store'
 
@@ -159,7 +158,7 @@ if (testEfficiency.size > 0 && e2eRuns.length >= 2) {
       stats.durations.reduce((a, b) => a + b, 0) / stats.durations.length / 1000,
     )
     const avgC = (stats.costs.reduce((a, b) => a + b, 0) / stats.costs.length).toFixed(2)
-    const label = name.length > 30 ? name.slice(0, 27) + '...' : name.padEnd(30)
+    const label = name.length > 30 ? `${name.slice(0, 27)}...` : name.padEnd(30)
     console.log(`    ${label}  $${avgC}  ${avgT}t  ${avgD}s  (${stats.turns.length} runs)`)
   }
   console.log('─'.repeat(70))

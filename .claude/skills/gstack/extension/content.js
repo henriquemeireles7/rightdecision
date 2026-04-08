@@ -66,7 +66,7 @@ function clearOverlays() {
   }
 }
 
-function renderRefBadges(refs) {
+function _renderRefBadges(refs) {
   clearOverlays()
   if (!refs || refs.length === 0) return
 
@@ -113,7 +113,7 @@ function renderRefPanel(refs) {
     roleSpan.textContent = ref.role
     const nameSpan = document.createElement('span')
     nameSpan.className = 'gstack-ref-panel-name'
-    nameSpan.textContent = '"' + ref.name + '"'
+    nameSpan.textContent = `"${ref.name}"`
     row.append(
       idSpan,
       document.createTextNode(' '),
@@ -138,7 +138,7 @@ function renderRefPanel(refs) {
 // provides a basic element picker using getComputedStyle + CSSOM.
 
 let basicPickerActive = false
-const basicPickerOverlay = null
+const _basicPickerOverlay = null
 let basicPickerLastEl = null
 let basicPickerSavedOutline = ''
 
@@ -267,7 +267,7 @@ function captureBasicData(el) {
 
 function basicBuildSelector(el) {
   if (el.id) {
-    const sel = '#' + CSS.escape(el.id)
+    const sel = `#${CSS.escape(el.id)}`
     try {
       if (document.querySelectorAll(sel).length === 1) return sel
     } catch {}
@@ -277,7 +277,7 @@ function basicBuildSelector(el) {
   while (current && current !== document.body && current !== document.documentElement) {
     let part = current.tagName.toLowerCase()
     if (current.id) {
-      parts.unshift('#' + CSS.escape(current.id))
+      parts.unshift(`#${CSS.escape(current.id)}`)
       break
     }
     if (current.className && typeof current.className === 'string') {
@@ -285,7 +285,7 @@ function basicBuildSelector(el) {
         .trim()
         .split(/\s+/)
         .filter((c) => c.length > 0)
-      if (classes.length > 0) part += '.' + classes.map((c) => CSS.escape(c)).join('.')
+      if (classes.length > 0) part += `.${classes.map((c) => CSS.escape(c)).join('.')}`
     }
     const parent = current.parentElement
     if (parent) {
@@ -396,7 +396,7 @@ chrome.runtime.onMessage.addListener((msg) => {
   }
   if (msg.type === 'refs' && msg.data) {
     const refs = msg.data.refs || []
-    const mode = msg.data.mode
+    const _mode = msg.data.mode
 
     if (refs.length === 0) {
       clearOverlays()

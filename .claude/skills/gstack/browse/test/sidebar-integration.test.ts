@@ -4,11 +4,11 @@
  * exercises sidebar HTTP endpoints with fetch(). No Chrome, no Claude, no sidebar-agent.
  */
 
-import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test'
+import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
+import * as fs from 'node:fs'
+import * as os from 'node:os'
+import * as path from 'node:path'
 import { type Subprocess, spawn } from 'bun'
-import * as fs from 'fs'
-import * as os from 'os'
-import * as path from 'path'
 
 let serverProc: Subprocess | null = null
 let serverPort: number = 0
@@ -26,8 +26,8 @@ async function api(
     'Content-Type': 'application/json',
     ...((fetchOpts.headers as Record<string, string>) || {}),
   }
-  if (!noAuth && !headers['Authorization'] && authToken) {
-    headers['Authorization'] = `Bearer ${authToken}`
+  if (!noAuth && !headers.Authorization && authToken) {
+    headers.Authorization = `Bearer ${authToken}`
   }
   return fetch(`http://127.0.0.1:${serverPort}${pathname}`, { ...fetchOpts, headers })
 }

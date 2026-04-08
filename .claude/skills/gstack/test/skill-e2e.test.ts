@@ -1,8 +1,8 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
-import { spawnSync } from 'child_process'
-import * as fs from 'fs'
-import * as os from 'os'
-import * as path from 'path'
+import { spawnSync } from 'node:child_process'
+import * as fs from 'node:fs'
+import * as os from 'node:os'
+import * as path from 'node:path'
 import { startTestServer } from '../browse/test/test-server'
 import type { EvalTestEntry } from './helpers/eval-store'
 import { EvalCollector, judgePassed } from './helpers/eval-store'
@@ -531,7 +531,7 @@ describeIfSelected('Review skill E2E', ['review-sql-injection'], () => {
     reviewDir = fs.mkdtempSync(path.join(os.tmpdir(), 'skill-e2e-review-'))
 
     // Pre-build a git repo with a vulnerable file on a feature branch (decision 5A)
-    const { spawnSync } = require('child_process')
+    const { spawnSync } = require('node:child_process')
     const run = (cmd: string, args: string[]) =>
       spawnSync(cmd, args, { cwd: reviewDir, stdio: 'pipe', timeout: 5000 })
 
@@ -1014,7 +1014,7 @@ describeIfSelected('Plan CEO Review E2E', ['plan-ceo-review'], () => {
 
   beforeAll(() => {
     planDir = fs.mkdtempSync(path.join(os.tmpdir(), 'skill-e2e-plan-ceo-'))
-    const { spawnSync } = require('child_process')
+    const { spawnSync } = require('node:child_process')
     const run = (cmd: string, args: string[]) =>
       spawnSync(cmd, args, { cwd: planDir, stdio: 'pipe', timeout: 5000 })
 
@@ -1106,7 +1106,7 @@ describeIfSelected('Plan CEO Review SELECTIVE EXPANSION E2E', ['plan-ceo-review-
 
   beforeAll(() => {
     planDir = fs.mkdtempSync(path.join(os.tmpdir(), 'skill-e2e-plan-ceo-sel-'))
-    const { spawnSync } = require('child_process')
+    const { spawnSync } = require('node:child_process')
     const run = (cmd: string, args: string[]) =>
       spawnSync(cmd, args, { cwd: planDir, stdio: 'pipe', timeout: 5000 })
 
@@ -1194,7 +1194,7 @@ describeIfSelected('Plan Eng Review E2E', ['plan-eng-review'], () => {
 
   beforeAll(() => {
     planDir = fs.mkdtempSync(path.join(os.tmpdir(), 'skill-e2e-plan-eng-'))
-    const { spawnSync } = require('child_process')
+    const { spawnSync } = require('node:child_process')
     const run = (cmd: string, args: string[]) =>
       spawnSync(cmd, args, { cwd: planDir, stdio: 'pipe', timeout: 5000 })
 
@@ -1293,7 +1293,7 @@ describeIfSelected('Retro E2E', ['retro'], () => {
 
   beforeAll(() => {
     retroDir = fs.mkdtempSync(path.join(os.tmpdir(), 'skill-e2e-retro-'))
-    const { spawnSync } = require('child_process')
+    const { spawnSync } = require('node:child_process')
     const run = (cmd: string, args: string[]) =>
       spawnSync(cmd, args, { cwd: retroDir, stdio: 'pipe', timeout: 5000 })
 
@@ -1398,7 +1398,7 @@ describeIfSelected('QA-Only skill E2E', ['qa-only-no-fix'], () => {
     )
 
     // Init git repo (qa-only checks for feature branch in diff-aware mode)
-    const { spawnSync } = require('child_process')
+    const { spawnSync } = require('node:child_process')
     const run = (cmd: string, args: string[]) =>
       spawnSync(cmd, args, { cwd: qaOnlyDir, stdio: 'pipe', timeout: 5000 })
 
@@ -1514,7 +1514,7 @@ describeIfSelected('QA Fix Loop E2E', ['qa-fix-loop'], () => {
     )
 
     // Init git repo with clean working tree
-    const { spawnSync } = require('child_process')
+    const { spawnSync } = require('node:child_process')
     const run = (cmd: string, args: string[]) =>
       spawnSync(cmd, args, { cwd: qaFixDir, stdio: 'pipe', timeout: 5000 })
 
@@ -1606,7 +1606,7 @@ describeIfSelected('Plan-Eng-Review Test-Plan Artifact E2E', ['plan-eng-review-a
 
   beforeAll(() => {
     planDir = fs.mkdtempSync(path.join(os.tmpdir(), 'skill-e2e-plan-artifact-'))
-    const { spawnSync } = require('child_process')
+    const { spawnSync } = require('node:child_process')
     const run = (cmd: string, args: string[]) =>
       spawnSync(cmd, args, { cwd: planDir, stdio: 'pipe', timeout: 5000 })
 
@@ -1821,7 +1821,7 @@ Write your findings to ${dir}/review-output.md`,
 
         // Verify the review used "base branch" language (from Step 0)
         const toolOutputs = result.toolCalls.map((tc) => tc.output || '').join('\n')
-        const allOutput = (result.output || '') + toolOutputs
+        const _allOutput = (result.output || '') + toolOutputs
         // The agent should have run git diff against main (the fallback)
         const usedGitDiff = result.toolCalls.some(
           (tc) =>
@@ -2202,7 +2202,7 @@ IMPORTANT: The install directory is at ./.claude/skills/gstack — use that exac
       // Check that the version was updated
       const versionAfter = fs.readFileSync(path.join(mockGstack, 'VERSION'), 'utf-8').trim()
       const output = result.output || ''
-      const mentionsUpgrade =
+      const _mentionsUpgrade =
         output.toLowerCase().includes('0.6.0') ||
         output.toLowerCase().includes('upgrade') ||
         output.toLowerCase().includes('updated')
@@ -2263,7 +2263,7 @@ describeIfSelected(
 
     beforeAll(() => {
       designDir = fs.mkdtempSync(path.join(os.tmpdir(), 'skill-e2e-design-consultation-'))
-      const { spawnSync } = require('child_process')
+      const { spawnSync } = require('node:child_process')
       const run = (cmd: string, args: string[]) =>
         spawnSync(cmd, args, { cwd: designDir, stdio: 'pipe', timeout: 5000 })
 
@@ -2551,7 +2551,7 @@ Skip research. Skip any AskUserQuestion calls — this is non-interactive. Gener
           previewContent.includes('font-family') ||
           previewContent.includes('fonts.googleapis') ||
           previewContent.includes('fonts.bunny')
-        const hasColorRef =
+        const _hasColorRef =
           previewContent.includes('#') &&
           (previewContent.includes('background') || previewContent.includes('color:'))
 
@@ -2602,7 +2602,7 @@ describeIfSelected(
     beforeAll(() => {
       reviewDir = fs.mkdtempSync(path.join(os.tmpdir(), 'skill-e2e-plan-design-'))
 
-      const { spawnSync } = require('child_process')
+      const { spawnSync } = require('node:child_process')
       const run = (cmd: string, args: string[]) =>
         spawnSync(cmd, args, { cwd: reviewDir, stdio: 'pipe', timeout: 5000 })
 
@@ -2672,7 +2672,7 @@ IMPORTANT: Do NOT try to browse any URLs or use a browse binary. This is a plan 
 
         // Check that the agent produced design ratings (0-10 scale)
         const output = result.output || ''
-        const hasRatings = /\d+\/10/.test(output)
+        const _hasRatings = /\d+\/10/.test(output)
         const hasDesignContent =
           output.toLowerCase().includes('information architecture') ||
           output.toLowerCase().includes('interaction state') ||
@@ -2681,7 +2681,7 @@ IMPORTANT: Do NOT try to browse any URLs or use a browse binary. This is a plan 
 
         // Check that the plan file was edited (the core new behavior)
         const planAfter = fs.readFileSync(path.join(reviewDir, 'plan.md'), 'utf-8')
-        const planOriginal = `# Plan: User Dashboard`
+        const _planOriginal = `# Plan: User Dashboard`
         const planWasEdited = planAfter.length > 300 // Original is ~450 chars, edited should be much longer
         const planHasDesignAdditions =
           planAfter.toLowerCase().includes('empty') ||
@@ -2776,7 +2776,7 @@ describeIfSelected('Design Review E2E', ['design-review-fix'], () => {
     qaDesignDir = fs.mkdtempSync(path.join(os.tmpdir(), 'skill-e2e-qa-design-'))
     setupBrowseShims(qaDesignDir)
 
-    const { spawnSync } = require('child_process')
+    const { spawnSync } = require('node:child_process')
     const run = (cmd: string, args: string[]) =>
       spawnSync(cmd, args, { cwd: qaDesignDir, stdio: 'pipe', timeout: 5000 })
 

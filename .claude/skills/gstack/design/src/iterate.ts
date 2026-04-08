@@ -6,8 +6,8 @@
  * with original brief + accumulated feedback in a single prompt.
  */
 
-import fs from 'fs'
-import path from 'path'
+import fs from 'node:fs'
+import path from 'node:path'
 import { requireApiKey } from './auth'
 import { readSession, updateSession } from './session'
 

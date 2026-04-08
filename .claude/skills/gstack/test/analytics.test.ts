@@ -1,18 +1,17 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
-import { execSync } from 'child_process'
-import * as fs from 'fs'
-import * as os from 'os'
-import * as path from 'path'
+import * as fs from 'node:fs'
+import * as os from 'node:os'
+import * as path from 'node:path'
 import type { AnalyticsEvent } from '../scripts/analytics'
 import { filterByPeriod, formatReport, parseJSONL } from '../scripts/analytics'
 
 const TMP_DIR = path.join(os.tmpdir(), 'analytics-test')
-const SCRIPT = path.resolve(import.meta.dir, '../scripts/analytics.ts')
+const _SCRIPT = path.resolve(import.meta.dir, '../scripts/analytics.ts')
 
 function writeTempJSONL(name: string, lines: string[]): string {
   fs.mkdirSync(TMP_DIR, { recursive: true })
   const p = path.join(TMP_DIR, name)
-  fs.writeFileSync(p, lines.join('\n') + '\n')
+  fs.writeFileSync(p, `${lines.join('\n')}\n`)
   return p
 }
 

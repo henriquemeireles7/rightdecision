@@ -6,7 +6,7 @@
  */
 
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
-import * as fs from 'fs'
+import * as fs from 'node:fs'
 import { BrowserManager } from '../src/browser-manager'
 import { handleMetaCommand } from '../src/meta-commands'
 import { handleReadCommand } from '../src/read-commands'
@@ -37,7 +37,7 @@ afterAll(() => {
 
 describe('Snapshot', () => {
   test('snapshot returns accessibility tree with refs', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/snapshot.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/snapshot.html`], bm)
     const result = await handleMetaCommand('snapshot', [], bm, shutdown)
     expect(result).toContain('@e')
     expect(result).toContain('[heading]')
@@ -47,7 +47,7 @@ describe('Snapshot', () => {
   })
 
   test('snapshot -i returns only interactive elements', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/snapshot.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/snapshot.html`], bm)
     const result = await handleMetaCommand('snapshot', ['-i'], bm, shutdown)
     expect(result).toContain('[button]')
     expect(result).toContain('[link]')
@@ -57,7 +57,7 @@ describe('Snapshot', () => {
   })
 
   test('snapshot -c returns compact output', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/snapshot.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/snapshot.html`], bm)
     const full = await handleMetaCommand('snapshot', [], bm, shutdown)
     const compact = await handleMetaCommand('snapshot', ['-c'], bm, shutdown)
     // Compact should have fewer lines (empty structural elements removed)
@@ -67,7 +67,7 @@ describe('Snapshot', () => {
   })
 
   test('snapshot -d 2 limits depth', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/snapshot.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/snapshot.html`], bm)
     const shallow = await handleMetaCommand('snapshot', ['-d', '2'], bm, shutdown)
     const deep = await handleMetaCommand('snapshot', [], bm, shutdown)
     // Shallow should have fewer or equal lines
@@ -75,7 +75,7 @@ describe('Snapshot', () => {
   })
 
   test('snapshot -s "#main" scopes to selector', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/snapshot.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/snapshot.html`], bm)
     const scoped = await handleMetaCommand('snapshot', ['-s', '#main'], bm, shutdown)
     // Should contain elements inside #main
     expect(scoped).toContain('[button]')
@@ -86,14 +86,14 @@ describe('Snapshot', () => {
 
   test('snapshot on page with no interactive elements', async () => {
     // Navigate to about:blank which has minimal content
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     const result = await handleMetaCommand('snapshot', ['-i'], bm, shutdown)
     // basic.html has links, so this should find those
     expect(result).toContain('[link]')
   })
 
   test('second snapshot generates fresh refs', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/snapshot.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/snapshot.html`], bm)
     const snap1 = await handleMetaCommand('snapshot', [], bm, shutdown)
     const snap2 = await handleMetaCommand('snapshot', [], bm, shutdown)
     // Both should have @e1 (refs restart from 1)
@@ -106,7 +106,7 @@ describe('Snapshot', () => {
 
 describe('Ref resolution', () => {
   test('click @ref works after snapshot', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/snapshot.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/snapshot.html`], bm)
     const snap = await handleMetaCommand('snapshot', ['-i'], bm, shutdown)
     // Find a button ref
     const buttonLine = snap
@@ -121,7 +121,7 @@ describe('Ref resolution', () => {
   })
 
   test('fill @ref works after snapshot', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/snapshot.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/snapshot.html`], bm)
     const snap = await handleMetaCommand('snapshot', ['-i'], bm, shutdown)
     // Find a textbox ref (Username)
     const textboxLine = snap
@@ -136,7 +136,7 @@ describe('Ref resolution', () => {
   })
 
   test('hover @ref works after snapshot', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/snapshot.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/snapshot.html`], bm)
     const snap = await handleMetaCommand('snapshot', ['-i'], bm, shutdown)
     const linkLine = snap.split('\n').find((l) => l.includes('[link]'))
     expect(linkLine).toBeDefined()
@@ -147,7 +147,7 @@ describe('Ref resolution', () => {
   })
 
   test('html @ref returns innerHTML', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/snapshot.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/snapshot.html`], bm)
     const snap = await handleMetaCommand('snapshot', [], bm, shutdown)
     // Find a heading ref
     const headingLine = snap
@@ -161,7 +161,7 @@ describe('Ref resolution', () => {
   })
 
   test('css @ref returns computed CSS', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/snapshot.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/snapshot.html`], bm)
     const snap = await handleMetaCommand('snapshot', [], bm, shutdown)
     const headingLine = snap
       .split('\n')
@@ -173,7 +173,7 @@ describe('Ref resolution', () => {
   })
 
   test('attrs @ref returns element attributes', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/snapshot.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/snapshot.html`], bm)
     const snap = await handleMetaCommand('snapshot', ['-i'], bm, shutdown)
     const textboxLine = snap
       .split('\n')
@@ -189,10 +189,10 @@ describe('Ref resolution', () => {
 
 describe('Ref invalidation', () => {
   test('stale ref after goto returns clear error', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/snapshot.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/snapshot.html`], bm)
     await handleMetaCommand('snapshot', ['-i'], bm, shutdown)
     // Navigate away — should invalidate refs
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     // Try to use old ref
     try {
       await handleWriteCommand('click', ['@e1'], bm)
@@ -204,11 +204,11 @@ describe('Ref invalidation', () => {
   })
 
   test('refs cleared on page navigation', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/snapshot.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/snapshot.html`], bm)
     await handleMetaCommand('snapshot', ['-i'], bm, shutdown)
     expect(bm.getRefCount()).toBeGreaterThan(0)
     // Navigate
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     expect(bm.getRefCount()).toBe(0)
   })
 })
@@ -217,14 +217,14 @@ describe('Ref invalidation', () => {
 
 describe('Ref staleness detection', () => {
   test('ref metadata stores role and name', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/snapshot.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/snapshot.html`], bm)
     await handleMetaCommand('snapshot', ['-i'], bm, shutdown)
     // Refs should exist with metadata
     expect(bm.getRefCount()).toBeGreaterThan(0)
   })
 
   test('stale ref after DOM removal gives descriptive error', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/snapshot.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/snapshot.html`], bm)
     const snap = await handleMetaCommand('snapshot', ['-i'], bm, shutdown)
     // Find a button ref
     const buttonLine = snap
@@ -251,7 +251,7 @@ describe('Ref staleness detection', () => {
   })
 
   test('valid ref still resolves normally after staleness check', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/snapshot.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/snapshot.html`], bm)
     const snap = await handleMetaCommand('snapshot', ['-i'], bm, shutdown)
     const linkLine = snap.split('\n').find((l) => l.includes('[link]'))
     expect(linkLine).toBeDefined()
@@ -269,14 +269,14 @@ describe('Snapshot diff', () => {
   test('first snapshot -D stores baseline', async () => {
     // Clear any previous snapshot
     bm.setLastSnapshot(null)
-    await handleWriteCommand('goto', [baseUrl + '/snapshot.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/snapshot.html`], bm)
     const result = await handleMetaCommand('snapshot', ['-D'], bm, shutdown)
     expect(result).toContain('no previous snapshot')
     expect(result).toContain('baseline')
   })
 
   test('snapshot -D shows diff after change', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/snapshot.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/snapshot.html`], bm)
     // Take first snapshot
     await handleMetaCommand('snapshot', [], bm, shutdown)
     // Modify DOM
@@ -294,7 +294,7 @@ describe('Snapshot diff', () => {
   })
 
   test('snapshot -D with identical page shows no changes', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     await handleMetaCommand('snapshot', [], bm, shutdown)
     const diff = await handleMetaCommand('snapshot', ['-D'], bm, shutdown)
     // All lines should be unchanged (prefixed with space)
@@ -310,7 +310,7 @@ describe('Snapshot diff', () => {
 describe('Annotated screenshots', () => {
   test('snapshot -a creates annotated screenshot', async () => {
     const screenshotPath = '/tmp/browse-test-annotated.png'
-    await handleWriteCommand('goto', [baseUrl + '/snapshot.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/snapshot.html`], bm)
     const result = await handleMetaCommand('snapshot', ['-a', '-o', screenshotPath], bm, shutdown)
     expect(result).toContain('annotated screenshot')
     expect(result).toContain(screenshotPath)
@@ -322,7 +322,7 @@ describe('Annotated screenshots', () => {
 
   test('snapshot -a uses default path', async () => {
     const defaultPath = '/tmp/browse-annotated.png'
-    await handleWriteCommand('goto', [baseUrl + '/snapshot.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/snapshot.html`], bm)
     const result = await handleMetaCommand('snapshot', ['-a'], bm, shutdown)
     expect(result).toContain('annotated screenshot')
     expect(fs.existsSync(defaultPath)).toBe(true)
@@ -331,7 +331,7 @@ describe('Annotated screenshots', () => {
 
   test('snapshot -a -i only annotates interactive', async () => {
     const screenshotPath = '/tmp/browse-test-annotated-i.png'
-    await handleWriteCommand('goto', [baseUrl + '/snapshot.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/snapshot.html`], bm)
     const result = await handleMetaCommand(
       'snapshot',
       ['-i', '-a', '-o', screenshotPath],
@@ -345,7 +345,7 @@ describe('Annotated screenshots', () => {
   })
 
   test('annotation overlays are cleaned up', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/snapshot.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/snapshot.html`], bm)
     await handleMetaCommand('snapshot', ['-a'], bm, shutdown)
     // Check that overlays are removed
     const overlays = await handleReadCommand(
@@ -365,7 +365,7 @@ describe('Annotated screenshots', () => {
 
 describe('Cursor-interactive', () => {
   test('snapshot -C finds cursor:pointer elements', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/cursor-interactive.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/cursor-interactive.html`], bm)
     const result = await handleMetaCommand('snapshot', ['-C'], bm, shutdown)
     expect(result).toContain('cursor-interactive')
     expect(result).toContain('@c')
@@ -373,19 +373,19 @@ describe('Cursor-interactive', () => {
   })
 
   test('snapshot -C includes onclick elements', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/cursor-interactive.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/cursor-interactive.html`], bm)
     const result = await handleMetaCommand('snapshot', ['-C'], bm, shutdown)
     expect(result).toContain('onclick')
   })
 
   test('snapshot -C includes tabindex elements', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/cursor-interactive.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/cursor-interactive.html`], bm)
     const result = await handleMetaCommand('snapshot', ['-C'], bm, shutdown)
     expect(result).toContain('tabindex')
   })
 
   test('@c ref is clickable', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/cursor-interactive.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/cursor-interactive.html`], bm)
     const snap = await handleMetaCommand('snapshot', ['-C'], bm, shutdown)
     // Find a @c ref
     const cLine = snap.split('\n').find((l) => l.includes('@c'))
@@ -399,14 +399,14 @@ describe('Cursor-interactive', () => {
   })
 
   test('snapshot -C on page with no cursor elements', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/empty.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/empty.html`], bm)
     const result = await handleMetaCommand('snapshot', ['-C'], bm, shutdown)
     // Should not contain cursor-interactive section
     expect(result).not.toContain('cursor-interactive')
   })
 
   test('snapshot -i -C combines both modes', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/cursor-interactive.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/cursor-interactive.html`], bm)
     const result = await handleMetaCommand('snapshot', ['-i', '-C'], bm, shutdown)
     // Should have interactive elements (button, link)
     expect(result).toContain('[button]')
@@ -447,7 +447,7 @@ describe('Snapshot errors', () => {
   })
 
   test('-s with nonexistent selector throws', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     try {
       await handleMetaCommand('snapshot', ['-s', '#nonexistent-element-12345'], bm, shutdown)
       expect(true).toBe(false)
@@ -470,7 +470,7 @@ describe('Snapshot errors', () => {
 
 describe('Snapshot combined flags', () => {
   test('-i -c -d 2 combines all filters', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/snapshot.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/snapshot.html`], bm)
     const result = await handleMetaCommand('snapshot', ['-i', '-c', '-d', '2'], bm, shutdown)
     // Should be filtered to interactive, compact, shallow
     expect(result).toContain('[button]')

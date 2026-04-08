@@ -1,8 +1,6 @@
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
-import { spawnSync } from 'child_process'
-import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'fs'
-import { tmpdir } from 'os'
-import { join } from 'path'
+import { beforeEach, describe, expect, test } from 'bun:test'
+import { spawnSync } from 'node:child_process'
+import { join } from 'node:path'
 
 // Import normalizeRemoteUrl for unit testing
 // We test the script end-to-end via CLI and normalizeRemoteUrl via import

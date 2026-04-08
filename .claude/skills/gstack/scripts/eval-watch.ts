@@ -8,9 +8,9 @@
  * Usage: bun run eval:watch [--tail]
  */
 
-import * as fs from 'fs'
-import * as os from 'os'
-import * as path from 'path'
+import * as fs from 'node:fs'
+import * as os from 'node:os'
+import * as path from 'node:path'
 
 const GSTACK_DEV_DIR = path.join(os.homedir(), '.gstack-dev')
 const HEARTBEAT_PATH = path.join(GSTACK_DEV_DIR, 'e2e-live.json')
@@ -99,7 +99,7 @@ export function renderDashboard(
       const cost = `$${t.cost_usd.toFixed(2)}`
       const dur = `${Math.round(t.duration_ms / 1000)}s`
       const turns = t.turns_used !== undefined ? `${t.turns_used} turns` : ''
-      const name = t.name.length > 30 ? t.name.slice(0, 27) + '...' : t.name.padEnd(30)
+      const name = t.name.length > 30 ? `${t.name.slice(0, 27)}...` : t.name.padEnd(30)
       lines.push(` ${icon} ${name}  ${cost.padStart(6)}  ${dur.padStart(5)}  ${turns}`)
     }
   }
@@ -108,7 +108,7 @@ export function renderDashboard(
   if (heartbeat && heartbeat.status === 'running') {
     const name =
       heartbeat.currentTest.length > 30
-        ? heartbeat.currentTest.slice(0, 27) + '...'
+        ? `${heartbeat.currentTest.slice(0, 27)}...`
         : heartbeat.currentTest.padEnd(30)
     lines.push(
       ` \u29D6 ${name}  ${formatDuration(heartbeat.elapsedSec).padStart(6)}  turn ${heartbeat.turn}   last: ${heartbeat.lastTool}`,
@@ -167,7 +167,7 @@ if (import.meta.main) {
 
     // Clear screen
     process.stdout.write('\x1B[2J\x1B[H')
-    process.stdout.write(renderDashboard(heartbeat, partial) + '\n')
+    process.stdout.write(`${renderDashboard(heartbeat, partial)}\n`)
 
     // --tail: show last 10 lines of progress.log
     if (showTail && heartbeat?.runId) {
@@ -180,7 +180,7 @@ if (import.meta.main) {
           .slice(-10)
         process.stdout.write('\nRecent progress:\n')
         for (const line of tail) {
-          process.stdout.write(line + '\n')
+          process.stdout.write(`${line}\n`)
         }
       } catch {
         /* log file may not exist yet */

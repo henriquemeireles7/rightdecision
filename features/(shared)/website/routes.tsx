@@ -5,7 +5,6 @@ import { AboutPage } from './about'
 import { blogRoutes } from './blog-routes'
 import { conceptRoutes } from './concept-routes'
 import { getHomepageProps, Homepage } from './homepage'
-import { Layout } from './layout'
 import { legalRoutes } from './legal-routes'
 import { sitemapRoutes } from './sitemap'
 

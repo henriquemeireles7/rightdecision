@@ -80,7 +80,7 @@ async function runSetup(): Promise<void> {
     reader.releaseLock()
     const key = new TextDecoder().decode(value).trim()
 
-    if (!key || !key.startsWith('sk-')) {
+    if (!key?.startsWith('sk-')) {
       console.error("Invalid key. Must start with 'sk-'.")
       process.exit(1)
     }
@@ -122,7 +122,7 @@ async function main(): Promise<void> {
         briefFile: flags['brief-file'] as string,
         output: (flags.output as string) || '/tmp/gstack-mockup.png',
         check: !!flags.check,
-        retry: flags.retry ? parseInt(flags.retry as string) : 0,
+        retry: flags.retry ? parseInt(flags.retry as string, 10) : 0,
         size: flags.size as string,
         quality: flags.quality as string,
       })
@@ -142,7 +142,7 @@ async function main(): Promise<void> {
       if (flags.serve) {
         await serve({
           html: outputPath,
-          timeout: flags.timeout ? parseInt(flags.timeout as string) : 600,
+          timeout: flags.timeout ? parseInt(flags.timeout as string, 10) : 600,
         })
       }
       break
@@ -170,7 +170,7 @@ async function main(): Promise<void> {
       await variants({
         brief: flags.brief as string,
         briefFile: flags['brief-file'] as string,
-        count: flags.count ? parseInt(flags.count as string) : 3,
+        count: flags.count ? parseInt(flags.count as string, 10) : 3,
         outputDir: (flags['output-dir'] as string) || '/tmp/gstack-variants/',
         size: flags.size as string,
         quality: flags.quality as string,
@@ -250,7 +250,7 @@ async function main(): Promise<void> {
     case 'serve':
       await serve({
         html: flags.html as string,
-        timeout: flags.timeout ? parseInt(flags.timeout as string) : 600,
+        timeout: flags.timeout ? parseInt(flags.timeout as string, 10) : 600,
       })
       break
   }

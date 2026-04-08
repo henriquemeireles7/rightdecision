@@ -44,7 +44,7 @@ const subscribers = new Set<ActivitySubscriber>()
 
 // ─── Privacy Filtering ─────────────────────────────────────────
 
-const SENSITIVE_COMMANDS = new Set(['fill', 'type', 'cookie', 'header'])
+const _SENSITIVE_COMMANDS = new Set(['fill', 'type', 'cookie', 'header'])
 const SENSITIVE_PARAM_PATTERN = /\b(password|token|secret|key|auth|bearer|api[_-]?key)\b/i
 
 /**
@@ -69,7 +69,7 @@ export function filterArgs(command: string, args: string[]): string[] {
     if (/^(authorization|x-api-key|cookie|set-cookie)/i.test(headerLine)) {
       const colonIdx = headerLine.indexOf(':')
       if (colonIdx > 0) {
-        return [headerLine.substring(0, colonIdx + 1) + '[REDACTED]']
+        return [`${headerLine.substring(0, colonIdx + 1)}[REDACTED]`]
       }
     }
     return args
@@ -80,7 +80,7 @@ export function filterArgs(command: string, args: string[]): string[] {
     const cookieStr = args[0]
     const eqIdx = cookieStr.indexOf('=')
     if (eqIdx > 0) {
-      return [cookieStr.substring(0, eqIdx + 1) + '[REDACTED]']
+      return [`${cookieStr.substring(0, eqIdx + 1)}[REDACTED]`]
     }
     return args
   }
@@ -117,7 +117,7 @@ export function filterArgs(command: string, args: string[]): string[] {
 function truncateResult(result: string | undefined): string | undefined {
   if (!result) return undefined
   if (result.length <= 200) return result
-  return result.substring(0, 200) + '...'
+  return `${result.substring(0, 200)}...`
 }
 
 // ─── Public API ─────────────────────────────────────────────────

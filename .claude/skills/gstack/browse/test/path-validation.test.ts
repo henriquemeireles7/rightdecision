@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'bun:test'
-import { symlinkSync, unlinkSync, writeFileSync } from 'fs'
-import { tmpdir } from 'os'
-import { join } from 'path'
+import { symlinkSync, unlinkSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { validateOutputPath } from '../src/meta-commands'
 import { validateReadPath } from '../src/read-commands'
 
@@ -65,7 +65,7 @@ describe('validateReadPath', () => {
   })
 
   it('blocks symlink inside safe dir pointing outside', () => {
-    const linkPath = join(tmpdir(), 'test-symlink-bypass-' + Date.now())
+    const linkPath = join(tmpdir(), `test-symlink-bypass-${Date.now()}`)
     try {
       symlinkSync('/etc/passwd', linkPath)
       expect(() => validateReadPath(linkPath)).toThrow(/Path must be within/)
@@ -80,7 +80,7 @@ describe('validateReadPath', () => {
     // Attempting to resolve a path through a non-directory should throw
     // a descriptive error (ENOTDIR), not silently pass through.
     // Create a regular file, then try to resolve a path through it as if it were a directory.
-    const filePath = join(tmpdir(), 'test-notdir-' + Date.now())
+    const filePath = join(tmpdir(), `test-notdir-${Date.now()}`)
     try {
       writeFileSync(filePath, 'not a directory')
       // filePath is a file, so filePath + '/subpath' triggers ENOTDIR

@@ -10,8 +10,8 @@
  * spawned server. The server derives all paths from that env var.
  */
 
-import * as fs from 'fs'
-import * as path from 'path'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 
 export interface BrowseConfig {
   projectDir: string

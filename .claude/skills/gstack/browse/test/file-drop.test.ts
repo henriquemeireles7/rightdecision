@@ -6,14 +6,13 @@
  */
 
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
-import * as fs from 'fs'
-import * as os from 'os'
-import * as path from 'path'
+import * as fs from 'node:fs'
+import * as os from 'node:os'
+import * as path from 'node:path'
 import type { BrowserManager } from '../src/browser-manager'
-import { handleMetaCommand } from '../src/meta-commands'
 
 let tmpDir: string
-let bm: BrowserManager
+let _bm: BrowserManager
 
 // We need a BrowserManager instance for handleMetaCommand, but inbox
 // doesn't use it. We also need to mock git rev-parse to point to our

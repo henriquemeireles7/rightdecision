@@ -1,5 +1,3 @@
-import { errors } from '@/platform/errors'
-
 export type PipelineStatus =
   | 'queued'
   | 'transcribing'
@@ -47,7 +45,7 @@ const validTransitions: Record<PipelineStatus, PipelineStatus[]> = {
 
 export function assertTransition(current: PipelineStatus, next: PipelineStatus): void {
   const allowed = validTransitions[current]
-  if (!allowed || !allowed.includes(next)) {
+  if (!allowed?.includes(next)) {
     throw new InvalidTransitionError(current, next)
   }
 }

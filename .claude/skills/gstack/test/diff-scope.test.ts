@@ -5,10 +5,10 @@
  * the correct SCOPE_* variables are output.
  */
 import { afterAll, describe, expect, test } from 'bun:test'
-import { spawnSync } from 'child_process'
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'fs'
-import { tmpdir } from 'os'
-import { join } from 'path'
+import { spawnSync } from 'node:child_process'
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 
 const SCRIPT = join(import.meta.dir, '..', 'bin', 'gstack-diff-scope')
 

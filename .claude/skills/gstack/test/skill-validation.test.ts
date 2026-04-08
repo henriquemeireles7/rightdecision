@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
-import * as fs from 'fs'
-import * as path from 'path'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 import {
   ALL_COMMANDS,
   COMMAND_DESCRIPTIONS,
@@ -280,7 +280,7 @@ describe('Update check preamble', () => {
 
   test('all skills with update check are generated from .tmpl', () => {
     for (const skill of skillsWithUpdateCheck) {
-      const tmplPath = path.join(ROOT, skill + '.tmpl')
+      const tmplPath = path.join(ROOT, `${skill}.tmpl`)
       expect(fs.existsSync(tmplPath)).toBe(true)
     }
   })

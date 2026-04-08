@@ -3,7 +3,7 @@
  * Uses GPT-4o vision to verify text readability, layout completeness, and visual coherence.
  */
 
-import fs from 'fs'
+import fs from 'node:fs'
 import { requireApiKey } from './auth'
 
 export interface CheckResult {

@@ -6,9 +6,9 @@
  * NDJSON output for real-time progress, scans for browse errors.
  */
 
-import * as fs from 'fs'
-import * as os from 'os'
-import * as path from 'path'
+import * as fs from 'node:fs'
+import * as os from 'node:os'
+import * as path from 'node:path'
 import { getProjectEvalDir } from './eval-store'
 
 const GSTACK_DEV_DIR = path.join(os.homedir(), '.gstack-dev')
@@ -22,7 +22,7 @@ export function sanitizeTestName(name: string): string {
 
 /** Atomic write: write to .tmp then rename. Non-fatal on error. */
 function atomicWriteSync(filePath: string, data: string): void {
-  const tmp = filePath + '.tmp'
+  const tmp = `${filePath}.tmp`
   fs.writeFileSync(tmp, data)
   fs.renameSync(tmp, filePath)
 }
@@ -113,7 +113,7 @@ export function parseNDJSON(lines: string[]): ParsedNDJSON {
 }
 
 function truncate(s: string, max: number): string {
-  return s.length > max ? s.slice(0, max) + '…' : s
+  return s.length > max ? `${s.slice(0, max)}…` : s
 }
 
 // --- Main runner ---
@@ -259,7 +259,7 @@ export async function runSkillTest(options: {
                     const toolDesc = `${item.name}(${truncate(JSON.stringify(item.input || {}), 60)})`
                     atomicWriteSync(
                       HEARTBEAT_PATH,
-                      JSON.stringify(
+                      `${JSON.stringify(
                         {
                           runId,
                           pid: proc.pid,
@@ -274,7 +274,7 @@ export async function runSkillTest(options: {
                         },
                         null,
                         2,
-                      ) + '\n',
+                      )}\n`,
                     )
                   } catch {
                     /* non-fatal */
@@ -290,7 +290,7 @@ export async function runSkillTest(options: {
         // Append raw NDJSON line to per-test transcript file
         if (runDir && safeName) {
           try {
-            fs.appendFileSync(path.join(runDir, `${safeName}.ndjson`), line + '\n')
+            fs.appendFileSync(path.join(runDir, `${safeName}.ndjson`), `${line}\n`)
           } catch {
             /* non-fatal */
           }
@@ -332,7 +332,7 @@ export async function runSkillTest(options: {
   const browseErrors: string[] = []
 
   // Scan transcript + stderr for browse errors
-  const allText = transcript.map((e) => JSON.stringify(e)).join('\n') + '\n' + stderr
+  const allText = `${transcript.map((e) => JSON.stringify(e)).join('\n')}\n${stderr}`
   for (const pattern of BROWSE_ERROR_PATTERNS) {
     const match = allText.match(pattern)
     if (match) {

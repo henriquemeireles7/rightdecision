@@ -4,15 +4,14 @@
  */
 
 import { describe, expect, test } from 'bun:test'
-import { spawnSync } from 'child_process'
-import * as fs from 'fs'
-import * as os from 'os'
-import * as path from 'path'
+import { spawnSync } from 'node:child_process'
+import * as fs from 'node:fs'
+import * as os from 'node:os'
+import * as path from 'node:path'
 import {
   detectBaseBranch,
   E2E_TIERS,
   E2E_TOUCHFILES,
-  GLOBAL_TOUCHFILES,
   LLM_JUDGE_TOUCHFILES,
   matchGlob,
   selectTests,
@@ -223,7 +222,7 @@ describe('TOUCHFILES completeness', () => {
       .filter((f) => f.startsWith('skill-e2e-') && f.endsWith('.test.ts'))
     let e2eContent = ''
     for (const f of e2eFiles) {
-      e2eContent += fs.readFileSync(path.join(testDir, f), 'utf-8') + '\n'
+      e2eContent += `${fs.readFileSync(path.join(testDir, f), 'utf-8')}\n`
     }
 
     // Extract all testName: 'value' entries

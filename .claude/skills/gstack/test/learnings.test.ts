@@ -1,15 +1,15 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
-import { type ExecSyncOptionsWithStringEncoding, execSync } from 'child_process'
-import * as fs from 'fs'
-import * as os from 'os'
-import * as path from 'path'
+import { type ExecSyncOptionsWithStringEncoding, execSync } from 'node:child_process'
+import * as fs from 'node:fs'
+import * as os from 'node:os'
+import * as path from 'node:path'
 
 const ROOT = path.resolve(import.meta.dir, '..')
 const BIN = path.join(ROOT, 'bin')
 
 let tmpDir: string
 let slugDir: string
-let learningsFile: string
+let _learningsFile: string
 
 function runLog(
   input: string,
@@ -402,23 +402,23 @@ describe('gstack-learnings-search edge cases', () => {
     // Append entries missing key and type
     fs.appendFileSync(
       f!,
-      JSON.stringify({
+      `${JSON.stringify({
         skill: 'review',
         type: 'pattern',
         insight: 'no key',
         confidence: 7,
         source: 'observed',
-      }) + '\n',
+      })}\n`,
     )
     fs.appendFileSync(
       f!,
-      JSON.stringify({
+      `${JSON.stringify({
         skill: 'review',
         key: 'no-type',
         insight: 'no type',
         confidence: 7,
         source: 'observed',
-      }) + '\n',
+      })}\n`,
     )
 
     const output = runSearch()

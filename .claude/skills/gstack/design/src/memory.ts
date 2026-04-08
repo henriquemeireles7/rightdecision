@@ -11,8 +11,8 @@
  * If no DESIGN.md, creates one from the extracted patterns.
  */
 
-import fs from 'fs'
-import path from 'path'
+import fs from 'node:fs'
+import path from 'node:path'
 import { requireApiKey } from './auth'
 
 export interface ExtractedDesign {
@@ -122,9 +122,9 @@ export function updateDesignMd(
     const marker = '## Extracted Design Language'
     if (existing.includes(marker)) {
       const before = existing.split(marker)[0]
-      fs.writeFileSync(designPath, before.trimEnd() + '\n\n' + section)
+      fs.writeFileSync(designPath, `${before.trimEnd()}\n\n${section}`)
     } else {
-      fs.writeFileSync(designPath, existing.trimEnd() + '\n\n' + section)
+      fs.writeFileSync(designPath, `${existing.trimEnd()}\n\n${section}`)
     }
     console.error(`Updated DESIGN.md with extracted design language`)
   } else {

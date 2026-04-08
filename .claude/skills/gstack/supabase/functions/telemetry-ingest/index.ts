@@ -30,7 +30,7 @@ Deno.serve(async (req) => {
   }
 
   // Check payload size
-  const contentLength = parseInt(req.headers.get('content-length') || '0')
+  const contentLength = parseInt(req.headers.get('content-length') || '0', 10)
   if (contentLength > MAX_PAYLOAD_BYTES) {
     return new Response('Payload too large', { status: 413 })
   }

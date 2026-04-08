@@ -13,12 +13,12 @@
  *   Port:       random 10000-60000 (or BROWSE_PORT env for debug override)
  */
 
-import * as crypto from 'crypto'
+import * as crypto from 'node:crypto'
 // Bun.spawn used instead of child_process.spawn (compiled bun binaries
 // fail posix_spawn on all executables including /bin/bash)
-import * as fs from 'fs'
-import * as net from 'net'
-import * as path from 'path'
+import * as fs from 'node:fs'
+import * as net from 'node:net'
+import * as path from 'node:path'
 import {
   emitActivity,
   getActivityAfter,
@@ -86,7 +86,7 @@ function generateHelpText(): string {
   for (const cat of categoryOrder) {
     const cmds = groups.get(cat)
     if (!cmds) continue
-    lines.push(`  ${(cat + ':').padEnd(15)}${cmds.join(', ')}`)
+    lines.push(`  ${(`${cat}:`).padEnd(15)}${cmds.join(', ')}`)
   }
 
   // Snapshot flags from source of truth
@@ -220,7 +220,7 @@ function findBrowseBin(): string {
 
 const BROWSE_BIN = findBrowseBin()
 
-function findClaudeBin(): string | null {
+function _findClaudeBin(): string | null {
   const home = process.env.HOME || ''
   const candidates = [
     // Conductor app bundled binary (not a symlink — works reliably)
@@ -275,11 +275,11 @@ function shortenPath(str: string): string {
     .replace(/browse\/dist\/browse/g, '$B')
 }
 
-function summarizeToolInput(tool: string, input: any): string {
+function _summarizeToolInput(tool: string, input: any): string {
   if (!input) return ''
   if (tool === 'Bash' && input.command) {
     const cmd = shortenPath(input.command)
-    return cmd.length > 80 ? cmd.slice(0, 80) + '…' : cmd
+    return cmd.length > 80 ? `${cmd.slice(0, 80)}…` : cmd
   }
   if (tool === 'Read' && input.file_path) return shortenPath(input.file_path)
   if (tool === 'Edit' && input.file_path) return shortenPath(input.file_path)
@@ -304,7 +304,7 @@ function addChatEntry(entry: Omit<ChatEntry, 'id'>, tabId?: number): ChatEntry {
   if (sidebarSession) {
     const chatFile = path.join(SESSIONS_DIR, sidebarSession.id, 'chat.jsonl')
     try {
-      fs.appendFileSync(chatFile, JSON.stringify(full) + '\n')
+      fs.appendFileSync(chatFile, `${JSON.stringify(full)}\n`)
     } catch {}
   }
   return full
@@ -575,7 +575,7 @@ function spawnClaude(
   const systemPrompt = [
     '<system>',
     `Browser co-pilot. Binary: ${B}`,
-    'Run `' + B + ' url` first to check the actual page. NEVER assume the URL.',
+    `Run \`${B} url\` first to check the actual page. NEVER assume the URL.`,
     'NEVER navigate back to a previous page. Work with whatever page is open.',
     '',
     `Commands: ${B} goto/click/fill/snapshot/text/screenshot/inspect/style/cleanup`,
@@ -635,7 +635,7 @@ function spawnClaude(
   })
   try {
     fs.mkdirSync(gstackDir, { recursive: true })
-    fs.appendFileSync(agentQueue, entry + '\n')
+    fs.appendFileSync(agentQueue, `${entry}\n`)
   } catch (err: any) {
     addChatEntry({
       ts: new Date().toISOString(),
@@ -722,10 +722,9 @@ async function flushBuffers() {
     const newConsoleCount = consoleBuffer.totalAdded - lastConsoleFlushed
     if (newConsoleCount > 0) {
       const entries = consoleBuffer.last(Math.min(newConsoleCount, consoleBuffer.length))
-      const lines =
-        entries
-          .map((e) => `[${new Date(e.timestamp).toISOString()}] [${e.level}] ${e.text}`)
-          .join('\n') + '\n'
+      const lines = `${entries
+        .map((e) => `[${new Date(e.timestamp).toISOString()}] [${e.level}] ${e.text}`)
+        .join('\n')}\n`
       fs.appendFileSync(CONSOLE_LOG_PATH, lines)
       lastConsoleFlushed = consoleBuffer.totalAdded
     }
@@ -734,13 +733,12 @@ async function flushBuffers() {
     const newNetworkCount = networkBuffer.totalAdded - lastNetworkFlushed
     if (newNetworkCount > 0) {
       const entries = networkBuffer.last(Math.min(newNetworkCount, networkBuffer.length))
-      const lines =
-        entries
-          .map(
-            (e) =>
-              `[${new Date(e.timestamp).toISOString()}] ${e.method} ${e.url} → ${e.status || 'pending'} (${e.duration || '?'}ms, ${e.size || '?'}B)`,
-          )
-          .join('\n') + '\n'
+      const lines = `${entries
+        .map(
+          (e) =>
+            `[${new Date(e.timestamp).toISOString()}] ${e.method} ${e.url} → ${e.status || 'pending'} (${e.duration || '?'}ms, ${e.size || '?'}B)`,
+        )
+        .join('\n')}\n`
       fs.appendFileSync(NETWORK_LOG_PATH, lines)
       lastNetworkFlushed = networkBuffer.totalAdded
     }
@@ -749,13 +747,12 @@ async function flushBuffers() {
     const newDialogCount = dialogBuffer.totalAdded - lastDialogFlushed
     if (newDialogCount > 0) {
       const entries = dialogBuffer.last(Math.min(newDialogCount, dialogBuffer.length))
-      const lines =
-        entries
-          .map(
-            (e) =>
-              `[${new Date(e.timestamp).toISOString()}] [${e.type}] "${e.message}" → ${e.action}${e.response ? ` "${e.response}"` : ''}`,
-          )
-          .join('\n') + '\n'
+      const lines = `${entries
+        .map(
+          (e) =>
+            `[${new Date(e.timestamp).toISOString()}] [${e.type}] "${e.message}" → ${e.action}${e.response ? ` "${e.response}"` : ''}`,
+        )
+        .join('\n')}\n`
       fs.appendFileSync(DIALOG_LOG_PATH, lines)
       lastDialogFlushed = dialogBuffer.totalAdded
     }
@@ -1017,7 +1014,7 @@ async function handleCommand(body: any): Promise<Response> {
     browserManager.incrementFailures()
     let errorMsg = wrapError(err)
     const hint = browserManager.getFailureHint()
-    if (hint) errorMsg += '\n' + hint
+    if (hint) errorMsg += `\n${hint}`
     return new Response(JSON.stringify({ error: errorMsg }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
@@ -1140,7 +1137,7 @@ async function start() {
   }
 
   const startTime = Date.now()
-  const server = Bun.serve({
+  const _server = Bun.serve({
     port,
     hostname: '127.0.0.1',
     fetch: async (req) => {
@@ -1331,7 +1328,7 @@ async function start() {
         }
         const body = await req.json()
         const tabId = parseInt(body.id, 10)
-        if (isNaN(tabId)) {
+        if (Number.isNaN(tabId)) {
           return new Response(JSON.stringify({ error: 'Invalid tab id' }), {
             status: 400,
             headers: { 'Content-Type': 'application/json' },
@@ -1825,7 +1822,7 @@ async function start() {
     binaryVersion: readVersionHash() || undefined,
     mode: browserManager.getConnectionMode(),
   }
-  const tmpFile = config.stateFile + '.tmp'
+  const tmpFile = `${config.stateFile}.tmp`
   fs.writeFileSync(tmpFile, JSON.stringify(state, null, 2), { mode: 0o600 })
   fs.renameSync(tmpFile, config.stateFile)
 

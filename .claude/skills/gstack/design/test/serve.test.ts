@@ -9,8 +9,8 @@
  */
 
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
-import * as fs from 'fs'
-import * as path from 'path'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 import { generateCompareHtml } from '../src/compare'
 
 let tmpDir: string
@@ -26,7 +26,7 @@ function createTestPng(filePath: string): void {
 }
 
 beforeAll(() => {
-  tmpDir = '/tmp/serve-test-' + Date.now()
+  tmpDir = `/tmp/serve-test-${Date.now()}`
   fs.mkdirSync(tmpDir, { recursive: true })
 
   // Create test PNGs and generate comparison board

@@ -8,8 +8,8 @@
  */
 
 import { describe, expect, test } from 'bun:test'
-import * as fs from 'fs'
-import * as path from 'path'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 
 const ROOT = path.resolve(__dirname, '..')
 
@@ -249,7 +249,7 @@ describe('system prompt size', () => {
 
 describe('TTFO latency chain', () => {
   const js = fs.readFileSync(path.join(ROOT, '..', 'extension', 'sidepanel.js'), 'utf-8')
-  const agentSrc = fs.readFileSync(path.join(ROOT, 'src', 'sidebar-agent.ts'), 'utf-8')
+  const _agentSrc = fs.readFileSync(path.join(ROOT, 'src', 'sidebar-agent.ts'), 'utf-8')
 
   test('optimistic render happens BEFORE chrome.runtime.sendMessage', () => {
     // In sendMessage(), the bubble + thinking dots must be created

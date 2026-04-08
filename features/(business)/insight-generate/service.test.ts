@@ -20,7 +20,7 @@ import { mockSchema } from '@/features/(business)/test-helpers'
 
 mock.module('@/platform/db/schema', () => mockSchema())
 
-const { saveInsight, listInsights } = await import('./service')
+const { saveInsight } = await import('./service')
 
 describe('features/(business)/insight-generate/service', () => {
   beforeEach(() => {

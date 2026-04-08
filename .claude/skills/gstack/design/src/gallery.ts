@@ -4,8 +4,8 @@
  * by date. Self-contained HTML with base64-embedded images.
  */
 
-import fs from 'fs'
-import path from 'path'
+import fs from 'node:fs'
+import path from 'node:path'
 
 export interface GalleryOptions {
   designsDir: string // ~/.gstack/projects/$SLUG/designs/
@@ -83,7 +83,7 @@ export function generateGalleryHtml(designsDir: string): string {
   const sessionCards = sessions
     .map((session) => {
       const variantImgs = session.variants
-        .map((vPath, i) => {
+        .map((vPath, _i) => {
           try {
             const imgData = fs.readFileSync(vPath).toString('base64')
             const ext = path.extname(vPath).slice(1) || 'png'

@@ -414,12 +414,12 @@ body::after {
 }
 .close-debug {
   width: 36px;
-  flex: none !important;
+  flex: none;
   font-size: 16px;
-  color: var(--text-meta) !important;
+  color: var(--text-meta);
 }
 .close-debug:hover {
-  color: var(--text-label) !important;
+  color: var(--text-label);
 }
 
 /* ─── Tab Bar ─────────────────────────────────────────── */

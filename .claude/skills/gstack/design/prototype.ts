@@ -6,8 +6,8 @@
  * Run: OPENAI_API_KEY=$(cat ~/.gstack/openai.json | python3 -c "import sys,json;print(json.load(sys.stdin)['api_key'])") bun run design/prototype.ts
  */
 
-import fs from 'fs'
-import path from 'path'
+import fs from 'node:fs'
+import path from 'node:path'
 
 const API_KEY =
   process.env.OPENAI_API_KEY ||
@@ -18,7 +18,7 @@ if (!API_KEY) {
   process.exit(1)
 }
 
-const OUTPUT_DIR = '/tmp/gstack-prototype-' + Date.now()
+const OUTPUT_DIR = `/tmp/gstack-prototype-${Date.now()}`
 fs.mkdirSync(OUTPUT_DIR, { recursive: true })
 
 const briefs = [

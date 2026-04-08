@@ -14,21 +14,13 @@
  */
 
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
-import * as fs from 'fs'
-import * as os from 'os'
-import * as path from 'path'
+import * as path from 'node:path'
 import type { CodexResult } from './helpers/codex-session-runner'
-import {
-  installSkillToTempHome,
-  parseCodexJSONL,
-  runCodexSkill,
-} from './helpers/codex-session-runner'
+import { runCodexSkill } from './helpers/codex-session-runner'
 import { createTestWorktree, harvestAndCleanup } from './helpers/e2e-helpers'
-import type { EvalTestEntry } from './helpers/eval-store'
 import { EvalCollector } from './helpers/eval-store'
 import {
   detectBaseBranch,
-  E2E_TOUCHFILES,
   GLOBAL_TOUCHFILES,
   getChangedFiles,
   selectTests,

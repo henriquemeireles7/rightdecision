@@ -32,9 +32,9 @@
  * Stderr: structured telemetry (SERVE_STARTED, SERVE_FEEDBACK_RECEIVED, etc.)
  */
 
-import { spawn } from 'child_process'
-import fs from 'fs'
-import path from 'path'
+import { spawn } from 'node:child_process'
+import fs from 'node:fs'
+import path from 'node:path'
 
 export interface ServeOptions {
   html: string

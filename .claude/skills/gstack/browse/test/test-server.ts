@@ -3,8 +3,8 @@
  * Serves HTML files from test/fixtures/ on a random available port
  */
 
-import * as fs from 'fs'
-import * as path from 'path'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 
 const FIXTURES_DIR = path.resolve(import.meta.dir, 'fixtures')
 

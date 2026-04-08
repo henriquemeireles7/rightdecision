@@ -6,17 +6,15 @@
  */
 
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
-import { spawn } from 'child_process'
-import * as fs from 'fs'
-import * as path from 'path'
+import { spawn } from 'node:child_process'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 import { BrowserManager } from '../src/browser-manager'
 import {
   addConsoleEntry,
-  addDialogEntry,
   addNetworkEntry,
   CircularBuffer,
   consoleBuffer,
-  dialogBuffer,
   networkBuffer,
 } from '../src/buffers'
 import { resolveServerScript } from '../src/cli'
@@ -50,7 +48,7 @@ afterAll(() => {
 
 describe('Navigation', () => {
   test('goto navigates to URL', async () => {
-    const result = await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    const result = await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     expect(result).toContain('Navigated to')
     expect(result).toContain('200')
   })
@@ -61,7 +59,7 @@ describe('Navigation', () => {
   })
 
   test('back goes back', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/forms.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/forms.html`], bm)
     const result = await handleWriteCommand('back', [], bm)
     expect(result).toContain('Back')
   })
@@ -81,7 +79,7 @@ describe('Navigation', () => {
 
 describe('Content extraction', () => {
   beforeAll(async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
   })
 
   test('text returns cleaned page text', async () => {
@@ -112,7 +110,7 @@ describe('Content extraction', () => {
   })
 
   test('forms discovers form fields', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/forms.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/forms.html`], bm)
     const result = await handleReadCommand('forms', [], bm)
     const forms = JSON.parse(result)
     expect(forms.length).toBe(2)
@@ -129,7 +127,7 @@ describe('Content extraction', () => {
   })
 
   test('accessibility returns ARIA tree', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     const result = await handleReadCommand('accessibility', [], bm)
     expect(result).toContain('Hello World')
   })
@@ -139,7 +137,7 @@ describe('Content extraction', () => {
 
 describe('Inspection', () => {
   beforeAll(async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
   })
 
   test('js evaluates expression', async () => {
@@ -265,7 +263,7 @@ describe('Inspection', () => {
 
 describe('Interaction', () => {
   test('fill + click works on form', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/forms.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/forms.html`], bm)
 
     let result = await handleWriteCommand('fill', ['#email', 'test@example.com'], bm)
     expect(result).toContain('Filled')
@@ -282,7 +280,7 @@ describe('Interaction', () => {
   })
 
   test('select works on dropdown', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/forms.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/forms.html`], bm)
     const result = await handleWriteCommand('select', ['#role', 'admin'], bm)
     expect(result).toContain('Selected')
 
@@ -291,7 +289,7 @@ describe('Interaction', () => {
   })
 
   test('click on option ref auto-routes to selectOption', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/forms.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/forms.html`], bm)
     // Reset select to default
     await handleReadCommand('js', ['document.querySelector("#role").value = ""'], bm)
     const snap = await handleMetaCommand('snapshot', [], bm, async () => {})
@@ -312,7 +310,7 @@ describe('Interaction', () => {
   })
 
   test('click CSS selector on option gives helpful error', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/forms.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/forms.html`], bm)
     try {
       await handleWriteCommand('click', ['option[value="admin"]'], bm)
       expect(true).toBe(false) // Should not reach here
@@ -328,7 +326,7 @@ describe('Interaction', () => {
   })
 
   test('wait finds existing element', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     const result = await handleWriteCommand('wait', ['#title'], bm)
     expect(result).toContain('appeared')
   })
@@ -350,7 +348,7 @@ describe('Interaction', () => {
   })
 
   test('type and press work', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/forms.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/forms.html`], bm)
     await handleWriteCommand('click', ['#name'], bm)
 
     const result = await handleWriteCommand('type', ['John Doe'], bm)
@@ -365,7 +363,7 @@ describe('Interaction', () => {
 
 describe('SPA and buffers', () => {
   test('wait handles delayed rendering', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/spa.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/spa.html`], bm)
     const result = await handleWriteCommand('wait', ['.loaded'], bm)
     expect(result).toContain('appeared')
 
@@ -403,7 +401,7 @@ describe('SPA and buffers', () => {
 
 describe('Cookies and storage', () => {
   test('cookies returns array', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     const result = await handleReadCommand('cookies', [], bm)
     // Test server doesn't set cookies, so empty array
     expect(result).toBe('[]')
@@ -417,7 +415,7 @@ describe('Cookies and storage', () => {
   })
 
   test('storage read redacts sensitive keys', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     await handleReadCommand('storage', ['set', 'auth_token', 'my-secret-token'], bm)
     await handleReadCommand('storage', ['set', 'api_key', 'key-12345'], bm)
     await handleReadCommand('storage', ['set', 'displayName', 'normalValue'], bm)
@@ -429,7 +427,7 @@ describe('Cookies and storage', () => {
   })
 
   test('storage read redacts sensitive values by prefix', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     // JWT value under innocuous key name
     await handleReadCommand('storage', ['set', 'userData', 'eyJhbGciOiJIUzI1NiJ9.payload.sig'], bm)
     // GitHub PAT under innocuous key name
@@ -441,7 +439,7 @@ describe('Cookies and storage', () => {
   })
 
   test('storage redaction includes value length', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     await handleReadCommand('storage', ['set', 'session_token', 'abc123'], bm)
     const result = await handleReadCommand('storage', [], bm)
     const storage = JSON.parse(result)
@@ -453,7 +451,7 @@ describe('Cookies and storage', () => {
 
 describe('Performance', () => {
   test('perf returns timing data', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     const result = await handleReadCommand('perf', [], bm)
     expect(result).toContain('dns')
     expect(result).toContain('ttfb')
@@ -466,7 +464,7 @@ describe('Performance', () => {
 
 describe('Visual', () => {
   test('screenshot saves file', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     const screenshotPath = '/tmp/browse-test-screenshot.png'
     const result = await handleMetaCommand('screenshot', [screenshotPath], bm, async () => {})
     expect(result).toContain('Screenshot saved')
@@ -477,7 +475,7 @@ describe('Visual', () => {
   })
 
   test('screenshot --viewport saves viewport-only', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     const p = '/tmp/browse-test-viewport.png'
     const result = await handleMetaCommand('screenshot', ['--viewport', p], bm, async () => {})
     expect(result).toContain('Screenshot saved (viewport)')
@@ -487,7 +485,7 @@ describe('Visual', () => {
   })
 
   test('screenshot with CSS selector crops to element', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     const p = '/tmp/browse-test-element-css.png'
     const result = await handleMetaCommand('screenshot', ['#title', p], bm, async () => {})
     expect(result).toContain('Screenshot saved (element)')
@@ -497,7 +495,7 @@ describe('Visual', () => {
   })
 
   test('screenshot with @ref crops to element', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     await handleMetaCommand('snapshot', [], bm, async () => {})
     const p = '/tmp/browse-test-element-ref.png'
     const result = await handleMetaCommand('screenshot', ['@e1', p], bm, async () => {})
@@ -508,7 +506,7 @@ describe('Visual', () => {
   })
 
   test('screenshot --clip crops to region', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     const p = '/tmp/browse-test-clip.png'
     const result = await handleMetaCommand(
       'screenshot',
@@ -523,7 +521,7 @@ describe('Visual', () => {
   })
 
   test('screenshot --clip + selector throws', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     try {
       await handleMetaCommand('screenshot', ['--clip', '0,0,100,100', '#title'], bm, async () => {})
       expect(true).toBe(false)
@@ -533,7 +531,7 @@ describe('Visual', () => {
   })
 
   test('screenshot --viewport + --clip throws', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     try {
       await handleMetaCommand(
         'screenshot',
@@ -548,7 +546,7 @@ describe('Visual', () => {
   })
 
   test('screenshot --clip with invalid coords throws', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     try {
       await handleMetaCommand('screenshot', ['--clip', 'abc'], bm, async () => {})
       expect(true).toBe(false)
@@ -558,7 +556,7 @@ describe('Visual', () => {
   })
 
   test('screenshot unknown flag throws', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     try {
       await handleMetaCommand('screenshot', ['--bogus', '/tmp/foo.png'], bm, async () => {})
       expect(true).toBe(false)
@@ -568,7 +566,7 @@ describe('Visual', () => {
   })
 
   test('screenshot --viewport still validates path', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     try {
       await handleMetaCommand('screenshot', ['--viewport', '/etc/evil.png'], bm, async () => {})
       expect(true).toBe(false)
@@ -578,7 +576,7 @@ describe('Visual', () => {
   })
 
   test('screenshot treats relative dot-slash path as file path, not CSS selector', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     // ./path/to/file.png must be treated as output path, not a CSS class selector (#495)
     const relPath = './browse-test-dotpath.png'
     const absPath = path.resolve(relPath)
@@ -589,7 +587,7 @@ describe('Visual', () => {
   })
 
   test('screenshot with nonexistent selector throws timeout', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     try {
       await handleMetaCommand('screenshot', ['.nonexistent-element-xyz'], bm, async () => {})
       expect(true).toBe(false)
@@ -599,7 +597,7 @@ describe('Visual', () => {
   }, 10000)
 
   test('responsive saves 3 screenshots', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/responsive.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/responsive.html`], bm)
     const prefix = '/tmp/browse-test-resp'
     const result = await handleMetaCommand('responsive', [prefix], bm, async () => {})
     expect(result).toContain('mobile')
@@ -627,7 +625,7 @@ describe('Tabs', () => {
   })
 
   test('newtab opens new tab', async () => {
-    const result = await handleMetaCommand('newtab', [baseUrl + '/forms.html'], bm, async () => {})
+    const result = await handleMetaCommand('newtab', [`${baseUrl}/forms.html`], bm, async () => {})
     expect(result).toContain('Opened tab')
 
     const tabCount = bm.getTabCount()
@@ -656,7 +654,7 @@ describe('Diff', () => {
   test('diff shows differences between pages', async () => {
     const result = await handleMetaCommand(
       'diff',
-      [baseUrl + '/basic.html', baseUrl + '/forms.html'],
+      [`${baseUrl}/basic.html`, `${baseUrl}/forms.html`],
       bm,
       async () => {},
     )
@@ -673,7 +671,7 @@ describe('Diff', () => {
 describe('Chain', () => {
   test('chain executes sequence of commands', async () => {
     const commands = JSON.stringify([
-      ['goto', baseUrl + '/basic.html'],
+      ['goto', `${baseUrl}/basic.html`],
       ['js', 'document.title'],
       ['css', 'h1', 'color'],
     ])
@@ -684,7 +682,7 @@ describe('Chain', () => {
   })
 
   test('chain wraps page-content sub-commands with trust markers', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     const result = await handleMetaCommand('chain', ['text'], bm, async () => {})
     expect(result).toContain('BEGIN UNTRUSTED EXTERNAL CONTENT')
     expect(result).toContain('END UNTRUSTED EXTERNAL CONTENT')
@@ -905,7 +903,7 @@ describe('CircularBuffer', () => {
 
 describe('Dialog handling', () => {
   test('alert does not hang — auto-accepted', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/dialog.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/dialog.html`], bm)
     await handleWriteCommand('click', ['#alert-btn'], bm)
     // If we get here, dialog was handled (no hang)
     const result = await handleReadCommand('dialog', [], bm)
@@ -915,7 +913,7 @@ describe('Dialog handling', () => {
   })
 
   test('confirm is auto-accepted by default', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/dialog.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/dialog.html`], bm)
     await handleWriteCommand('click', ['#confirm-btn'], bm)
     // Wait for DOM update
     await new Promise((r) => setTimeout(r, 100))
@@ -931,7 +929,7 @@ describe('Dialog handling', () => {
     const setResult = await handleWriteCommand('dialog-dismiss', [], bm)
     expect(setResult).toContain('dismissed')
 
-    await handleWriteCommand('goto', [baseUrl + '/dialog.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/dialog.html`], bm)
     await handleWriteCommand('click', ['#confirm-btn'], bm)
     await new Promise((r) => setTimeout(r, 100))
     const result = await handleReadCommand(
@@ -949,7 +947,7 @@ describe('Dialog handling', () => {
     const setResult = await handleWriteCommand('dialog-accept', ['TestUser'], bm)
     expect(setResult).toContain('TestUser')
 
-    await handleWriteCommand('goto', [baseUrl + '/dialog.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/dialog.html`], bm)
     await handleWriteCommand('click', ['#prompt-btn'], bm)
     await new Promise((r) => setTimeout(r, 100))
     const result = await handleReadCommand(
@@ -975,7 +973,7 @@ describe('Dialog handling', () => {
 
 describe('Element state checks', () => {
   beforeAll(async () => {
-    await handleWriteCommand('goto', [baseUrl + '/states.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/states.html`], bm)
   })
 
   test('is visible returns true for visible element', async () => {
@@ -1067,7 +1065,7 @@ describe('Element state checks', () => {
 
 describe('File upload', () => {
   test('upload single file', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/upload.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/upload.html`], bm)
     // Create a temp file to upload
     const tempFile = '/tmp/browse-test-upload.txt'
     fs.writeFileSync(tempFile, 'test content')
@@ -1087,10 +1085,10 @@ describe('File upload', () => {
   })
 
   test('upload with @ref works', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/upload.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/upload.html`], bm)
     const tempFile = '/tmp/browse-test-upload2.txt'
     fs.writeFileSync(tempFile, 'ref upload test')
-    const snap = await handleMetaCommand('snapshot', ['-i'], bm, async () => {})
+    const _snap = await handleMetaCommand('snapshot', ['-i'], bm, async () => {})
     // Find the file input ref (it won't appear as "file input" in aria — use CSS selector instead)
     const result = await handleWriteCommand('upload', ['#file-input', tempFile], bm)
     expect(result).toContain('Uploaded')
@@ -1098,7 +1096,7 @@ describe('File upload', () => {
   })
 
   test('upload nonexistent file throws', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/upload.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/upload.html`], bm)
     try {
       await handleWriteCommand('upload', ['#file-input', '/tmp/nonexistent-file-12345.txt'], bm)
       expect(true).toBe(false)
@@ -1121,7 +1119,7 @@ describe('File upload', () => {
 
 describe('Eval', () => {
   test('eval runs JS file', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     const tempFile = '/tmp/browse-test-eval.js'
     fs.writeFileSync(tempFile, 'document.title + " — evaluated"')
     const result = await handleReadCommand('eval', [tempFile], bm)
@@ -1165,7 +1163,7 @@ describe('Eval', () => {
 
 describe('Press', () => {
   test('press Tab moves focus', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/forms.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/forms.html`], bm)
     await handleWriteCommand('click', ['#email'], bm)
     const result = await handleWriteCommand('press', ['Tab'], bm)
     expect(result).toContain('Pressed Tab')
@@ -1185,7 +1183,7 @@ describe('Press', () => {
 
 describe('Cookie command', () => {
   test('cookie sets value', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     const result = await handleWriteCommand('cookie', ['testcookie=testvalue'], bm)
     expect(result).toContain('Cookie set')
 
@@ -1220,7 +1218,7 @@ describe('Header command', () => {
     const result = await handleWriteCommand('header', ['X-Test:test-value'], bm)
     expect(result).toContain('Header set')
 
-    await handleWriteCommand('goto', [baseUrl + '/echo'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/echo`], bm)
     const echoText = await handleReadCommand('text', [], bm)
     expect(echoText).toContain('x-test')
     expect(echoText).toContain('test-value')
@@ -1249,7 +1247,7 @@ describe('Header command', () => {
 
 describe('PDF', () => {
   test('pdf saves file with size', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     const pdfPath = '/tmp/browse-test.pdf'
     const result = await handleMetaCommand('pdf', [pdfPath], bm, async () => {})
     expect(result).toContain('PDF saved')
@@ -1264,7 +1262,7 @@ describe('PDF', () => {
 
 describe('Empty page', () => {
   test('text returns empty on empty page', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/empty.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/empty.html`], bm)
     const result = await handleReadCommand('text', [], bm)
     expect(result).toBe('')
   })
@@ -1405,7 +1403,7 @@ describe('Errors', () => {
 
   test('diff with missing urls throws', async () => {
     try {
-      await handleMetaCommand('diff', [baseUrl + '/basic.html'], bm, async () => {})
+      await handleMetaCommand('diff', [`${baseUrl}/basic.html`], bm, async () => {})
       expect(true).toBe(false)
     } catch (err: any) {
       expect(err.message).toContain('Usage')
@@ -1461,7 +1459,7 @@ describe('Errors', () => {
 
 describe('Workflows', () => {
   test('navigation → snapshot → click @ref → verify URL', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/snapshot.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/snapshot.html`], bm)
     const snap = await handleMetaCommand('snapshot', ['-i'], bm, async () => {})
     // Find a link ref
     const linkLine = snap.split('\n').find((l) => l.includes('[link]'))
@@ -1476,7 +1474,7 @@ describe('Workflows', () => {
   })
 
   test('form: goto → snapshot → fill @ref → click @ref', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/snapshot.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/snapshot.html`], bm)
     const snap = await handleMetaCommand('snapshot', ['-i'], bm, async () => {})
     // Find textbox and button
     const textboxLine = snap.split('\n').find((l) => l.includes('[textbox]'))
@@ -1492,9 +1490,9 @@ describe('Workflows', () => {
   })
 
   test('tabs: newtab → goto → switch → verify isolation', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     const tabsBefore = bm.getTabCount()
-    await handleMetaCommand('newtab', [baseUrl + '/forms.html'], bm, async () => {})
+    await handleMetaCommand('newtab', [`${baseUrl}/forms.html`], bm, async () => {})
     expect(bm.getTabCount()).toBe(tabsBefore + 1)
 
     const url = await handleMetaCommand('url', [], bm, async () => {})
@@ -1516,7 +1514,7 @@ describe('Workflows', () => {
   })
 
   test('cookies: set → read → reload → verify persistence', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     await handleWriteCommand('cookie', ['workflow-test=persisted'], bm)
     await handleWriteCommand('reload', [], bm)
     const cookies = await handleReadCommand('cookies', [], bm)
@@ -1529,31 +1527,31 @@ describe('Workflows', () => {
 
 describe('Wait load states', () => {
   test('wait --networkidle succeeds after page load', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     const result = await handleWriteCommand('wait', ['--networkidle'], bm)
     expect(result).toBe('Network idle')
   })
 
   test('wait --load succeeds', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     const result = await handleWriteCommand('wait', ['--load'], bm)
     expect(result).toBe('Page loaded')
   })
 
   test('wait --domcontentloaded succeeds', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     const result = await handleWriteCommand('wait', ['--domcontentloaded'], bm)
     expect(result).toBe('DOM content loaded')
   })
 
   test('wait --networkidle with custom timeout', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     const result = await handleWriteCommand('wait', ['--networkidle', '5000'], bm)
     expect(result).toBe('Network idle')
   })
 
   test('wait with selector still works', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     const result = await handleWriteCommand('wait', ['#title'], bm)
     expect(result).toContain('appeared')
   })
@@ -1611,7 +1609,7 @@ describe('Console --errors', () => {
 
 describe('Cookie import', () => {
   test('cookie-import loads valid JSON cookies', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     const tempFile = '/tmp/browse-test-cookies.json'
     const cookies = [
       { name: 'test-cookie', value: 'test-value' },
@@ -1632,7 +1630,7 @@ describe('Cookie import', () => {
   })
 
   test('cookie-import auto-fills domain from page URL', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     const tempFile = '/tmp/browse-test-cookies-nodomain.json'
     // Cookies without domain — should auto-fill from page URL
     const cookies = [{ name: 'autofill-test', value: 'works' }]
@@ -1648,7 +1646,7 @@ describe('Cookie import', () => {
   })
 
   test('cookie-import preserves explicit domain', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     const tempFile = '/tmp/browse-test-cookies-domain.json'
     const cookies = [{ name: 'explicit', value: 'domain', domain: 'example.com', path: '/foo' }]
     fs.writeFileSync(tempFile, JSON.stringify(cookies))
@@ -1660,7 +1658,7 @@ describe('Cookie import', () => {
   })
 
   test('cookie-import with empty array succeeds', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     const tempFile = '/tmp/browse-test-cookies-empty.json'
     fs.writeFileSync(tempFile, '[]')
 
@@ -1708,7 +1706,7 @@ describe('Cookie import', () => {
   })
 
   test('cookie-import throws on cookie missing name', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     const tempFile = '/tmp/browse-test-cookies-noname.json'
     fs.writeFileSync(tempFile, JSON.stringify([{ value: 'no-name' }]))
 
@@ -1736,14 +1734,14 @@ describe('Cookie import', () => {
 
 describe('Sensitive value redaction', () => {
   test('type command does not echo typed text', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     const result = await handleWriteCommand('type', ['my-secret-password'], bm)
     expect(result).not.toContain('my-secret-password')
     expect(result).toContain('18 characters')
   })
 
   test('cookie command redacts value', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     const result = await handleWriteCommand('cookie', ['session=secret123'], bm)
     expect(result).toContain('session')
     expect(result).toContain('****')
@@ -1772,14 +1770,14 @@ describe('Sensitive value redaction', () => {
   })
 
   test('storage set does not echo value', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     const result = await handleReadCommand('storage', ['set', 'apiKey', 'secret-api-key-value'], bm)
     expect(result).toContain('apiKey')
     expect(result).not.toContain('secret-api-key-value')
   })
 
   test('forms redacts password field values', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/forms.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/forms.html`], bm)
     const formsResult = await handleReadCommand('forms', [], bm)
     const forms = JSON.parse(formsResult)
     // Find password fields and verify they're redacted
@@ -1797,7 +1795,7 @@ describe('Sensitive value redaction', () => {
 
 describe('Path traversal prevention', () => {
   test('screenshot rejects path outside safe dirs', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     try {
       await handleMetaCommand('screenshot', ['/etc/evil.png'], bm, () => {})
       expect(true).toBe(false)
@@ -1807,7 +1805,7 @@ describe('Path traversal prevention', () => {
   })
 
   test('screenshot allows /tmp path', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     const result = await handleMetaCommand('screenshot', ['/tmp/test-safe.png'], bm, () => {})
     expect(result).toContain('Screenshot saved')
     try {
@@ -1816,7 +1814,7 @@ describe('Path traversal prevention', () => {
   })
 
   test('pdf rejects path outside safe dirs', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     try {
       await handleMetaCommand('pdf', ['/home/evil.pdf'], bm, () => {})
       expect(true).toBe(false)
@@ -1826,7 +1824,7 @@ describe('Path traversal prevention', () => {
   })
 
   test('responsive rejects path outside safe dirs', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     try {
       await handleMetaCommand('responsive', ['/var/evil'], bm, () => {})
       expect(true).toBe(false)
@@ -1867,7 +1865,7 @@ describe('Path traversal prevention', () => {
   })
 
   test('screenshot rejects /tmpevil prefix collision', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     try {
       await handleMetaCommand('screenshot', ['/tmpevil/steal.png'], bm, () => {})
       expect(true).toBe(false)
@@ -1895,7 +1893,7 @@ describe('Path traversal prevention', () => {
   })
 
   test('snapshot -a -o rejects path outside safe dirs', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     // First get a snapshot so refs exist
     await handleMetaCommand('snapshot', ['-i'], bm, () => {})
     try {
@@ -1911,7 +1909,7 @@ describe('Path traversal prevention', () => {
 
 describe('Chain with cookie-import', () => {
   test('cookie-import works inside chain', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     const tmpCookies = '/tmp/test-chain-cookies.json'
     fs.writeFileSync(
       tmpCookies,
@@ -1936,7 +1934,7 @@ describe('Chain with cookie-import', () => {
 
 describe('Network idle', () => {
   test('click on fetch button waits for XHR to complete', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/network-idle.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/network-idle.html`], bm)
     // Click the button that triggers a fetch → networkidle waits for it
     await handleWriteCommand('click', ['#fetch-btn'], bm)
     // The DOM should be updated by the time click returns
@@ -1949,7 +1947,7 @@ describe('Network idle', () => {
   })
 
   test('click on static button has no latency penalty', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/network-idle.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/network-idle.html`], bm)
     const start = Date.now()
     await handleWriteCommand('click', ['#static-btn'], bm)
     const elapsed = Date.now() - start
@@ -1965,7 +1963,7 @@ describe('Network idle', () => {
   })
 
   test('fill triggers networkidle wait', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/forms.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/forms.html`], bm)
     // fill should complete without error (networkidle resolves immediately on static page)
     const result = await handleWriteCommand('fill', ['#email', 'idle@test.com'], bm)
     expect(result).toContain('Filled')
@@ -2003,7 +2001,7 @@ describe('Chain pipe format', () => {
 
   test('JSON format still works', async () => {
     const commands = JSON.stringify([
-      ['goto', baseUrl + '/basic.html'],
+      ['goto', `${baseUrl}/basic.html`],
       ['js', 'document.title'],
     ])
     const result = await handleMetaCommand('chain', [commands], bm, async () => {})
@@ -2022,7 +2020,7 @@ describe('Chain pipe format', () => {
 
 describe('State persistence', () => {
   test('state save and load round-trip', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/basic.html`], bm)
     // Set a cookie so we can verify it persists
     await handleWriteCommand('cookie', ['state_test=hello'], bm)
 
@@ -2037,7 +2035,7 @@ describe('State persistence', () => {
     expect(saveResult).toContain('Cookies stored in plaintext')
 
     // Navigate away
-    await handleWriteCommand('goto', [baseUrl + '/forms.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/forms.html`], bm)
 
     // Load state — should restore to basic.html with cookie
     const loadResult = await handleMetaCommand(
@@ -2103,7 +2101,7 @@ describe('State persistence', () => {
 
 describe('Frame', () => {
   test('frame switch to iframe and back', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/iframe.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/iframe.html`], bm)
 
     // Verify we're on the main page
     const mainTitle = await handleReadCommand(
@@ -2139,7 +2137,7 @@ describe('Frame', () => {
   })
 
   test('snapshot shows frame context header', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/iframe.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/iframe.html`], bm)
     await handleMetaCommand('frame', ['#test-frame'], bm, async () => {})
 
     const snap = await handleMetaCommand('snapshot', ['-i'], bm, async () => {})
@@ -2150,7 +2148,7 @@ describe('Frame', () => {
   })
 
   test('goto throws error when in frame context', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/iframe.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/iframe.html`], bm)
     await handleMetaCommand('frame', ['#test-frame'], bm, async () => {})
 
     try {
@@ -2173,7 +2171,7 @@ describe('Frame', () => {
   })
 
   test('fill works inside iframe', async () => {
-    await handleWriteCommand('goto', [baseUrl + '/iframe.html'], bm)
+    await handleWriteCommand('goto', [`${baseUrl}/iframe.html`], bm)
     await handleMetaCommand('frame', ['#test-frame'], bm, async () => {})
 
     const result = await handleWriteCommand('fill', ['#frame-input', 'hello from frame'], bm)

@@ -6,7 +6,7 @@
  * dependencies were modified. Override with EVALS_ALL=1 to run everything.
  */
 
-import { spawnSync } from 'child_process'
+import { spawnSync } from 'node:child_process'
 
 // --- Glob matching ---
 
@@ -128,8 +128,6 @@ export const E2E_TOUCHFILES: Record<string, string[]> = {
     'autoplan/**',
     'land-and-deploy/**',
   ],
-  'ship-plan-completion': ['ship/**', 'scripts/gen-skill-docs.ts'],
-  'ship-plan-verification': ['ship/**', 'scripts/gen-skill-docs.ts'],
 
   // Retro
   retro: ['retro/**'],

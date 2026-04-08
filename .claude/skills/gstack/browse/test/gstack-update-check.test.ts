@@ -16,9 +16,9 @@ import {
   symlinkSync,
   utimesSync,
   writeFileSync,
-} from 'fs'
-import { tmpdir } from 'os'
-import { join } from 'path'
+} from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 
 const SCRIPT = join(import.meta.dir, '..', '..', 'bin', 'gstack-update-check')
 
@@ -268,7 +268,7 @@ describe('gstack-update-check', () => {
     const version = readFileSync(versionFile, 'utf-8').trim()
 
     // Copy VERSION into test dir
-    writeFileSync(join(gstackDir, 'VERSION'), version + '\n')
+    writeFileSync(join(gstackDir, 'VERSION'), `${version}\n`)
 
     // Remote is unreachable (simulates offline / CI / sandboxed agent)
     const { exitCode, stdout } = run({

@@ -4,8 +4,8 @@
  * Falls back to exponential backoff on 429s.
  */
 
-import fs from 'fs'
-import path from 'path'
+import fs from 'node:fs'
+import path from 'node:path'
 import { requireApiKey } from './auth'
 import { parseBrief } from './brief'
 

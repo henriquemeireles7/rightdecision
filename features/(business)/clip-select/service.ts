@@ -1,4 +1,4 @@
-import { and, eq } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { findRunInState, transitionPipeline } from '@/features/(business)/workflow/transitions'
 import { db } from '@/platform/db/client'

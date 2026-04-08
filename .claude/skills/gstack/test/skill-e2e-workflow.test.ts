@@ -1,20 +1,17 @@
-import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
-import { spawnSync } from 'child_process'
-import * as fs from 'fs'
-import * as os from 'os'
-import * as path from 'path'
+import { afterAll, beforeAll, expect } from 'bun:test'
+import { spawnSync } from 'node:child_process'
+import * as fs from 'node:fs'
+import * as os from 'node:os'
+import * as path from 'node:path'
 import {
-  browseBin,
   copyDirSync,
   createEvalCollector,
   describeIfSelected,
-  evalsEnabled,
   finalizeEvalCollector,
   logCost,
   ROOT,
   recordE2E,
   runId,
-  setupBrowseShims,
   testConcurrentIfSelected,
 } from './helpers/e2e-helpers'
 import { runSkillTest } from './helpers/session-runner'
@@ -353,7 +350,7 @@ IMPORTANT: The install directory is at ./.claude/skills/gstack — use that exac
       // Check that the version was updated
       const versionAfter = fs.readFileSync(path.join(mockGstack, 'VERSION'), 'utf-8').trim()
       const output = result.output || ''
-      const mentionsUpgrade =
+      const _mentionsUpgrade =
         output.toLowerCase().includes('0.6.0') ||
         output.toLowerCase().includes('upgrade') ||
         output.toLowerCase().includes('updated')

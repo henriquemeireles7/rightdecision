@@ -53,7 +53,7 @@ describe('sanitizeExtensionUrl', () => {
   })
 
   test('truncates URLs longer than 2048 chars', () => {
-    const longUrl = 'https://example.com/' + 'a'.repeat(3000)
+    const longUrl = `https://example.com/${'a'.repeat(3000)}`
     const result = sanitizeExtensionUrl(longUrl)
     expect(result).not.toBeNull()
     expect(result!.length).toBeLessThanOrEqual(2048)

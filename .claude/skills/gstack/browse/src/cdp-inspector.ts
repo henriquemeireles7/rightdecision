@@ -490,7 +490,7 @@ export async function inspectElement(
   for (const rule of matchedRules) {
     if (rule.styleSheetId && rule.source !== 'inline') {
       try {
-        const sheetMeta = await session
+        const _sheetMeta = await session
           .send('CSS.getStyleSheetText', { styleSheetId: rule.styleSheetId })
           .catch(() => null)
         // Try to get the stylesheet header for URL info
@@ -555,7 +555,7 @@ export async function modifyStyle(
       const range = targetRule.range as any
 
       // Get current style text
-      const styleText = await session.send('CSS.getStyleSheetText', {
+      const _styleText = await session.send('CSS.getStyleSheetText', {
         styleSheetId: targetRule.styleSheetId,
       })
 
@@ -599,7 +599,7 @@ export async function modifyStyle(
         [selector, property, value],
       )
     }
-  } catch (err: any) {
+  } catch (_err: any) {
     // Full fallback: use page.evaluate for headless
     await page.evaluate(
       ([sel, prop, val]) => {

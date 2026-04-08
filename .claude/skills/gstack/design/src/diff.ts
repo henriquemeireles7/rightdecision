@@ -4,7 +4,7 @@
  * an approved mockup and the live implementation.
  */
 
-import fs from 'fs'
+import fs from 'node:fs'
 import { requireApiKey } from './auth'
 
 export interface DiffResult {

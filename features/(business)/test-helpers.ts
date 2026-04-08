@@ -1,9 +1,3 @@
-/**
- * Shared test mock factories for BD pipeline features.
- * Eliminates ~100 lines of duplicated mock setup across 7 test files.
- */
-import { mock } from 'bun:test'
-
 /** Full schema mock — prevents Bun mock.module leakage between test files */
 export function mockSchema() {
   return {

@@ -11,9 +11,9 @@
  *   bun run scripts/analytics.ts [--period 7d|30d|all]
  */
 
-import * as fs from 'fs'
-import * as os from 'os'
-import * as path from 'path'
+import * as fs from 'node:fs'
+import * as os from 'node:os'
+import * as path from 'node:path'
 
 export interface AnalyticsEvent {
   skill: string
@@ -59,7 +59,7 @@ export function filterByPeriod(events: AnalyticsEvent[], period: string): Analyt
 
   return events.filter((e) => {
     const d = new Date(e.ts)
-    return !isNaN(d.getTime()) && d >= cutoff
+    return !Number.isNaN(d.getTime()) && d >= cutoff
   })
 }
 
@@ -89,14 +89,14 @@ export function formatReport(events: AnalyticsEvent[], period: string = 'all'): 
     lines.push('Top Skills')
 
     const sorted = [...skillCounts.entries()].sort((a, b) => b[1] - a[1])
-    const maxName = Math.max(...sorted.map(([name]) => name.length + 1)) // +1 for /
-    const maxCount = Math.max(...sorted.map(([, count]) => String(count).length))
+    const _maxName = Math.max(...sorted.map(([name]) => name.length + 1)) // +1 for /
+    const _maxCount = Math.max(...sorted.map(([, count]) => String(count).length))
 
     for (const [name, count] of sorted) {
       const label = `/${name}`
       const suffix = `${count} invocation${count === 1 ? '' : 's'}`
       const dotLen = Math.max(2, 25 - label.length - suffix.length)
-      const dots = ' ' + '.'.repeat(dotLen) + ' '
+      const dots = ` ${'.'.repeat(dotLen)} `
       lines.push(`  ${label}${dots}${suffix}`)
     }
   }
@@ -136,7 +136,7 @@ export function formatReport(events: AnalyticsEvent[], period: string = 'all'): 
     for (const [pattern, count] of sortedHooks) {
       const suffix = `${count} fire${count === 1 ? '' : 's'}`
       const dotLen = Math.max(2, 25 - pattern.length - suffix.length)
-      const dots = ' ' + '.'.repeat(dotLen) + ' '
+      const dots = ` ${'.'.repeat(dotLen)} `
       lines.push(`  ${pattern}${dots}${suffix}`)
     }
   }

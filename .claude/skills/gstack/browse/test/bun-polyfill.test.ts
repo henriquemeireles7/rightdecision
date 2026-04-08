@@ -1,5 +1,5 @@
-import { afterAll, describe, expect, test } from 'bun:test'
-import * as path from 'path'
+import { describe, expect, test } from 'bun:test'
+import * as path from 'node:path'
 
 // Load the polyfill into a fresh object (don't clobber globalThis.Bun)
 const polyfillPath = path.resolve(import.meta.dir, '../src/bun-polyfill.cjs')

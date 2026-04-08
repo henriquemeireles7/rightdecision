@@ -5,8 +5,8 @@
  * console, network, cookies, storage, perf
  */
 
-import * as fs from 'fs'
-import * as path from 'path'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 import type { Frame, Page } from 'playwright'
 import type { BrowserManager } from './browser-manager'
 import { consoleBuffer, dialogBuffer, networkBuffer } from './buffers'
@@ -422,7 +422,7 @@ export async function handleReadCommand(
         if (stored) {
           const stale = storedTs && Date.now() - storedTs > 60000
           let output = formatInspectorResult(stored, { includeUA })
-          if (stale) output = '⚠ Data may be stale (>60s old)\n\n' + output
+          if (stale) output = `⚠ Data may be stale (>60s old)\n\n${output}`
           return output
         }
         throw new Error(

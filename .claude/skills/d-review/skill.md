@@ -27,6 +27,18 @@ d-meta → d-input → d-docs → d-tasks → d-code → **d-review** → /ship
 
 ## Review Methodology: Fresh Eyes + Structured Checks
 
+### Phase 0: Mechanical Gate (MANDATORY — run FIRST)
+Run the full check pipeline before starting any analysis:
+```sh
+bun run check
+```
+This runs: biome ci (lint+format) → tsc --noEmit (typecheck) → harden-check → bun test.
+
+If it FAILS, FIX THE FAILURES before proceeding. Do not start the review until this passes.
+This catches the class of issues that human review misses: import ordering, button types,
+label a11y, implicit any, CSS issues — the mechanical stuff that caused CI failures on
+the website-seo-strategy branch (2026-04-08).
+
 ### Phase 1: Fresh Eyes Scan (random exploration)
 Pretend you've never seen this code. Pick 3-5 random changed files and read them cold:
 - Does the code make sense without context?
@@ -56,6 +68,19 @@ Read `decisions/coding.md` dependency rules, then verify:
 - Error codes added before they're used
 - Env vars added before they're referenced
 - Tests exist alongside implementation files
+
+### Phase 2.5: UBS Bug Scan
+Run UBS on changed files to catch bugs the structured review might miss:
+```sh
+ubs --diff --format=toon
+```
+If UBS finds issues:
+- Severity error: fix immediately
+- Severity warn: fix if straightforward, otherwise note in report
+- Skip categories 11,14 (TODO/debug nits) unless the finding is clearly a bug
+
+UBS catches patterns that Biome and harden-check miss: null derefs, resource leaks,
+error swallowing, unsafe regex, off-by-one errors, and 1000+ language-specific pitfalls.
 
 ### Phase 3: Security Check (delegates to d-harden phases 2-4)
 Run the mechanical hardening check first:
@@ -134,6 +159,14 @@ If a fix is too large for this review session, create a bead:
 br create "Fix: [description]" -t bug -p 1 --parent <epic-id>
 ```
 
+### Final Gate (MANDATORY — run LAST, after all fixes)
+After applying all fixes from all phases, run:
+```sh
+bun run check
+```
+If it fails, you introduced a regression. Fix it. Do not output VERDICT: READY until this passes.
+This is the same command CI runs — if it passes locally, CI will pass.
+
 ## Mandatory Output
 
 ### Review Report
@@ -166,6 +199,7 @@ Then run /ship to create PR.
 ```
 
 ## Rules
+- ALWAYS run `bun run check` as the FIRST and LAST action — it is the mechanical safety net that catches what human review misses
 - NEVER skip a check phase — even if the change looks small
 - NEVER approve code with failing `bun run check`
 - ALWAYS read the folder's CLAUDE.md before reviewing code in that folder

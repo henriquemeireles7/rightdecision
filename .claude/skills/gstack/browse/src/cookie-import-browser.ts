@@ -36,10 +36,10 @@
  */
 
 import { Database } from 'bun:sqlite'
-import * as crypto from 'crypto'
-import * as fs from 'fs'
-import * as os from 'os'
-import * as path from 'path'
+import * as crypto from 'node:crypto'
+import * as fs from 'node:fs'
+import * as os from 'node:os'
+import * as path from 'node:path'
 
 // ─── Types ──────────────────────────────────────────────────────
 
@@ -429,10 +429,10 @@ function openDbFromCopy(dbPath: string, browserName: string): Database {
   try {
     fs.copyFileSync(dbPath, tmpPath)
     // Also copy WAL and SHM if they exist (for consistent reads)
-    const walPath = dbPath + '-wal'
-    const shmPath = dbPath + '-shm'
-    if (fs.existsSync(walPath)) fs.copyFileSync(walPath, tmpPath + '-wal')
-    if (fs.existsSync(shmPath)) fs.copyFileSync(shmPath, tmpPath + '-shm')
+    const walPath = `${dbPath}-wal`
+    const shmPath = `${dbPath}-shm`
+    if (fs.existsSync(walPath)) fs.copyFileSync(walPath, `${tmpPath}-wal`)
+    if (fs.existsSync(shmPath)) fs.copyFileSync(shmPath, `${tmpPath}-shm`)
 
     const db = new Database(tmpPath, { readonly: true })
     // Schedule cleanup after the DB is closed
@@ -443,10 +443,10 @@ function openDbFromCopy(dbPath: string, browserName: string): Database {
         fs.unlinkSync(tmpPath)
       } catch {}
       try {
-        fs.unlinkSync(tmpPath + '-wal')
+        fs.unlinkSync(`${tmpPath}-wal`)
       } catch {}
       try {
-        fs.unlinkSync(tmpPath + '-shm')
+        fs.unlinkSync(`${tmpPath}-shm`)
       } catch {}
     }
     return db

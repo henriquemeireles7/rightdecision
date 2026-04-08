@@ -1,13 +1,12 @@
-import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
-import { spawnSync } from 'child_process'
-import * as fs from 'fs'
-import * as os from 'os'
-import * as path from 'path'
+import { afterAll, beforeAll, expect } from 'bun:test'
+import { spawnSync } from 'node:child_process'
+import * as fs from 'node:fs'
+import * as os from 'node:os'
+import * as path from 'node:path'
 import {
   copyDirSync,
   createEvalCollector,
   describeIfSelected,
-  evalsEnabled,
   finalizeEvalCollector,
   logCost,
   ROOT,
@@ -196,7 +195,7 @@ describeIfSelected(
           duration_s: 60,
           session: 'prior-session',
         })
-        fs.writeFileSync(path.join(projectDir, 'timeline.jsonl'), timelineEntry + '\n')
+        fs.writeFileSync(path.join(projectDir, 'timeline.jsonl'), `${timelineEntry}\n`)
 
         // Copy the /learn skill (lightweight, tier-2 skill that runs context recovery)
         copyDirSync(path.join(ROOT, 'learn'), path.join(workDir, 'learn'))

@@ -5,15 +5,10 @@
  * press, scroll, wait, viewport, cookie, header, useragent
  */
 
-import * as fs from 'fs'
-import * as path from 'path'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 import type { BrowserManager } from './browser-manager'
-import {
-  getModificationHistory,
-  modifyStyle,
-  resetModifications,
-  undoModification,
-} from './cdp-inspector'
+import { modifyStyle, undoModification } from './cdp-inspector'
 import {
   findInstalledBrowsers,
   importCookies,
@@ -426,8 +421,7 @@ export async function handleWriteCommand(
 
     case 'viewport': {
       const size = args[0]
-      if (!size || !size.includes('x'))
-        throw new Error('Usage: browse viewport <WxH> (e.g., 375x812)')
+      if (!size?.includes('x')) throw new Error('Usage: browse viewport <WxH> (e.g., 375x812)')
       const [w, h] = size.split('x').map(Number)
       await bm.setViewport(w, h)
       return `Viewport set to ${w}x${h}`
@@ -435,8 +429,7 @@ export async function handleWriteCommand(
 
     case 'cookie': {
       const cookieStr = args[0]
-      if (!cookieStr || !cookieStr.includes('='))
-        throw new Error('Usage: browse cookie <name>=<value>')
+      if (!cookieStr?.includes('=')) throw new Error('Usage: browse cookie <name>=<value>')
       const eq = cookieStr.indexOf('=')
       const name = cookieStr.slice(0, eq)
       const value = cookieStr.slice(eq + 1)
@@ -454,8 +447,7 @@ export async function handleWriteCommand(
 
     case 'header': {
       const headerStr = args[0]
-      if (!headerStr || !headerStr.includes(':'))
-        throw new Error('Usage: browse header <name>:<value>')
+      if (!headerStr?.includes(':')) throw new Error('Usage: browse header <name>:<value>')
       const sep = headerStr.indexOf(':')
       const name = headerStr.slice(0, sep).trim()
       const value = headerStr.slice(sep + 1).trim()
@@ -786,7 +778,7 @@ export async function handleWriteCommand(
         )
         truncated.forEach((el) => {
           const s = getComputedStyle(el)
-          if (s.maxHeight && s.maxHeight !== 'none' && parseInt(s.maxHeight) < 500) {
+          if (s.maxHeight && s.maxHeight !== 'none' && parseInt(s.maxHeight, 10) < 500) {
             ;(el as HTMLElement).style.setProperty('max-height', 'none', 'important')
             ;(el as HTMLElement).style.setProperty('overflow', 'visible', 'important')
             fixed++
@@ -881,7 +873,7 @@ export async function handleWriteCommand(
           i-- // Back up since the for loop will increment
         } else if (args[i] === '--width' && i + 1 < args.length) {
           viewportWidth = parseInt(args[++i], 10)
-          if (isNaN(viewportWidth)) throw new Error('--width must be a number')
+          if (Number.isNaN(viewportWidth)) throw new Error('--width must be a number')
         } else if (!args[i].startsWith('--')) {
           outputPath = args[i]
         } else {

@@ -9,11 +9,11 @@
  * can import this directly.
  */
 
-import { spawnSync } from 'child_process'
-import * as crypto from 'crypto'
-import * as fs from 'fs'
-import * as os from 'os'
-import * as path from 'path'
+import { spawnSync } from 'node:child_process'
+import * as crypto from 'node:crypto'
+import * as fs from 'node:fs'
+import * as os from 'node:os'
+import * as path from 'node:path'
 
 // --- Interfaces ---
 
@@ -84,7 +84,7 @@ function loadDedupIndex(): DedupIndex {
 function saveDedupIndex(index: DedupIndex): void {
   const dir = path.dirname(getDedupPath())
   fs.mkdirSync(dir, { recursive: true })
-  const tmp = getDedupPath() + '.tmp'
+  const tmp = `${getDedupPath()}.tmp`
   fs.writeFileSync(tmp, JSON.stringify(index, null, 2))
   fs.renameSync(tmp, getDedupPath())
 }
