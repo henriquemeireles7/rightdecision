@@ -16,7 +16,7 @@ websiteRoutes.use('*', async (c, next) => {
   const url = new URL(c.req.url)
   if (url.pathname !== '/' && url.pathname.endsWith('/')) {
     url.pathname = url.pathname.replace(/\/+$/, '')
-    return c.redirect(url.toString(), 301)
+    return c.redirect(url.pathname + url.search, 308)
   }
   await next()
 })

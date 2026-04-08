@@ -18,8 +18,9 @@ type BlogIndexProps = {
 }
 
 function formatDate(dateStr: string): string {
-  const d = new Date(dateStr)
-  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  // Append T12:00:00Z to avoid timezone shift for date-only strings
+  const d = new Date(dateStr.includes('T') ? dateStr : `${dateStr}T12:00:00Z`)
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })
 }
 
 export function BlogIndex({ posts, currentCluster, currentPage, totalPages }: BlogIndexProps) {

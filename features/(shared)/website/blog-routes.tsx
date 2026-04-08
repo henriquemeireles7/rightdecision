@@ -85,7 +85,7 @@ blogRoutes.get('/:slug', async (c) => {
       {
         title: `${fm.title as string} — The Right Decision`,
         description: fm.description as string,
-        ogImage: `${BASE_URL}/og/${slug}.png`,
+        // ogImage: deferred until lyon-3tt.12 (OG image generation)
         canonical: `${BASE_URL}/blog/${slug}`,
       },
     ).replace('</head>', `${renderJsonLd(articleSchema)}\n${renderJsonLd(breadcrumb)}\n</head>`),

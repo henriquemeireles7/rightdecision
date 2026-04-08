@@ -54,7 +54,7 @@ conceptRoutes.get('/:slug', async (c) => {
     title: fm.title as string,
     description: fm.description as string,
     author: 'henry',
-    datePublished: new Date().toISOString().split('T')[0]!,
+    datePublished: (fm.date as string) ?? '2026-04-07',
     url: `${BASE_URL}/concepts/${slug}`,
   })
 
@@ -89,7 +89,7 @@ conceptRoutes.get('/:slug', async (c) => {
       {
         title: `${fm.title as string} — The Right Decision`,
         description: fm.description as string,
-        ogImage: `${BASE_URL}/og/${slug}.png`,
+        // ogImage: deferred until lyon-3tt.12 (OG image generation)
         canonical: `${BASE_URL}/concepts/${slug}`,
       },
     ).replace('</head>', `${jsonLd}\n</head>`),

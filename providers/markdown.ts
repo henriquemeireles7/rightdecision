@@ -79,7 +79,8 @@ export function parseFrontmatter(raw: string): { frontmatter: Record<string, unk
 }
 
 export function renderMarkdown(body: string): string {
-  return marked.parse(body) as string
+  const result = marked.parse(body, { async: false })
+  return result as string
 }
 
 export function calculateReadTime(body: string): number {

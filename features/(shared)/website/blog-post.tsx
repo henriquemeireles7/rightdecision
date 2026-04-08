@@ -23,8 +23,8 @@ const CLUSTER_LABELS: Record<string, string> = {
 }
 
 function formatDate(dateStr: string): string {
-  const d = new Date(dateStr)
-  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  const d = new Date(dateStr.includes('T') ? dateStr : `${dateStr}T12:00:00Z`)
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })
 }
 
 export function BlogPost({ title, author, date, cluster, readTime, html }: BlogPostProps) {

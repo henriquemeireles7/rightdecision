@@ -52,7 +52,9 @@ export function renderMetaTags(config: SeoConfig): string {
 
 export function renderJsonLd(schema: Record<string, unknown>): string {
   const data = { '@context': 'https://schema.org', ...schema }
-  return `<script type="application/ld+json">${JSON.stringify(data)}</script>`
+  // Escape </script> to prevent XSS breakout in HTML context
+  const json = JSON.stringify(data).replace(/</g, '\\u003c')
+  return `<script type="application/ld+json">${json}</script>`
 }
 
 // ─── Schema Builders ────────────────────────────────────────────────────────

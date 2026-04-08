@@ -7,8 +7,8 @@ const BLOG_DIR = join(import.meta.dir, '../../../content/blog')
 const BASE_URL = 'https://rightdecisions.io'
 
 function formatDate(dateStr: string): string {
-  const d = new Date(dateStr)
-  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  const d = new Date(dateStr.includes('T') ? dateStr : `${dateStr}T12:00:00Z`)
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })
 }
 
 type HomepageProps = {
