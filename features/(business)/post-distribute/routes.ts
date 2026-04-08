@@ -18,9 +18,10 @@ export const postDistributeRoutes = new Hono<AppEnv>()
     const { pipelineRunId } = c.req.valid('json')
     const result = await distributePostsForRun(pipelineRunId)
     if ('error' in result) return throwError(c, result.error as ErrorCode)
-    if ('partial' in result && result.partial) {
-      const failures = result.posts.filter((r) => !r.success).map((r) => ({ id: r.postId, error: r.error ?? 'Unknown' }))
-      return partial(c, result.posts, failures)
+    if ('partial' in result) {
+      const r = result as { posts: Array<{ postId: string; success: boolean; error?: string }>; partial: boolean }
+      const failures = r.posts.filter((x) => !x.success).map((x) => ({ id: x.postId, error: x.error ?? 'Unknown' }))
+      return partial(c, r.posts, failures)
     }
-    return success(c, { posts: result.posts })
+    return success(c, result)
   })

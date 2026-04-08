@@ -34,11 +34,7 @@ mock.module('@/platform/db/client', () => ({
               transcript: '[00:00:01] Hello world',
             } as never)
           }
-          const result = Promise.resolve()
-          // Support both .where() and .where().returning() chains
-          return Object.assign(result, {
-            returning: () => Promise.resolve([{ id: 'run-1' }]),
-          })
+          return casResult('run-1')
         },
       }),
     }),
@@ -50,18 +46,8 @@ mock.module('@/platform/db/client', () => ({
   },
 }))
 
-mock.module('@/platform/db/schema', () => ({
-  users: {}, sessions: {}, accounts: {}, verifications: {},
-  purchases: {}, subscriptions: {}, courseProgress: {},
-  onboardingSessions: {}, onboardingProfiles: {},
-  wins: {}, bookmarks: {},
-  platformAccounts: { id: 'id', platform: 'platform' },
-  pipelineRuns: { id: 'id', status: 'status', createdAt: 'created_at', inputVideoUrl: 'input_video_url' },
-  clips: { id: 'id', pipelineRunId: 'pipeline_run_id', approved: 'approved', sourceTimestampStart: 'source_timestamp_start' },
-  posts: { id: 'id', status: 'status', clipId: 'clip_id', platformAccountId: 'platform_account_id', postedAt: 'posted_at', uploadPostId: 'upload_post_id' },
-  postAnalytics: { snapshotAt: 'snapshot_at', postId: 'post_id' },
-  insights: { createdAt: 'created_at' },
-}))
+import { mockSchema, casResult } from '@/features/(business)/test-helpers'
+mock.module('@/platform/db/schema', () => mockSchema())
 
 // Mock state machine
 // Don't mock state-machine — it's pure logic with no external deps.

@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.1.1] - 2026-04-08
+
+### Added
+- Footer with "Already a student? Log in" link on the landing page
+
+### Removed
+- Duplicate legacy feature folders (account, admin, course, email, onboarding, paywall, wins) that existed outside parenthesized groups
+
 ## [0.1.1.0] - 2026-04-08
 
 ### Added

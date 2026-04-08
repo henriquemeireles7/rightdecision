@@ -9,6 +9,7 @@ import { OfferSection } from './components/offer'
 import { DisqualSection } from './components/disqualification'
 import { FAQSection } from './components/faq'
 import { FinalCTASection } from './components/final-cta'
+import { Footer } from './components/footer'
 
 interface LandingPageProps {
   variant?: 'a' | 'b' | 'c' | 'd'
@@ -32,6 +33,7 @@ export function LandingPage({ variant = 'a' }: LandingPageProps) {
       <div class="order-11 md:order-none"><DisqualSection /></div>
       <div class="order-7 md:order-none"><FAQSection /></div>
       <div class="order-8 md:order-none"><FinalCTASection /></div>
+      <div class="order-12 md:order-none"><Footer /></div>
     </div>
   )
 }

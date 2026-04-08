@@ -16,18 +16,8 @@ mock.module('@/platform/db/client', () => ({
   },
 }))
 
-mock.module('@/platform/db/schema', () => ({
-  users: {}, sessions: {}, accounts: {}, verifications: {},
-  purchases: {}, subscriptions: {}, courseProgress: {},
-  onboardingSessions: {}, onboardingProfiles: {},
-  wins: {}, bookmarks: {},
-  platformAccounts: { id: 'id', platform: 'platform' },
-  pipelineRuns: { id: 'id', status: 'status', createdAt: 'created_at', inputVideoUrl: 'input_video_url' },
-  clips: { id: 'id', pipelineRunId: 'pipeline_run_id', approved: 'approved', sourceTimestampStart: 'source_timestamp_start' },
-  posts: { id: 'id', status: 'status', clipId: 'clip_id', platformAccountId: 'platform_account_id', postedAt: 'posted_at', uploadPostId: 'upload_post_id' },
-  postAnalytics: { snapshotAt: 'snapshot_at', postId: 'post_id' },
-  insights: { createdAt: 'created_at' },
-}))
+import { mockSchema } from '@/features/(business)/test-helpers'
+mock.module('@/platform/db/schema', () => mockSchema())
 
 const mockGetMetrics = mock(() => Promise.resolve({ views: 100, likes: 10, comments: 2, shares: 1, saves: 0, impressions: 200, reach: 150 }))
 mock.module('@/providers/social-analytics', () => ({ getMetrics: mockGetMetrics }))

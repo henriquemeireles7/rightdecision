@@ -1,7 +1,7 @@
 import { eq, and } from 'drizzle-orm'
 import { db } from '@/platform/db/client'
 import { pipelineRuns, clips } from '@/platform/db/schema'
-import { assertTransition } from '@/features/(business)/workflow/state-machine'
+import { findRunInState, transitionPipeline } from '@/features/(business)/workflow/transitions'
 import { download, upload } from '@/providers/storage'
 import { ProviderError } from '@/providers/errors'
 import { writeFile, unlink } from 'node:fs/promises'
@@ -34,15 +34,9 @@ async function cutClipWithFfmpeg(videoPath: string, outputPath: string, start: n
 }
 
 export async function cutClipsForRun(pipelineRunId: string) {
-  const run = await db.query.pipelineRuns.findFirst({
-    where: eq(pipelineRuns.id, pipelineRunId),
-  })
-
-  if (!run) return { error: 'NOT_FOUND' as const }
-
-  if (run.status !== 'selected' && run.status !== 'awaiting_clip_approval' && run.status !== 'cutting') {
-    return { error: 'CLIP_SELECT_INVALID_STATE' as const }
-  }
+  const found = await findRunInState(pipelineRunId, 'selected', 'awaiting_clip_approval', 'cutting')
+  if ('error' in found) return found
+  const { run } = found
 
   // Get approved clips (or all if auto-approve)
   const clipList = await db.query.clips.findMany({
@@ -54,14 +48,9 @@ export async function cutClipsForRun(pipelineRunId: string) {
   }
 
   // Atomic CAS: selected → cutting
-  assertTransition(run.status, 'cutting')
-  const [transitioned] = await db
-    .update(pipelineRuns)
-    .set({ status: 'cutting' })
-    .where(and(eq(pipelineRuns.id, pipelineRunId), eq(pipelineRuns.status, run.status)))
-    .returning({ id: pipelineRuns.id })
-
-  if (!transitioned) return { error: 'CLIP_SELECT_INVALID_STATE' as const }
+  if (!await transitionPipeline(pipelineRunId, run.status, 'cutting')) {
+    return { error: 'PIPELINE_INVALID_STATE' as const }
+  }
 
   // Download source video
   // inputVideoUrl is the R2 object key (e.g., "episodes/video.mp4")

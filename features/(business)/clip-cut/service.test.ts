@@ -14,23 +14,13 @@ mock.module('@/platform/db/client', () => ({
       pipelineRuns: { findFirst: () => mockFindFirstRun() },
       clips: { findMany: () => mockFindManyClips() },
     },
-    update: () => ({ set: () => ({ where: () => Object.assign(Promise.resolve(), { returning: () => Promise.resolve([{ id: 'run-1' }]) }) }) }),
+    update: () => ({ set: () => ({ where: () => casResult() }) }),
     delete: () => ({ where: () => Promise.resolve() }),
   },
 }))
 
-mock.module('@/platform/db/schema', () => ({
-  users: {}, sessions: {}, accounts: {}, verifications: {},
-  purchases: {}, subscriptions: {}, courseProgress: {},
-  onboardingSessions: {}, onboardingProfiles: {},
-  wins: {}, bookmarks: {},
-  platformAccounts: { id: 'id', platform: 'platform' },
-  pipelineRuns: { id: 'id', status: 'status', createdAt: 'created_at', inputVideoUrl: 'input_video_url' },
-  clips: { id: 'id', pipelineRunId: 'pipeline_run_id', approved: 'approved', sourceTimestampStart: 'source_timestamp_start' },
-  posts: { id: 'id', status: 'status', clipId: 'clip_id', platformAccountId: 'platform_account_id', postedAt: 'posted_at', uploadPostId: 'upload_post_id' },
-  postAnalytics: { snapshotAt: 'snapshot_at', postId: 'post_id' },
-  insights: { createdAt: 'created_at' },
-}))
+import { mockSchema, casResult } from '@/features/(business)/test-helpers'
+mock.module('@/platform/db/schema', () => mockSchema())
 
 // Don't mock state-machine — it's pure logic, no external deps
 
@@ -84,6 +74,6 @@ describe('features/(business)/clip-cut/service', () => {
   it('returns invalid state for wrong status', async () => {
     mockFindFirstRun.mockResolvedValueOnce({ id: 'run-1', status: 'queued' } as never)
     const result = await cutClipsForRun('run-1')
-    expect(result).toEqual({ error: 'CLIP_SELECT_INVALID_STATE' })
+    expect(result).toEqual({ error: 'PIPELINE_INVALID_STATE' })
   })
 })
