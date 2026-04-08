@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 import { join } from 'node:path'
 import { statSync } from 'node:fs'
-import { listContentFiles } from '@/providers/markdown'
+import { listContentFiles, getContentFile } from '@/providers/markdown'
 
 const BLOG_DIR = join(import.meta.dir, '../../../content/blog')
 const CONCEPTS_DIR = join(import.meta.dir, '../../../content/concepts')
@@ -90,7 +90,6 @@ sitemapRoutes.get('/rss.xml', async (c) => {
 
   const items = await Promise.all(
     latest.map(async (post) => {
-      const { getContentFile } = await import('@/providers/markdown')
       const full = await getContentFile(BLOG_DIR, post.slug)
       const pubDate = new Date(post.frontmatter.date as string).toUTCString()
       const description = full ? full.html : (post.frontmatter.description as string)

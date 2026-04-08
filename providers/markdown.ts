@@ -131,6 +131,9 @@ export async function listContentFiles(dir: string): Promise<ParsedContentItem[]
 }
 
 export async function getContentFile(dir: string, slug: string): Promise<ParsedContentFull | null> {
+  // Sanitize slug to prevent path traversal
+  if (slug.includes('..') || slug.includes('/') || slug.includes('\\')) return null
+
   const filePath = join(dir, `${slug}.md`)
   let raw: string
   try {

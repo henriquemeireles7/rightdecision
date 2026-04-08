@@ -241,6 +241,15 @@ describe('getContentFile', () => {
     expect(post).toBeNull()
   })
 
+  test('blocks path traversal attempts', async () => {
+    const post1 = await getContentFile(join(TEST_DIR, 'blog'), '../../../etc/passwd')
+    expect(post1).toBeNull()
+    const post2 = await getContentFile(join(TEST_DIR, 'blog'), 'foo/bar')
+    expect(post2).toBeNull()
+    const post3 = await getContentFile(join(TEST_DIR, 'blog'), '..\\windows\\system32')
+    expect(post3).toBeNull()
+  })
+
   test('parses concept page with faq', async () => {
     const concept = await getContentFile(join(TEST_DIR, 'concepts'), 'analysis-paralysis')
     expect(concept).not.toBeNull()

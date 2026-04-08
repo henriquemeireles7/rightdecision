@@ -72,7 +72,7 @@ export function BlogIndex({ posts, currentCluster, currentPage, totalPages }: Bl
                     <time>{formatDate(post.frontmatter.date as string)}</time>
                     <span>·</span>
                     <span class="text-xs px-xs py-[2px] rounded border border-linen">
-                      {CLUSTER_LABELS[(post.frontmatter.cluster as string)] ?? post.frontmatter.cluster}
+                      {CLUSTER_LABELS[post.frontmatter.cluster as string] ?? String(post.frontmatter.cluster)}
                     </span>
                   </div>
                   <p class="text-secondary leading-relaxed">{post.frontmatter.description as string}</p>
