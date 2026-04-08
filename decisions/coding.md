@@ -30,6 +30,65 @@ Types flow from ONE source. Never define types manually — infer from Zod/Drizz
 - **Styling:** Tailwind CSS v4 with design tokens from decisions/design.md
 - **Islands:** push `'use client'` boundaries as far down as possible
 
+## Frontend Implementation Rules
+Read `decisions/design.md` before writing any CSS/TSX. These are the concrete patterns:
+
+### Layout & Spacing
+- Use `gap` for sibling spacing — never margin-based spacing between flex/grid children
+- Use `repeat(auto-fit, minmax(280px, 1fr))` for self-adjusting card grids (no fixed column counts)
+- Use `max-width: 65ch` on prose/reading content (course classes, long text)
+- Max widths: 1200px (outer), 800px (content), 640px (reading) — defined in design tokens
+- Use `@container` queries for component-level responsiveness, media queries for page-level
+
+### Typography in Code
+- Use `clamp()` for hero/display headings: `clamp(2.75rem, 2rem + 3vw, 3.5rem)`
+- Use fixed `rem` values for body text and UI — never `px` for font sizes
+- `font-variant-numeric: tabular-nums` on any data/numbers column
+- `font-variant-ligatures: none` on code blocks
+- `font-display: swap` on all `@font-face` declarations
+- Minimum body font size: 16px (1rem) — never go below
+
+### Interactive Elements
+- Every interactive element needs 8 states accounted for (see design.md Interaction States)
+- Touch targets: minimum 44px (use padding if visual size is smaller)
+- Use `:focus-visible` for keyboard focus rings — never `outline: none` without replacement
+- Use `@media (hover: hover)` to gate hover effects (they don't exist on mobile)
+- Use native `<dialog>` for modals with `inert` on background — never roll custom overlay
+- Use Popover API for tooltips and dropdowns where supported
+- Button labels: specific verb + object ("Save changes" not "Submit")
+
+### Responsive
+- Mobile-first: only `min-width` media queries — never `max-width`
+- Three breakpoints: `sm(640px)` `md(768px)` `lg(1024px)` — let content dictate, don't add more
+- Use `env(safe-area-inset-*)` for content near screen edges
+- Use `@media (pointer: fine/coarse)` to adapt touch target sizes
+
+### Animation
+- Only animate `transform` and `opacity` — never `width`, `height`, `top`, `left`
+- For height transitions: `grid-template-rows: 0fr → 1fr` (zero layout thrash)
+- Wrap non-essential animation in `@media (prefers-reduced-motion: no-preference)`
+- Easing: `cubic-bezier(0.25, 1, 0.5, 1)` (quart-out) as default. Never bounce/elastic.
+- Duration: 100-150ms micro, 200-300ms state change, 300-500ms structural
+
+### Z-Index
+- Use semantic scale from design.md: dropdown(100), sticky(200), modal-backdrop(300), modal(400), toast(500), tooltip(600)
+- Never use arbitrary z-index values (`z-[9999]` is a code smell)
+
+### Accessibility
+- Heading hierarchy: h1→h2→h3, never skip levels
+- `<button>` for actions, `<a>` for navigation — never the reverse
+- All images need `alt` text (empty `alt=""` for decorative images)
+- Color never as sole indicator — pair with icon/text/pattern
+- Contrast: 4.5:1 minimum for all text (check `--text-muted` especially)
+
+### Anti-Patterns (AI Slop)
+Before shipping, run the slop test: "Would someone recognize this as AI-generated?"
+- No glassmorphism or frosted glass
+- No gradient text on metrics
+- No identical 3-column icon+heading+text grids
+- No everything-centered layouts with no visual hierarchy
+- No decorative blobs or abstract shapes as filler
+
 ## Database Patterns
 - **Schema:** `platform/db/schema.ts` — single source of truth
 - **Migrations:** `bun run db:generate` → `bun run db:migrate`

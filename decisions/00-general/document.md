@@ -94,10 +94,11 @@ This file (`general.md`) is the **living summary** of the entire decisions/ know
 | 7 | Social Media Setup | 13-account registry (3 TikTok, 3 Instagram, 3 Facebook, 3 X, 1 YouTube), bios, visual identity, posting templates per platform, podcast distribution cadence (2/day → live transition). |
 | 8 | Short-Video Viral Strategy | Automated pipeline — OpusClip integration, AI-generated content, dark channel concept, folder-based automation, auto-posting workflows. Not human labor. |
 | 9 | Knowledge Base Strategy | Self-compounding knowledge architecture — general.md as living summary, static document archives, podcast transcript taxonomy, AI self-learning loop (future). |
-| 10 | Company Branding Strategy | Startup directory submissions — Crunchbase, AngelList, Product Hunt, LinkedIn company page. |
-| 11 | Basic SEO/DR Strategy | Core backlinks acquisition plan, outreach targets, directory submissions, domain authority baseline. |
-| 12 | Website Strategy | Site structure, key pages, tech stack, GEO optimization for AI answers. |
-| 13 | Blog Strategy | Content calendar, keyword targets (SEO + GEO), article templates, internal linking. |
+| 10 | Engineering Automation | `10-engineering-automation/` | Test strategy, PostHog monitoring, CI/CD hardening, scheduled agents, autonomous coding loops. |
+| 11 | Company Branding Strategy | Startup directory submissions — Crunchbase, AngelList, Product Hunt, LinkedIn company page. |
+| 12 | Basic SEO/DR Strategy | Core backlinks acquisition plan, outreach targets, directory submissions, domain authority baseline. |
+| 13 | Website Strategy | Site structure, key pages, tech stack, GEO optimization for AI answers. |
+| 14 | Blog Strategy | Content calendar, keyword targets (SEO + GEO), article templates, internal linking. |
 
 ### Week 3 — Product 2: Software MVP
 
