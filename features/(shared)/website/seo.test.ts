@@ -5,6 +5,7 @@ import {
   buildFaqSchema,
   buildOrganizationSchema,
   buildPersonSchema,
+  buildProductSchema,
   buildWebSiteSchema,
   renderJsonLd,
   renderMetaTags,
@@ -148,6 +149,29 @@ describe('buildPersonSchema', () => {
     expect(schema.name).toBe('Indy')
     expect(schema.jobTitle).toBe('Content & Brand')
     expect(schema.description).toContain('Content & Brand')
+  })
+})
+
+describe('buildProductSchema', () => {
+  test('builds Product schema with price', () => {
+    const schema = buildProductSchema('https://rightdecisions.io')
+    expect(schema['@type']).toBe('Product')
+    expect(schema.name).toBe('Life Decisions')
+    expect(schema.offers.price).toBe('197.00')
+    expect(schema.offers.priceCurrency).toBe('USD')
+    expect(schema.offers.availability).toBe('https://schema.org/InStock')
+    expect(schema.offers.url).toBe('https://rightdecisions.io/life')
+  })
+
+  test('includes brand Organization', () => {
+    const schema = buildProductSchema('https://rightdecisions.io')
+    expect(schema.brand['@type']).toBe('Organization')
+    expect(schema.brand.name).toBe('The Right Decision')
+  })
+
+  test('uses baseUrl parameter', () => {
+    const schema = buildProductSchema('https://staging.example.com')
+    expect(schema.offers.url).toBe('https://staging.example.com/life')
   })
 })
 

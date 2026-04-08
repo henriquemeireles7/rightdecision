@@ -166,6 +166,26 @@ export function buildPersonSchema(person: 'henry' | 'indy', baseUrl: string) {
   }
 }
 
+export function buildProductSchema(baseUrl: string) {
+  return {
+    '@type': 'Product' as const,
+    name: 'Life Decisions',
+    description:
+      'A 9-module course + AI decision-making skills. Learn the methodology, run the skills, make the decisions that change your life.',
+    brand: {
+      '@type': 'Organization' as const,
+      name: 'The Right Decision',
+    },
+    offers: {
+      '@type': 'Offer' as const,
+      price: '197.00',
+      priceCurrency: 'USD',
+      availability: 'https://schema.org/InStock',
+      url: `${baseUrl}/life`,
+    },
+  }
+}
+
 export function buildBreadcrumbSchema(items: Array<{ name: string; url: string }>) {
   return {
     '@type': 'BreadcrumbList' as const,

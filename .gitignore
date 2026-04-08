@@ -31,3 +31,6 @@ mcp_agent_mail
 
 # ML models (large binaries)
 models/
+
+# IndexNow submission tracking (local state)
+.indexnow-submitted.json
