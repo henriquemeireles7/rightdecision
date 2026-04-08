@@ -23,7 +23,7 @@ export async function upload(key: string, data: Buffer | Uint8Array, contentType
         ContentType: contentType,
       }),
     )
-    return `${env.R2_ENDPOINT}/${bucket}/${key}`
+    return key
   } catch (error) {
     throw new ProviderError('r2', 'upload', 500, error)
   }
@@ -41,6 +41,11 @@ export async function download(key: string): Promise<Buffer> {
     return Buffer.from(bytes)
   } catch (error) {
     if (error instanceof ProviderError) throw error
+    // S3 SDK throws errors with name 'NoSuchKey' for missing objects
+    const errName = (error as { name?: string })?.name
+    if (errName === 'NoSuchKey' || errName === 'NotFound') {
+      throw new ProviderError('r2', 'download', 404, error)
+    }
     throw new ProviderError('r2', 'download', 500, error)
   }
 }

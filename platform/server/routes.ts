@@ -12,6 +12,13 @@ import { winsRoutes } from '@/features/(life)/wins/routes'
 import { webhookRoutes } from '@/features/(shared)/subscription/handle-webhook'
 import { landingRoutes } from '@/features/(life)/landing/routes'
 import { authRoutes } from '@/platform/auth/routes'
+import { transcribeRoutes } from '@/features/(business)/transcribe/routes'
+import { clipSelectRoutes } from '@/features/(business)/clip-select/routes'
+import { clipCutRoutes } from '@/features/(business)/clip-cut/routes'
+import { metadataRoutes } from '@/features/(business)/metadata-generate/routes'
+import { postDistributeRoutes } from '@/features/(business)/post-distribute/routes'
+import { analyticsRoutes } from '@/features/(business)/analytics-collect/routes'
+import { insightRoutes } from '@/features/(business)/insight-generate/routes'
 
 export function mountRoutes(app: Hono) {
   return app
@@ -27,6 +34,14 @@ export function mountRoutes(app: Hono) {
     .route('/api/account', accountRoutes)
     .route('/api/search', searchRoutes)
     .route('/api/admin', adminRoutes)
+    // ─── BD Pipeline ───
+    .route('/api/pipeline-runs', transcribeRoutes)
+    .route('/api/clip-select', clipSelectRoutes)
+    .route('/api/clip-cut', clipCutRoutes)
+    .route('/api/metadata-generate', metadataRoutes)
+    .route('/api/post-distribute', postDistributeRoutes)
+    .route('/api/analytics-collect', analyticsRoutes)
+    .route('/api/insights', insightRoutes)
     // Landing page — AFTER all /api/* routes
     .route('/', landingRoutes)
 }
