@@ -14,6 +14,12 @@ interface PageOptions {
 const esc = (s: string) =>
   s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;').replace(/</g, '&lt;')
 
+const escJs = (s: string) =>
+  JSON.stringify(s)
+    .slice(1, -1)
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+
 export function renderPage(component: VNode, options: PageOptions = {}): string {
   const html = renderToString(component)
   const title = options.title || 'The Right Decision'
@@ -41,13 +47,15 @@ export function renderPage(component: VNode, options: PageOptions = {}): string 
   <main id="main-content">
     ${html}
   </main>
-  ${options.posthogKey ? `<script>
+  ${
+    options.posthogKey
+      ? `<script>
     window.addEventListener('load', function() {
       var s = document.createElement('script');
       s.src = 'https://us-assets.i.posthog.com/static/array.js';
       s.onload = function() {
-        posthog.init('${esc(options.posthogKey)}', {
-          api_host: '${esc(options.posthogHost || 'https://us.i.posthog.com')}',
+        posthog.init('${escJs(options.posthogKey)}', {
+          api_host: '${escJs(options.posthogHost || 'https://us.i.posthog.com')}',
           autocapture: true,
           capture_pageview: true,
           capture_pageleave: true,
@@ -68,7 +76,9 @@ export function renderPage(component: VNode, options: PageOptions = {}): string 
       };
       document.head.appendChild(s);
     });
-  </script>` : ''}
+  </script>`
+      : ''
+  }
 </body>
 </html>`
 }

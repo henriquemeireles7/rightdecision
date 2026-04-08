@@ -37,7 +37,6 @@ app.onError((err, c) => {
     error_code: 'INTERNAL_ERROR',
     path: c.req.path,
     method: c.req.method,
-    stack: err.stack,
     message: err.message,
   })
   return c.json({ ok: false, code: 'INTERNAL_ERROR', message: 'Something went wrong' }, 500)

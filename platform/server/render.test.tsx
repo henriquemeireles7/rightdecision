@@ -89,7 +89,13 @@ describe('renderPage', () => {
 
   test('escapes XSS in PostHog key', () => {
     const html = renderPage(<div />, { posthogKey: '<script>alert("xss")</script>' })
-    expect(html).not.toContain('<script>alert("xss")')
-    expect(html).toContain('&lt;script')
+    expect(html).not.toContain('<script>alert')
+    expect(html).toContain('\\u003cscript\\u003e')
+  })
+
+  test('escapes backslash in PostHog key (JS context)', () => {
+    const html = renderPage(<div />, { posthogKey: "test\\'" })
+    expect(html).not.toContain("test\\'")
+    expect(html).toContain("test\\\\'")
   })
 })

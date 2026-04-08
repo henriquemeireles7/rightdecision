@@ -98,9 +98,11 @@ webhookRoutes.post('/', async (c) => {
         })
         .where(eq(subscriptions.stripeSubscriptionId, event.data.object.id))
 
-      track('subscription_cancelled', {
-        plan: 'course',
-      })
+      const cancelledCustomerId =
+        typeof event.data.object.customer === 'string'
+          ? event.data.object.customer
+          : (event.data.object.customer?.id ?? undefined)
+      track('subscription_cancelled', { plan: 'course' }, cancelledCustomerId)
 
       break
     }

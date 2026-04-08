@@ -5,25 +5,30 @@ const client = env.POSTHOG_API_KEY
   ? new PostHog(env.POSTHOG_API_KEY, { host: env.POSTHOG_HOST })
   : null
 
-export async function track(
+export function track(
   event: string,
   properties?: Record<string, unknown>,
   distinctId?: string,
-): Promise<void> {
+): void {
   if (!client) return
-  client.capture({
-    distinctId: distinctId ?? 'anonymous',
-    event,
-    properties,
-  })
+  try {
+    client.capture({
+      distinctId: distinctId ?? 'anonymous',
+      event,
+      properties,
+    })
+  } catch {
+    // Analytics is non-critical — never crash the app
+  }
 }
 
-export async function identify(
-  distinctId: string,
-  properties?: Record<string, unknown>,
-): Promise<void> {
+export function identify(distinctId: string, properties?: Record<string, unknown>): void {
   if (!client) return
-  client.identify({ distinctId, properties })
+  try {
+    client.identify({ distinctId, properties })
+  } catch {
+    // Analytics is non-critical — never crash the app
+  }
 }
 
 export async function shutdown(): Promise<void> {
