@@ -7,15 +7,9 @@ import { getSignedUrl } from '@/providers/storage'
 import { ProviderError } from '@/providers/errors'
 
 export async function distributePostsForRun(pipelineRunId: string) {
-  const run = await db.query.pipelineRuns.findFirst({
-    where: eq(pipelineRuns.id, pipelineRunId),
-  })
-
-  if (!run) return { error: 'NOT_FOUND' as const }
-
-  if (run.status !== 'metadata_ready' && run.status !== 'awaiting_metadata_approval') {
-    return { error: 'CLIP_SELECT_INVALID_STATE' as const }
-  }
+  const found = await findRunInState(pipelineRunId, 'metadata_ready', 'awaiting_metadata_approval')
+  if ('error' in found) return found
+  const { run } = found
 
   // Get scheduled posts for this pipeline run's clips
   const runClips = await db.query.clips.findMany({
@@ -39,14 +33,9 @@ export async function distributePostsForRun(pipelineRunId: string) {
   const clipMap = new Map(runClips.map((c) => [c.id, c]))
 
   // Atomic CAS: metadata_ready → posting
-  assertTransition(run.status, 'posting')
-  const [transitioned] = await db
-    .update(pipelineRuns)
-    .set({ status: 'posting' })
-    .where(and(eq(pipelineRuns.id, pipelineRunId), eq(pipelineRuns.status, run.status)))
-    .returning({ id: pipelineRuns.id })
-
-  if (!transitioned) return { error: 'CLIP_SELECT_INVALID_STATE' as const }
+  if (!await transitionPipeline(pipelineRunId, run.status, 'posting')) {
+    return { error: 'PIPELINE_INVALID_STATE' as const }
+  }
 
   const results: Array<{ postId: string; success: boolean; error?: string }> = []
 

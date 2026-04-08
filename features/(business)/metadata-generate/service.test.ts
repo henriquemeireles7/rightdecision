@@ -66,7 +66,7 @@ describe('features/(business)/metadata-generate/service', () => {
   it('returns invalid state for wrong status', async () => {
     mockFindFirstRun.mockResolvedValueOnce({ id: 'run-1', status: 'queued' } as never)
     const result = await saveMetadata('run-1', validMetadata)
-    expect(result).toEqual({ error: 'CLIP_SELECT_INVALID_STATE' })
+    expect(result).toEqual({ error: 'PIPELINE_INVALID_STATE' })
   })
 
   it('returns METADATA_UNKNOWN_PLATFORM for invalid account', async () => {

@@ -74,6 +74,6 @@ describe('features/(business)/clip-cut/service', () => {
   it('returns invalid state for wrong status', async () => {
     mockFindFirstRun.mockResolvedValueOnce({ id: 'run-1', status: 'queued' } as never)
     const result = await cutClipsForRun('run-1')
-    expect(result).toEqual({ error: 'CLIP_SELECT_INVALID_STATE' })
+    expect(result).toEqual({ error: 'PIPELINE_INVALID_STATE' })
   })
 })

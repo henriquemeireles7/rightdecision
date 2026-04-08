@@ -66,10 +66,10 @@ describe('features/(business)/clip-select/service', () => {
     expect(result).toEqual({ error: 'NOT_FOUND' })
   })
 
-  it('returns CLIP_SELECT_INVALID_STATE if not transcribed', async () => {
+  it('returns PIPELINE_INVALID_STATE if not transcribed', async () => {
     mockFindFirst.mockResolvedValueOnce({ id: 'run-1', status: 'queued', transcript: 'test' } as never)
     const result = await saveClipSelections('run-1', validClips)
-    expect(result).toEqual({ error: 'CLIP_SELECT_INVALID_STATE' })
+    expect(result).toEqual({ error: 'PIPELINE_INVALID_STATE' })
   })
 
   it('returns CLIP_SELECT_NO_TRANSCRIPT when transcript empty', async () => {
