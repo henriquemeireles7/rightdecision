@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { ProviderError } from '@/providers/errors'
 
 mock.module('@/platform/env', () => ({
@@ -27,7 +27,12 @@ mock.module('@/platform/db/schema', () => mockSchema())
 
 const mockDownload = mock(() => Promise.resolve(Buffer.from('video-data')))
 const mockUpload = mock(() => Promise.resolve('https://r2.example.com/clips/run-1/clip-1.mp4'))
-mock.module('@/providers/storage', () => ({ download: mockDownload, upload: mockUpload }))
+mock.module('@/providers/storage', () => ({
+  download: mockDownload,
+  upload: mockUpload,
+  getSignedUrl: mock(() => Promise.resolve('https://signed.example.com')),
+  remove: mock(() => Promise.resolve()),
+}))
 mock.module('node:fs/promises', () => ({
   writeFile: mock(() => Promise.resolve()),
   unlink: mock(() => Promise.resolve()),

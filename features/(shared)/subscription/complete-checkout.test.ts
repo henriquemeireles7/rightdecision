@@ -4,8 +4,8 @@ import { describe, expect, test } from 'bun:test'
 // Full integration tests require env vars — covered in CI.
 
 describe('complete-checkout', () => {
-	test('module exists', () => {
-		const file = Bun.file('features/(shared)/subscription/complete-checkout.ts')
-		expect(file.size).toBeGreaterThan(0)
-	})
+  test('module exists', () => {
+    const file = Bun.file('features/(shared)/subscription/complete-checkout.ts')
+    expect(file.size).toBeGreaterThan(0)
+  })
 })

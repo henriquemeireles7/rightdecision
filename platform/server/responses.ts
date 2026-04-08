@@ -16,6 +16,10 @@ export function created<T>(c: Context, data: T) {
   return c.json({ ok: true as const, data }, 201)
 }
 
+export function accepted<T>(c: Context, data: T) {
+  return c.json({ ok: true as const, data }, 202)
+}
+
 export function noContent(c: Context) {
   return c.body(null, 204)
 }

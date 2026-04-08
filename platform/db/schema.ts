@@ -237,6 +237,7 @@ export const pipelineRuns = pgTable(
     errorMessage: text('error_message'),
     transcript: text('transcript'),
     config: jsonb('config').$type<{
+      dryRun?: boolean
       autoApproveClips?: boolean
       autoApproveMetadata?: boolean
       maxClipsPerEpisode?: number
@@ -244,6 +245,10 @@ export const pipelineRuns = pgTable(
       targetPlatforms?: string[]
       schedulingMode?: 'immediate' | 'scheduled'
     }>(),
+    stepTimings:
+      jsonb('step_timings').$type<
+        Record<string, { startedAt: string; completedAt?: string; durationMs?: number }>
+      >(),
     clipsGenerated: integer('clips_generated').notNull().default(0),
     clipsApproved: integer('clips_approved').notNull().default(0),
     clipsPosted: integer('clips_posted').notNull().default(0),
@@ -348,11 +353,11 @@ export const postAnalytics = pgTable(
 
 // ─── Webhook Events (idempotency tracking for Stripe webhooks) ───
 export const webhookEvents = pgTable('webhook_events', {
-	id: uuid('id').defaultRandom().primaryKey(),
-	stripeEventId: text('stripe_event_id').notNull().unique(),
-	eventType: text('event_type').notNull(),
-	processedAt: timestamp('processed_at').notNull().defaultNow(),
-	createdAt: timestamp('created_at').notNull().defaultNow(),
+  id: uuid('id').defaultRandom().primaryKey(),
+  stripeEventId: text('stripe_event_id').notNull().unique(),
+  eventType: text('event_type').notNull(),
+  processedAt: timestamp('processed_at').notNull().defaultNow(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
 })
 
 // ─── Insights (BD: AI-generated actionable recommendations) ───

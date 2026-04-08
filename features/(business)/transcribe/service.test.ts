@@ -12,8 +12,8 @@ mock.module('@/platform/env', () => ({
 const mockInsert = mock(() => ({
   returning: () => [{ id: 'run-1', inputVideoUrl: 'episodes/video.mp4', status: 'queued' }],
 }))
-const mockUpdate = mock(() => ({ set: mock(() => ({ where: mock(() => Promise.resolve()) })) }))
-const mockSelect = mock(() => ({ from: mock(() => [{ count: 5 }]) }))
+const _mockUpdate = mock(() => ({ set: mock(() => ({ where: mock(() => Promise.resolve()) })) }))
+const _mockSelect = mock(() => ({ from: mock(() => [{ count: 5 }]) }))
 const mockFindFirst = mock(() =>
   Promise.resolve({
     id: 'run-1',
@@ -66,7 +66,12 @@ mock.module('@/platform/db/schema', () => mockSchema())
 
 // Mock providers
 const mockDownload = mock(() => Promise.resolve(Buffer.from('fake-video-data')))
-mock.module('@/providers/storage', () => ({ download: mockDownload }))
+mock.module('@/providers/storage', () => ({
+  download: mockDownload,
+  upload: mock(() => Promise.resolve('test-key')),
+  getSignedUrl: mock(() => Promise.resolve('https://signed.example.com')),
+  remove: mock(() => Promise.resolve()),
+}))
 
 const mockTranscribe = mock(() =>
   Promise.resolve('[00:00:01] Hello world\n[00:00:05] Test transcript'),
@@ -120,11 +125,13 @@ describe('features/(business)/transcribe/service', () => {
   })
 
   describe('processTranscription', () => {
-    it('downloads video, transcribes, and saves transcript', async () => {
+    it('returns immediately with transcribing status (async processing)', async () => {
       const result = await processTranscription('run-1')
-      expect(result).toHaveProperty('run')
-      expect(mockDownload).toHaveBeenCalledTimes(1)
-      expect(mockTranscribe).toHaveBeenCalledTimes(1)
+      expect('error' in result).toBe(false)
+      if (!('error' in result)) {
+        expect(result.run.id).toBe('run-1')
+        expect(result.run.status).toBe('transcribing')
+      }
     })
 
     it('returns NOT_FOUND for missing run', async () => {
@@ -133,34 +140,15 @@ describe('features/(business)/transcribe/service', () => {
       expect(result).toEqual({ error: 'NOT_FOUND' })
     })
 
-    it('returns error when video not found in storage', async () => {
-      const { ProviderError } = await import('@/providers/errors')
-      mockDownload.mockRejectedValueOnce(new ProviderError('r2', 'download', 404, 'not found'))
+    it('returns PIPELINE_INVALID_STATE when run is not queued', async () => {
+      mockFindFirst.mockResolvedValueOnce({
+        id: 'run-1',
+        inputVideoUrl: 'episodes/video.mp4',
+        status: 'completed',
+        transcript: 'done',
+      } as never)
       const result = await processTranscription('run-1')
-      expect(result).toEqual({ error: 'TRANSCRIBE_VIDEO_NOT_FOUND' })
-    })
-
-    it('returns error when whisper fails', async () => {
-      const { ProviderError } = await import('@/providers/errors')
-      mockTranscribe.mockRejectedValueOnce(new ProviderError('whisper', 'transcribe', 500, 'crash'))
-      const result = await processTranscription('run-1')
-      expect(result).toEqual({ error: 'TRANSCRIBE_PROCESSING_FAILED' })
-    })
-
-    it('returns TRANSCRIBE_TIMEOUT on whisper timeout', async () => {
-      const { ProviderError } = await import('@/providers/errors')
-      mockTranscribe.mockRejectedValueOnce(
-        new ProviderError('whisper', 'transcribe', 504, 'timeout'),
-      )
-      const result = await processTranscription('run-1')
-      expect(result).toEqual({ error: 'TRANSCRIBE_TIMEOUT' })
-    })
-
-    it('returns TRANSCRIBE_EMPTY_RESULT on empty output', async () => {
-      const { ProviderError } = await import('@/providers/errors')
-      mockTranscribe.mockRejectedValueOnce(new ProviderError('whisper', 'transcribe', 422, 'empty'))
-      const result = await processTranscription('run-1')
-      expect(result).toEqual({ error: 'TRANSCRIBE_EMPTY_RESULT' })
+      expect(result).toEqual({ error: 'PIPELINE_INVALID_STATE' })
     })
   })
 
