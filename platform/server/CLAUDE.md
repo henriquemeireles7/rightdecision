@@ -5,11 +5,13 @@ Hono HTTP server. Route mounting, response helpers, global middleware. AppRoutes
 
 ## Critical Rules
 - ALWAYS chain routes with `.route()` in `mountRoutes()` — breaking the chain breaks AppRoutes type inference for the entire frontend
-- NEVER use raw `c.json()` in route handlers — use `success()`, `paginated()`, `created()`, or `noContent()`
+- NEVER use raw `c.json()` in route handlers — use `success()`, `paginated()`, `created()`, or `noContent()`. Exception: `/health` and `/health/ready` use raw `c.json()` because health checks are infrastructure, not API responses
 - NEVER add business logic here — this is wiring only. Logic goes in `features/`
 - Response helpers enforce `{ ok: true, data }` shape — NEVER deviate from this contract
-- Global middleware order in `app.ts`: logger → cors → routes → error handler. Do not reorder.
-- Health check at `/health` returns `{ ok: true, timestamp }` — Railway depends on this
+- Global middleware order in `app.ts`: health checks → logger → cors → routes → error handler. Do not reorder.
+- Health checks are registered BEFORE middleware so they always respond, even if middleware breaks
+- `/health` — liveness, returns `{ status: "ok" }`, Railway hits this during deploys
+- `/health/ready` — readiness, checks DB + Stripe + Resend + R2, returns service-level status with latency
 
 ## Imports (use from other modules)
 ```ts

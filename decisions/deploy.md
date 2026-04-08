@@ -26,6 +26,28 @@ Required vars (see `.env.example`):
 - `STRIPE_WEBHOOK_SECRET` — webhook verification
 - `RESEND_API_KEY` — transactional email
 
+## Config-as-Code (`railway.toml`)
+All build and deploy settings are version-controlled in `railway.toml` at the repo root.
+Code config **always overrides** Railway dashboard settings.
+
+What it controls:
+- **Builder:** `DOCKERFILE` — uses our multi-stage Dockerfile
+- **Start command:** `bun run dist/app.js`
+- **Healthcheck:** `GET /health` with 300s timeout — Railway rolls back if it fails
+- **Restart policy:** `ON_FAILURE` with 5 retries — auto-recovers from crashes
+- **Replicas:** 1 (scale up by changing `numReplicas`)
+
+What it does NOT control (use `railway variable set` or dashboard):
+- Environment variables (DATABASE_URL, secrets, etc.)
+- Custom domains and networking
+- Volume mounts
+
+Rules:
+- NEVER configure build/deploy settings in the dashboard — they'll be overridden by `railway.toml`
+- To add pre-deploy migrations: add `preDeployCommand = "bun run db:migrate"` to `[deploy]`
+- To add environment overrides: use `[environments.staging.deploy]` sections
+- Config file path does NOT follow Root Directory — always use absolute path from repo root
+
 ## CI Pipeline
 GitHub Actions: `biome ci` → `tsc --noEmit` → `bun test` → `bun run build`
 
