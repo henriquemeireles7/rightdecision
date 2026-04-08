@@ -88,7 +88,6 @@ export function ClassView({
         {/* Rendered editorial content */}
         <div
           class="prose-editorial"
-          // biome-ignore lint/security/noDangerouslySetInnerHtml: trusted local .mdx content
           dangerouslySetInnerHTML={{ __html: renderedContent }}
         />
 
@@ -156,7 +155,6 @@ export function ClassView({
 
       {/* Inline scripts: reading progress + menu toggle + analytics + session memory */}
       <script
-        // biome-ignore lint/security/noDangerouslySetInnerHtml: inline scripts
         dangerouslySetInnerHTML={{
           __html: [
             // Reading progress bar

@@ -10,7 +10,7 @@ import { getDecision, isDecisionEditable } from './decisions'
 import { JourneyPage } from './journey'
 import { CourseListing } from './listing'
 import { ModuleLandingPage } from './module-landing'
-import { getModuleProgress, getOverallProgress, getUserProgress } from './progress'
+import { getOverallProgress, getUserProgress } from './progress'
 import { getUserDecisions } from './decisions'
 import { isBookmarked } from './bookmarks'
 
