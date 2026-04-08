@@ -3,52 +3,20 @@
  * Each resolver takes a TemplateContext and returns the replacement string.
  */
 
-import { generateBrowseSetup, generateCommandReference, generateSnapshotFlags } from './browse'
-import { generateInvokeSkill } from './composition'
-import { generateConfidenceCalibration } from './confidence'
-import {
-  generateDesignHardRules,
-  generateDesignMethodology,
-  generateDesignMockup,
-  generateDesignOutsideVoices,
-  generateDesignReviewLite,
-  generateDesignSetup,
-  generateDesignShotgunLoop,
-  generateDesignSketch,
-} from './design'
-import { generateLearningsLog, generateLearningsSearch } from './learnings'
+import type { TemplateContext, ResolverFn } from './types';
+
 // Domain modules
-import { generatePreamble, generateTestFailureTriage } from './preamble'
-import {
-  generateAdversarialStep,
-  generateBenefitsFrom,
-  generateCodexPlanReview,
-  generateCodexSecondOpinion,
-  generatePlanCompletionAuditReview,
-  generatePlanCompletionAuditShip,
-  generatePlanFileReviewReport,
-  generatePlanVerificationExec,
-  generateReviewDashboard,
-  generateScopeDrift,
-  generateSpecReviewLoop,
-} from './review'
-import { generateReviewArmy } from './review-army'
-import {
-  generateTestBootstrap,
-  generateTestCoverageAuditPlan,
-  generateTestCoverageAuditReview,
-  generateTestCoverageAuditShip,
-} from './testing'
-import type { ResolverFn, TemplateContext } from './types'
-import {
-  generateBaseBranchDetect,
-  generateChangelogWorkflow,
-  generateCoAuthorTrailer,
-  generateDeployBootstrap,
-  generateQAMethodology,
-  generateSlugEval,
-  generateSlugSetup,
-} from './utility'
+import { generatePreamble } from './preamble';
+import { generateTestFailureTriage } from './preamble';
+import { generateCommandReference, generateSnapshotFlags, generateBrowseSetup } from './browse';
+import { generateDesignMethodology, generateDesignHardRules, generateDesignOutsideVoices, generateDesignReviewLite, generateDesignSketch, generateDesignSetup, generateDesignMockup, generateDesignShotgunLoop } from './design';
+import { generateTestBootstrap, generateTestCoverageAuditPlan, generateTestCoverageAuditShip, generateTestCoverageAuditReview } from './testing';
+import { generateReviewDashboard, generatePlanFileReviewReport, generateSpecReviewLoop, generateBenefitsFrom, generateCodexSecondOpinion, generateAdversarialStep, generateCodexPlanReview, generatePlanCompletionAuditShip, generatePlanCompletionAuditReview, generatePlanVerificationExec, generateScopeDrift } from './review';
+import { generateSlugEval, generateSlugSetup, generateBaseBranchDetect, generateDeployBootstrap, generateQAMethodology, generateCoAuthorTrailer, generateChangelogWorkflow } from './utility';
+import { generateLearningsSearch, generateLearningsLog } from './learnings';
+import { generateConfidenceCalibration } from './confidence';
+import { generateInvokeSkill } from './composition';
+import { generateReviewArmy } from './review-army';
 
 export const RESOLVERS: Record<string, ResolverFn> = {
   SLUG_EVAL: generateSlugEval,
@@ -91,4 +59,4 @@ export const RESOLVERS: Record<string, ResolverFn> = {
   INVOKE_SKILL: generateInvokeSkill,
   CHANGELOG_WORKFLOW: generateChangelogWorkflow,
   REVIEW_ARMY: generateReviewArmy,
-}
+};

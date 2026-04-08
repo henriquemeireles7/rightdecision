@@ -8,7 +8,7 @@
  */
 
 export function getCookiePickerHTML(serverPort: number, authToken?: string): string {
-  const baseUrl = `http://127.0.0.1:${serverPort}`
+  const baseUrl = `http://127.0.0.1:${serverPort}`;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -684,5 +684,5 @@ export function getCookiePickerHTML(serverPort: number, authToken?: string): str
 })();
 </script>
 </body>
-</html>`
+</html>`;
 }

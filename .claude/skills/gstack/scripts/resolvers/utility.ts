@@ -1,11 +1,11 @@
-import type { TemplateContext } from './types'
+import type { TemplateContext } from './types';
 
 export function generateSlugEval(ctx: TemplateContext): string {
-  return `eval "$(${ctx.paths.binDir}/gstack-slug 2>/dev/null)"`
+  return `eval "$(${ctx.paths.binDir}/gstack-slug 2>/dev/null)"`;
 }
 
 export function generateSlugSetup(ctx: TemplateContext): string {
-  return `eval "$(${ctx.paths.binDir}/gstack-slug 2>/dev/null)" && mkdir -p ~/.gstack/projects/$SLUG`
+  return `eval "$(${ctx.paths.binDir}/gstack-slug 2>/dev/null)" && mkdir -p ~/.gstack/projects/$SLUG`;
 }
 
 export function generateBaseBranchDetect(_ctx: TemplateContext): string {
@@ -46,7 +46,7 @@ Print the detected base branch name. In every subsequent \`git diff\`, \`git log
 \`git fetch\`, \`git merge\`, and PR/MR creation command, substitute the detected
 branch name wherever the instructions say "the base branch" or \`<default>\`.
 
----`
+---`;
 }
 
 export function generateDeployBootstrap(_ctx: TemplateContext): string {
@@ -83,7 +83,7 @@ and skip manual detection. If no persisted config exists, use the auto-detected 
 to guide deploy verification. If nothing is detected, ask the user via AskUserQuestion
 in the decision tree below.
 
-If you want to persist deploy settings for future runs, suggest the user run \`/setup-deploy\`.`
+If you want to persist deploy settings for future runs, suggest the user run \`/setup-deploy\`.`;
 }
 
 export function generateQAMethodology(_ctx: TemplateContext): string {
@@ -363,17 +363,17 @@ Minimum 0 per category.
 9. **Never delete output files.** Screenshots and reports accumulate — that's intentional.
 10. **Use \`snapshot -C\` for tricky UIs.** Finds clickable divs that the accessibility tree misses.
 11. **Show screenshots to the user.** After every \`$B screenshot\`, \`$B snapshot -a -o\`, or \`$B responsive\` command, use the Read tool on the output file(s) so the user can see them inline. For \`responsive\` (3 files), Read all three. This is critical — without it, screenshots are invisible to the user.
-12. **Never refuse to use the browser.** When the user invokes /qa or /qa-only, they are requesting browser-based testing. Never suggest evals, unit tests, or other alternatives as a substitute. Even if the diff appears to have no UI changes, backend changes affect app behavior — always open the browser and test.`
+12. **Never refuse to use the browser.** When the user invokes /qa or /qa-only, they are requesting browser-based testing. Never suggest evals, unit tests, or other alternatives as a substitute. Even if the diff appears to have no UI changes, backend changes affect app behavior — always open the browser and test.`;
 }
 
 export function generateCoAuthorTrailer(ctx: TemplateContext): string {
   if (ctx.host === 'codex') {
-    return 'Co-Authored-By: OpenAI Codex <noreply@openai.com>'
+    return 'Co-Authored-By: OpenAI Codex <noreply@openai.com>';
   }
   if (ctx.host === 'factory') {
-    return 'Co-Authored-By: Factory Droid <droid@users.noreply.github.com>'
+    return 'Co-Authored-By: Factory Droid <droid@users.noreply.github.com>';
   }
-  return 'Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>'
+  return 'Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>';
 }
 
 export function generateChangelogWorkflow(_ctx: TemplateContext): string {
@@ -417,5 +417,5 @@ export function generateChangelogWorkflow(_ctx: TemplateContext): string {
    add it now. If the branch has N commits spanning K themes, the CHANGELOG must
    reflect all K themes.
 
-**Do NOT ask the user to describe changes.** Infer from the diff and commit history.`
+**Do NOT ask the user to describe changes.** Infer from the diff and commit history.`;
 }

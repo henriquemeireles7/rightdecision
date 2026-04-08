@@ -9,7 +9,7 @@
  *
  * Shipped as Release 2 of the self-learning roadmap (SELF_LEARNING_V0.md).
  */
-import type { TemplateContext } from './types'
+import type { TemplateContext } from './types';
 
 function generateSpecialistSelection(ctx: TemplateContext): string {
   return `## Step 4.5: Review Army — Specialist Dispatch
@@ -48,7 +48,7 @@ Based on the scope signals above, select which specialists to dispatch.
 7. **Design** — if SCOPE_FRONTEND=true. Use the existing design review checklist at \`${ctx.paths.skillRoot}/review/design-checklist.md\`
 
 Note which specialists were selected and which were skipped. Print the selection:
-"Dispatching N specialists: [names]. Skipped: [names] (scope not detected)."`
+"Dispatching N specialists: [names]. Skipped: [names] (scope not detected)."`;
 }
 
 function generateSpecialistDispatch(ctx: TemplateContext): string {
@@ -95,7 +95,7 @@ CHECKLIST:
 **Subagent configuration:**
 - Use \`subagent_type: "general-purpose"\`
 - Do NOT use \`run_in_background\` — all specialists must complete before merge
-- If any specialist subagent fails or times out, log the failure and continue with results from successful specialists. Specialists are additive — partial results are better than no results.`
+- If any specialist subagent fails or times out, log the failure and continue with results from successful specialists. Specialists are additive — partial results are better than no results.`;
 }
 
 function generateFindingsMerge(_ctx: TemplateContext): string {
@@ -146,7 +146,7 @@ PR Quality Score: X/10
 \`\`\`
 
 These findings flow into Step 5 Fix-First alongside the CRITICAL pass findings from Step 4.
-The Fix-First heuristic applies identically — specialist findings follow the same AUTO-FIX vs ASK classification.`
+The Fix-First heuristic applies identically — specialist findings follow the same AUTO-FIX vs ASK classification.`;
 }
 
 function generateRedTeam(ctx: TemplateContext): string {
@@ -172,19 +172,19 @@ If the Red Team finds additional issues, merge them into the findings list befor
 Step 5 Fix-First. Red Team findings are tagged with \`"specialist":"red-team"\`.
 
 If the Red Team returns NO FINDINGS, note: "Red Team review: no additional issues found."
-If the Red Team subagent fails or times out, skip silently and continue.`
+If the Red Team subagent fails or times out, skip silently and continue.`;
 }
 
 export function generateReviewArmy(ctx: TemplateContext): string {
   // Codex host: strip entirely — Codex should not run Review Army
-  if (ctx.host === 'codex') return ''
+  if (ctx.host === 'codex') return '';
 
   const sections = [
     generateSpecialistSelection(ctx),
     generateSpecialistDispatch(ctx),
     generateFindingsMerge(ctx),
     generateRedTeam(ctx),
-  ]
+  ];
 
-  return sections.join('\n\n---\n\n')
+  return sections.join('\n\n---\n\n');
 }

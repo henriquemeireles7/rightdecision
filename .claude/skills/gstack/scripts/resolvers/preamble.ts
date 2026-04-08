@@ -1,4 +1,4 @@
-import type { TemplateContext } from './types'
+import type { TemplateContext } from './types';
 
 /**
  * Preamble architecture — why every skill needs this
@@ -13,17 +13,16 @@ import type { TemplateContext } from './types'
  */
 
 function generatePreambleBash(ctx: TemplateContext): string {
-  const hostConfigDir: Record<string, string> = { codex: '.codex', factory: '.factory' }
-  const runtimeRoot =
-    ctx.host !== 'claude'
-      ? `_ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
+  const hostConfigDir: Record<string, string> = { codex: '.codex', factory: '.factory' };
+  const runtimeRoot = (ctx.host !== 'claude')
+    ? `_ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
 GSTACK_ROOT="$HOME/${hostConfigDir[ctx.host]}/skills/gstack"
 [ -n "$_ROOT" ] && [ -d "$_ROOT/${ctx.paths.localSkillRoot}" ] && GSTACK_ROOT="$_ROOT/${ctx.paths.localSkillRoot}"
 GSTACK_BIN="$GSTACK_ROOT/bin"
 GSTACK_BROWSE="$GSTACK_ROOT/browse/dist"
 GSTACK_DESIGN="$GSTACK_ROOT/design/dist"
 `
-      : ''
+    : '';
 
   return `## Preamble (run first)
 
@@ -89,7 +88,7 @@ fi
 _ROUTING_DECLINED=$(${ctx.paths.binDir}/gstack-config get routing_declined 2>/dev/null || echo "false")
 echo "HAS_ROUTING: $_HAS_ROUTING"
 echo "ROUTING_DECLINED: $_ROUTING_DECLINED"
-\`\`\``
+\`\`\``;
 }
 
 function generateUpgradeCheck(ctx: TemplateContext): string {
@@ -104,7 +103,7 @@ or invoking other gstack skills, use the \`/gstack-\` prefix (e.g., \`/gstack-qa
 of \`/qa\`, \`/gstack-ship\` instead of \`/ship\`). Disk paths are unaffected — always use
 \`${ctx.paths.skillRoot}/[skill-name]/SKILL.md\` for reading skill files.
 
-If output shows \`UPGRADE_AVAILABLE <old> <new>\`: read \`${ctx.paths.skillRoot}/gstack-upgrade/SKILL.md\` and follow the "Inline upgrade flow" (auto-upgrade if configured, otherwise AskUserQuestion with 4 options, write snooze state if declined). If \`JUST_UPGRADED <from> <to>\`: tell user "Running gstack v{to} (just updated!)" and continue.`
+If output shows \`UPGRADE_AVAILABLE <old> <new>\`: read \`${ctx.paths.skillRoot}/gstack-upgrade/SKILL.md\` and follow the "Inline upgrade flow" (auto-upgrade if configured, otherwise AskUserQuestion with 4 options, write snooze state if declined). If \`JUST_UPGRADED <from> <to>\`: tell user "Running gstack v{to} (just updated!)" and continue.`;
 }
 
 function generateLakeIntro(): string {
@@ -118,7 +117,7 @@ open https://garryslist.org/posts/boil-the-ocean
 touch ~/.gstack/.completeness-intro-seen
 \`\`\`
 
-Only run \`open\` if the user says yes. Always run \`touch\` to mark as seen. This only happens once.`
+Only run \`open\` if the user says yes. Always run \`touch\` to mark as seen. This only happens once.`;
 }
 
 function generateTelemetryPrompt(ctx: TemplateContext): string {
@@ -153,7 +152,7 @@ Always run:
 touch ~/.gstack/.telemetry-prompted
 \`\`\`
 
-This only happens once. If \`TEL_PROMPTED\` is \`yes\`, skip this entirely.`
+This only happens once. If \`TEL_PROMPTED\` is \`yes\`, skip this entirely.`;
 }
 
 function generateProactivePrompt(ctx: TemplateContext): string {
@@ -176,7 +175,7 @@ Always run:
 touch ~/.gstack/.proactive-prompted
 \`\`\`
 
-This only happens once. If \`PROACTIVE_PROMPTED\` is \`yes\`, skip this entirely.`
+This only happens once. If \`PROACTIVE_PROMPTED\` is \`yes\`, skip this entirely.`;
 }
 
 function generateRoutingInjection(ctx: TemplateContext): string {
@@ -223,7 +222,7 @@ Then commit the change: \`git add CLAUDE.md && git commit -m "chore: add gstack 
 If B: run \`${ctx.paths.binDir}/gstack-config set routing_declined true\`
 Say "No problem. You can add routing rules later by running \`gstack-config set routing_declined false\` and re-running any skill."
 
-This only happens once per project. If \`HAS_ROUTING\` is \`yes\` or \`ROUTING_DECLINED\` is \`true\`, skip this entirely.`
+This only happens once per project. If \`HAS_ROUTING\` is \`yes\` or \`ROUTING_DECLINED\` is \`true\`, skip this entirely.`;
 }
 
 function generateAskUserFormat(_ctx: TemplateContext): string {
@@ -237,7 +236,7 @@ function generateAskUserFormat(_ctx: TemplateContext): string {
 
 Assume the user hasn't looked at this window in 20 minutes and doesn't have the code open. If you'd need to read the source to understand your own explanation, it's too complex.
 
-Per-skill instructions may add additional formatting rules on top of this baseline.`
+Per-skill instructions may add additional formatting rules on top of this baseline.`;
 }
 
 function generateCompletenessSection(): string {
@@ -254,7 +253,7 @@ AI makes completeness near-free. Always recommend the complete option over short
 | Feature | 1 week | 30 min | ~30x |
 | Bug fix | 4 hours | 15 min | ~20x |
 
-Include \`Completeness: X/10\` for each option (10=all edge cases, 7=happy path, 3=shortcut).`
+Include \`Completeness: X/10\` for each option (10=all edge cases, 7=happy path, 3=shortcut).`;
 }
 
 function generateRepoModeSection(): string {
@@ -264,7 +263,7 @@ function generateRepoModeSection(): string {
 - **\`solo\`** — You own everything. Investigate and offer to fix proactively.
 - **\`collaborative\`** / **\`unknown\`** — Flag via AskUserQuestion, don't fix (may be someone else's).
 
-Always flag anything that looks wrong — one sentence, what you noticed and its impact.`
+Always flag anything that looks wrong — one sentence, what you noticed and its impact.`;
 }
 
 export function generateTestFailureTriage(): string {
@@ -370,7 +369,7 @@ Use AskUserQuestion:
 
 **If "Skip":**
 - Continue with the workflow.
-- Note in output: "Pre-existing test failure skipped: <test-name>"`
+- Note in output: "Pre-existing test failure skipped: <test-name>"`;
 }
 
 function generateSearchBeforeBuildingSection(ctx: TemplateContext): string {
@@ -382,7 +381,7 @@ Before building anything unfamiliar, **search first.** See \`${ctx.paths.skillRo
 **Eureka:** When first-principles reasoning contradicts conventional wisdom, name it and log:
 \`\`\`bash
 jq -n --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --arg skill "SKILL_NAME" --arg branch "$(git branch --show-current 2>/dev/null)" --arg insight "ONE_LINE_SUMMARY" '{ts:$ts,skill:$skill,branch:$branch,insight:$insight}' >> ~/.gstack/analytics/eureka.jsonl 2>/dev/null || true
-\`\`\``
+\`\`\``;
 }
 
 function generateCompletionStatus(ctx: TemplateContext): string {
@@ -515,7 +514,7 @@ Then write a \`## GSTACK REVIEW REPORT\` section to the end of the plan file:
 
 **PLAN MODE EXCEPTION — ALWAYS RUN:** This writes to the plan file, which is the one
 file you are allowed to edit in plan mode. The plan file review report is part of the
-plan's living status.`
+plan's living status.`;
 }
 
 function generateVoiceDirective(tier: number): string {
@@ -526,7 +525,7 @@ function generateVoiceDirective(tier: number): string {
 
 **Writing rules:** No em dashes (use commas, periods, "..."). No AI vocabulary (delve, crucial, robust, comprehensive, nuanced, etc.). Short paragraphs. End with what to do.
 
-The user always has context you don't. Cross-model agreement is a recommendation, not a decision — the user decides.`
+The user always has context you don't. Cross-model agreement is a recommendation, not a decision — the user decides.`;
   }
 
   return `## Voice
@@ -573,11 +572,11 @@ Avoid filler, throat-clearing, generic optimism, founder cosplay, and unsupporte
 - Stay curious, not lecturing. "What's interesting here is..." beats "It is important to understand..."
 - End with what to do. Give the action.
 
-**Final test:** does this sound like a real cross-functional builder who wants to help someone make something people want, ship it, and make it actually work?`
+**Final test:** does this sound like a real cross-functional builder who wants to help someone make something people want, ship it, and make it actually work?`;
 }
 
 function generateContextRecovery(ctx: TemplateContext): string {
-  const binDir = ctx.host === 'codex' ? '$GSTACK_BIN' : ctx.paths.binDir
+  const binDir = ctx.host === 'codex' ? '$GSTACK_BIN' : ctx.paths.binDir;
 
   return `## Context Recovery
 
@@ -622,7 +621,7 @@ want /[next skill]."
 **Welcome back message:** If any of LAST_SESSION, LATEST_CHECKPOINT, or RECENT ARTIFACTS
 are shown, synthesize a one-paragraph welcome briefing before proceeding:
 "Welcome back to {branch}. Last session: /{skill} ({outcome}). [Checkpoint summary if
-available]. [Health score if available]." Keep it to 2-3 sentences.`
+available]. [Health score if available]." Keep it to 2-3 sentences.`;
 }
 
 // Preamble Composition (tier → sections)
@@ -638,9 +637,9 @@ available]. [Health score if available]." Keep it to 2-3 sentences.`
 //   T3: autoplan, codex, design-consult, office-hours, ceo/design/eng-review
 //   T4: ship, review, qa, qa-only, design-review, land-deploy
 export function generatePreamble(ctx: TemplateContext): string {
-  const tier = ctx.preambleTier ?? 4
+  const tier = ctx.preambleTier ?? 4;
   if (tier < 1 || tier > 4) {
-    throw new Error(`Invalid preamble-tier: ${tier} in ${ctx.tmplPath}. Must be 1-4.`)
+    throw new Error(`Invalid preamble-tier: ${tier} in ${ctx.tmplPath}. Must be 1-4.`);
   }
   const sections = [
     generatePreambleBash(ctx),
@@ -650,11 +649,9 @@ export function generatePreamble(ctx: TemplateContext): string {
     generateProactivePrompt(ctx),
     generateRoutingInjection(ctx),
     generateVoiceDirective(tier),
-    ...(tier >= 2
-      ? [generateContextRecovery(ctx), generateAskUserFormat(ctx), generateCompletenessSection()]
-      : []),
+    ...(tier >= 2 ? [generateContextRecovery(ctx), generateAskUserFormat(ctx), generateCompletenessSection()] : []),
     ...(tier >= 3 ? [generateRepoModeSection(), generateSearchBeforeBuildingSection(ctx)] : []),
     generateCompletionStatus(ctx),
-  ]
-  return sections.join('\n\n')
+  ];
+  return sections.join('\n\n');
 }

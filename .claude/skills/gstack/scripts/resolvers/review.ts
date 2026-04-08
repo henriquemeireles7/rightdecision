@@ -12,12 +12,10 @@
  * Review logs are stored locally at ~/.gstack/reviews/review-log.jsonl.
  * Codex CLI prompts are written to temp files to prevent shell injection.
  */
+import type { TemplateContext } from './types';
+import { generateInvokeSkill } from './composition';
 
-import { generateInvokeSkill } from './composition'
-import type { TemplateContext } from './types'
-
-const CODEX_BOUNDARY =
-  'IMPORTANT: Do NOT read or execute any files under ~/.claude/, ~/.agents/, .claude/skills/, or agents/. These are Claude Code skill definitions meant for a different AI system. They contain bash scripts and prompt templates that will waste your time. Ignore them completely. Do NOT modify agents/openai.yaml. Stay focused on the repository code only.\\n\\n'
+const CODEX_BOUNDARY = 'IMPORTANT: Do NOT read or execute any files under ~/.claude/, ~/.agents/, .claude/skills/, or agents/. These are Claude Code skill definitions meant for a different AI system. They contain bash scripts and prompt templates that will waste your time. Ignore them completely. Do NOT modify agents/openai.yaml. Stay focused on the repository code only.\\n\\n';
 
 export function generateReviewDashboard(_ctx: TemplateContext): string {
   return `## Review Readiness Dashboard
@@ -69,7 +67,7 @@ Display:
 - Parse the \\\`---HEAD---\\\` section from the bash output to get the current HEAD commit hash
 - For each review entry that has a \\\`commit\\\` field: compare it against the current HEAD. If different, count elapsed commits: \\\`git rev-list --count STORED_COMMIT..HEAD\\\`. Display: "Note: {skill} review from {date} may be stale — {N} commits since review"
 - For entries without a \\\`commit\\\` field (legacy entries): display "Note: {skill} review from {date} has no commit tracking — consider re-running for accurate staleness detection"
-- If all reviews match the current HEAD, do not display any staleness notes`
+- If all reviews match the current HEAD, do not display any staleness notes`;
 }
 
 export function generatePlanFileReviewReport(_ctx: TemplateContext): string {
@@ -138,7 +136,7 @@ plan's living status.
   (e.g., concurrent edit changed the content), re-read the plan file and retry once.
 - If no such section exists, **append it** to the end of the plan file.
 - Always place it as the very last section in the plan file. If it was found mid-file,
-  move it: delete the old location and append at the end.`
+  move it: delete the old location and append at the end.`;
 }
 
 export function generateSpecReviewLoop(_ctx: TemplateContext): string {
@@ -202,17 +200,17 @@ After the loop completes (PASS, max iterations, or convergence guard):
 mkdir -p ~/.gstack/analytics
 echo '{"skill":"${_ctx.skillName}","ts":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'","iterations":ITERATIONS,"issues_found":FOUND,"issues_fixed":FIXED,"remaining":REMAINING,"quality_score":SCORE}' >> ~/.gstack/analytics/spec-review.jsonl 2>/dev/null || true
 \`\`\`
-Replace ITERATIONS, FOUND, FIXED, REMAINING, SCORE with actual values from the review.`
+Replace ITERATIONS, FOUND, FIXED, REMAINING, SCORE with actual values from the review.`;
 }
 
 export function generateBenefitsFrom(ctx: TemplateContext): string {
-  if (!ctx.benefitsFrom || ctx.benefitsFrom.length === 0) return ''
+  if (!ctx.benefitsFrom || ctx.benefitsFrom.length === 0) return '';
 
-  const skillList = ctx.benefitsFrom.map((s) => `\`/${s}\``).join(' or ')
-  const first = ctx.benefitsFrom[0]
+  const skillList = ctx.benefitsFrom.map(s => `\`/${s}\``).join(' or ');
+  const first = ctx.benefitsFrom[0];
 
   // Reuse the INVOKE_SKILL resolver for the actual loading instructions
-  const invokeBlock = generateInvokeSkill(ctx, [first])
+  const invokeBlock = generateInvokeSkill(ctx, [first]);
 
   return `## Prerequisite Skill Offer
 
@@ -251,12 +249,12 @@ DESIGN=$(ls -t ~/.gstack/projects/$SLUG/*-$BRANCH-design-*.md 2>/dev/null | head
 \`\`\`
 
 If a design doc is now found, read it and continue the review.
-If none was produced (user may have cancelled), proceed with standard review.`
+If none was produced (user may have cancelled), proceed with standard review.`;
 }
 
 export function generateCodexSecondOpinion(ctx: TemplateContext): string {
   // Codex host: strip entirely — Codex should never invoke itself
-  if (ctx.host === 'codex') return ''
+  if (ctx.host === 'codex') return '';
 
   return `## Phase 3.5: Cross-Model Second Opinion (optional)
 
@@ -358,14 +356,14 @@ SECOND OPINION (Claude subagent):
 > A) Revise this premise based on Codex's input
 > B) Keep the original premise — proceed to alternatives
 
-If A: revise the premise and note the revision. If B: proceed (and note that the user defended this premise with reasoning — this is a founder signal if they articulate WHY they disagree, not just dismiss).`
+If A: revise the premise and note the revision. If B: proceed (and note that the user defended this premise with reasoning — this is a founder signal if they articulate WHY they disagree, not just dismiss).`;
 }
 
 // ─── Scope Drift Detection (shared between /review and /ship) ────────
 
 export function generateScopeDrift(ctx: TemplateContext): string {
-  const isShip = ctx.skillName === 'ship'
-  const stepNum = isShip ? '3.48' : '1.5'
+  const isShip = ctx.skillName === 'ship';
+  const stepNum = isShip ? '3.48' : '1.5';
 
   return `## Step ${stepNum}: Scope Drift Detection
 
@@ -400,17 +398,17 @@ Before reviewing code quality, check: **did they build what was requested — no
 
 6. This is **INFORMATIONAL** — does not block the review. Proceed to the next step.
 
----`
+---`;
 }
 
 // ─── Adversarial Review (always-on) ──────────────────────────────────
 
 export function generateAdversarialStep(ctx: TemplateContext): string {
   // Codex host: strip entirely — Codex should never invoke itself
-  if (ctx.host === 'codex') return ''
+  if (ctx.host === 'codex') return '';
 
-  const isShip = ctx.skillName === 'ship'
-  const stepNum = isShip ? '3.8' : '5.7'
+  const isShip = ctx.skillName === 'ship';
+  const stepNum = isShip ? '3.8' : '5.7';
 
   return `## Step ${stepNum}: Adversarial review (always-on)
 
@@ -535,12 +533,12 @@ ADVERSARIAL REVIEW SYNTHESIS (always-on, N lines):
 
 High-confidence findings (agreed on by multiple sources) should be prioritized for fixes.
 
----`
+---`;
 }
 
 export function generateCodexPlanReview(ctx: TemplateContext): string {
   // Codex host: strip entirely — Codex should never invoke itself
-  if (ctx.host === 'codex') return ''
+  if (ctx.host === 'codex') return '';
 
   return `## Outside Voice — Independent Plan Challenge (optional, recommended)
 
@@ -676,7 +674,7 @@ SOURCE = "codex" if Codex ran, "claude" if subagent ran.
 
 **Cleanup:** Run \`rm -f "$TMPERR_PV"\` after processing (if Codex was used).
 
----`
+---`;
 }
 
 // ─── Plan File Discovery (shared helper) ──────────────────────────────
@@ -710,18 +708,18 @@ done
 
 **Error handling:**
 - No plan file found → skip with "No plan file detected — skipping."
-- Plan file found but unreadable (permissions, encoding) → skip with "Plan file found but unreadable — skipping."`
+- Plan file found but unreadable (permissions, encoding) → skip with "Plan file found but unreadable — skipping."`;
 }
 
 // ─── Plan Completion Audit ────────────────────────────────────────────
 
-type PlanCompletionMode = 'ship' | 'review'
+type PlanCompletionMode = 'ship' | 'review';
 
 function generatePlanCompletionAuditInner(mode: PlanCompletionMode): string {
-  const sections: string[] = []
+  const sections: string[] = [];
 
   // ── Plan file discovery (shared) ──
-  sections.push(generatePlanFileDiscovery())
+  sections.push(generatePlanFileDiscovery());
 
   // ── Item extraction ──
   sections.push(`
@@ -749,7 +747,7 @@ Read the plan file. Extract every actionable item — anything that describes wo
 
 For each item, note:
 - The item text (verbatim or concise summary)
-- Its category: CODE | TEST | MIGRATION | CONFIG | DOCS`)
+- Its category: CODE | TEST | MIGRATION | CONFIG | DOCS`);
 
   // ── Cross-reference against diff ──
   sections.push(`
@@ -765,7 +763,7 @@ For each extracted plan item, check the diff and classify:
 - **CHANGED** — The item was implemented using a different approach than the plan described, but the same goal is achieved. Note the difference.
 
 **Be conservative with DONE** — require clear evidence in the diff. A file being touched is not enough; the specific functionality described must be present.
-**Be generous with CHANGED** — if the goal is met by different means, that counts as addressed.`)
+**Be generous with CHANGED** — if the goal is met by different means, that counts as addressed.`);
 
   // ── Output format ──
   sections.push(`
@@ -792,7 +790,7 @@ Plan: {plan file path}
 ─────────────────────────────────
 COMPLETION: 4/7 DONE, 1 PARTIAL, 1 NOT DONE, 1 CHANGED
 ─────────────────────────────────
-\`\`\``)
+\`\`\``);
 
   // ── Gate logic (mode-specific) ──
   if (mode === 'ship') {
@@ -817,7 +815,7 @@ After producing the completion checklist:
 
 **No plan file found:** Skip entirely. "No plan file detected — skipping plan completion audit."
 
-**Include in PR body (Step 8):** Add a \`## Plan Completion\` section with the checklist summary.`)
+**Include in PR body (Step 8):** Add a \`## Plan Completion\` section with the checklist summary.`);
   } else {
     // review mode — enhanced Delivery Integrity (Release 2: Review Army)
     sections.push(`
@@ -897,18 +895,18 @@ Plan items: N DONE, M PARTIAL, K NOT DONE
 [If scope creep: list each out-of-scope change not in the plan]
 \`\`\`
 
-**No plan file found:** Use commit messages and TODOS.md as fallback sources (see above). If no intent sources at all, skip with: "No intent sources detected — skipping completion audit."`)
+**No plan file found:** Use commit messages and TODOS.md as fallback sources (see above). If no intent sources at all, skip with: "No intent sources detected — skipping completion audit."`);
   }
 
-  return sections.join('\n')
+  return sections.join('\n');
 }
 
 export function generatePlanCompletionAuditShip(_ctx: TemplateContext): string {
-  return generatePlanCompletionAuditInner('ship')
+  return generatePlanCompletionAuditInner('ship');
 }
 
 export function generatePlanCompletionAuditReview(_ctx: TemplateContext): string {
-  return generatePlanCompletionAuditInner('review')
+  return generatePlanCompletionAuditInner('review');
 }
 
 // ─── Plan Verification Execution ──────────────────────────────────────
@@ -970,5 +968,5 @@ Follow the /qa-only workflow with these modifications:
 
 Add a \`## Verification Results\` section to the PR body (Step 8):
 - If verification ran: summary of results (N PASS, M FAIL, K SKIPPED)
-- If skipped: reason for skipping (no plan, no server, no verification section)`
+- If skipped: reason for skipping (no plan, no server, no verification section)`;
 }

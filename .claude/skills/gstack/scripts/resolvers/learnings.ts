@@ -11,7 +11,7 @@
  * Cross-project discovery is opt-in. The resolver asks the user once via
  * AskUserQuestion and persists the preference via gstack-config.
  */
-import type { TemplateContext } from './types'
+import type { TemplateContext } from './types';
 
 export function generateLearningsSearch(ctx: TemplateContext): string {
   if (ctx.host === 'codex') {
@@ -25,7 +25,7 @@ $GSTACK_BIN/gstack-learnings-search --limit 10 2>/dev/null || true
 \`\`\`
 
 If learnings are found, incorporate them into your analysis. When a review finding
-matches a past learning, note it: "Prior learning applied: [key] (confidence N, from [date])"`
+matches a past learning, note it: "Prior learning applied: [key] (confidence N, from [date])"`;
   }
 
   return `## Prior Learnings
@@ -64,11 +64,11 @@ matches a past learning, display:
 **"Prior learning applied: [key] (confidence N/10, from [date])"**
 
 This makes the compounding visible. The user should see that gstack is getting
-smarter on their codebase over time.`
+smarter on their codebase over time.`;
 }
 
 export function generateLearningsLog(ctx: TemplateContext): string {
-  const binDir = ctx.host === 'codex' ? '$GSTACK_BIN' : ctx.paths.binDir
+  const binDir = ctx.host === 'codex' ? '$GSTACK_BIN' : ctx.paths.binDir;
 
   return `## Capture Learnings
 
@@ -93,5 +93,5 @@ An inference you're not sure about is 4-5. A user preference they explicitly sta
 staleness detection: if those files are later deleted, the learning can be flagged.
 
 **Only log genuine discoveries.** Don't log obvious things. Don't log things the user
-already knows. A good test: would this insight save time in a future session? If yes, log it.`
+already knows. A good test: would this insight save time in a future session? If yes, log it.`;
 }

@@ -1,11 +1,11 @@
-export type Host = 'claude' | 'codex' | 'factory'
+export type Host = 'claude' | 'codex' | 'factory';
 
 export interface HostPaths {
-  skillRoot: string
-  localSkillRoot: string
-  binDir: string
-  browseDir: string
-  designDir: string
+  skillRoot: string;
+  localSkillRoot: string;
+  binDir: string;
+  browseDir: string;
+  designDir: string;
 }
 
 export const HOST_PATHS: Record<Host, HostPaths> = {
@@ -30,16 +30,16 @@ export const HOST_PATHS: Record<Host, HostPaths> = {
     browseDir: '$GSTACK_BROWSE',
     designDir: '$GSTACK_DESIGN',
   },
-}
+};
 
 export interface TemplateContext {
-  skillName: string
-  tmplPath: string
-  benefitsFrom?: string[]
-  host: Host
-  paths: HostPaths
-  preambleTier?: number // 1-4, controls which preamble sections are included
+  skillName: string;
+  tmplPath: string;
+  benefitsFrom?: string[];
+  host: Host;
+  paths: HostPaths;
+  preambleTier?: number;  // 1-4, controls which preamble sections are included
 }
 
 /** Resolver function signature. args is populated for parameterized placeholders like {{INVOKE_SKILL:name}}. */
-export type ResolverFn = (ctx: TemplateContext, args?: string[]) => string
+export type ResolverFn = (ctx: TemplateContext, args?: string[]) => string;

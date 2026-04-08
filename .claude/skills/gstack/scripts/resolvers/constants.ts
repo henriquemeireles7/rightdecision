@@ -12,7 +12,7 @@ export const AI_SLOP_BLACKLIST = [
   'Colored left-border on cards (`border-left: 3px solid <accent>`)',
   'Generic hero copy ("Welcome to [X]", "Unlock the power of...", "Your all-in-one solution for...")',
   'Cookie-cutter section rhythm (hero → 3 features → testimonials → pricing → CTA, every section same height)',
-]
+];
 
 /** OpenAI hard rejection criteria (from "Designing Delightful Frontends with GPT-5.4", Mar 2026) */
 export const OPENAI_HARD_REJECTIONS = [
@@ -23,7 +23,7 @@ export const OPENAI_HARD_REJECTIONS = [
   'Sections repeating same mood statement',
   'Carousel with no narrative purpose',
   'App UI made of stacked cards instead of layout',
-]
+];
 
 /** OpenAI litmus checks — 7 yes/no tests for cross-model consensus scoring */
 export const OPENAI_LITMUS_CHECKS = [
@@ -34,7 +34,7 @@ export const OPENAI_LITMUS_CHECKS = [
   'Are cards actually necessary?',
   'Does motion improve hierarchy or atmosphere?',
   'Would design feel premium with all decorative shadows removed?',
-]
+];
 
 /**
  * Shared Codex error handling block for resolver output.
@@ -46,5 +46,5 @@ export function codexErrorHandling(feature: string): string {
 - Auth failure (stderr contains "auth", "login", "unauthorized"): note and skip
 - Timeout: note timeout duration and skip
 - Empty response: note and skip
-On any error: continue — ${feature} is informational, not a gate.`
+On any error: continue — ${feature} is informational, not a gate.`;
 }
