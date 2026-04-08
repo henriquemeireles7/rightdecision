@@ -58,3 +58,7 @@ In the Right Decision methodology, this is why the Decision Cycle starts with di
 **5. Recognize when you're depleted.** If you notice yourself defaulting to "whatever" or "I'll decide later" — stop. That's decision fatigue talking. Pause, rest, and come back to the decision when you're fresh. A delayed decision made well is better than a depleted decision made now.
 
 The cost of ignoring decision fatigue is invisible but real. It's not the wrong decision you make — it's the right decision you keep [avoiding because you're too tired to face it](/concepts/feeling-stuck-in-life).
+
+---
+
+*Ready to stop analyzing and start deciding? [The Right Decision](/life) gives you a methodology + AI to make the one decision that changes everything.*

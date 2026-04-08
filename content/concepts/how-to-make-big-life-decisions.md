@@ -68,3 +68,7 @@ In those cases, go back to Step 2. The map is wrong. You're lying to yourself ab
 If the map is honest and the target is specific, the constraint becomes obvious. And once the constraint is obvious, the decision writes itself.
 
 The most expensive thing in your life isn't the wrong decision. It's the one you keep [postponing](/concepts/feeling-stuck-in-life).
+
+---
+
+*Ready to stop analyzing and start deciding? [The Right Decision](/life) gives you a methodology + AI to make the one decision that changes everything.*

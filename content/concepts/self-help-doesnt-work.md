@@ -79,3 +79,7 @@ This isn't a program you consume. It's a [system you run](/concepts/how-to-make-
 If you've spent years understanding why you're [stuck](/concepts/feeling-stuck-in-life) and you're still stuck — the problem isn't that you don't understand enough. The problem is that understanding was never going to be enough.
 
 You don't need another book. You need one decision.
+
+---
+
+*Ready to stop analyzing and start deciding? [The Right Decision](/life) gives you a methodology + AI to make the one decision that changes everything.*

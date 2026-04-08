@@ -182,6 +182,25 @@ describe('renderMarkdown', () => {
     const html = renderMarkdown('- Item 1\n- Item 2')
     expect(html).toContain('<li>')
   })
+
+  test('adds loading=lazy to images', () => {
+    const html = renderMarkdown('![Alt text](https://example.com/image.png)')
+    expect(html).toContain('loading="lazy"')
+    expect(html).toContain('alt="Alt text"')
+    expect(html).toContain('src="https://example.com/image.png"')
+  })
+
+  test('preserves image title attribute', () => {
+    const html = renderMarkdown('![Alt](image.png "My title")')
+    expect(html).toContain('title="My title"')
+    expect(html).toContain('loading="lazy"')
+  })
+
+  test('handles images with empty alt text', () => {
+    const html = renderMarkdown('![](image.png)')
+    expect(html).toContain('alt=""')
+    expect(html).toContain('loading="lazy"')
+  })
 })
 
 // ─── calculateReadTime ───

@@ -62,4 +62,13 @@ describe('Layout', () => {
     expect(html).toContain('<details')
     expect(html).toContain('Menu')
   })
+
+  test('nav has aria-label for accessibility', () => {
+    const html = renderToString(
+      <Layout>
+        <p>Test</p>
+      </Layout>,
+    )
+    expect(html).toContain('aria-label="Main navigation"')
+  })
 })
