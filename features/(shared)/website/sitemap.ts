@@ -9,6 +9,14 @@ const CONCEPTS_DIR = join(import.meta.dir, '../../../content/concepts')
 
 export const sitemapRoutes = new Hono()
 
+// IndexNow key verification (only if key is configured)
+if (env.INDEXNOW_KEY) {
+  sitemapRoutes.get(`/${env.INDEXNOW_KEY}.txt`, (c) => {
+    c.header('Content-Type', 'text/plain')
+    return c.body(env.INDEXNOW_KEY!)
+  })
+}
+
 sitemapRoutes.get('/sitemap.xml', async (c) => {
   const staticPages = [
     { loc: '/', priority: '1.0' },

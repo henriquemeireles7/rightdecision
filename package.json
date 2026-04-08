@@ -19,7 +19,8 @@
     "db:generate": "bun drizzle-kit generate",
     "db:migrate": "bun platform/scripts/migrate.ts",
     "db:seed": "bun platform/scripts/seed.ts",
-    "db:studio": "bun drizzle-kit studio"
+    "db:studio": "bun drizzle-kit studio",
+    "indexnow": "bun scripts/post-deploy-indexnow.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.10",

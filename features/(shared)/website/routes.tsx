@@ -18,6 +18,17 @@ import { sitemapRoutes } from './sitemap'
 
 export const websiteRoutes = new Hono()
 
+// ─── www → naked domain redirect ─────────────────────────────────────────────
+websiteRoutes.use('*', async (c, next) => {
+  const host = c.req.header('host')
+  if (host?.startsWith('www.')) {
+    const url = new URL(c.req.url)
+    url.host = url.host.replace(/^www\./, '')
+    return c.redirect(url.toString(), 301)
+  }
+  await next()
+})
+
 // ─── Trailing slash redirect ─────────────────────────────────────────────────
 websiteRoutes.use('*', async (c, next) => {
   const url = new URL(c.req.url)
