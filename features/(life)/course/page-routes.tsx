@@ -7,11 +7,9 @@ import { canAccessClass, getModuleFromClassId, getUserAccessTier } from './acces
 import { ClassView } from './class-view'
 import { CourseDashboard } from './dashboard'
 import { getDecision, isDecisionEditable } from './decisions'
-import { JourneyPage } from './journey'
 import { CourseListing } from './listing'
 import { ModuleLandingPage } from './module-landing'
 import { getOverallProgress, getUserProgress } from './progress'
-import { getUserDecisions } from './decisions'
 import { isBookmarked } from './bookmarks'
 
 export const coursePageRoutes = new Hono<AppEnv>()
@@ -204,43 +202,4 @@ coursePageRoutes.get('/:slug/class/:classId{.+}', async (c) => {
   )
 })
 
-// ─── GET /journey → Your Journey Page ───────────────────────────────────────
-coursePageRoutes.get('/journey', async (c) => {
-  const user = await getUser(c.req.raw.headers)
-  if (!user) return c.redirect('/login')
-
-  const decisions = await getUserDecisions(user.id, 'life-decisions')
-  const overall = await getOverallProgress(user.id)
-
-  // Find current class
-  const modules = getAllModules()
-  const userProgress = await getUserProgress(user.id)
-  const completedIds = new Set(userProgress.map((p) => p.classId))
-  let currentClassId: string | null = null
-  for (const mod of modules) {
-    for (const cls of mod.classes) {
-      if (!completedIds.has(cls.id)) {
-        currentClassId = cls.id
-        break
-      }
-    }
-    if (currentClassId) break
-  }
-
-  return c.html(
-    renderPage(
-      <JourneyPage
-        decisions={decisions.map((d) => ({
-          classId: d.classId,
-          prompt: d.prompt,
-          response: d.response,
-          createdAt: d.createdAt.toISOString(),
-        }))}
-        totalClasses={overall.totalClasses}
-        courseComplete={overall.percent === 100}
-        currentClassId={currentClassId}
-      />,
-      { title: 'Your Journey — The Right Decision' },
-    ),
-  )
-})
+// Journey page route is in journey-page-route.tsx (mounted at /journey in routes.ts)
