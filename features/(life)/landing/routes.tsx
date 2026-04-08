@@ -25,6 +25,7 @@ landingRoutes.get('/', (c) => {
     maxAge: 60 * 60 * 24 * 30,
     path: '/',
     httpOnly: true,
+    secure: true,
     sameSite: 'Lax',
   })
 

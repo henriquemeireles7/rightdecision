@@ -2,7 +2,7 @@ const input = await Bun.stdin.json()
 const file: string = input.tool_input?.file_path ?? input.tool_input?.path ?? ''
 
 const protectedPatterns = [
-  { pattern: /\.env/, name: '.env files' },
+  { pattern: /\.env(?!\.example)/, name: '.env files' },
   { pattern: /\.git\//, name: '.git directory' },
   { pattern: /bun\.lock/, name: 'bun.lock' },
   { pattern: /\.pem$/, name: 'PEM certificates' },

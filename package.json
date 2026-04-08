@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "bun run --hot platform/server/app.ts",
+    "dev": "bun run css:build && bun run --hot platform/server/app.ts",
     "build": "bun run css:build && bun build platform/server/app.ts --outdir dist --target bun",
     "css:build": "bunx @tailwindcss/cli -i styles/global.css -o public/styles.css --minify",
     "css:dev": "bunx @tailwindcss/cli -i styles/global.css -o public/styles.css --watch",

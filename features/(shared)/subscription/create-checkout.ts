@@ -22,10 +22,11 @@ checkoutRoutes.get('/redirect', async (c) => {
       cancel_url: env.PUBLIC_APP_URL,
       allow_promotion_codes: true,
     })
-    return c.redirect(session.url!, 303)
+    if (!session.url) return c.redirect(env.PUBLIC_APP_URL, 303)
+    return c.redirect(session.url, 303)
   } catch (error) {
     console.error('Checkout redirect error:', error)
-    return throwError(c, 'PAYMENT_FAILED')
+    return c.redirect(`${env.PUBLIC_APP_URL}?error=checkout_failed`, 303)
   }
 })
 

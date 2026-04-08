@@ -18,7 +18,7 @@ const NOT_INCLUDED = [
 
 export function OfferSection() {
   return (
-    <section class="bg-cream py-16 order-3 md:order-none">
+    <section class="bg-cream py-16">
       <div class="max-w-[800px] mx-auto px-4">
         <div class="bg-surface-white rounded-[12px] p-8 md:p-12 border border-linen">
           <h2 class="font-display text-2xl md:text-[32px] text-ink text-center">

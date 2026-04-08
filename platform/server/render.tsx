@@ -10,7 +10,7 @@ interface PageOptions {
 }
 
 const esc = (s: string) =>
-  s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;')
+  s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;').replace(/</g, '&lt;')
 
 export function renderPage(component: VNode, options: PageOptions = {}): string {
   const html = renderToString(component)
