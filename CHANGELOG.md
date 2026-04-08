@@ -25,6 +25,11 @@ All notable changes to this project will be documented in this file.
 - Stack traces removed from PostHog error events (data exposure risk)
 - subscription_cancelled event now includes customer distinctId
 - GitHub Dependabot enabled for automated dependency vulnerability scanning
+- Stop hook: removed git add auto-staging (caused 600+ formatting cascades between agents)
+- Conductor setup: .env check uses -s (non-empty) instead of -f (exists), preventing empty .env
+- Conductor setup: Agent Mail server + dev server auto-start on workspace creation
+- Agent Mail MCP protocol documented in CLAUDE.md with concrete tool names
+- Reverted 158 gstack vendor files incorrectly reformatted by old stop hook
 
 ## [0.1.2.1] - 2026-04-07
 
