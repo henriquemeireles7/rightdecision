@@ -99,7 +99,12 @@ export async function getPipelineRun(runId: string) {
     where: eq(pipelineRuns.id, runId),
   })
   if (!run) return { error: 'NOT_FOUND' as const }
-  return { run }
+  return {
+    run: {
+      ...run,
+      transcript: run.transcript ? run.transcript.slice(0, 500) : null,
+    },
+  }
 }
 
 export async function listPipelineRuns(page = 1, perPage = 20) {
