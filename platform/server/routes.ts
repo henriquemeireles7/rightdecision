@@ -11,6 +11,7 @@ import { checkoutRoutes } from '@/features/(shared)/subscription/create-checkout
 import { winsRoutes } from '@/features/(life)/wins/routes'
 import { webhookRoutes } from '@/features/(shared)/subscription/handle-webhook'
 import { authRoutes } from '@/platform/auth/routes'
+import { transcribeRoutes } from '@/features/(business)/transcribe/routes'
 
 export function mountRoutes(app: Hono) {
   return app
@@ -26,4 +27,6 @@ export function mountRoutes(app: Hono) {
     .route('/api/account', accountRoutes)
     .route('/api/search', searchRoutes)
     .route('/api/admin', adminRoutes)
+    // ─── BD Pipeline ───
+    .route('/api/pipeline-runs', transcribeRoutes)
 }
