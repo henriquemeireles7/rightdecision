@@ -3,7 +3,7 @@ import { unlink, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { and, count, desc, eq } from 'drizzle-orm'
-import { findRunInState, transitionPipeline } from '@/features/(business)/workflow/transitions'
+import { failPipeline, findRunInState, transitionPipeline } from '@/features/(business)/workflow/transitions'
 import { db } from '@/platform/db/client'
 import { clips, pipelineRuns } from '@/platform/db/schema'
 import { ProviderError } from '@/providers/errors'
@@ -51,26 +51,26 @@ export async function processTranscription(runId: string) {
     return { error: 'PIPELINE_INVALID_STATE' as const }
   }
 
-  // Download video to temp file
-  const tempPath = join(tmpdir(), `transcribe-${randomUUID()}.${getExtension(run.inputVideoUrl)}`)
+  // Fire-and-forget background processing
+  transcribeInBackground(runId, run.inputVideoUrl).catch((err) =>
+    failPipeline(runId, 'transcribe', String(err)),
+  )
+
+  return { run: { id: runId, status: 'transcribing' as const } }
+}
+
+async function transcribeInBackground(runId: string, inputVideoUrl: string): Promise<void> {
+  const tempPath = join(tmpdir(), `transcribe-${randomUUID()}.${getExtension(inputVideoUrl)}`)
 
   try {
-    // inputVideoUrl is the R2 object key (e.g., "episodes/video.mp4")
-    const key = run.inputVideoUrl
+    const key = inputVideoUrl
     let videoData: Buffer
     try {
       videoData = await download(key)
     } catch (error) {
       if (error instanceof ProviderError && error.statusCode === 404) {
-        await db
-          .update(pipelineRuns)
-          .set({
-            status: 'failed',
-            stepFailedAt: 'transcribe',
-            errorMessage: 'Video not found in storage',
-          })
-          .where(eq(pipelineRuns.id, runId))
-        return { error: 'TRANSCRIBE_VIDEO_NOT_FOUND' as const }
+        await failPipeline(runId, 'transcribe', 'Video not found in storage')
+        return
       }
       throw error
     }
@@ -78,53 +78,18 @@ export async function processTranscription(runId: string) {
     track('content_uploaded', { type: 'video', size: videoData.length })
     await writeFile(tempPath, videoData)
 
-    // Run Whisper
-    let transcript: string
-    try {
-      transcript = await whisperTranscribe(tempPath)
-    } catch (error) {
-      if (error instanceof ProviderError) {
-        const errorCode =
-          error.statusCode === 504
-            ? 'TRANSCRIBE_TIMEOUT'
-            : error.statusCode === 422
-              ? 'TRANSCRIBE_EMPTY_RESULT'
-              : 'TRANSCRIBE_PROCESSING_FAILED'
-        await db
-          .update(pipelineRuns)
-          .set({
-            status: 'failed',
-            stepFailedAt: 'transcribe',
-            errorMessage: String(error.rawResponse),
-          })
-          .where(eq(pipelineRuns.id, runId))
-        return {
-          error: errorCode as
-            | 'TRANSCRIBE_TIMEOUT'
-            | 'TRANSCRIBE_EMPTY_RESULT'
-            | 'TRANSCRIBE_PROCESSING_FAILED',
-        }
-      }
-      throw error
-    }
+    const transcript = await whisperTranscribe(tempPath)
 
     // Save transcript (CAS: only if still transcribing)
     await db
       .update(pipelineRuns)
       .set({ status: 'transcribed', transcript })
       .where(and(eq(pipelineRuns.id, runId), eq(pipelineRuns.status, 'transcribing')))
-
-    const updated = await db.query.pipelineRuns.findFirst({
-      where: eq(pipelineRuns.id, runId),
-    })
-
-    return { run: updated! }
   } finally {
-    // Always clean up temp file
     try {
       await unlink(tempPath)
     } catch {
-      /* ignore */
+      /* ignore cleanup errors */
     }
   }
 }

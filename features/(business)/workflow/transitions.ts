@@ -23,6 +23,26 @@ export async function transitionPipeline(
 }
 
 /**
+ * Mark a pipeline run as failed. CAS: skips if already failed or completed.
+ * Use this instead of manually updating pipelineRuns.status = 'failed'.
+ */
+export async function failPipeline(runId: string, step: string, message: string): Promise<void> {
+  const run = await db.query.pipelineRuns.findFirst({
+    where: eq(pipelineRuns.id, runId),
+  })
+  if (!run || run.status === 'failed' || run.status === 'completed') return
+
+  await db
+    .update(pipelineRuns)
+    .set({
+      status: 'failed',
+      stepFailedAt: step,
+      errorMessage: message,
+    } as Record<string, unknown>)
+    .where(and(eq(pipelineRuns.id, runId), eq(pipelineRuns.status, run.status as PipelineStatus)))
+}
+
+/**
  * Find a pipeline run and verify it's in one of the expected statuses.
  * Returns { run } on success, { error } on failure.
  */

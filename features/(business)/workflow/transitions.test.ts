@@ -23,7 +23,7 @@ import { mockSchema } from '@/features/(business)/test-helpers'
 mock.module('@/platform/db/schema', () => mockSchema())
 
 // Don't mock state-machine — it's pure logic
-const { transitionPipeline, findRunInState } = await import('./transitions')
+const { transitionPipeline, findRunInState, failPipeline } = await import('./transitions')
 
 describe('transitions', () => {
 	beforeEach(() => {
@@ -62,6 +62,47 @@ describe('transitions', () => {
 		it('passes extraFields to set', async () => {
 			await transitionPipeline('run-1', 'transcribing', 'transcribed', { transcript: 'hello' })
 			expect(mockUpdateSet).toHaveBeenCalled()
+		})
+	})
+
+	describe('failPipeline', () => {
+		it('sets status to failed with step and error message', async () => {
+			mockFindFirst.mockResolvedValueOnce({ id: 'run-1', status: 'transcribing' } as never)
+
+			await failPipeline('run-1', 'transcribe', 'Video not found')
+
+			expect(mockUpdate).toHaveBeenCalled()
+			expect(mockUpdateSet).toHaveBeenCalledWith(
+				expect.objectContaining({
+					status: 'failed',
+					stepFailedAt: 'transcribe',
+					errorMessage: 'Video not found',
+				}),
+			)
+		})
+
+		it('does not update if run is already failed', async () => {
+			mockFindFirst.mockResolvedValueOnce({ id: 'run-1', status: 'failed' } as never)
+
+			await failPipeline('run-1', 'transcribe', 'Some error')
+
+			expect(mockUpdate).not.toHaveBeenCalled()
+		})
+
+		it('does not update if run is already completed', async () => {
+			mockFindFirst.mockResolvedValueOnce({ id: 'run-1', status: 'completed' } as never)
+
+			await failPipeline('run-1', 'transcribe', 'Some error')
+
+			expect(mockUpdate).not.toHaveBeenCalled()
+		})
+
+		it('does not update if run not found', async () => {
+			mockFindFirst.mockResolvedValueOnce(null as never)
+
+			await failPipeline('run-1', 'transcribe', 'Some error')
+
+			expect(mockUpdate).not.toHaveBeenCalled()
 		})
 	})
 

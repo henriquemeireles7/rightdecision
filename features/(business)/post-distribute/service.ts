@@ -1,5 +1,5 @@
 import { and, eq, inArray } from 'drizzle-orm'
-import { findRunInState, transitionPipeline } from '@/features/(business)/workflow/transitions'
+import { failPipeline, findRunInState, transitionPipeline } from '@/features/(business)/workflow/transitions'
 import { db } from '@/platform/db/client'
 import { clips, pipelineRuns, posts } from '@/platform/db/schema'
 import { ProviderError } from '@/providers/errors'
@@ -103,10 +103,7 @@ export async function distributePostsForRun(pipelineRunId: string) {
   const failCount = results.filter((r) => !r.success).length
 
   if (failCount === scheduledPosts.length) {
-    await db
-      .update(pipelineRuns)
-      .set({ status: 'failed', stepFailedAt: 'post-distribute', clipsFailed: failCount })
-      .where(and(eq(pipelineRuns.id, pipelineRunId), eq(pipelineRuns.status, 'posting')))
+    await failPipeline(pipelineRunId, 'post-distribute', `All ${failCount} posts failed`)
     return { error: 'POST_PARTIAL_FAILURE' as const }
   }
 

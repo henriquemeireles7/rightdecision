@@ -435,12 +435,15 @@ describe('BD Pipeline Integration', () => {
       expect(result).toHaveProperty('run')
     })
 
-    it('processTranscription moves run to transcribed with transcript', async () => {
+    it('processTranscription returns immediately with transcribing status', async () => {
       const result = await processTranscription('run-1')
       expect('error' in result).toBe(false)
       expect(result).toHaveProperty('run')
-      expect(mockTranscribe).toHaveBeenCalledTimes(1)
-      expect(mockDownload).toHaveBeenCalledTimes(1)
+      if (!('error' in result)) {
+        expect(result.run.status).toBe('transcribing')
+      }
+      // Background processing is fire-and-forget, so download/transcribe
+      // may not be called yet. The async pattern is tested separately.
     })
   })
 
