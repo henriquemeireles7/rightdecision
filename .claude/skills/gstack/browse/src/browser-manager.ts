@@ -15,88 +15,106 @@
  *   restores state. Falls back to clean slate on any failure.
  */
 
-import { chromium, type Browser, type BrowserContext, type BrowserContextOptions, type Page, type Locator, type Cookie } from 'playwright';
-import { addConsoleEntry, addNetworkEntry, addDialogEntry, networkBuffer, type DialogEntry } from './buffers';
-import { validateNavigationUrl } from './url-validation';
+import {
+  type Browser,
+  type BrowserContext,
+  type BrowserContextOptions,
+  type Cookie,
+  chromium,
+  type Locator,
+  type Page,
+} from 'playwright'
+import {
+  addConsoleEntry,
+  addDialogEntry,
+  addNetworkEntry,
+  type DialogEntry,
+  networkBuffer,
+} from './buffers'
+import { validateNavigationUrl } from './url-validation'
 
 export interface RefEntry {
-  locator: Locator;
-  role: string;
-  name: string;
+  locator: Locator
+  role: string
+  name: string
 }
 
 export interface BrowserState {
-  cookies: Cookie[];
+  cookies: Cookie[]
   pages: Array<{
-    url: string;
-    isActive: boolean;
-    storage: { localStorage: Record<string, string>; sessionStorage: Record<string, string> } | null;
-  }>;
+    url: string
+    isActive: boolean
+    storage: { localStorage: Record<string, string>; sessionStorage: Record<string, string> } | null
+  }>
 }
 
 export class BrowserManager {
-  private browser: Browser | null = null;
-  private context: BrowserContext | null = null;
-  private pages: Map<number, Page> = new Map();
-  private activeTabId: number = 0;
-  private nextTabId: number = 1;
-  private extraHeaders: Record<string, string> = {};
-  private customUserAgent: string | null = null;
+  private browser: Browser | null = null
+  private context: BrowserContext | null = null
+  private pages: Map<number, Page> = new Map()
+  private activeTabId: number = 0
+  private nextTabId: number = 1
+  private extraHeaders: Record<string, string> = {}
+  private customUserAgent: string | null = null
 
   /** Server port — set after server starts, used by cookie-import-browser command */
-  public serverPort: number = 0;
+  public serverPort: number = 0
 
   // ─── Ref Map (snapshot → @e1, @e2, @c1, @c2, ...) ────────
-  private refMap: Map<string, RefEntry> = new Map();
+  private refMap: Map<string, RefEntry> = new Map()
 
   // ─── Snapshot Diffing ─────────────────────────────────────
   // NOT cleared on navigation — it's a text baseline for diffing
-  private lastSnapshot: string | null = null;
+  private lastSnapshot: string | null = null
 
   // ─── Dialog Handling ──────────────────────────────────────
-  private dialogAutoAccept: boolean = true;
-  private dialogPromptText: string | null = null;
+  private dialogAutoAccept: boolean = true
+  private dialogPromptText: string | null = null
 
   // ─── Handoff State ─────────────────────────────────────────
-  private isHeaded: boolean = false;
-  private consecutiveFailures: number = 0;
+  private isHeaded: boolean = false
+  private consecutiveFailures: number = 0
 
   // ─── Watch Mode ─────────────────────────────────────────
-  private watching = false;
-  public watchInterval: ReturnType<typeof setInterval> | null = null;
-  private watchSnapshots: string[] = [];
-  private watchStartTime: number = 0;
+  private watching = false
+  public watchInterval: ReturnType<typeof setInterval> | null = null
+  private watchSnapshots: string[] = []
+  private watchStartTime: number = 0
 
   // ─── Headed State ────────────────────────────────────────
-  private connectionMode: 'launched' | 'headed' = 'launched';
-  private intentionalDisconnect = false;
+  private connectionMode: 'launched' | 'headed' = 'launched'
+  private intentionalDisconnect = false
 
-  getConnectionMode(): 'launched' | 'headed' { return this.connectionMode; }
+  getConnectionMode(): 'launched' | 'headed' {
+    return this.connectionMode
+  }
 
   // ─── Watch Mode Methods ─────────────────────────────────
-  isWatching(): boolean { return this.watching; }
+  isWatching(): boolean {
+    return this.watching
+  }
 
   startWatch(): void {
-    this.watching = true;
-    this.watchSnapshots = [];
-    this.watchStartTime = Date.now();
+    this.watching = true
+    this.watchSnapshots = []
+    this.watchStartTime = Date.now()
   }
 
   stopWatch(): { snapshots: string[]; duration: number } {
-    this.watching = false;
+    this.watching = false
     if (this.watchInterval) {
-      clearInterval(this.watchInterval);
-      this.watchInterval = null;
+      clearInterval(this.watchInterval)
+      this.watchInterval = null
     }
-    const snapshots = this.watchSnapshots;
-    const duration = Date.now() - this.watchStartTime;
-    this.watchSnapshots = [];
-    this.watchStartTime = 0;
-    return { snapshots, duration };
+    const snapshots = this.watchSnapshots
+    const duration = Date.now() - this.watchStartTime
+    this.watchSnapshots = []
+    this.watchStartTime = 0
+    return { snapshots, duration }
   }
 
   addWatchSnapshot(snapshot: string): void {
-    this.watchSnapshots.push(snapshot);
+    this.watchSnapshots.push(snapshot)
   }
 
   /**
@@ -104,8 +122,8 @@ export class BrowserManager {
    * Checks: repo root /extension, global install, dev install.
    */
   private findExtensionPath(): string | null {
-    const fs = require('fs');
-    const path = require('path');
+    const fs = require('fs')
+    const path = require('path')
     const candidates = [
       // Relative to this source file (dev mode: browse/src/ -> ../../extension)
       path.resolve(__dirname, '..', '..', 'extension'),
@@ -113,49 +131,49 @@ export class BrowserManager {
       path.join(process.env.HOME || '', '.claude', 'skills', 'gstack', 'extension'),
       // Git repo root (detected via BROWSE_STATE_FILE location)
       (() => {
-        const stateFile = process.env.BROWSE_STATE_FILE || '';
+        const stateFile = process.env.BROWSE_STATE_FILE || ''
         if (stateFile) {
-          const repoRoot = path.resolve(path.dirname(stateFile), '..');
-          return path.join(repoRoot, '.claude', 'skills', 'gstack', 'extension');
+          const repoRoot = path.resolve(path.dirname(stateFile), '..')
+          return path.join(repoRoot, '.claude', 'skills', 'gstack', 'extension')
         }
-        return '';
+        return ''
       })(),
-    ].filter(Boolean);
+    ].filter(Boolean)
 
     for (const candidate of candidates) {
       try {
         if (fs.existsSync(path.join(candidate, 'manifest.json'))) {
-          return candidate;
+          return candidate
         }
       } catch {}
     }
-    return null;
+    return null
   }
 
   /**
    * Get the ref map for external consumers (e.g., /refs endpoint).
    */
   getRefMap(): Array<{ ref: string; role: string; name: string }> {
-    const refs: Array<{ ref: string; role: string; name: string }> = [];
+    const refs: Array<{ ref: string; role: string; name: string }> = []
     for (const [ref, entry] of this.refMap) {
-      refs.push({ ref, role: entry.role, name: entry.name });
+      refs.push({ ref, role: entry.role, name: entry.name })
     }
-    return refs;
+    return refs
   }
 
   async launch() {
     // ─── Extension Support ────────────────────────────────────
     // BROWSE_EXTENSIONS_DIR points to an unpacked Chrome extension directory.
     // Extensions only work in headed mode, so we use an off-screen window.
-    const extensionsDir = process.env.BROWSE_EXTENSIONS_DIR;
-    const launchArgs: string[] = [];
-    let useHeadless = true;
+    const extensionsDir = process.env.BROWSE_EXTENSIONS_DIR
+    const launchArgs: string[] = []
+    let useHeadless = true
 
     // Docker/CI: Chromium sandbox requires unprivileged user namespaces which
     // are typically disabled in containers. Detect container environment and
     // add --no-sandbox automatically.
     if (process.env.CI || process.env.CONTAINER) {
-      launchArgs.push('--no-sandbox');
+      launchArgs.push('--no-sandbox')
     }
 
     if (extensionsDir) {
@@ -164,9 +182,9 @@ export class BrowserManager {
         `--load-extension=${extensionsDir}`,
         '--window-position=-9999,-9999',
         '--window-size=1,1',
-      );
-      useHeadless = false; // extensions require headed mode; off-screen window simulates headless
-      console.log(`[browse] Extensions loaded from: ${extensionsDir}`);
+      )
+      useHeadless = false // extensions require headed mode; off-screen window simulates headless
+      console.log(`[browse] Extensions loaded from: ${extensionsDir}`)
     }
 
     this.browser = await chromium.launch({
@@ -176,29 +194,29 @@ export class BrowserManager {
       // browsing user-specified URLs has marginal sandbox benefit.
       chromiumSandbox: process.platform !== 'win32',
       ...(launchArgs.length > 0 ? { args: launchArgs } : {}),
-    });
+    })
 
     // Chromium crash → exit with clear message
     this.browser.on('disconnected', () => {
-      console.error('[browse] FATAL: Chromium process crashed or was killed. Server exiting.');
-      console.error('[browse] Console/network logs flushed to .gstack/browse-*.log');
-      process.exit(1);
-    });
+      console.error('[browse] FATAL: Chromium process crashed or was killed. Server exiting.')
+      console.error('[browse] Console/network logs flushed to .gstack/browse-*.log')
+      process.exit(1)
+    })
 
     const contextOptions: BrowserContextOptions = {
       viewport: { width: 1280, height: 720 },
-    };
-    if (this.customUserAgent) {
-      contextOptions.userAgent = this.customUserAgent;
     }
-    this.context = await this.browser.newContext(contextOptions);
+    if (this.customUserAgent) {
+      contextOptions.userAgent = this.customUserAgent
+    }
+    this.context = await this.browser.newContext(contextOptions)
 
     if (Object.keys(this.extraHeaders).length > 0) {
-      await this.context.setExtraHTTPHeaders(this.extraHeaders);
+      await this.context.setExtraHTTPHeaders(this.extraHeaders)
     }
 
     // Create first tab
-    await this.newTab();
+    await this.newTab()
   }
 
   // ─── Headed Mode ─────────────────────────────────────────────
@@ -213,25 +231,25 @@ export class BrowserManager {
    */
   async launchHeaded(authToken?: string): Promise<void> {
     // Clear old state before repopulating
-    this.pages.clear();
-    this.refMap.clear();
-    this.nextTabId = 1;
+    this.pages.clear()
+    this.refMap.clear()
+    this.nextTabId = 1
 
     // Find the gstack extension directory for auto-loading
-    const extensionPath = this.findExtensionPath();
-    const launchArgs = ['--hide-crash-restore-bubble'];
+    const extensionPath = this.findExtensionPath()
+    const launchArgs = ['--hide-crash-restore-bubble']
     if (extensionPath) {
-      launchArgs.push(`--disable-extensions-except=${extensionPath}`);
-      launchArgs.push(`--load-extension=${extensionPath}`);
+      launchArgs.push(`--disable-extensions-except=${extensionPath}`)
+      launchArgs.push(`--load-extension=${extensionPath}`)
       // Write auth token for extension bootstrap (read via chrome.runtime.getURL)
       if (authToken) {
-        const fs = require('fs');
-        const path = require('path');
-        const authFile = path.join(extensionPath, '.auth.json');
+        const fs = require('fs')
+        const path = require('path')
+        const authFile = path.join(extensionPath, '.auth.json')
         try {
-          fs.writeFileSync(authFile, JSON.stringify({ token: authToken }), { mode: 0o600 });
+          fs.writeFileSync(authFile, JSON.stringify({ token: authToken }), { mode: 0o600 })
         } catch (err: any) {
-          console.warn(`[browse] Could not write .auth.json: ${err.message}`);
+          console.warn(`[browse] Could not write .auth.json: ${err.message}`)
         }
       }
     }
@@ -240,33 +258,33 @@ export class BrowserManager {
     // Extensions REQUIRE launchPersistentContext (not launch + newContext).
     // Real Chrome (executablePath/channel) silently blocks --load-extension,
     // so we use Playwright's bundled Chromium which reliably loads extensions.
-    const fs = require('fs');
-    const path = require('path');
-    const userDataDir = path.join(process.env.HOME || '/tmp', '.gstack', 'chromium-profile');
-    fs.mkdirSync(userDataDir, { recursive: true });
+    const fs = require('fs')
+    const path = require('path')
+    const userDataDir = path.join(process.env.HOME || '/tmp', '.gstack', 'chromium-profile')
+    fs.mkdirSync(userDataDir, { recursive: true })
 
     this.context = await chromium.launchPersistentContext(userDataDir, {
       headless: false,
       args: launchArgs,
-      viewport: null,  // Use browser's default viewport (real window size)
+      viewport: null, // Use browser's default viewport (real window size)
       // Playwright adds flags that block extension loading
       ignoreDefaultArgs: [
         '--disable-extensions',
         '--disable-component-extensions-with-background-pages',
       ],
-    });
-    this.browser = this.context.browser();
-    this.connectionMode = 'headed';
-    this.intentionalDisconnect = false;
+    })
+    this.browser = this.context.browser()
+    this.connectionMode = 'headed'
+    this.intentionalDisconnect = false
 
     // Inject visual indicator — subtle top-edge amber gradient
     // Extension's content script handles the floating pill
     const indicatorScript = () => {
       const injectIndicator = () => {
-        if (document.getElementById('gstack-ctrl')) return;
+        if (document.getElementById('gstack-ctrl')) return
 
-        const topLine = document.createElement('div');
-        topLine.id = 'gstack-ctrl';
+        const topLine = document.createElement('div')
+        topLine.id = 'gstack-ctrl'
         topLine.style.cssText = `
           position: fixed; top: 0; left: 0; right: 0; height: 2px;
           background: linear-gradient(90deg, #F59E0B, #FBBF24, #F59E0B);
@@ -274,9 +292,9 @@ export class BrowserManager {
           animation: gstack-shimmer 3s linear infinite;
           pointer-events: none; z-index: 2147483647;
           opacity: 0.8;
-        `;
+        `
 
-        const style = document.createElement('style');
+        const style = document.createElement('style')
         style.textContent = `
           @keyframes gstack-shimmer {
             0% { background-position: 200% 0; }
@@ -285,151 +303,153 @@ export class BrowserManager {
           @media (prefers-reduced-motion: reduce) {
             #gstack-ctrl { animation: none !important; }
           }
-        `;
+        `
 
-        document.documentElement.appendChild(style);
-        document.documentElement.appendChild(topLine);
-      };
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', injectIndicator);
-      } else {
-        injectIndicator();
+        document.documentElement.appendChild(style)
+        document.documentElement.appendChild(topLine)
       }
-    };
-    await this.context.addInitScript(indicatorScript);
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', injectIndicator)
+      } else {
+        injectIndicator()
+      }
+    }
+    await this.context.addInitScript(indicatorScript)
 
     // Track user-created tabs automatically (Cmd+T, link opens in new tab, etc.)
     this.context.on('page', (page) => {
-      const id = this.nextTabId++;
-      this.pages.set(id, page);
-      this.activeTabId = id;
-      this.wirePageEvents(page);
+      const id = this.nextTabId++
+      this.pages.set(id, page)
+      this.activeTabId = id
+      this.wirePageEvents(page)
       // Inject indicator on the new tab
-      page.evaluate(indicatorScript).catch(() => {});
-      console.log(`[browse] New tab detected (id=${id}, total=${this.pages.size})`);
-    });
+      page.evaluate(indicatorScript).catch(() => {})
+      console.log(`[browse] New tab detected (id=${id}, total=${this.pages.size})`)
+    })
 
     // Persistent context opens a default page — adopt it instead of creating a new one
-    const existingPages = this.context.pages();
+    const existingPages = this.context.pages()
     if (existingPages.length > 0) {
-      const page = existingPages[0];
-      const id = this.nextTabId++;
-      this.pages.set(id, page);
-      this.activeTabId = id;
-      this.wirePageEvents(page);
+      const page = existingPages[0]
+      const id = this.nextTabId++
+      this.pages.set(id, page)
+      this.activeTabId = id
+      this.wirePageEvents(page)
       // Inject indicator on restored page (addInitScript only fires on new navigations)
-      try { await page.evaluate(indicatorScript); } catch {}
+      try {
+        await page.evaluate(indicatorScript)
+      } catch {}
     } else {
-      await this.newTab();
+      await this.newTab()
     }
 
     // Browser disconnect handler — exit code 2 distinguishes from crashes (1)
     if (this.browser) {
       this.browser.on('disconnected', () => {
-        if (this.intentionalDisconnect) return;
-        console.error('[browse] Real browser disconnected (user closed or crashed).');
-        console.error('[browse] Run `$B connect` to reconnect.');
-        process.exit(2);
-      });
+        if (this.intentionalDisconnect) return
+        console.error('[browse] Real browser disconnected (user closed or crashed).')
+        console.error('[browse] Run `$B connect` to reconnect.')
+        process.exit(2)
+      })
     }
 
     // Headed mode defaults
-    this.dialogAutoAccept = false;  // Don't dismiss user's real dialogs
-    this.isHeaded = true;
-    this.consecutiveFailures = 0;
+    this.dialogAutoAccept = false // Don't dismiss user's real dialogs
+    this.isHeaded = true
+    this.consecutiveFailures = 0
   }
 
   async close() {
     if (this.browser || (this.connectionMode === 'headed' && this.context)) {
       if (this.connectionMode === 'headed') {
         // Headed/persistent context mode: close the context (which closes the browser)
-        this.intentionalDisconnect = true;
-        if (this.browser) this.browser.removeAllListeners('disconnected');
+        this.intentionalDisconnect = true
+        if (this.browser) this.browser.removeAllListeners('disconnected')
         await Promise.race([
           this.context ? this.context.close() : Promise.resolve(),
-          new Promise(resolve => setTimeout(resolve, 5000)),
-        ]).catch(() => {});
+          new Promise((resolve) => setTimeout(resolve, 5000)),
+        ]).catch(() => {})
       } else {
         // Launched mode: close the browser we spawned
-        this.browser.removeAllListeners('disconnected');
+        this.browser.removeAllListeners('disconnected')
         await Promise.race([
           this.browser.close(),
-          new Promise(resolve => setTimeout(resolve, 5000)),
-        ]).catch(() => {});
+          new Promise((resolve) => setTimeout(resolve, 5000)),
+        ]).catch(() => {})
       }
-      this.browser = null;
+      this.browser = null
     }
   }
 
   /** Health check — verifies Chromium is connected AND responsive */
   async isHealthy(): Promise<boolean> {
-    if (!this.browser || !this.browser.isConnected()) return false;
+    if (!this.browser || !this.browser.isConnected()) return false
     try {
-      const page = this.pages.get(this.activeTabId);
-      if (!page) return true; // connected but no pages — still healthy
+      const page = this.pages.get(this.activeTabId)
+      if (!page) return true // connected but no pages — still healthy
       await Promise.race([
         page.evaluate('1'),
         new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 2000)),
-      ]);
-      return true;
+      ])
+      return true
     } catch {
-      return false;
+      return false
     }
   }
 
   // ─── Tab Management ────────────────────────────────────────
   async newTab(url?: string): Promise<number> {
-    if (!this.context) throw new Error('Browser not launched');
+    if (!this.context) throw new Error('Browser not launched')
 
     // Validate URL before allocating page to avoid zombie tabs on rejection
     if (url) {
-      await validateNavigationUrl(url);
+      await validateNavigationUrl(url)
     }
 
-    const page = await this.context.newPage();
-    const id = this.nextTabId++;
-    this.pages.set(id, page);
-    this.activeTabId = id;
+    const page = await this.context.newPage()
+    const id = this.nextTabId++
+    this.pages.set(id, page)
+    this.activeTabId = id
 
     // Wire up console/network/dialog capture
-    this.wirePageEvents(page);
+    this.wirePageEvents(page)
 
     if (url) {
-      await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 15000 });
+      await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 15000 })
     }
 
-    return id;
+    return id
   }
 
   async closeTab(id?: number): Promise<void> {
-    const tabId = id ?? this.activeTabId;
-    const page = this.pages.get(tabId);
-    if (!page) throw new Error(`Tab ${tabId} not found`);
+    const tabId = id ?? this.activeTabId
+    const page = this.pages.get(tabId)
+    if (!page) throw new Error(`Tab ${tabId} not found`)
 
-    await page.close();
-    this.pages.delete(tabId);
+    await page.close()
+    this.pages.delete(tabId)
 
     // Switch to another tab if we closed the active one
     if (tabId === this.activeTabId) {
-      const remaining = [...this.pages.keys()];
+      const remaining = [...this.pages.keys()]
       if (remaining.length > 0) {
-        this.activeTabId = remaining[remaining.length - 1];
+        this.activeTabId = remaining[remaining.length - 1]
       } else {
         // No tabs left — create a new blank one
-        await this.newTab();
+        await this.newTab()
       }
     }
   }
 
   switchTab(id: number, opts?: { bringToFront?: boolean }): void {
-    if (!this.pages.has(id)) throw new Error(`Tab ${id} not found`);
-    this.activeTabId = id;
-    this.activeFrame = null; // Frame context is per-tab
+    if (!this.pages.has(id)) throw new Error(`Tab ${id} not found`)
+    this.activeTabId = id
+    this.activeFrame = null // Frame context is per-tab
     // Only bring to front when explicitly requested (user-initiated tab switch).
     // Internal tab pinning (BROWSE_TAB) should NOT steal focus.
     if (opts?.bringToFront !== false) {
-      const page = this.pages.get(id);
-      if (page) page.bringToFront().catch(() => {});
+      const page = this.pages.get(id)
+      if (page) page.bringToFront().catch(() => {})
     }
   }
 
@@ -439,30 +459,30 @@ export class BrowserManager {
    * the browser are detected within ~2s.
    */
   syncActiveTabByUrl(activeUrl: string): void {
-    if (!activeUrl || this.pages.size <= 1) return;
+    if (!activeUrl || this.pages.size <= 1) return
     // Try exact match first, then fuzzy match (origin+pathname, ignoring query/fragment)
-    let fuzzyId: number | null = null;
-    let activeOriginPath = '';
+    let fuzzyId: number | null = null
+    let activeOriginPath = ''
     try {
-      const u = new URL(activeUrl);
-      activeOriginPath = u.origin + u.pathname;
+      const u = new URL(activeUrl)
+      activeOriginPath = u.origin + u.pathname
     } catch {}
 
     for (const [id, page] of this.pages) {
       try {
-        const pageUrl = page.url();
+        const pageUrl = page.url()
         // Exact match — best case
         if (pageUrl === activeUrl && id !== this.activeTabId) {
-          this.activeTabId = id;
-          this.activeFrame = null;
-          return;
+          this.activeTabId = id
+          this.activeFrame = null
+          return
         }
         // Fuzzy match — origin+pathname (handles query param / fragment differences)
         if (activeOriginPath && fuzzyId === null && id !== this.activeTabId) {
           try {
-            const pu = new URL(pageUrl);
+            const pu = new URL(pageUrl)
             if (pu.origin + pu.pathname === activeOriginPath) {
-              fuzzyId = id;
+              fuzzyId = id
             }
           } catch {}
         }
@@ -470,54 +490,56 @@ export class BrowserManager {
     }
     // Fall back to fuzzy match
     if (fuzzyId !== null) {
-      this.activeTabId = fuzzyId;
-      this.activeFrame = null;
+      this.activeTabId = fuzzyId
+      this.activeFrame = null
     }
   }
 
   getActiveTabId(): number {
-    return this.activeTabId;
+    return this.activeTabId
   }
 
   getTabCount(): number {
-    return this.pages.size;
+    return this.pages.size
   }
 
-  async getTabListWithTitles(): Promise<Array<{ id: number; url: string; title: string; active: boolean }>> {
-    const tabs: Array<{ id: number; url: string; title: string; active: boolean }> = [];
+  async getTabListWithTitles(): Promise<
+    Array<{ id: number; url: string; title: string; active: boolean }>
+  > {
+    const tabs: Array<{ id: number; url: string; title: string; active: boolean }> = []
     for (const [id, page] of this.pages) {
       tabs.push({
         id,
         url: page.url(),
         title: await page.title().catch(() => ''),
         active: id === this.activeTabId,
-      });
+      })
     }
-    return tabs;
+    return tabs
   }
 
   // ─── Page Access ───────────────────────────────────────────
   getPage(): Page {
-    const page = this.pages.get(this.activeTabId);
-    if (!page) throw new Error('No active page. Use "browse goto <url>" first.');
-    return page;
+    const page = this.pages.get(this.activeTabId)
+    if (!page) throw new Error('No active page. Use "browse goto <url>" first.')
+    return page
   }
 
   getCurrentUrl(): string {
     try {
-      return this.getPage().url();
+      return this.getPage().url()
     } catch {
-      return 'about:blank';
+      return 'about:blank'
     }
   }
 
   // ─── Ref Map ──────────────────────────────────────────────
   setRefMap(refs: Map<string, RefEntry>) {
-    this.refMap = refs;
+    this.refMap = refs
   }
 
   clearRefs() {
-    this.refMap.clear();
+    this.refMap.clear()
   }
 
   /**
@@ -526,84 +548,82 @@ export class BrowserManager {
    */
   async resolveRef(selector: string): Promise<{ locator: Locator } | { selector: string }> {
     if (selector.startsWith('@e') || selector.startsWith('@c')) {
-      const ref = selector.slice(1); // "e3" or "c1"
-      const entry = this.refMap.get(ref);
+      const ref = selector.slice(1) // "e3" or "c1"
+      const entry = this.refMap.get(ref)
       if (!entry) {
-        throw new Error(
-          `Ref ${selector} not found. Run 'snapshot' to get fresh refs.`
-        );
+        throw new Error(`Ref ${selector} not found. Run 'snapshot' to get fresh refs.`)
       }
-      const count = await entry.locator.count();
+      const count = await entry.locator.count()
       if (count === 0) {
         throw new Error(
           `Ref ${selector} (${entry.role} "${entry.name}") is stale — element no longer exists. ` +
-          `Run 'snapshot' for fresh refs.`
-        );
+            `Run 'snapshot' for fresh refs.`,
+        )
       }
-      return { locator: entry.locator };
+      return { locator: entry.locator }
     }
-    return { selector };
+    return { selector }
   }
 
   /** Get the ARIA role for a ref selector, or null for CSS selectors / unknown refs. */
   getRefRole(selector: string): string | null {
     if (selector.startsWith('@e') || selector.startsWith('@c')) {
-      const entry = this.refMap.get(selector.slice(1));
-      return entry?.role ?? null;
+      const entry = this.refMap.get(selector.slice(1))
+      return entry?.role ?? null
     }
-    return null;
+    return null
   }
 
   getRefCount(): number {
-    return this.refMap.size;
+    return this.refMap.size
   }
 
   // ─── Snapshot Diffing ─────────────────────────────────────
   setLastSnapshot(text: string | null) {
-    this.lastSnapshot = text;
+    this.lastSnapshot = text
   }
 
   getLastSnapshot(): string | null {
-    return this.lastSnapshot;
+    return this.lastSnapshot
   }
 
   // ─── Dialog Control ───────────────────────────────────────
   setDialogAutoAccept(accept: boolean) {
-    this.dialogAutoAccept = accept;
+    this.dialogAutoAccept = accept
   }
 
   getDialogAutoAccept(): boolean {
-    return this.dialogAutoAccept;
+    return this.dialogAutoAccept
   }
 
   setDialogPromptText(text: string | null) {
-    this.dialogPromptText = text;
+    this.dialogPromptText = text
   }
 
   getDialogPromptText(): string | null {
-    return this.dialogPromptText;
+    return this.dialogPromptText
   }
 
   // ─── Viewport ──────────────────────────────────────────────
   async setViewport(width: number, height: number) {
-    await this.getPage().setViewportSize({ width, height });
+    await this.getPage().setViewportSize({ width, height })
   }
 
   // ─── Extra Headers ─────────────────────────────────────────
   async setExtraHeader(name: string, value: string) {
-    this.extraHeaders[name] = value;
+    this.extraHeaders[name] = value
     if (this.context) {
-      await this.context.setExtraHTTPHeaders(this.extraHeaders);
+      await this.context.setExtraHTTPHeaders(this.extraHeaders)
     }
   }
 
   // ─── User Agent ────────────────────────────────────────────
   setUserAgent(ua: string) {
-    this.customUserAgent = ua;
+    this.customUserAgent = ua
   }
 
   getUserAgent(): string | null {
-    return this.customUserAgent;
+    return this.customUserAgent
   }
 
   // ─── Lifecycle helpers ───────────────────────────────
@@ -613,21 +633,21 @@ export class BrowserManager {
    */
   async closeAllPages(): Promise<void> {
     for (const page of this.pages.values()) {
-      await page.close().catch(() => {});
+      await page.close().catch(() => {})
     }
-    this.pages.clear();
-    this.clearRefs();
+    this.pages.clear()
+    this.clearRefs()
   }
 
   // ─── Frame context ─────────────────────────────────
-  private activeFrame: import('playwright').Frame | null = null;
+  private activeFrame: import('playwright').Frame | null = null
 
   setFrame(frame: import('playwright').Frame | null): void {
-    this.activeFrame = frame;
+    this.activeFrame = frame
   }
 
   getFrame(): import('playwright').Frame | null {
-    return this.activeFrame;
+    return this.activeFrame
   }
 
   /**
@@ -637,9 +657,9 @@ export class BrowserManager {
   getActiveFrameOrPage(): import('playwright').Page | import('playwright').Frame {
     // Auto-recover from detached frames (iframe removed/navigated)
     if (this.activeFrame?.isDetached()) {
-      this.activeFrame = null;
+      this.activeFrame = null
     }
-    return this.activeFrame ?? this.getPage();
+    return this.activeFrame ?? this.getPage()
   }
 
   // ─── State Save/Restore (shared by recreateContext + handoff) ─
@@ -648,28 +668,28 @@ export class BrowserManager {
    * Skips pages that fail storage reads (e.g., already closed).
    */
   async saveState(): Promise<BrowserState> {
-    if (!this.context) throw new Error('Browser not launched');
+    if (!this.context) throw new Error('Browser not launched')
 
-    const cookies = await this.context.cookies();
-    const pages: BrowserState['pages'] = [];
+    const cookies = await this.context.cookies()
+    const pages: BrowserState['pages'] = []
 
     for (const [id, page] of this.pages) {
-      const url = page.url();
-      let storage = null;
+      const url = page.url()
+      let storage = null
       try {
         storage = await page.evaluate(() => ({
           localStorage: { ...localStorage },
           sessionStorage: { ...sessionStorage },
-        }));
+        }))
       } catch {}
       pages.push({
         url: url === 'about:blank' ? '' : url,
         isActive: id === this.activeTabId,
         storage,
-      });
+      })
     }
 
-    return { cookies, pages };
+    return { cookies, pages }
   }
 
   /**
@@ -678,54 +698,62 @@ export class BrowserManager {
    * Failures on individual pages are swallowed — partial restore is better than none.
    */
   async restoreState(state: BrowserState): Promise<void> {
-    if (!this.context) throw new Error('Browser not launched');
+    if (!this.context) throw new Error('Browser not launched')
 
     // Restore cookies
     if (state.cookies.length > 0) {
-      await this.context.addCookies(state.cookies);
+      await this.context.addCookies(state.cookies)
     }
 
     // Re-create pages
-    let activeId: number | null = null;
+    let activeId: number | null = null
     for (const saved of state.pages) {
-      const page = await this.context.newPage();
-      const id = this.nextTabId++;
-      this.pages.set(id, page);
-      this.wirePageEvents(page);
+      const page = await this.context.newPage()
+      const id = this.nextTabId++
+      this.pages.set(id, page)
+      this.wirePageEvents(page)
 
       if (saved.url) {
-        await page.goto(saved.url, { waitUntil: 'domcontentloaded', timeout: 15000 }).catch(() => {});
+        await page
+          .goto(saved.url, { waitUntil: 'domcontentloaded', timeout: 15000 })
+          .catch(() => {})
       }
 
       if (saved.storage) {
         try {
-          await page.evaluate((s: { localStorage: Record<string, string>; sessionStorage: Record<string, string> }) => {
-            if (s.localStorage) {
-              for (const [k, v] of Object.entries(s.localStorage)) {
-                localStorage.setItem(k, v);
+          await page.evaluate(
+            (s: {
+              localStorage: Record<string, string>
+              sessionStorage: Record<string, string>
+            }) => {
+              if (s.localStorage) {
+                for (const [k, v] of Object.entries(s.localStorage)) {
+                  localStorage.setItem(k, v)
+                }
               }
-            }
-            if (s.sessionStorage) {
-              for (const [k, v] of Object.entries(s.sessionStorage)) {
-                sessionStorage.setItem(k, v);
+              if (s.sessionStorage) {
+                for (const [k, v] of Object.entries(s.sessionStorage)) {
+                  sessionStorage.setItem(k, v)
+                }
               }
-            }
-          }, saved.storage);
+            },
+            saved.storage,
+          )
         } catch {}
       }
 
-      if (saved.isActive) activeId = id;
+      if (saved.isActive) activeId = id
     }
 
     // If no pages were saved, create a blank one
     if (this.pages.size === 0) {
-      await this.newTab();
+      await this.newTab()
     } else {
-      this.activeTabId = activeId ?? [...this.pages.keys()][0];
+      this.activeTabId = activeId ?? [...this.pages.keys()][0]
     }
 
     // Clear refs — pages are new, locators are stale
-    this.clearRefs();
+    this.clearRefs()
   }
 
   /**
@@ -735,59 +763,59 @@ export class BrowserManager {
    */
   async recreateContext(): Promise<string | null> {
     if (this.connectionMode === 'headed') {
-      throw new Error('Cannot recreate context in headed mode. Use disconnect first.');
+      throw new Error('Cannot recreate context in headed mode. Use disconnect first.')
     }
     if (!this.browser || !this.context) {
-      throw new Error('Browser not launched');
+      throw new Error('Browser not launched')
     }
 
     try {
       // 1. Save state
-      const state = await this.saveState();
+      const state = await this.saveState()
 
       // 2. Close old pages and context
       for (const page of this.pages.values()) {
-        await page.close().catch(() => {});
+        await page.close().catch(() => {})
       }
-      this.pages.clear();
-      await this.context.close().catch(() => {});
+      this.pages.clear()
+      await this.context.close().catch(() => {})
 
       // 3. Create new context with updated settings
       const contextOptions: BrowserContextOptions = {
         viewport: { width: 1280, height: 720 },
-      };
-      if (this.customUserAgent) {
-        contextOptions.userAgent = this.customUserAgent;
       }
-      this.context = await this.browser.newContext(contextOptions);
+      if (this.customUserAgent) {
+        contextOptions.userAgent = this.customUserAgent
+      }
+      this.context = await this.browser.newContext(contextOptions)
 
       if (Object.keys(this.extraHeaders).length > 0) {
-        await this.context.setExtraHTTPHeaders(this.extraHeaders);
+        await this.context.setExtraHTTPHeaders(this.extraHeaders)
       }
 
       // 4. Restore state
-      await this.restoreState(state);
+      await this.restoreState(state)
 
-      return null; // success
+      return null // success
     } catch (err: unknown) {
       // Fallback: create a clean context + blank tab
       try {
-        this.pages.clear();
-        if (this.context) await this.context.close().catch(() => {});
+        this.pages.clear()
+        if (this.context) await this.context.close().catch(() => {})
 
         const contextOptions: BrowserContextOptions = {
           viewport: { width: 1280, height: 720 },
-        };
-        if (this.customUserAgent) {
-          contextOptions.userAgent = this.customUserAgent;
         }
-        this.context = await this.browser!.newContext(contextOptions);
-        await this.newTab();
-        this.clearRefs();
+        if (this.customUserAgent) {
+          contextOptions.userAgent = this.customUserAgent
+        }
+        this.context = await this.browser!.newContext(contextOptions)
+        await this.newTab()
+        this.clearRefs()
       } catch {
         // If even the fallback fails, we're in trouble — but browser is still alive
       }
-      return `Context recreation failed: ${err instanceof Error ? err.message : String(err)}. Browser reset to blank tab.`;
+      return `Context recreation failed: ${err instanceof Error ? err.message : String(err)}. Browser reset to blank tab.`
     }
   }
 
@@ -804,48 +832,52 @@ export class BrowserManager {
    */
   async handoff(message: string): Promise<string> {
     if (this.connectionMode === 'headed' || this.isHeaded) {
-      return `HANDOFF: Already in headed mode at ${this.getCurrentUrl()}`;
+      return `HANDOFF: Already in headed mode at ${this.getCurrentUrl()}`
     }
     if (!this.browser || !this.context) {
-      throw new Error('Browser not launched');
+      throw new Error('Browser not launched')
     }
 
     // 1. Save state from current browser
-    const state = await this.saveState();
-    const currentUrl = this.getCurrentUrl();
+    const state = await this.saveState()
+    const currentUrl = this.getCurrentUrl()
 
     // 2. Launch new headed browser with extension (same as launchHeaded)
     //    Uses launchPersistentContext so the extension auto-loads.
-    let newContext: BrowserContext;
+    let newContext: BrowserContext
     try {
-      const fs = require('fs');
-      const path = require('path');
-      const extensionPath = this.findExtensionPath();
-      const launchArgs = ['--hide-crash-restore-bubble'];
+      const fs = require('fs')
+      const path = require('path')
+      const extensionPath = this.findExtensionPath()
+      const launchArgs = ['--hide-crash-restore-bubble']
       if (extensionPath) {
-        launchArgs.push(`--disable-extensions-except=${extensionPath}`);
-        launchArgs.push(`--load-extension=${extensionPath}`);
+        launchArgs.push(`--disable-extensions-except=${extensionPath}`)
+        launchArgs.push(`--load-extension=${extensionPath}`)
         // Write auth token for extension bootstrap during handoff
         if (this.serverPort) {
           try {
-            const { resolveConfig } = require('./config');
-            const config = resolveConfig();
-            const stateFile = path.join(config.stateDir, 'browse.json');
+            const { resolveConfig } = require('./config')
+            const config = resolveConfig()
+            const stateFile = path.join(config.stateDir, 'browse.json')
             if (fs.existsSync(stateFile)) {
-              const stateData = JSON.parse(fs.readFileSync(stateFile, 'utf-8'));
+              const stateData = JSON.parse(fs.readFileSync(stateFile, 'utf-8'))
               if (stateData.token) {
-                fs.writeFileSync(path.join(extensionPath, '.auth.json'), JSON.stringify({ token: stateData.token }), { mode: 0o600 });
+                fs.writeFileSync(
+                  path.join(extensionPath, '.auth.json'),
+                  JSON.stringify({ token: stateData.token }),
+                  { mode: 0o600 },
+                )
               }
             }
           } catch {}
         }
-        console.log(`[browse] Handoff: loading extension from ${extensionPath}`);
+        console.log(`[browse] Handoff: loading extension from ${extensionPath}`)
       } else {
-        console.log('[browse] Handoff: extension not found — headed mode without side panel');
+        console.log('[browse] Handoff: extension not found — headed mode without side panel')
       }
 
-      const userDataDir = path.join(process.env.HOME || '/tmp', '.gstack', 'chromium-profile');
-      fs.mkdirSync(userDataDir, { recursive: true });
+      const userDataDir = path.join(process.env.HOME || '/tmp', '.gstack', 'chromium-profile')
+      fs.mkdirSync(userDataDir, { recursive: true })
 
       newContext = await chromium.launchPersistentContext(userDataDir, {
         headless: false,
@@ -856,53 +888,53 @@ export class BrowserManager {
           '--disable-component-extensions-with-background-pages',
         ],
         timeout: 15000,
-      });
+      })
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err);
-      return `ERROR: Cannot open headed browser — ${msg}. Headless browser still running.`;
+      const msg = err instanceof Error ? err.message : String(err)
+      return `ERROR: Cannot open headed browser — ${msg}. Headless browser still running.`
     }
 
     // 3. Restore state into new headed browser
     try {
       // Swap to new browser/context before restoreState (it uses this.context)
-      const oldBrowser = this.browser;
+      const oldBrowser = this.browser
 
-      this.context = newContext;
-      this.browser = newContext.browser();
-      this.pages.clear();
-      this.connectionMode = 'headed';
+      this.context = newContext
+      this.browser = newContext.browser()
+      this.pages.clear()
+      this.connectionMode = 'headed'
 
       if (Object.keys(this.extraHeaders).length > 0) {
-        await newContext.setExtraHTTPHeaders(this.extraHeaders);
+        await newContext.setExtraHTTPHeaders(this.extraHeaders)
       }
 
       // Register crash handler on new browser
       if (this.browser) {
         this.browser.on('disconnected', () => {
-          if (this.intentionalDisconnect) return;
-          console.error('[browse] FATAL: Chromium process crashed or was killed. Server exiting.');
-          process.exit(1);
-        });
+          if (this.intentionalDisconnect) return
+          console.error('[browse] FATAL: Chromium process crashed or was killed. Server exiting.')
+          process.exit(1)
+        })
       }
 
-      await this.restoreState(state);
-      this.isHeaded = true;
-      this.dialogAutoAccept = false;  // User controls dialogs in headed mode
+      await this.restoreState(state)
+      this.isHeaded = true
+      this.dialogAutoAccept = false // User controls dialogs in headed mode
 
       // 4. Close old headless browser (fire-and-forget)
-      oldBrowser.removeAllListeners('disconnected');
-      oldBrowser.close().catch(() => {});
+      oldBrowser.removeAllListeners('disconnected')
+      oldBrowser.close().catch(() => {})
 
       return [
         `HANDOFF: Browser opened at ${currentUrl}`,
         `MESSAGE: ${message}`,
         `STATUS: Waiting for user. Run 'resume' when done.`,
-      ].join('\n');
+      ].join('\n')
     } catch (err: unknown) {
       // Restore failed — close the new context, keep old state
-      await newContext.close().catch(() => {});
-      const msg = err instanceof Error ? err.message : String(err);
-      return `ERROR: Handoff failed during state restore — ${msg}. Headless browser still running.`;
+      await newContext.close().catch(() => {})
+      const msg = err instanceof Error ? err.message : String(err)
+      return `ERROR: Handoff failed during state restore — ${msg}. Headless browser still running.`
     }
   }
 
@@ -912,29 +944,29 @@ export class BrowserManager {
    * The meta-command handler calls handleSnapshot() after this.
    */
   resume(): void {
-    this.clearRefs();
-    this.resetFailures();
-    this.activeFrame = null;
+    this.clearRefs()
+    this.resetFailures()
+    this.activeFrame = null
   }
 
   getIsHeaded(): boolean {
-    return this.isHeaded;
+    return this.isHeaded
   }
 
   // ─── Auto-handoff Hint (consecutive failure tracking) ───────
   incrementFailures(): void {
-    this.consecutiveFailures++;
+    this.consecutiveFailures++
   }
 
   resetFailures(): void {
-    this.consecutiveFailures = 0;
+    this.consecutiveFailures = 0
   }
 
   getFailureHint(): string | null {
     if (this.consecutiveFailures >= 3 && !this.isHeaded) {
-      return `HINT: ${this.consecutiveFailures} consecutive failures. Consider using 'handoff' to let the user help.`;
+      return `HINT: ${this.consecutiveFailures} consecutive failures. Consider using 'handoff' to let the user help.`
     }
-    return null;
+    return null
   }
 
   // ─── Console/Network/Dialog/Ref Wiring ────────────────────
@@ -943,26 +975,26 @@ export class BrowserManager {
     page.on('close', () => {
       for (const [id, p] of this.pages) {
         if (p === page) {
-          this.pages.delete(id);
-          console.log(`[browse] Tab closed (id=${id}, remaining=${this.pages.size})`);
+          this.pages.delete(id)
+          console.log(`[browse] Tab closed (id=${id}, remaining=${this.pages.size})`)
           // If the closed tab was active, switch to another
           if (this.activeTabId === id) {
-            const remaining = [...this.pages.keys()];
-            this.activeTabId = remaining.length > 0 ? remaining[remaining.length - 1] : 0;
+            const remaining = [...this.pages.keys()]
+            this.activeTabId = remaining.length > 0 ? remaining[remaining.length - 1] : 0
           }
-          break;
+          break
         }
       }
-    });
+    })
 
     // Clear ref map on navigation — refs point to stale elements after page change
     // (lastSnapshot is NOT cleared — it's a text baseline for diffing)
     page.on('framenavigated', (frame) => {
       if (frame === page.mainFrame()) {
-        this.clearRefs();
-        this.activeFrame = null; // Navigation invalidates frame context
+        this.clearRefs()
+        this.activeFrame = null // Navigation invalidates frame context
       }
-    });
+    })
 
     // ─── Dialog auto-handling (prevents browser lockup) ─────
     page.on('dialog', async (dialog) => {
@@ -973,66 +1005,66 @@ export class BrowserManager {
         defaultValue: dialog.defaultValue() || undefined,
         action: this.dialogAutoAccept ? 'accepted' : 'dismissed',
         response: this.dialogAutoAccept ? (this.dialogPromptText ?? undefined) : undefined,
-      };
-      addDialogEntry(entry);
+      }
+      addDialogEntry(entry)
 
       try {
         if (this.dialogAutoAccept) {
-          await dialog.accept(this.dialogPromptText ?? undefined);
+          await dialog.accept(this.dialogPromptText ?? undefined)
         } else {
-          await dialog.dismiss();
+          await dialog.dismiss()
         }
       } catch {
         // Dialog may have been dismissed by navigation — ignore
       }
-    });
+    })
 
     page.on('console', (msg) => {
       addConsoleEntry({
         timestamp: Date.now(),
         level: msg.type(),
         text: msg.text(),
-      });
-    });
+      })
+    })
 
     page.on('request', (req) => {
       addNetworkEntry({
         timestamp: Date.now(),
         method: req.method(),
         url: req.url(),
-      });
-    });
+      })
+    })
 
     page.on('response', (res) => {
       // Find matching request entry and update it (backward scan)
-      const url = res.url();
-      const status = res.status();
+      const url = res.url()
+      const status = res.status()
       for (let i = networkBuffer.length - 1; i >= 0; i--) {
-        const entry = networkBuffer.get(i);
+        const entry = networkBuffer.get(i)
         if (entry && entry.url === url && !entry.status) {
-          networkBuffer.set(i, { ...entry, status, duration: Date.now() - entry.timestamp });
-          break;
+          networkBuffer.set(i, { ...entry, status, duration: Date.now() - entry.timestamp })
+          break
         }
       }
-    });
+    })
 
     // Capture response sizes via response finished
     page.on('requestfinished', async (req) => {
       try {
-        const res = await req.response();
+        const res = await req.response()
         if (res) {
-          const url = req.url();
-          const body = await res.body().catch(() => null);
-          const size = body ? body.length : 0;
+          const url = req.url()
+          const body = await res.body().catch(() => null)
+          const size = body ? body.length : 0
           for (let i = networkBuffer.length - 1; i >= 0; i--) {
-            const entry = networkBuffer.get(i);
+            const entry = networkBuffer.get(i)
             if (entry && entry.url === url && !entry.size) {
-              networkBuffer.set(i, { ...entry, size });
-              break;
+              networkBuffer.set(i, { ...entry, size })
+              break
             }
           }
         }
       } catch {}
-    });
+    })
   }
 }

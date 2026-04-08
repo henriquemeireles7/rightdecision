@@ -56,7 +56,11 @@ if (isCode) {
   }
 
   // console.log of sensitive data
-  if (/console\.(log|info|debug)\s*\([^)]*\b(password|secret|token|apiKey|api_key|private_key)\b/i.test(content)) {
+  if (
+    /console\.(log|info|debug)\s*\([^)]*\b(password|secret|token|apiKey|api_key|private_key)\b/i.test(
+      content,
+    )
+  ) {
     warnings.push('Logging sensitive variable — remove or redact')
   }
 }

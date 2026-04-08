@@ -1,4 +1,5 @@
 import { spawnSync } from 'node:child_process'
+import { resolve } from 'node:path'
 
 const input = await Bun.stdin.json()
 
@@ -7,7 +8,8 @@ if (input.stop_hook_active) {
   process.exit(0)
 }
 
-const cwd = '/Users/henriquemeireles/conductor/workspaces/getzeny/da-nang'
+// Dynamic cwd: hooks live in .claude/hooks/, project root is two levels up
+const cwd = resolve(import.meta.dir, '../..')
 
 // Check if there are any modified .ts/.tsx files
 const gitResult = spawnSync('git', ['diff', '--name-only', '--diff-filter=ACM'], {
@@ -47,6 +49,9 @@ if (biomeOutput.trim()) {
   const lines = biomeOutput.trim().split('\n')
   console.log('Biome:', lines.slice(-3).join('\n'))
 }
+
+// Stage formatted files so they're included in the next commit (prevents drift)
+spawnSync('git', ['add', ...allFiles], { cwd, stdio: 'ignore' })
 
 // Run TypeScript check
 const tscResult = spawnSync('bunx', ['tsc', '--noEmit'], {

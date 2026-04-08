@@ -13,21 +13,28 @@
  *   GET  /cookie-picker/imported     → currently imported domains + counts
  */
 
-import type { BrowserManager } from './browser-manager';
-import { findInstalledBrowsers, listProfiles, listDomains, importCookies, CookieImportError, type PlaywrightCookie } from './cookie-import-browser';
-import { getCookiePickerHTML } from './cookie-picker-ui';
+import type { BrowserManager } from './browser-manager'
+import {
+  CookieImportError,
+  findInstalledBrowsers,
+  importCookies,
+  listDomains,
+  listProfiles,
+  type PlaywrightCookie,
+} from './cookie-import-browser'
+import { getCookiePickerHTML } from './cookie-picker-ui'
 
 // ─── State ──────────────────────────────────────────────────────
 // Tracks which domains were imported via the picker.
 // /imported only returns cookies for domains in this Set.
 // /remove clears from this Set.
-const importedDomains = new Set<string>();
-const importedCounts = new Map<string, number>();
+const importedDomains = new Set<string>()
+const importedCounts = new Map<string, number>()
 
 // ─── JSON Helpers ───────────────────────────────────────────────
 
 function corsOrigin(port: number): string {
-  return `http://127.0.0.1:${port}`;
+  return `http://127.0.0.1:${port}`
 }
 
 function jsonResponse(data: any, opts: { port: number; status?: number }): Response {
@@ -37,14 +44,18 @@ function jsonResponse(data: any, opts: { port: number; status?: number }): Respo
       'Content-Type': 'application/json',
       'Access-Control-Allow-Origin': corsOrigin(opts.port),
     },
-  });
+  })
 }
 
-function errorResponse(message: string, code: string, opts: { port: number; status?: number; action?: string }): Response {
+function errorResponse(
+  message: string,
+  code: string,
+  opts: { port: number; status?: number; action?: string },
+): Response {
   return jsonResponse(
     { error: message, code, ...(opts.action ? { action: opts.action } : {}) },
     { port: opts.port, status: opts.status ?? 400 },
-  );
+  )
 }
 
 // ─── Route Handler ──────────────────────────────────────────────
@@ -55,8 +66,8 @@ export async function handleCookiePickerRoute(
   bm: BrowserManager,
   authToken?: string,
 ): Promise<Response> {
-  const pathname = url.pathname;
-  const port = parseInt(url.port, 10) || 9400;
+  const pathname = url.pathname
+  const port = parseInt(url.port, 10) || 9400
 
   // CORS preflight
   if (req.method === 'OPTIONS') {
@@ -67,164 +78,185 @@ export async function handleCookiePickerRoute(
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
       },
-    });
+    })
   }
 
   try {
     // GET /cookie-picker — serve the picker UI
     if (pathname === '/cookie-picker' && req.method === 'GET') {
-      const html = getCookiePickerHTML(port, authToken);
+      const html = getCookiePickerHTML(port, authToken)
       return new Response(html, {
         status: 200,
         headers: { 'Content-Type': 'text/html; charset=utf-8' },
-      });
+      })
     }
 
     // ─── Auth gate: all data/action routes below require Bearer token ───
     if (authToken) {
-      const authHeader = req.headers.get('authorization');
+      const authHeader = req.headers.get('authorization')
       if (!authHeader || authHeader !== `Bearer ${authToken}`) {
         return new Response(JSON.stringify({ error: 'Unauthorized' }), {
           status: 401,
           headers: { 'Content-Type': 'application/json' },
-        });
+        })
       }
     }
 
     // GET /cookie-picker/browsers — list installed browsers
     if (pathname === '/cookie-picker/browsers' && req.method === 'GET') {
-      const browsers = findInstalledBrowsers();
-      return jsonResponse({
-        browsers: browsers.map(b => ({
-          name: b.name,
-          aliases: b.aliases,
-        })),
-      }, { port });
+      const browsers = findInstalledBrowsers()
+      return jsonResponse(
+        {
+          browsers: browsers.map((b) => ({
+            name: b.name,
+            aliases: b.aliases,
+          })),
+        },
+        { port },
+      )
     }
 
     // GET /cookie-picker/profiles?browser=<name> — list profiles for a browser
     if (pathname === '/cookie-picker/profiles' && req.method === 'GET') {
-      const browserName = url.searchParams.get('browser');
+      const browserName = url.searchParams.get('browser')
       if (!browserName) {
-        return errorResponse("Missing 'browser' parameter", 'missing_param', { port });
+        return errorResponse("Missing 'browser' parameter", 'missing_param', { port })
       }
-      const profiles = listProfiles(browserName);
-      return jsonResponse({ profiles }, { port });
+      const profiles = listProfiles(browserName)
+      return jsonResponse({ profiles }, { port })
     }
 
     // GET /cookie-picker/domains?browser=<name>&profile=<profile> — list domains + counts
     if (pathname === '/cookie-picker/domains' && req.method === 'GET') {
-      const browserName = url.searchParams.get('browser');
+      const browserName = url.searchParams.get('browser')
       if (!browserName) {
-        return errorResponse("Missing 'browser' parameter", 'missing_param', { port });
+        return errorResponse("Missing 'browser' parameter", 'missing_param', { port })
       }
-      const profile = url.searchParams.get('profile') || 'Default';
-      const result = listDomains(browserName, profile);
-      return jsonResponse({
-        browser: result.browser,
-        domains: result.domains,
-      }, { port });
+      const profile = url.searchParams.get('profile') || 'Default'
+      const result = listDomains(browserName, profile)
+      return jsonResponse(
+        {
+          browser: result.browser,
+          domains: result.domains,
+        },
+        { port },
+      )
     }
 
     // POST /cookie-picker/import — decrypt + import to Playwright session
     if (pathname === '/cookie-picker/import' && req.method === 'POST') {
-      let body: any;
+      let body: any
       try {
-        body = await req.json();
+        body = await req.json()
       } catch {
-        return errorResponse('Invalid JSON body', 'bad_request', { port });
+        return errorResponse('Invalid JSON body', 'bad_request', { port })
       }
 
-      const { browser, domains, profile } = body;
-      if (!browser) return errorResponse("Missing 'browser' field", 'missing_param', { port });
+      const { browser, domains, profile } = body
+      if (!browser) return errorResponse("Missing 'browser' field", 'missing_param', { port })
       if (!domains || !Array.isArray(domains) || domains.length === 0) {
-        return errorResponse("Missing or empty 'domains' array", 'missing_param', { port });
+        return errorResponse("Missing or empty 'domains' array", 'missing_param', { port })
       }
 
       // Decrypt cookies from the browser DB
-      const result = await importCookies(browser, domains, profile || 'Default');
+      const result = await importCookies(browser, domains, profile || 'Default')
 
       if (result.cookies.length === 0) {
-        return jsonResponse({
-          imported: 0,
-          failed: result.failed,
-          domainCounts: {},
-          message: result.failed > 0
-            ? `All ${result.failed} cookies failed to decrypt`
-            : 'No cookies found for the specified domains',
-        }, { port });
+        return jsonResponse(
+          {
+            imported: 0,
+            failed: result.failed,
+            domainCounts: {},
+            message:
+              result.failed > 0
+                ? `All ${result.failed} cookies failed to decrypt`
+                : 'No cookies found for the specified domains',
+          },
+          { port },
+        )
       }
 
       // Add to Playwright context
-      const page = bm.getPage();
-      await page.context().addCookies(result.cookies);
+      const page = bm.getPage()
+      await page.context().addCookies(result.cookies)
 
       // Track what was imported
       for (const domain of Object.keys(result.domainCounts)) {
-        importedDomains.add(domain);
-        importedCounts.set(domain, (importedCounts.get(domain) || 0) + result.domainCounts[domain]);
+        importedDomains.add(domain)
+        importedCounts.set(domain, (importedCounts.get(domain) || 0) + result.domainCounts[domain])
       }
 
-      console.log(`[cookie-picker] Imported ${result.count} cookies for ${Object.keys(result.domainCounts).length} domains`);
+      console.log(
+        `[cookie-picker] Imported ${result.count} cookies for ${Object.keys(result.domainCounts).length} domains`,
+      )
 
-      return jsonResponse({
-        imported: result.count,
-        failed: result.failed,
-        domainCounts: result.domainCounts,
-      }, { port });
+      return jsonResponse(
+        {
+          imported: result.count,
+          failed: result.failed,
+          domainCounts: result.domainCounts,
+        },
+        { port },
+      )
     }
 
     // POST /cookie-picker/remove — clear cookies for domains
     if (pathname === '/cookie-picker/remove' && req.method === 'POST') {
-      let body: any;
+      let body: any
       try {
-        body = await req.json();
+        body = await req.json()
       } catch {
-        return errorResponse('Invalid JSON body', 'bad_request', { port });
+        return errorResponse('Invalid JSON body', 'bad_request', { port })
       }
 
-      const { domains } = body;
+      const { domains } = body
       if (!domains || !Array.isArray(domains) || domains.length === 0) {
-        return errorResponse("Missing or empty 'domains' array", 'missing_param', { port });
+        return errorResponse("Missing or empty 'domains' array", 'missing_param', { port })
       }
 
-      const page = bm.getPage();
-      const context = page.context();
+      const page = bm.getPage()
+      const context = page.context()
       for (const domain of domains) {
-        await context.clearCookies({ domain });
-        importedDomains.delete(domain);
-        importedCounts.delete(domain);
+        await context.clearCookies({ domain })
+        importedDomains.delete(domain)
+        importedCounts.delete(domain)
       }
 
-      console.log(`[cookie-picker] Removed cookies for ${domains.length} domains`);
+      console.log(`[cookie-picker] Removed cookies for ${domains.length} domains`)
 
-      return jsonResponse({
-        removed: domains.length,
-        domains,
-      }, { port });
+      return jsonResponse(
+        {
+          removed: domains.length,
+          domains,
+        },
+        { port },
+      )
     }
 
     // GET /cookie-picker/imported — currently imported domains + counts
     if (pathname === '/cookie-picker/imported' && req.method === 'GET') {
-      const entries: Array<{ domain: string; count: number }> = [];
+      const entries: Array<{ domain: string; count: number }> = []
       for (const domain of importedDomains) {
-        entries.push({ domain, count: importedCounts.get(domain) || 0 });
+        entries.push({ domain, count: importedCounts.get(domain) || 0 })
       }
-      entries.sort((a, b) => b.count - a.count);
+      entries.sort((a, b) => b.count - a.count)
 
-      return jsonResponse({
-        domains: entries,
-        totalDomains: entries.length,
-        totalCookies: entries.reduce((sum, e) => sum + e.count, 0),
-      }, { port });
+      return jsonResponse(
+        {
+          domains: entries,
+          totalDomains: entries.length,
+          totalCookies: entries.reduce((sum, e) => sum + e.count, 0),
+        },
+        { port },
+      )
     }
 
-    return new Response('Not found', { status: 404 });
+    return new Response('Not found', { status: 404 })
   } catch (err: any) {
     if (err instanceof CookieImportError) {
-      return errorResponse(err.message, err.code, { port, status: 400, action: err.action });
+      return errorResponse(err.message, err.code, { port, status: 400, action: err.action })
     }
-    console.error(`[cookie-picker] Error: ${err.message}`);
-    return errorResponse(err.message || 'Internal error', 'internal_error', { port, status: 500 });
+    console.error(`[cookie-picker] Error: ${err.message}`)
+    return errorResponse(err.message || 'Internal error', 'internal_error', { port, status: 500 })
   }
 }
