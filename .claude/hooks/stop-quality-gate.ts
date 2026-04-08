@@ -36,11 +36,11 @@ if (allFiles.length === 0) {
   process.exit(0)
 }
 
-// Run Biome in report-only mode (no --write, no auto-staging)
-// Agents run `bun run lint` explicitly before committing
+// Run Biome with --write to auto-fix formatting, but do NOT auto-stage
+// Agents control what gets committed — no surprise git add
 console.log(`Running quality gate on ${allFiles.length} changed file(s)...`)
 
-const biomeResult = spawnSync('bunx', ['biome', 'check', ...allFiles], {
+const biomeResult = spawnSync('bunx', ['biome', 'check', '--write', '--unsafe', ...allFiles], {
   cwd,
   stdio: ['ignore', 'pipe', 'pipe'],
 })
