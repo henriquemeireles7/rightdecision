@@ -4,8 +4,16 @@ import { logger } from 'hono/logger'
 import { serveStatic } from 'hono/bun'
 import { env } from '@/platform/env'
 import { mountRoutes } from './routes'
+import { checkHealth } from './health'
 
 const app = new Hono()
+
+// Health checks — before middleware so they always respond
+app.get('/health', (c) => c.json({ status: 'ok', timestamp: new Date().toISOString(), uptime: Math.round(process.uptime()) }))
+app.get('/health/ready', async (c) => {
+  const { httpStatus, body } = await checkHealth()
+  return c.json(body, httpStatus as 200)
+})
 
 // Middleware stack
 app.use('*', logger())
@@ -20,9 +28,6 @@ app.onError((err, c) => {
   console.error('Unhandled error:', err)
   return c.json({ ok: false, code: 'INTERNAL_ERROR', message: 'Something went wrong' }, 500)
 })
-
-// Health check
-app.get('/health', (c) => c.json({ ok: true, timestamp: new Date().toISOString() }))
 
 // Export type for hono/client RPC
 export type AppRoutes = typeof appRoutes
