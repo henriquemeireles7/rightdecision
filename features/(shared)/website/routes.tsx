@@ -105,8 +105,10 @@ websiteRoutes.route('/concepts', conceptRoutes)
 // ─── OG Image Generation ──────────────────────────────────────────────────────
 const ogImageCache = new Map<string, ArrayBuffer>()
 
-websiteRoutes.get('/og/:slug.png', async (c) => {
-  const slug = c.req.param('slug') as string
+websiteRoutes.get('/og/:filename', async (c) => {
+  const filename = c.req.param('filename')
+  if (!filename?.endsWith('.png')) return c.notFound()
+  const slug = filename.replace(/\.png$/, '')
 
   const cached = ogImageCache.get(slug)
   if (cached) {

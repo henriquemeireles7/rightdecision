@@ -4,7 +4,8 @@ import { Resvg } from '@resvg/resvg-js'
 import satori from 'satori'
 
 // Load font at module level (once, not per-request)
-const fontBuffer = readFileSync(join(import.meta.dir, '../../../public/fonts/InstrumentSerif-Regular.woff2'))
+// Satori requires TTF/OTF (not woff2) for font rendering
+const fontBuffer = readFileSync(join(import.meta.dir, '../../../public/fonts/InstrumentSerif-Regular.ttf'))
 
 export async function generateOgImage(title: string): Promise<Buffer> {
   // Truncate long titles
