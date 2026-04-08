@@ -142,14 +142,7 @@ export function buildWebSiteSchema(baseUrl: string) {
     '@type': 'WebSite' as const,
     name: 'The Right Decision',
     url: baseUrl,
-    potentialAction: {
-      '@type': 'SearchAction' as const,
-      target: {
-        '@type': 'EntryPoint' as const,
-        urlTemplate: `${baseUrl}/blog?q={search_term_string}`,
-      },
-      'query-input': 'required name=search_term_string',
-    },
+    // SearchAction deferred until blog search is implemented (V2)
   }
 }
 

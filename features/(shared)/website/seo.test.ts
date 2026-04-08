@@ -176,21 +176,16 @@ describe('buildProductSchema', () => {
 })
 
 describe('buildWebSiteSchema', () => {
-  test('builds WebSite schema with SearchAction', () => {
+  test('builds WebSite schema', () => {
     const schema = buildWebSiteSchema('https://rightdecisions.io')
     expect(schema['@type']).toBe('WebSite')
     expect(schema.name).toBe('The Right Decision')
     expect(schema.url).toBe('https://rightdecisions.io')
-    expect(schema.potentialAction['@type']).toBe('SearchAction')
-    expect(schema.potentialAction.target['@type']).toBe('EntryPoint')
-    expect(schema.potentialAction.target.urlTemplate).toContain('rightdecisions.io/blog?q=')
-    expect(schema.potentialAction['query-input']).toBe('required name=search_term_string')
   })
 
   test('uses baseUrl parameter', () => {
     const schema = buildWebSiteSchema('https://staging.example.com')
     expect(schema.url).toBe('https://staging.example.com')
-    expect(schema.potentialAction.target.urlTemplate).toContain('staging.example.com')
   })
 })
 

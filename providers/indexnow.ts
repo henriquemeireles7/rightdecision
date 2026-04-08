@@ -55,7 +55,11 @@ export function loadSubmittedLog(): Record<string, string> {
   if (!existsSync(SUBMITTED_LOG_PATH)) {
     return {}
   }
-  return JSON.parse(readFileSync(SUBMITTED_LOG_PATH, 'utf-8'))
+  try {
+    return JSON.parse(readFileSync(SUBMITTED_LOG_PATH, 'utf-8'))
+  } catch {
+    return {}
+  }
 }
 
 export function saveSubmittedLog(log: Record<string, string>): void {

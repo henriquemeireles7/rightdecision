@@ -73,6 +73,12 @@ export async function inspectUrl(siteUrl: string, inspectionUrl: string): Promis
     signal: AbortSignal.timeout(15_000),
   })
 
+  if (res.status === 401) {
+    cachedToken = null
+    tokenExpiry = 0
+    throw new ProviderError('search-console', 'inspectUrl', 401, await res.text())
+  }
+
   if (!res.ok) {
     throw new ProviderError('search-console', 'inspectUrl', res.status, await res.text())
   }
@@ -127,6 +133,12 @@ export async function getSearchAnalytics(
     }),
     signal: AbortSignal.timeout(15_000),
   })
+
+  if (res.status === 401) {
+    cachedToken = null
+    tokenExpiry = 0
+    throw new ProviderError('search-console', 'getSearchAnalytics', 401, await res.text())
+  }
 
   if (!res.ok) {
     throw new ProviderError('search-console', 'getSearchAnalytics', res.status, await res.text())

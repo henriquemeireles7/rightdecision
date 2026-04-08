@@ -103,15 +103,30 @@ websiteRoutes.route('/blog', blogRoutes)
 websiteRoutes.route('/concepts', conceptRoutes)
 
 // ─── OG Image Generation ──────────────────────────────────────────────────────
+const ogImageCache = new Map<string, Uint8Array>()
+
 websiteRoutes.get('/og/:slug.png', async (c) => {
   const slug = c.req.param('slug') as string
+
+  const cached = ogImageCache.get(slug)
+  if (cached) {
+    return new Response(cached, {
+      headers: {
+        'Content-Type': 'image/png',
+        'Cache-Control': 'public, max-age=31536000, immutable',
+      },
+    })
+  }
 
   // Try blog first, then concepts
   const post = (await getContentFile(BLOG_DIR, slug)) ?? (await getContentFile(CONCEPTS_DIR, slug))
   if (!post) return c.notFound()
 
   const png = await generateOgImage(post.frontmatter.title as string)
-  return new Response(new Uint8Array(png), {
+  const bytes = new Uint8Array(png)
+  ogImageCache.set(slug, bytes)
+
+  return new Response(bytes, {
     headers: {
       'Content-Type': 'image/png',
       'Cache-Control': 'public, max-age=31536000, immutable',
