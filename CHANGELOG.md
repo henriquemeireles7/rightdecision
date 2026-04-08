@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.4.0] - 2026-04-08
+
+### Added
+- Email template system: branded HTML layout (warm cream + amber CTA) + plain-text fallback with 13 templates (4 auth + 6 payment + 3 migrated reminders)
+- Better Auth email verification (24h token, auto sign-in) and password recovery (30min token, session revocation)
+- Stripe webhook hardening: INSERT-first idempotency, 3 new event handlers (invoice.payment_succeeded/failed/upcoming), safeSendEmail wrapper
+- Access-gating middleware: requireActiveSubscription checks subscription status + period end
+- Stripe Customer Portal endpoint for self-service billing
+- Post-purchase checkout completion flow with session_id-based subscription linking
+- Frontend auth pages: forgot-password, reset-password, verify-email, purchase success
+- webhookEvents DB table for idempotency tracking
+- getUserForSubscription helper (DRY across webhook handlers)
+- escapeHtml utility to prevent XSS in email templates
+- Strategy document: decisions/11-email-auth-payments/ (meta, input, document)
+
+### Changed
+- sendEmail signature updated to accept { subject, html, text } for plain-text support
+- reminders.ts migrated to branded templates with dedup fix (time-window approach)
+- Webhook handler: fixed status conflation (canceled/unpaid now correctly mapped to cancelled)
+- Subscription.updated handler preserves Stripe's actual status instead of defaulting to past_due
+
+### Fixed
+- Race condition in checkout completion: atomic subscription linking with WHERE userId IS NULL
+- Email hijack prevention: checkout completion validates email matches Stripe session
+- Access-gate period check: handles cancel_at_period_end case (checks currentPeriodEnd date)
+- Nested HTML in plain-text link conversion regex
+
 ## [0.1.3.0] - 2026-04-08
 
 ### Added
