@@ -103,19 +103,16 @@ websiteRoutes.route('/blog', blogRoutes)
 websiteRoutes.route('/concepts', conceptRoutes)
 
 // ─── OG Image Generation ──────────────────────────────────────────────────────
-const ogImageCache = new Map<string, Uint8Array>()
+const ogImageCache = new Map<string, ArrayBuffer>()
 
 websiteRoutes.get('/og/:slug.png', async (c) => {
   const slug = c.req.param('slug') as string
 
   const cached = ogImageCache.get(slug)
   if (cached) {
-    return new Response(cached, {
-      headers: {
-        'Content-Type': 'image/png',
-        'Cache-Control': 'public, max-age=31536000, immutable',
-      },
-    })
+    c.header('Content-Type', 'image/png')
+    c.header('Cache-Control', 'public, max-age=31536000, immutable')
+    return c.body(cached)
   }
 
   // Try blog first, then concepts
@@ -123,15 +120,13 @@ websiteRoutes.get('/og/:slug.png', async (c) => {
   if (!post) return c.notFound()
 
   const png = await generateOgImage(post.frontmatter.title as string)
-  const bytes = new Uint8Array(png)
-  ogImageCache.set(slug, bytes)
+  const ab = new ArrayBuffer(png.byteLength)
+  new Uint8Array(ab).set(png)
+  ogImageCache.set(slug, ab)
 
-  return new Response(bytes, {
-    headers: {
-      'Content-Type': 'image/png',
-      'Cache-Control': 'public, max-age=31536000, immutable',
-    },
-  })
+  c.header('Content-Type', 'image/png')
+  c.header('Cache-Control', 'public, max-age=31536000, immutable')
+  return c.body(ab)
 })
 
 // ─── Legal pages ─────────────────────────────────────────────────────────────
