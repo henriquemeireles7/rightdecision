@@ -1,0 +1,44 @@
+import { renderToString } from 'preact-render-to-string'
+import type { VNode } from 'preact'
+
+interface PageOptions {
+  title?: string
+  description?: string
+  ogImage?: string
+  ogTitle?: string
+  canonical?: string
+}
+
+const esc = (s: string) =>
+  s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;')
+
+export function renderPage(component: VNode, options: PageOptions = {}): string {
+  const html = renderToString(component)
+  const title = options.title || 'The Right Decision'
+  const desc = options.description || ''
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${esc(title)}</title>
+  <meta name="description" content="${esc(desc)}" />
+  <meta property="og:title" content="${esc(options.ogTitle || title)}" />
+  <meta property="og:description" content="${esc(desc)}" />
+  ${options.ogImage ? `<meta property="og:image" content="${esc(options.ogImage)}" />` : ''}
+  <meta property="og:type" content="website" />
+  ${options.canonical ? `<link rel="canonical" href="${esc(options.canonical)}" />` : ''}
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body class="bg-cream text-ink font-body">
+  <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 bg-gold text-white px-4 py-2 rounded">Skip to content</a>
+  <main id="main-content">
+    ${html}
+  </main>
+</body>
+</html>`
+}

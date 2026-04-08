@@ -12,6 +12,23 @@ const checkoutSchema = z.object({
 
 export const checkoutRoutes = new Hono()
 
+checkoutRoutes.get('/redirect', async (c) => {
+  try {
+    const session = await payments.checkout.sessions.create({
+      mode: 'subscription',
+      payment_method_types: ['card'],
+      line_items: [{ price: plans.course.priceId, quantity: 1 }],
+      success_url: `${env.PUBLIC_APP_URL}/purchase/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: env.PUBLIC_APP_URL,
+      allow_promotion_codes: true,
+    })
+    return c.redirect(session.url!, 303)
+  } catch (error) {
+    console.error('Checkout redirect error:', error)
+    return throwError(c, 'PAYMENT_FAILED')
+  }
+})
+
 checkoutRoutes.post('/', zValidator('json', checkoutSchema), async (c) => {
   const { email } = c.req.valid('json')
 
