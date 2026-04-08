@@ -215,14 +215,16 @@ webhookRoutes.post('/', async (c) => {
 				current_period_end: number
 			}
 
-			// Map status accurately (don't conflate everything to past_due)
+			// Map status accurately
 			let dbStatus: 'active' | 'past_due' | 'cancelled'
 			if (sub.status === 'active') {
 				dbStatus = 'active'
 			} else if (sub.status === 'past_due') {
 				dbStatus = 'past_due'
+			} else if (sub.status === 'canceled' || sub.status === 'unpaid') {
+				dbStatus = 'cancelled'
 			} else {
-				dbStatus = 'past_due'
+				dbStatus = 'past_due' // incomplete, incomplete_expired, paused
 			}
 
 			await db

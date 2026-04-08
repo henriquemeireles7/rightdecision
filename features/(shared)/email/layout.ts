@@ -61,6 +61,16 @@ Right Decision<br>
 	return { html, text }
 }
 
+/** Escape HTML special characters to prevent XSS in email templates. */
+export function escapeHtml(str: string): string {
+	return str
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&#39;')
+}
+
 export function ctaButton(label: string, url: string): string {
 	return `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:24px 0;">
 <tr><td style="background-color:#C4956A;border-radius:8px;padding:14px 28px;text-align:center;">
@@ -75,7 +85,10 @@ export function stripHtml(html: string): string {
 	text = text.replace(/<br\s*\/?>/gi, '\n')
 	text = text.replace(/<\/(p|div|h[1-6]|li|tr)>/gi, '\n')
 	// Convert <a> to markdown links
-	text = text.replace(/<a\s+href="([^"]*)"[^>]*>([^<]*)<\/a>/gi, '[$2]($1)')
+	text = text.replace(/<a\s+href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, (_, url, inner) => {
+		const cleanInner = inner.replace(/<[^>]+>/g, '').trim()
+		return `[${cleanInner}](${url})`
+	})
 	// Remove all remaining HTML tags
 	text = text.replace(/<[^>]+>/g, '')
 	// Decode HTML entities

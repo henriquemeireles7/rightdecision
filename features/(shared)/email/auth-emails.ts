@@ -1,8 +1,9 @@
-import { ctaButton, emailLayout } from './layout'
+import { ctaButton, emailLayout, escapeHtml } from './layout'
 
 export function verificationEmail(vars: { name: string; url: string }) {
+	const name = escapeHtml(vars.name)
 	const content = `
-<p>Hi ${vars.name},</p>
+<p>Hi ${name},</p>
 <p>Click below to verify your email and access your account.</p>
 ${ctaButton('Verify Email', vars.url)}
 <p style="color:#A69D91;font-size:14px;">This link expires in 24 hours.<br>
@@ -17,12 +18,13 @@ export function welcomeEmail(vars: {
 	dashboardUrl: string
 	pricingUrl: string
 }) {
+	const name = escapeHtml(vars.name)
 	const courseBlock = vars.hasSubscription
 		? `<p>Your course is waiting.</p>${ctaButton('Go to Course', vars.dashboardUrl)}`
 		: `<p>See what's available.</p>${ctaButton('View Pricing', vars.pricingUrl)}`
 
 	const content = `
-<p>Hi ${vars.name},</p>
+<p>Hi ${name},</p>
 <p>Your account is verified and ready.</p>
 ${courseBlock}`
 
@@ -30,8 +32,9 @@ ${courseBlock}`
 }
 
 export function passwordResetEmail(vars: { name: string; url: string }) {
+	const name = escapeHtml(vars.name)
 	const content = `
-<p>Hi ${vars.name},</p>
+<p>Hi ${name},</p>
 <p>Someone requested a password reset for your account.</p>
 ${ctaButton('Reset Password', vars.url)}
 <p style="color:#A69D91;font-size:14px;">This link expires in 30 minutes.<br>
@@ -45,9 +48,10 @@ export function passwordChangedEmail(vars: {
 	date: string
 	forgotPasswordUrl: string
 }) {
+	const name = escapeHtml(vars.name)
 	const dateStr = vars.date.split('T')[0]
 	const content = `
-<p>Hi ${vars.name},</p>
+<p>Hi ${name},</p>
 <p>Your password was successfully changed on ${dateStr}.</p>
 <p>All other sessions have been signed out for your security.</p>
 <p>If you didn't make this change, reset your password immediately:</p>
@@ -60,8 +64,9 @@ ${ctaButton('Reset Password', vars.forgotPasswordUrl)}`
 }
 
 export function inactivityReminderEmail(vars: { name: string }) {
+	const name = escapeHtml(vars.name)
 	const content = `
-<p>Hi ${vars.name},</p>
+<p>Hi ${name},</p>
 <p>You started something important. Your throughline decision doesn't go away just because life got busy.</p>
 <p>Pick up where you left off. It takes 15 minutes.</p>`
 
@@ -69,9 +74,11 @@ export function inactivityReminderEmail(vars: { name: string }) {
 }
 
 export function moduleCompletionEmail(vars: { name: string; moduleName: string }) {
+	const name = escapeHtml(vars.name)
+	const moduleName = escapeHtml(vars.moduleName)
 	const content = `
-<p>Hi ${vars.name},</p>
-<p>You just finished <strong>${vars.moduleName}</strong>. That's real progress on your decision.</p>
+<p>Hi ${name},</p>
+<p>You just finished <strong>${moduleName}</strong>. That's real progress on your decision.</p>
 <p>Keep going. The next module builds directly on what you just learned.</p>`
 
 	return { subject: `You completed: ${vars.moduleName}`, ...emailLayout(content) }

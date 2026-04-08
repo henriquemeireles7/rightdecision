@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { emailLayout, ctaButton, stripHtml } from './layout'
+import { emailLayout, ctaButton, stripHtml, escapeHtml } from './layout'
 
 describe('emailLayout', () => {
 	test('wraps content in branded HTML with header and footer', () => {
@@ -63,6 +63,20 @@ describe('ctaButton', () => {
 		expect(html).toContain('https://example.com')
 		expect(html).toContain('#C4956A') // amber/gold
 		expect(html).toContain('border-radius')
+	})
+})
+
+describe('escapeHtml', () => {
+	test('escapes HTML special characters', () => {
+		expect(escapeHtml('<script>alert("xss")</script>')).toBe('&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;')
+	})
+
+	test('escapes ampersands', () => {
+		expect(escapeHtml('Tom & Jerry')).toBe('Tom &amp; Jerry')
+	})
+
+	test('passes through safe strings unchanged', () => {
+		expect(escapeHtml('Hello World')).toBe('Hello World')
 	})
 })
 

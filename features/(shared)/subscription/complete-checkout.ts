@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm'
+import { eq, sql } from 'drizzle-orm'
 import { Hono } from 'hono'
 import { zValidator } from '@hono/zod-validator'
 import { z } from 'zod'
@@ -69,51 +69,67 @@ completeCheckoutRoutes.post(
 			return throwError(c, 'INTERNAL_ERROR', 'Missing Stripe customer or subscription')
 		}
 
-		// 3. Check if subscription already linked to a user (duplicate completion)
-		const existingSub = await db.query.subscriptions.findFirst({
-			where: eq(subscriptions.stripeSubscriptionId, stripeSubscriptionId),
-		})
-		if (existingSub?.userId) {
-			return throwError(c, 'VALIDATION_ERROR', 'Account already created for this purchase. Please log in.')
+		// 3. Validate email matches Stripe session (prevent subscription hijacking)
+		const sessionEmail = session.customer_details?.email?.toLowerCase().trim()
+		if (sessionEmail && sessionEmail !== email.toLowerCase().trim()) {
+			return throwError(c, 'VALIDATION_ERROR', 'Email must match the one used at checkout')
 		}
 
 		// 4. Get subscription details for period end
 		const stripeSub = await payments.subscriptions.retrieve(stripeSubscriptionId)
 		const periodEnd = (stripeSub as unknown as { current_period_end: number }).current_period_end
 
-		// 5. Create subscription in DB (idempotent — webhook may have already created it)
-		await db
-			.insert(subscriptions)
-			.values({
-				stripeCustomerId,
-				stripeSubscriptionId,
-				status: 'active',
-				currentPeriodEnd: new Date(periodEnd * 1000),
-			})
-			.onConflictDoNothing({ target: subscriptions.stripeSubscriptionId })
-
-		// 6. Create user account via Better Auth
+		// 5-8. Create subscription + user + link atomically
+		// Atomic linking: UPDATE ... WHERE userId IS NULL prevents race condition
 		let userId: string
 		try {
+			// 5. Create subscription in DB (idempotent — webhook may have already created it)
+			await db
+				.insert(subscriptions)
+				.values({
+					stripeCustomerId,
+					stripeSubscriptionId,
+					status: 'active',
+					currentPeriodEnd: new Date(periodEnd * 1000),
+				})
+				.onConflictDoNothing({ target: subscriptions.stripeSubscriptionId })
+
+			// Check if already linked (duplicate completion)
+			const existingSub = await db.query.subscriptions.findFirst({
+				where: eq(subscriptions.stripeSubscriptionId, stripeSubscriptionId),
+			})
+			if (existingSub?.userId) {
+				return throwError(c, 'VALIDATION_ERROR', 'Account already created for this purchase. Please log in.')
+			}
+
+			// 6. Create user account via Better Auth
 			const result = await auth.api.signUpEmail({
 				body: { name, email, password },
 			})
 			userId = (result as unknown as { user: { id: string } }).user.id
-		} catch {
+
+			// 7. Atomic link: only succeeds if userId IS NULL (prevents race condition)
+			const linked = await db
+				.update(subscriptions)
+				.set({ userId, updatedAt: new Date() })
+				.where(
+					sql`${subscriptions.stripeSubscriptionId} = ${stripeSubscriptionId} AND ${subscriptions.userId} IS NULL`,
+				)
+
+			if (linked.rowCount === 0) {
+				// Another request linked it first — user created but subscription already taken
+				return throwError(c, 'VALIDATION_ERROR', 'Account already created for this purchase. Please log in.')
+			}
+
+			// 8. Upgrade user role to 'pro'
+			await db
+				.update(users)
+				.set({ role: 'pro', updatedAt: new Date() })
+				.where(eq(users.id, userId))
+		} catch (err) {
+			if (err instanceof Error && 'code' in err) throw err // re-throw Hono errors
 			return throwError(c, 'VALIDATION_ERROR', 'Could not create account. Email may already be registered.')
 		}
-
-		// 7. Link subscription to user
-		await db
-			.update(subscriptions)
-			.set({ userId, updatedAt: new Date() })
-			.where(eq(subscriptions.stripeSubscriptionId, stripeSubscriptionId))
-
-		// 8. Upgrade user role to 'pro'
-		await db
-			.update(users)
-			.set({ role: 'pro', updatedAt: new Date() })
-			.where(eq(users.id, userId))
 
 		// 9. Send payment confirmation + course welcome email
 		const renewalDate = new Date(periodEnd * 1000).toLocaleDateString('en-US', {
