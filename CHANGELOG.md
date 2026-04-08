@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.3.0] - 2026-04-08
+
+### Added
+- Company website with manifesto homepage, about page, legal pages (privacy + terms)
+- Blog system: markdown CMS (files as content), cluster filters (4 categories), pagination, Article JSON-LD
+- 7 SEO concept pages targeting search keywords: analysis paralysis, decision fatigue, feeling stuck, big life decisions, overthinking, stop overthinking, self-help critique
+- Concept pages with FAQ schema, DefinedTerm schema, and GEO optimization for AI citations
+- First blog post: "Why We Built The Right Decision" (founding story)
+- SEO infrastructure: meta tags, OG tags, JSON-LD schemas (Organization, Article, FAQ, Person, Breadcrumb)
+- Dynamic sitemap.xml, robots.txt (AI crawlers allowed), RSS feed
+- Shared website layout with header navigation and footer
+- Website & SEO/GEO strategy document (decisions/11-website-seo/)
+
+### Fixed
+- Path traversal protection in markdown content provider
+- JSON-LD XSS prevention (escape `<` in script tags)
+- Timezone-safe date formatting across all pages
+- Trailing slash redirect changed from permanent 301 to 308
+
 ## [0.1.2.1] - 2026-04-07
 
 ### Changed
