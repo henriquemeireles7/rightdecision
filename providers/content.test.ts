@@ -124,4 +124,19 @@ describe('content provider', () => {
     expect(courses.length).toBeGreaterThan(0)
     expect(courses[0]!.slug).toBe('life-decisions')
   })
+
+  test('practice classes have decisionPrompt', () => {
+    // Module 1, class 4 is the practice class
+    const cls = getClass('module-01/class-04')
+    expect(cls).toBeDefined()
+    expect(cls!.type).toBe('practical')
+    expect(cls!.decisionPrompt).toBeTruthy()
+  })
+
+  test('theory classes have null decisionPrompt', () => {
+    const cls = getClass('module-01/class-01')
+    expect(cls).toBeDefined()
+    expect(cls!.type).toBe('theory')
+    expect(cls!.decisionPrompt).toBeNull()
+  })
 })

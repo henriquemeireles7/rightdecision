@@ -16,6 +16,7 @@ export type CourseClass = {
   durationMinutes: number
   type: ClassType
   content: string
+  decisionPrompt: string | null
 }
 
 export type CourseModule = {
@@ -126,6 +127,7 @@ function loadCourseContent(config: CourseConfig) {
           durationMinutes: Number.parseInt(meta.duration_minutes ?? '0', 10),
           type: inferClassType(meta.slug ?? file),
           content,
+          decisionPrompt: meta.decision_prompt || null,
         }
 
         classes.push(courseClass)

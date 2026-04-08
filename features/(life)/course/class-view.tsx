@@ -1,22 +1,40 @@
-import type { CourseClass } from '@/providers/content'
+import type { CourseClass, CourseModule } from '@/providers/content'
 import { renderCourseMarkdown } from '@/providers/markdown'
+import { BottomNav } from './bottom-nav'
+import { MenuOverlay } from './menu-overlay'
+import { MicroDecision } from './micro-decision'
+import { getReadingAnalyticsScript } from './reading-analytics-client'
+import { getSessionMemoryScript } from './session-memory'
+import type { AccessTier } from './access'
 
 type ClassViewProps = {
   cls: CourseClass
   isComplete: boolean
   isLocked: boolean
+  isBookmarked: boolean
   prevClass: { id: string; title: string } | null
   nextClass: { id: string; title: string } | null
   breadcrumb: { moduleNum: number; moduleName: string; classIndex: number; totalClasses: number }
+  accessTier: AccessTier
+  modules: CourseModule[]
+  existingDecision?: {
+    response: string
+    createdAt: string
+    editable: boolean
+  } | null
 }
 
 export function ClassView({
   cls,
   isComplete,
   isLocked,
+  isBookmarked,
   prevClass,
   nextClass,
   breadcrumb,
+  accessTier,
+  modules,
+  existingDecision,
 }: ClassViewProps) {
   if (isLocked) {
     return (
@@ -39,14 +57,14 @@ export function ClassView({
   const renderedContent = renderCourseMarkdown(cls.content)
 
   return (
-    <div class={`fade-in-entry ${isPractical ? 'bg-practice' : 'bg-cream'}`}>
+    <div class={`fade-in-entry ${isPractical ? 'bg-practice' : 'bg-cream'} pb-20 md:pb-0`}>
       {/* Reading progress bar */}
       <div class="reading-progress" id="reading-progress" />
 
       {/* Breadcrumb */}
       <div class="max-w-[65ch] mx-auto px-6 pt-8 pb-2">
         <nav class="text-sm text-muted">
-          <a href="/courses/life-decisions" class="hover:text-gold transition-colors">
+          <a href={`/courses/${cls.courseSlug}`} class="hover:text-gold transition-colors">
             Module {breadcrumb.moduleNum}
           </a>
           <span class="mx-2">›</span>
@@ -74,6 +92,16 @@ export function ClassView({
           dangerouslySetInnerHTML={{ __html: renderedContent }}
         />
 
+        {/* Micro-Decision (if practice class has a decision prompt) */}
+        {cls.decisionPrompt && (
+          <MicroDecision
+            classId={cls.id}
+            courseSlug={cls.courseSlug}
+            prompt={cls.decisionPrompt}
+            existingDecision={existingDecision}
+          />
+        )}
+
         {/* Mark complete */}
         <div class="border-t border-linen pt-8 mt-12 flex items-center justify-between">
           {!isComplete ? (
@@ -93,7 +121,7 @@ export function ClassView({
         {/* Previous / Next navigation */}
         <nav class="border-t border-linen pt-8 mt-8 grid grid-cols-2 gap-4">
           {prevClass ? (
-            <a href={`/class/${prevClass.id}`} class="group">
+            <a href={`/courses/${cls.courseSlug}/class/${prevClass.id}`} class="group">
               <div class="text-xs text-muted mb-1">← Previous</div>
               <div class="font-display text-ink group-hover:text-gold transition-colors">
                 {prevClass.title}
@@ -103,7 +131,7 @@ export function ClassView({
             <div />
           )}
           {nextClass ? (
-            <a href={`/class/${nextClass.id}`} class="group text-right">
+            <a href={`/courses/${cls.courseSlug}/class/${nextClass.id}`} class="group text-right">
               <div class="text-xs text-muted mb-1">Next →</div>
               <div class="font-display text-ink group-hover:text-gold transition-colors">
                 {nextClass.title}
@@ -115,15 +143,30 @@ export function ClassView({
         </nav>
       </article>
 
-      {/* Inline scripts: reading progress + menu toggle */}
+      {/* Mobile Bottom Nav */}
+      <BottomNav
+        prevClassId={prevClass?.id ?? null}
+        nextClassId={nextClass?.id ?? null}
+        classId={cls.id}
+        isBookmarked={isBookmarked}
+      />
+
+      {/* Menu Overlay */}
+      <MenuOverlay accessTier={accessTier} modules={modules} />
+
+      {/* Inline scripts: reading progress + menu toggle + analytics + session memory */}
       <script
-        // biome-ignore lint/security/noDangerouslySetInnerHtml: inline scripts for progress bar and menu
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: inline scripts
         dangerouslySetInnerHTML={{
           __html: [
             // Reading progress bar
             `(function(){var b=document.getElementById('reading-progress');if(!b)return;var t=function(){var h=document.documentElement.scrollHeight-window.innerHeight;b.style.width=h>0?Math.min(100,window.scrollY/h*100)+'%':'0%'};window.addEventListener('scroll',t,{passive:true});t()})()`,
             // Menu toggle (data-action handlers)
             `document.addEventListener('click',function(e){var t=e.target.closest('[data-action]');if(!t)return;var a=t.getAttribute('data-action'),m=document.getElementById('menu-overlay');if(m){if(a==='open-menu')m.classList.remove('hidden');if(a==='close-menu')m.classList.add('hidden')}})`,
+            // Reading analytics
+            getReadingAnalyticsScript(cls.id, cls.courseSlug),
+            // Session memory
+            getSessionMemoryScript(cls.id, cls.courseSlug),
           ].join(';'),
         }}
       />

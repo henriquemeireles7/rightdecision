@@ -7,6 +7,7 @@ import { metadataRoutes } from '@/features/(business)/metadata-generate/routes'
 import { postDistributeRoutes } from '@/features/(business)/post-distribute/routes'
 import { transcribeRoutes } from '@/features/(business)/transcribe/routes'
 import { bookmarkRoutes } from '@/features/(life)/course/bookmark-routes'
+import { coursePageRoutes } from '@/features/(life)/course/page-routes'
 import { analyticsReadingRoutes } from '@/features/(life)/course/analytics-routes'
 import { decisionRoutes } from '@/features/(life)/course/decision-routes'
 import { journeyRoutes } from '@/features/(life)/course/journey-routes'
@@ -56,6 +57,9 @@ export function mountRoutes(app: Hono) {
       .route('/api/post-distribute', postDistributeRoutes)
       .route('/api/analytics-collect', analyticsRoutes)
       .route('/api/insights', insightRoutes)
+      // ─── Course SSR Pages ───
+      .route('/courses', coursePageRoutes)
+      .route('/', coursePageRoutes) // /journey route
       // Auth pages — BEFORE website catch-all
       .route('/', authPageRoutes)
       // Website — AFTER all /api/* routes (homepage, LP at /life, blog, concepts, legal)
