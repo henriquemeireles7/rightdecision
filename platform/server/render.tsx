@@ -6,6 +6,7 @@ interface PageOptions {
   description?: string
   ogImage?: string
   ogTitle?: string
+  ogType?: 'website' | 'article'
   canonical?: string
   keywords?: string[]
   posthogKey?: string
@@ -35,8 +36,8 @@ export function renderPage(component: VNode, options: PageOptions = {}): string 
   <meta name="description" content="${esc(desc)}" />
   <meta property="og:title" content="${esc(options.ogTitle || title)}" />
   <meta property="og:description" content="${esc(desc)}" />
-  ${options.ogImage ? `<meta property="og:image" content="${esc(options.ogImage)}" />` : ''}
-  <meta property="og:type" content="website" />
+  ${options.ogImage ? `<meta property="og:image" content="${esc(options.ogImage)}" />\n  <meta name="twitter:card" content="summary_large_image" />\n  <meta name="twitter:image" content="${esc(options.ogImage)}" />` : ''}
+  <meta property="og:type" content="${options.ogType ?? 'website'}" />
   ${options.canonical ? `<link rel="canonical" href="${esc(options.canonical)}" />` : ''}
   ${options.keywords?.length ? `<meta name="keywords" content="${esc(options.keywords.join(', '))}" />` : ''}
   <link rel="preload" href="/fonts/InstrumentSerif-Regular.woff2" as="font" type="font/woff2" crossorigin />

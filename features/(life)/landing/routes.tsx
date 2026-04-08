@@ -42,6 +42,7 @@ landingRoutes.get('/', (c) => {
       title: 'The Right Decision — Life Decisions Course',
       description:
         'A methodology + AI that turns stuck goals into clear decisions. $197/year. 7-day guarantee.',
+      ogImage: `${baseUrl}/og/why-we-built-the-right-decision.png`,
       canonical: `${baseUrl}/life`,
       posthogKey: env.PUBLIC_POSTHOG_KEY,
       posthogHost: env.POSTHOG_HOST,

@@ -30,11 +30,12 @@ describe('renderPage', () => {
     expect(html).toContain('content="A description"')
   })
 
-  test('includes Google Fonts link', () => {
+  test('preloads self-hosted fonts', () => {
     const html = renderPage(<div />)
-    expect(html).toContain('fonts.googleapis.com')
-    expect(html).toContain('Instrument+Serif')
-    expect(html).toContain('Instrument+Sans')
+    expect(html).not.toContain('fonts.googleapis.com')
+    expect(html).toContain('InstrumentSerif-Regular.woff2')
+    expect(html).toContain('InstrumentSans-Regular.woff2')
+    expect(html).toContain('rel="preload"')
   })
 
   test('includes /styles.css link', () => {
@@ -67,10 +68,22 @@ describe('renderPage', () => {
     expect(html).toContain('https://example.com')
   })
 
-  test('includes og:image when provided', () => {
+  test('includes og:image and twitter:image when provided', () => {
     const html = renderPage(<div />, { ogImage: 'https://example.com/img.png' })
     expect(html).toContain('og:image')
+    expect(html).toContain('twitter:image')
+    expect(html).toContain('twitter:card')
     expect(html).toContain('https://example.com/img.png')
+  })
+
+  test('uses ogType when provided', () => {
+    const html = renderPage(<div />, { ogType: 'article' })
+    expect(html).toContain('og:type" content="article"')
+  })
+
+  test('defaults ogType to website', () => {
+    const html = renderPage(<div />)
+    expect(html).toContain('og:type" content="website"')
   })
 
   test('includes PostHog script when posthogKey is provided', () => {

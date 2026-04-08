@@ -65,6 +65,7 @@ websiteRoutes.get('/', async (c) => {
       title: 'The Right Decision — Solving Decision-Making with AI',
       description:
         'A methodology + AI platform for personal and business decisions. Life transformation through action, not introspection.',
+      ogImage: `${baseUrl}/og/why-we-built-the-right-decision.png`,
       canonical: baseUrl,
     }).replace('</head>', `${jsonLd}\n</head>`),
   )
@@ -89,6 +90,7 @@ websiteRoutes.get('/about', (c) => {
       title: 'About The Right Decision — Henry & Indy',
       description:
         'The story behind The Right Decision. Built by Henry and Indy to help you stop understanding and start deciding.',
+      ogImage: `${baseUrl}/og/why-we-built-the-right-decision.png`,
       canonical: `${baseUrl}/about`,
     }).replace('</head>', `${jsonLd}\n</head>`),
   )
