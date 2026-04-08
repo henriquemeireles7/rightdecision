@@ -1,11 +1,10 @@
+import { sql } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/postgres-js'
 import { migrate } from 'drizzle-orm/postgres-js/migrator'
-import { sql } from 'drizzle-orm'
 import postgres from 'postgres'
 import * as schema from '@/platform/db/schema'
 
-const TEST_DATABASE_URL =
-  process.env.DATABASE_URL ?? 'postgresql://test:test@localhost:5432/test'
+const TEST_DATABASE_URL = process.env.DATABASE_URL ?? 'postgresql://test:test@localhost:5432/test'
 
 const client = postgres(TEST_DATABASE_URL)
 export const testDb = drizzle(client, { schema })

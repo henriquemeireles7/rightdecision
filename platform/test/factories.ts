@@ -1,13 +1,13 @@
-import { testDb } from './setup'
 import {
-  users,
-  sessions,
-  subscriptions,
-  wins,
   onboardingProfiles,
   pipelineRuns,
   platformAccounts,
+  sessions,
+  subscriptions,
+  users,
+  wins,
 } from '@/platform/db/schema'
+import { testDb } from './setup'
 
 let counter = 0
 function nextId() {
@@ -15,9 +15,7 @@ function nextId() {
   return counter
 }
 
-export async function createTestUser(
-  overrides: Partial<typeof users.$inferInsert> = {},
-) {
+export async function createTestUser(overrides: Partial<typeof users.$inferInsert> = {}) {
   const n = nextId()
   const [user] = await testDb
     .insert(users)

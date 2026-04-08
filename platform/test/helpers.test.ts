@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { apiCall, authenticatedRequest, assertError, assertSuccess } from '@/platform/test/helpers'
+import { apiCall, assertError, assertSuccess, authenticatedRequest } from '@/platform/test/helpers'
 
 describe('test helpers', () => {
   test('exports all helper functions', () => {

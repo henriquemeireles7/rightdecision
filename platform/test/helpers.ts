@@ -46,10 +46,7 @@ export async function authenticatedRequest(
 /**
  * Assert the response matches the throwError() shape for a given error code.
  */
-export function assertError(
-  response: { status: number; body: unknown },
-  errorCode: ErrorCode,
-) {
+export function assertError(response: { status: number; body: unknown }, errorCode: ErrorCode) {
   const expected = errors[errorCode]
   expect(response.status).toBe(expected.status)
   const body = response.body as Record<string, unknown>
