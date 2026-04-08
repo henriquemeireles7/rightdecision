@@ -33,9 +33,11 @@ decisionRoutes.post('/save', requireAuth, zValidator('json', saveSchema), async 
   })
 })
 
-decisionRoutes.get('/:classId', requireAuth, async (c) => {
+const classIdSchema = z.object({ classId: z.string().min(1).regex(/^module-\d+\/class-\d+$/) })
+
+decisionRoutes.get('/:classId', requireAuth, zValidator('param', classIdSchema), async (c) => {
   const user = c.get('user')
-  const classId = c.req.param('classId')
+  const { classId } = c.req.valid('param')
 
   const decision = await getDecision(user.id, classId)
   if (!decision) {

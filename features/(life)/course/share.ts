@@ -1,7 +1,17 @@
 import satori from 'satori'
 import { Resvg } from '@resvg/resvg-js'
 
+const MAX_CACHE_SIZE = 500
 const imageCache = new Map<string, Buffer>()
+
+function cacheSet(key: string, value: Buffer) {
+  if (imageCache.size >= MAX_CACHE_SIZE) {
+    // Evict oldest entry (first inserted)
+    const firstKey = imageCache.keys().next().value
+    if (firstKey) imageCache.delete(firstKey)
+  }
+  imageCache.set(key, value)
+}
 
 function sanitizeText(text: string): string {
   return text
@@ -15,11 +25,12 @@ function sanitizeText(text: string): string {
 async function loadFont(): Promise<ArrayBuffer> {
   const res = await fetch(
     'https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap',
+    { signal: AbortSignal.timeout(10000) },
   )
   const css = await res.text()
   const fontUrl = css.match(/url\(([^)]+)\)/)?.[1]
   if (!fontUrl) throw new Error('Could not extract font URL')
-  const fontRes = await fetch(fontUrl)
+  const fontRes = await fetch(fontUrl, { signal: AbortSignal.timeout(10000) })
   return fontRes.arrayBuffer()
 }
 
@@ -114,12 +125,12 @@ export async function generateDecisionCard(decisionText: string): Promise<Buffer
     const resvg = new Resvg(svg, { fitTo: { mode: 'width', value: 1200 } })
     const pngData = resvg.render()
     const png = Buffer.from(pngData.asPng())
-    imageCache.set(cacheKey, png)
+    cacheSet(cacheKey, png)
     return png
   } catch {
     // SVG fallback if resvg has Bun issues
     const svgBuffer = Buffer.from(svg)
-    imageCache.set(cacheKey, svgBuffer)
+    cacheSet(cacheKey, svgBuffer)
     return svgBuffer
   }
 }

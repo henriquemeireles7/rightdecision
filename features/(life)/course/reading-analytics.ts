@@ -33,6 +33,7 @@ export async function getReadingStats(userId: string, courseSlug?: string) {
 
   const rows = await db.query.readingAnalytics.findMany({
     where: and(...conditions),
+    limit: 500,
   })
 
   const totalTimeSec = rows.reduce((sum, r) => sum + r.timeSpentSec, 0)

@@ -58,5 +58,6 @@ export async function getUserDecisions(userId: string, courseSlug?: string) {
   return db.query.userDecisions.findMany({
     where: and(...conditions),
     orderBy: [desc(userDecisions.createdAt)],
+    limit: 200,
   })
 }
