@@ -311,6 +311,15 @@ export const postAnalytics = pgTable(
   ],
 )
 
+// ─── Webhook Events (idempotency tracking for Stripe webhooks) ───
+export const webhookEvents = pgTable('webhook_events', {
+	id: uuid('id').defaultRandom().primaryKey(),
+	stripeEventId: text('stripe_event_id').notNull().unique(),
+	eventType: text('event_type').notNull(),
+	processedAt: timestamp('processed_at').notNull().defaultNow(),
+	createdAt: timestamp('created_at').notNull().defaultNow(),
+})
+
 // ─── Insights (BD: AI-generated actionable recommendations) ───
 export const insights = pgTable('insights', {
   id: uuid('id').defaultRandom().primaryKey(),
