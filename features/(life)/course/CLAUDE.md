@@ -1,13 +1,29 @@
 # course
 
 ## Purpose
-Course access logic: free/paid gating, content delivery, progress tracking integration.
+Course experience: editorial reading room, micro-decisions, journey timeline, reading analytics,
+share cards, bookmarks, progress tracking, and access gating (free/paid).
 
 ## Critical Rules
 - Module 0 (onboarding) and Module 1 are FREE — no subscription required
 - Modules 2-9 require active subscription (check subscriptions table, not role)
 - NEVER gate on user role — gate on subscription status
 - Access check is at the class level, not module level
+- ALWAYS use renderCourseMarkdown() for course content (NOT renderMarkdown)
+- Micro-decisions have a 5-minute edit window — after that, locked forever
+- Reading analytics is fire-and-forget — NEVER let analytics failure break reading
+- Content is trusted local .mdx files — no DOMPurify needed server-side
+- Share card text MUST be sanitized (stripHtml) before rendering with satori
+
+## Imports (use from other modules)
+```ts
+import { renderCourseMarkdown } from '@/providers/markdown'
+import { getClass, getModule, getAllModules, getCourse } from '@/providers/content'
+import type { CourseClass, CourseModule, Course } from '@/providers/content'
+import { requireAuth } from '@/platform/auth/middleware'
+import { throwError } from '@/platform/errors'
+import { success } from '@/platform/server/responses'
+```
 
 ---
 <!-- AUTO-GENERATED BELOW — do not edit manually -->

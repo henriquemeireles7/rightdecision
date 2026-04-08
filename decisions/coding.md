@@ -1,6 +1,6 @@
 # Coding — How We Build Software
 
-> Last verified: 2026-04-06
+> Last verified: 2026-04-08
 > Full architecture: decisions/001-architecture.md
 
 ## Data Flow
@@ -193,15 +193,23 @@ pages/        →(renders)→                          the user
 
 ## Content Layer
 Course content lives as markdown files in `content/`, not in the database.
+Multi-course registry: `content/courses.json`. Each course has its own directory.
 ```
 content/
-├── course/
-│   └── en/                    # English (source of truth)
-│       ├── module-00-onboarding/
-│       ├── module-01-.../
-│       └── module-09-.../
+├── courses.json               # Course registry (slug, title, contentDir, status)
+├── courses/
+│   └── life-decisions/
+│       └── en/                # English (source of truth)
+│           ├── module-00-onboarding/
+│           ├── module-01-.../
+│           └── module-09-.../
+├── blog/                      # Blog posts
+├── concepts/                  # SEO concept pages
+├── legal/                     # Legal pages
 └── skills/                    # AI skills for Claude Cowork (future)
 ```
+**Content rendering:** Use `renderCourseMarkdown()` from `providers/markdown.ts` for course content.
+Supports `> [!quote]` (pull quotes) and `> [!insight]` (callout boxes). First paragraph gets drop cap.
 **Frontmatter schema (course .mdx files):**
 ```yaml
 ---
