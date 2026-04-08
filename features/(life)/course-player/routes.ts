@@ -24,5 +24,7 @@ courseRoutes.get('/', requireAuth, async (c) => {
     where: eq(courseProgress.userId, user.id),
   })
 
-  return success(c, { completedClasses: progress.map((p) => ({ classId: p.classId, courseId: p.courseId })) })
+  return success(c, {
+    completedClasses: progress.map((p) => ({ classId: p.classId, courseId: p.courseId })),
+  })
 })

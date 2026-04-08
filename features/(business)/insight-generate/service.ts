@@ -1,7 +1,7 @@
-import { desc, gte, lte, and, count } from 'drizzle-orm'
+import { and, count, desc, gte, lte } from 'drizzle-orm'
+import { z } from 'zod'
 import { db } from '@/platform/db/client'
 import { insights, postAnalytics } from '@/platform/db/schema'
-import { z } from 'zod'
 
 export const insightInputSchema = z.object({
   dateRange: z.object({

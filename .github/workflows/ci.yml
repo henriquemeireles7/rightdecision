@@ -6,6 +6,25 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    env:
+      DATABASE_URL: postgresql://test:test@localhost:5432/test
+      STRIPE_SECRET_KEY: sk_test_placeholder
+      STRIPE_WEBHOOK_SECRET: whsec_placeholder
+      STRIPE_PRICE_ID: price_placeholder
+      RESEND_API_KEY: re_placeholder
+      BETTER_AUTH_SECRET: test-secret-that-is-at-least-32-characters-long
+      PUBLIC_APP_URL: http://localhost:3000
+      PUBLIC_STRIPE_KEY: pk_test_placeholder
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
@@ -17,7 +36,7 @@ jobs:
         run: bunx biome ci .
 
       - name: Typecheck
-        run: tsc --noEmit
+        run: bunx tsc --noEmit
 
-      - name: Test
-        run: bun test
+      - name: Test + Coverage
+        run: bun test --coverage

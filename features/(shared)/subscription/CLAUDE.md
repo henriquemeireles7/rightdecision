@@ -40,6 +40,8 @@ bun test features/subscription/
 - platform/db
 - platform/env
 - platform/errors
+- platform/server
+- providers/analytics
 - providers/payments
 
-<!-- Generated: 2026-04-06T23:27:10.492Z -->
+<!-- Generated: 2026-04-08T05:22:13.833Z -->

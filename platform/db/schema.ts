@@ -1,4 +1,14 @@
-import { boolean, index, integer, jsonb, pgTable, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core'
+import {
+  boolean,
+  index,
+  integer,
+  jsonb,
+  pgTable,
+  text,
+  timestamp,
+  uniqueIndex,
+  uuid,
+} from 'drizzle-orm/pg-core'
 
 // ─── Users ───
 export const users = pgTable('users', {
@@ -168,7 +178,18 @@ export const bookmarks = pgTable(
 export const platformAccounts = pgTable('platform_accounts', {
   id: uuid('id').defaultRandom().primaryKey(),
   platform: text('platform', {
-    enum: ['tiktok', 'instagram', 'facebook', 'x', 'youtube', 'threads', 'linkedin', 'pinterest', 'reddit', 'bluesky'],
+    enum: [
+      'tiktok',
+      'instagram',
+      'facebook',
+      'x',
+      'youtube',
+      'threads',
+      'linkedin',
+      'pinterest',
+      'reddit',
+      'bluesky',
+    ],
   }).notNull(),
   accountHandle: text('account_handle').notNull(),
   accountType: text('account_type', { enum: ['brand', 'personal'] }).notNull(),
@@ -192,12 +213,26 @@ export const pipelineRuns = pgTable(
     category: text('category'),
     status: text('status', {
       enum: [
-        'queued', 'transcribing', 'transcribed', 'selecting', 'selected',
-        'awaiting_clip_approval', 'cutting', 'cut', 'generating_metadata',
-        'metadata_ready', 'awaiting_metadata_approval', 'posting',
-        'posted', 'analyzing', 'completed', 'failed',
+        'queued',
+        'transcribing',
+        'transcribed',
+        'selecting',
+        'selected',
+        'awaiting_clip_approval',
+        'cutting',
+        'cut',
+        'generating_metadata',
+        'metadata_ready',
+        'awaiting_metadata_approval',
+        'posting',
+        'posted',
+        'analyzing',
+        'completed',
+        'failed',
       ],
-    }).notNull().default('queued'),
+    })
+      .notNull()
+      .default('queued'),
     stepFailedAt: text('step_failed_at'),
     errorMessage: text('error_message'),
     transcript: text('transcript'),

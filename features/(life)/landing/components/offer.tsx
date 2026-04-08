@@ -13,7 +13,7 @@ const INCLUDED = [
 const NOT_INCLUDED = [
   "No live coaching or calls — because we don't want you dependent on us",
   'No traditional community or forums — but a Wins Board where you can share victories (coming soon)',
-  "No \"motivation\" — because motivation is not the problem. Decisions are.",
+  'No "motivation" — because motivation is not the problem. Decisions are.',
 ]
 
 export function OfferSection() {
@@ -49,14 +49,12 @@ export function OfferSection() {
           <div class="mt-8 pt-6 border-t border-linen text-body space-y-2">
             <p>One therapy session: $150-300.</p>
             <p>
-              <span class="text-ink font-semibold">
-                The Right Decision: $197 for a full year.
-              </span>{' '}
+              <span class="text-ink font-semibold">The Right Decision: $197 for a full year.</span>{' '}
               That's $16/month. Less than one therapy session.
             </p>
             <p>
-              And while therapy helps you understand the past, The Right Decision
-              helps you decide the future.
+              And while therapy helps you understand the past, The Right Decision helps you decide
+              the future.
             </p>
           </div>
 
@@ -64,20 +62,16 @@ export function OfferSection() {
           <div class="mt-8 rounded-[12px] border-2 border-warning p-6 bg-cream">
             <p class="text-ink font-semibold">7-day money-back guarantee.</p>
             <p class="mt-2 text-body text-sm">
-              Try the course for a week. Do Module 1. If it's not for you, email
-              us and get a full refund. No questions. No guilt.
+              Try the course for a week. Do Module 1. If it's not for you, email us and get a full
+              refund. No questions. No guilt.
             </p>
             <p class="mt-2 text-muted text-sm italic">
-              We'd rather lose a sale than keep a student who isn't in the right
-              place for this.
+              We'd rather lose a sale than keep a student who isn't in the right place for this.
             </p>
           </div>
 
           <div class="mt-8 text-center">
-            <CTAButton
-              text="Start for $197/year — 7-day guarantee"
-              className="w-full md:w-auto"
-            />
+            <CTAButton text="Start for $197/year — 7-day guarantee" className="w-full md:w-auto" />
           </div>
         </div>
       </div>

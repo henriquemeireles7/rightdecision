@@ -5,6 +5,7 @@ import { subscriptions } from '@/platform/db/schema'
 import { env } from '@/platform/env'
 import { throwError } from '@/platform/errors'
 import { success } from '@/platform/server/responses'
+import { track } from '@/providers/analytics'
 import { payments } from '@/providers/payments'
 
 export const webhookRoutes = new Hono()
@@ -54,6 +55,12 @@ webhookRoutes.post('/', async (c) => {
         })
         .onConflictDoNothing({ target: subscriptions.stripeSubscriptionId })
 
+      track('checkout_completed', {
+        plan: 'course',
+        price: session.amount_total,
+        payment_method: session.payment_method_types?.[0],
+      }, customerId)
+
       break
     }
 
@@ -64,7 +71,11 @@ webhookRoutes.post('/', async (c) => {
         status: string
         current_period_end: number
       }
-      const status = sub.cancel_at_period_end ? 'cancelled' : (sub.status === 'active' ? 'active' : 'past_due')
+      const status = sub.cancel_at_period_end
+        ? 'cancelled'
+        : sub.status === 'active'
+          ? 'active'
+          : 'past_due'
 
       await db
         .update(subscriptions)
@@ -86,6 +97,12 @@ webhookRoutes.post('/', async (c) => {
           updatedAt: new Date(),
         })
         .where(eq(subscriptions.stripeSubscriptionId, event.data.object.id))
+
+      const cancelledCustomerId =
+        typeof event.data.object.customer === 'string'
+          ? event.data.object.customer
+          : (event.data.object.customer?.id ?? undefined)
+      track('subscription_cancelled', { plan: 'course' }, cancelledCustomerId)
 
       break
     }

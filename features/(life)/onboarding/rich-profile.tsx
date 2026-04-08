@@ -5,7 +5,14 @@ type RichProfileProps = {
 
 const LIFE_AREAS = ['Career', 'Finances', 'Health', 'Relationships', 'Purpose'] as const
 const AGE_RANGES = ['18-24', '25-30', '31-40', '41-50', '51-60', '60+'] as const
-const TIME_STUCK = ['Less than a month', '1-3 months', '3-6 months', '6-12 months', '1-2 years', '2+ years'] as const
+const TIME_STUCK = [
+  'Less than a month',
+  '1-3 months',
+  '3-6 months',
+  '6-12 months',
+  '1-2 years',
+  '2+ years',
+] as const
 
 export function RichProfileScreen({ throughlineNamed, userName }: RichProfileProps) {
   return (
@@ -30,7 +37,9 @@ export function RichProfileScreen({ throughlineNamed, userName }: RichProfilePro
             <label class="block text-sm font-medium text-neutral-700 mb-2">Age range</label>
             <select name="ageRange" class="w-full border rounded-lg px-4 py-3 bg-white">
               <option value="">Select...</option>
-              {AGE_RANGES.map((range) => <option value={range}>{range}</option>)}
+              {AGE_RANGES.map((range) => (
+                <option value={range}>{range}</option>
+              ))}
             </select>
           </div>
 
@@ -41,7 +50,12 @@ export function RichProfileScreen({ throughlineNamed, userName }: RichProfilePro
             <div class="space-y-2">
               {LIFE_AREAS.map((area) => (
                 <label class="flex items-center gap-3 px-4 py-3 bg-white border rounded-lg cursor-pointer hover:border-amber-300">
-                  <input type="checkbox" name="lifeAreas" value={area.toLowerCase()} class="accent-amber-700" />
+                  <input
+                    type="checkbox"
+                    name="lifeAreas"
+                    value={area.toLowerCase()}
+                    class="accent-amber-700"
+                  />
                   <span>{area}</span>
                 </label>
               ))}
@@ -53,12 +67,19 @@ export function RichProfileScreen({ throughlineNamed, userName }: RichProfilePro
               Have you tried self-help or coaching before?
             </label>
             <div class="space-y-2">
-              {['Books', 'Coaching', 'Therapy', 'Courses', 'Nothing — this is my first'].map((opt) => (
-                <label class="flex items-center gap-3 px-4 py-3 bg-white border rounded-lg cursor-pointer hover:border-amber-300">
-                  <input type="checkbox" name="triedBefore" value={opt.toLowerCase()} class="accent-amber-700" />
-                  <span>{opt}</span>
-                </label>
-              ))}
+              {['Books', 'Coaching', 'Therapy', 'Courses', 'Nothing — this is my first'].map(
+                (opt) => (
+                  <label class="flex items-center gap-3 px-4 py-3 bg-white border rounded-lg cursor-pointer hover:border-amber-300">
+                    <input
+                      type="checkbox"
+                      name="triedBefore"
+                      value={opt.toLowerCase()}
+                      class="accent-amber-700"
+                    />
+                    <span>{opt}</span>
+                  </label>
+                ),
+              )}
             </div>
           </div>
 
@@ -68,15 +89,23 @@ export function RichProfileScreen({ throughlineNamed, userName }: RichProfilePro
             </label>
             <select name="timeStuck" class="w-full border rounded-lg px-4 py-3 bg-white">
               <option value="">Select...</option>
-              {TIME_STUCK.map((t) => <option value={t}>{t}</option>)}
+              {TIME_STUCK.map((t) => (
+                <option value={t}>{t}</option>
+              ))}
             </select>
           </div>
 
-          <button type="submit" class="w-full bg-amber-700 text-white px-6 py-4 rounded-lg text-lg font-medium hover:bg-amber-800 transition-colors">
+          <button
+            type="submit"
+            class="w-full bg-amber-700 text-white px-6 py-4 rounded-lg text-lg font-medium hover:bg-amber-800 transition-colors"
+          >
             Start my course
           </button>
 
-          <a href="/course" class="block text-center text-sm text-neutral-500 hover:text-neutral-700">
+          <a
+            href="/course"
+            class="block text-center text-sm text-neutral-500 hover:text-neutral-700"
+          >
             Skip — I'll do this later
           </a>
         </form>

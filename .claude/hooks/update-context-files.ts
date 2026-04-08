@@ -1,6 +1,6 @@
 import { spawnSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
-import { dirname, join } from 'node:path'
+import { dirname, join, resolve } from 'node:path'
 import { updateClaudeMd } from './lib/update-claude-md'
 
 const input = await Bun.stdin.json()
@@ -10,7 +10,8 @@ if (input.stop_hook_active) {
   process.exit(0)
 }
 
-const cwd = '/Users/henriquemeireles/conductor/workspaces/getzeny/da-nang'
+// Dynamic cwd: hooks live in .claude/hooks/, project root is two levels up
+const cwd = resolve(import.meta.dir, '../..')
 
 // Get changed files from git
 const gitDiff = spawnSync('git', ['diff', '--name-only', '--diff-filter=ACM'], {

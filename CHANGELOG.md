@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.3.0] - 2026-04-08
+
+### Added
+- PostHog analytics: server-side provider (track, identify, shutdown), client-side JS SDK (lazy-loaded), 13 event taxonomy, session replay, 3 feature flags, 5 dashboards
+- Test infrastructure: platform/test/ with DB setup, 7 factories, 4 helpers, shared mockSchema()
+- 120 new tests: 9 service test files + BD pipeline integration test (306 total)
+- Error tracking middleware: server onError + client window.onerror/onunhandledrejection
+- Nightwatch daily trigger: automated health check, dep patches, doc sync, QA at 2:03am
+- New skills: d-autoreview (unified review chain), DRY reuse checklist in d-tasks/d-code
+- Universal file sync step in d-plan and /ship workflows
+- Local test database documentation in CLAUDE.md
+
+### Changed
+- CI pipeline: PostgreSQL service container, test coverage, placeholder env vars, bunx tsc
+- Railway: preDeployCommand for automatic DB migrations
+- Biome config: fixed invalid 'ignore' key, added gstack/beads exclusions
+- Analytics provider: sync track/identify with try/catch (non-critical, never crashes)
+
+### Fixed
+- XSS in render.tsx: PostHog key escaped with JSON.stringify + unicode for JS context
+- Stack traces removed from PostHog error events (data exposure risk)
+- subscription_cancelled event now includes customer distinctId
+- GitHub Dependabot enabled for automated dependency vulnerability scanning
+- Stop hook: removed git add auto-staging (caused 600+ formatting cascades between agents)
+- Conductor setup: .env check uses -s (non-empty) instead of -f (exists), preventing empty .env
+- Conductor setup: Agent Mail server + dev server auto-start on workspace creation
+- Agent Mail MCP protocol documented in CLAUDE.md with concrete tool names
+- Reverted 158 gstack vendor files incorrectly reformatted by old stop hook
+
 ## [0.1.2.1] - 2026-04-07
 
 ### Changed

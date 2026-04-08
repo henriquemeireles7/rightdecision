@@ -1,12 +1,18 @@
 import { zValidator } from '@hono/zod-validator'
 import { Hono } from 'hono'
 import { z } from 'zod'
-import { throwError } from '@/platform/errors'
-import type { ErrorCode } from '@/platform/errors'
-import { success, paginated, created } from '@/platform/server/responses'
-import type { AppEnv } from '@/platform/types'
 import { requireAuth } from '@/platform/auth/middleware'
-import { startTranscription, processTranscription, getPipelineRun, listPipelineRuns, getClipsForRun } from './service'
+import type { ErrorCode } from '@/platform/errors'
+import { throwError } from '@/platform/errors'
+import { created, paginated, success } from '@/platform/server/responses'
+import type { AppEnv } from '@/platform/types'
+import {
+  getClipsForRun,
+  getPipelineRun,
+  listPipelineRuns,
+  processTranscription,
+  startTranscription,
+} from './service'
 
 const transcribeSchema = z.object({
   videoUrl: z.string().min(1),

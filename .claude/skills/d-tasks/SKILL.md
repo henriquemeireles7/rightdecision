@@ -242,6 +242,14 @@ Each task MUST include:
 - **Acceptance criteria** (include as `ACCEPTANCE:` section at the end of `-d` description):
   - How to verify it works
   - Specific test cases
+- **Reuse Checklist** (include in description to prevent DRY violations):
+  ```
+  REUSE CHECK:
+  - [ ] Searched for existing helpers that overlap with this task
+  - [ ] Checked platform/errors.ts for applicable error codes
+  - [ ] Checked providers/ for existing integration patterns
+  - [ ] No new utility created if existing one can be extended
+  ```
 - **Priority:** 0 (critical/blocking) to 4 (backlog)
 - **Labels:** Comma-separated: schema, feature, platform, provider, test, page, config
 - **Parent:** `--parent <epic-id>` (hierarchical, does NOT block children)

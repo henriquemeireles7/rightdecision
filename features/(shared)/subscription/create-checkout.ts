@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { env } from '@/platform/env'
 import { throwError } from '@/platform/errors'
 import { success } from '@/platform/server/responses'
+import { track } from '@/providers/analytics'
 import { payments, plans } from '@/providers/payments'
 
 const checkoutSchema = z.object({
@@ -22,6 +23,7 @@ checkoutRoutes.get('/redirect', async (c) => {
       cancel_url: env.PUBLIC_APP_URL,
       allow_promotion_codes: true,
     })
+    track('checkout_started', { plan: 'course', price: plans.course.priceId })
     if (!session.url) return c.redirect(env.PUBLIC_APP_URL, 303)
     return c.redirect(session.url, 303)
   } catch (error) {

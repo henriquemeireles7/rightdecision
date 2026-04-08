@@ -1,9 +1,9 @@
 import { zValidator } from '@hono/zod-validator'
 import { Hono } from 'hono'
 import { z } from 'zod'
+import { requireAuth } from '@/platform/auth/middleware'
 import { success } from '@/platform/server/responses'
 import type { AppEnv } from '@/platform/types'
-import { requireAuth } from '@/platform/auth/middleware'
 import { collectAnalytics } from './service'
 
 const collectSchema = z.object({

@@ -5,15 +5,20 @@ const BASE_URL = 'https://app.upload-post.com/api/v1'
 const MAX_RETRIES = 3
 const RETRY_BASE_MS = 500
 
-async function request<T>(path: string, options: RequestInit = {}, retries = MAX_RETRIES): Promise<T> {
+async function request<T>(
+  path: string,
+  options: RequestInit = {},
+  retries = MAX_RETRIES,
+): Promise<T> {
   const apiKey = env.UPLOAD_POST_API_KEY
-  if (!apiKey) throw new ProviderError('upload-post', 'auth', 401, 'UPLOAD_POST_API_KEY not configured')
+  if (!apiKey)
+    throw new ProviderError('upload-post', 'auth', 401, 'UPLOAD_POST_API_KEY not configured')
 
   const url = `${BASE_URL}${path}`
   const response = await fetch(url, {
     ...options,
     headers: {
-      'Authorization': `Bearer ${apiKey}`,
+      Authorization: `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
       ...options.headers,
     },

@@ -19,15 +19,9 @@ export function CTAButton({
   )
 }
 
-export function ScrollCTA({
-  text,
-  targetId,
-}: { text: string; targetId: string }) {
+export function ScrollCTA({ text, targetId }: { text: string; targetId: string }) {
   return (
-    <a
-      href={`#${targetId}`}
-      class="text-gold hover:text-gold-hover font-semibold"
-    >
+    <a href={`#${targetId}`} class="text-gold hover:text-gold-hover font-semibold">
       {text} &rarr;
     </a>
   )

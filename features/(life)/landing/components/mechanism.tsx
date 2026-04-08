@@ -34,12 +34,10 @@ export function MechanismSection() {
             Why nothing has worked until now
           </h2>
           <p>
-            Every self-help framework you've tried does the same thing: it helps
-            you understand the PAST.
+            Every self-help framework you've tried does the same thing: it helps you understand the
+            PAST.
           </p>
-          <p>
-            None of them ask the one question that actually changes your life:
-          </p>
+          <p>None of them ask the one question that actually changes your life:</p>
           <p class="text-ink font-semibold text-lg">
             "What are you going to DO about it? Specifically? By when?"
           </p>
@@ -55,10 +53,8 @@ export function MechanismSection() {
                 General improvement feels productive but changes nothing.
               </li>
               <li>
-                <span class="text-ink font-semibold">
-                  You plan without committing.
-                </span>{' '}
-                Beautiful intentions without a date and a witness.
+                <span class="text-ink font-semibold">You plan without committing.</span> Beautiful
+                intentions without a date and a witness.
               </li>
               <li>
                 <span class="text-ink font-semibold">
@@ -77,18 +73,14 @@ export function MechanismSection() {
           </div>
 
           <p class="text-ink font-semibold">
-            You are stuck because you're not making decisions, not because you
-            lack understanding.
+            You are stuck because you're not making decisions, not because you lack understanding.
           </p>
         </div>
 
         {/* Phase cards */}
         <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
           {PHASES.map((phase) => (
-            <div
-              key={phase.num}
-              class="bg-sand rounded-[12px] p-6 text-center"
-            >
+            <div key={phase.num} class="bg-sand rounded-[12px] p-6 text-center">
               <div class="bg-linen rounded-lg h-48 flex items-center justify-center text-muted text-sm mb-4">
                 Illustration: {phase.illustration}
               </div>
