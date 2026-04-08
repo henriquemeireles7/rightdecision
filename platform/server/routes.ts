@@ -10,6 +10,7 @@ import { onboardingRoutes } from '@/features/(life)/onboarding/routes'
 import { checkoutRoutes } from '@/features/(shared)/subscription/create-checkout'
 import { winsRoutes } from '@/features/(life)/wins/routes'
 import { webhookRoutes } from '@/features/(shared)/subscription/handle-webhook'
+import { landingRoutes } from '@/features/(life)/landing/routes'
 import { authRoutes } from '@/platform/auth/routes'
 
 export function mountRoutes(app: Hono) {
@@ -26,4 +27,6 @@ export function mountRoutes(app: Hono) {
     .route('/api/account', accountRoutes)
     .route('/api/search', searchRoutes)
     .route('/api/admin', adminRoutes)
+    // Landing page — AFTER all /api/* routes
+    .route('/', landingRoutes)
 }
