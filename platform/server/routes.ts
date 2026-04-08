@@ -20,6 +20,8 @@ import { postDistributeRoutes } from '@/features/(business)/post-distribute/rout
 import { analyticsRoutes } from '@/features/(business)/analytics-collect/routes'
 import { insightRoutes } from '@/features/(business)/insight-generate/routes'
 import { completeCheckoutRoutes } from '@/features/(shared)/subscription/complete-checkout'
+import { portalRoutes } from '@/features/(shared)/subscription/customer-portal'
+import { authPageRoutes } from '@/features/(life)/auth/routes'
 
 export function mountRoutes(app: Hono) {
   return app
@@ -28,6 +30,7 @@ export function mountRoutes(app: Hono) {
     .route('/api/checkout', checkoutRoutes)
     .route('/api/checkout/flow', completeCheckoutRoutes)
     .route('/api/webhook', webhookRoutes)
+    .route('/api/subscription/portal', portalRoutes)
     .route('/api/courses', courseRoutes)
     .route('/api/progress', progressRoutes)
     .route('/api/progress/v2', progressApiRoutes)
@@ -44,6 +47,8 @@ export function mountRoutes(app: Hono) {
     .route('/api/post-distribute', postDistributeRoutes)
     .route('/api/analytics-collect', analyticsRoutes)
     .route('/api/insights', insightRoutes)
+    // Auth pages — BEFORE landing catch-all
+    .route('/', authPageRoutes)
     // Landing page — AFTER all /api/* routes
     .route('/', landingRoutes)
 }
