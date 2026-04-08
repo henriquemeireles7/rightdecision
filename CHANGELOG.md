@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.2.0] - 2026-04-08
+
+### Added
+- Two-tier health endpoint: `/health` (liveness for Railway deploys) + `/health/ready` (readiness checking DB, Stripe, Resend, R2)
+- Railway config-as-code (`railway.toml`): Dockerfile builder, healthcheck, restart policy, replicas
+- Config-as-Code documentation in `decisions/deploy.md`
+
+### Fixed
+- Health check error messages sanitized to prevent leaking internal connection details
+
 ## [0.1.1.1] - 2026-04-08
 
 ### Added
