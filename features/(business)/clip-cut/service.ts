@@ -3,7 +3,11 @@ import { unlink, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { and, eq } from 'drizzle-orm'
-import { findRunInState, transitionPipeline } from '@/features/(business)/workflow/transitions'
+import {
+  failPipeline,
+  findRunInState,
+  transitionPipeline,
+} from '@/features/(business)/workflow/transitions'
 import { db } from '@/platform/db/client'
 import { clips, pipelineRuns } from '@/platform/db/schema'
 import { ProviderError } from '@/providers/errors'
@@ -80,10 +84,7 @@ export async function cutClipsForRun(pipelineRunId: string) {
     videoData = await download(key)
   } catch (error) {
     if (error instanceof ProviderError && error.statusCode === 404) {
-      await db
-        .update(pipelineRuns)
-        .set({ status: 'failed', stepFailedAt: 'clip-cut', errorMessage: 'Source video not found' })
-        .where(eq(pipelineRuns.id, pipelineRunId))
+      await failPipeline(pipelineRunId, 'clip-cut', 'Source video not found')
       return { error: 'CLIP_CUT_VIDEO_NOT_FOUND' as const }
     }
     throw error
@@ -118,15 +119,7 @@ export async function cutClipsForRun(pipelineRunId: string) {
     const failCount = results.filter((r) => !r.success).length
 
     if (failCount === clipList.length) {
-      await db
-        .update(pipelineRuns)
-        .set({
-          status: 'failed',
-          stepFailedAt: 'clip-cut',
-          errorMessage: 'All clips failed to cut',
-          clipsFailed: failCount,
-        })
-        .where(and(eq(pipelineRuns.id, pipelineRunId), eq(pipelineRuns.status, 'cutting')))
+      await failPipeline(pipelineRunId, 'clip-cut', 'All clips failed to cut')
       return { error: 'CLIP_CUT_PROCESSING_FAILED' as const }
     }
 

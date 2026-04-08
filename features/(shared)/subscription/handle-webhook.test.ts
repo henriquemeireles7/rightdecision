@@ -4,8 +4,8 @@ import { describe, expect, test } from 'bun:test'
 // Full integration tests require env vars + DB — covered in CI.
 
 describe('webhook handler', () => {
-	test('module exists', () => {
-		const file = Bun.file('features/(shared)/subscription/handle-webhook.ts')
-		expect(file.size).toBeGreaterThan(0)
-	})
+  test('module exists', () => {
+    const file = Bun.file('features/(shared)/subscription/handle-webhook.ts')
+    expect(file.size).toBeGreaterThan(0)
+  })
 })

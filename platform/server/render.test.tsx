@@ -87,7 +87,10 @@ describe('renderPage', () => {
   })
 
   test('includes PostHog script when posthogKey is provided', () => {
-    const html = renderPage(<div />, { posthogKey: 'phc_test123', posthogHost: 'https://us.i.posthog.com' })
+    const html = renderPage(<div />, {
+      posthogKey: 'phc_test123',
+      posthogHost: 'https://us.i.posthog.com',
+    })
     expect(html).toContain('posthog.init')
     expect(html).toContain('phc_test123')
     expect(html).toContain('us-assets.i.posthog.com/static/array.js')

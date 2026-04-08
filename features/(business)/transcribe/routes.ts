@@ -4,7 +4,7 @@ import { z } from 'zod'
 import { requireAuth } from '@/platform/auth/middleware'
 import type { ErrorCode } from '@/platform/errors'
 import { throwError } from '@/platform/errors'
-import { created, paginated, success } from '@/platform/server/responses'
+import { accepted, created, paginated, success } from '@/platform/server/responses'
 import type { AppEnv } from '@/platform/types'
 import {
   getClipsForRun,
@@ -36,7 +36,7 @@ export const transcribeRoutes = new Hono<AppEnv>()
     const id = c.req.param('id')
     const result = await processTranscription(id)
     if ('error' in result) return throwError(c, result.error as ErrorCode)
-    return success(c, { run: result.run })
+    return accepted(c, { run: result.run })
   })
   .get('/', zValidator('query', listQuerySchema), async (c) => {
     const { page, perPage } = c.req.valid('query')

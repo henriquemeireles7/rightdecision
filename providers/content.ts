@@ -31,7 +31,7 @@ function parseFrontmatter(raw: string): { meta: Record<string, string>; content:
   if (!match) return { meta: {}, content: raw }
 
   const meta: Record<string, string> = {}
-  for (const line of match[1]!.split('\n')) {
+  for (const line of (match[1] ?? '').split('\n')) {
     const sep = line.indexOf(':')
     if (sep === -1) continue
     const key = line.slice(0, sep).trim()
@@ -42,7 +42,7 @@ function parseFrontmatter(raw: string): { meta: Record<string, string>; content:
     meta[key] = val
   }
 
-  return { meta, content: match[2]!.trim() }
+  return { meta, content: (match[2] ?? '').trim() }
 }
 
 // ─── Content Loading ─────────────────────────────────────────────────────────
@@ -85,9 +85,9 @@ function loadContent() {
       const moduleMatch = moduleDir.name.match(/^module-(\d+)-(.+)$/)
       if (!moduleMatch) continue
 
-      const moduleNum = Number.parseInt(moduleMatch[1]!, 10)
+      const moduleNum = Number.parseInt(moduleMatch[1] ?? '0', 10)
       const moduleSlug = moduleDir.name
-      const moduleName = moduleMatch[2]!.replace(/-/g, ' ')
+      const moduleName = moduleMatch[2]?.replace(/-/g, ' ') ?? ''
 
       const modulePath = join(CONTENT_DIR, moduleDir.name)
       const files = readdirSync(modulePath)
@@ -145,7 +145,7 @@ export function resolveClassId(classId: string): string {
   let resolved = classId
   let depth = 0
   while (redirects[resolved] && depth < 10) {
-    resolved = redirects[resolved]!
+    resolved = redirects[resolved] as string
     depth++
   }
   return resolved

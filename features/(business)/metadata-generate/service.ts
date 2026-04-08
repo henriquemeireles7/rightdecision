@@ -2,7 +2,7 @@ import { and, eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { findRunInState, transitionPipeline } from '@/features/(business)/workflow/transitions'
 import { db } from '@/platform/db/client'
-import { clips, pipelineRuns, platformAccounts, posts } from '@/platform/db/schema'
+import { pipelineRuns, posts } from '@/platform/db/schema'
 import { track } from '@/providers/analytics'
 
 export const metadataItemSchema = z.object({

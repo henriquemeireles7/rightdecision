@@ -2,13 +2,17 @@ import { randomUUID } from 'node:crypto'
 import { unlink, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { and, count, desc, eq } from 'drizzle-orm'
-import { findRunInState, transitionPipeline } from '@/features/(business)/workflow/transitions'
+import { count, desc, eq } from 'drizzle-orm'
+import {
+  failPipeline,
+  findRunInState,
+  transitionPipeline,
+} from '@/features/(business)/workflow/transitions'
 import { db } from '@/platform/db/client'
 import { clips, pipelineRuns } from '@/platform/db/schema'
+import { track } from '@/providers/analytics'
 import { ProviderError } from '@/providers/errors'
 import { download } from '@/providers/storage'
-import { track } from '@/providers/analytics'
 import { transcribe as whisperTranscribe } from '@/providers/transcription'
 
 const SUPPORTED_FORMATS = ['mp4', 'webm', 'wav', 'mp3', 'ogg', 'm4a']
@@ -51,26 +55,26 @@ export async function processTranscription(runId: string) {
     return { error: 'PIPELINE_INVALID_STATE' as const }
   }
 
-  // Download video to temp file
-  const tempPath = join(tmpdir(), `transcribe-${randomUUID()}.${getExtension(run.inputVideoUrl)}`)
+  // Fire-and-forget background processing
+  transcribeInBackground(runId, run.inputVideoUrl).catch((err) =>
+    failPipeline(runId, 'transcribe', String(err)),
+  )
+
+  return { run: { id: runId, status: 'transcribing' as const } }
+}
+
+async function transcribeInBackground(runId: string, inputVideoUrl: string): Promise<void> {
+  const tempPath = join(tmpdir(), `transcribe-${randomUUID()}.${getExtension(inputVideoUrl)}`)
 
   try {
-    // inputVideoUrl is the R2 object key (e.g., "episodes/video.mp4")
-    const key = run.inputVideoUrl
+    const key = inputVideoUrl
     let videoData: Buffer
     try {
       videoData = await download(key)
     } catch (error) {
       if (error instanceof ProviderError && error.statusCode === 404) {
-        await db
-          .update(pipelineRuns)
-          .set({
-            status: 'failed',
-            stepFailedAt: 'transcribe',
-            errorMessage: 'Video not found in storage',
-          })
-          .where(eq(pipelineRuns.id, runId))
-        return { error: 'TRANSCRIBE_VIDEO_NOT_FOUND' as const }
+        await failPipeline(runId, 'transcribe', 'Video not found in storage')
+        return
       }
       throw error
     }
@@ -78,53 +82,15 @@ export async function processTranscription(runId: string) {
     track('content_uploaded', { type: 'video', size: videoData.length })
     await writeFile(tempPath, videoData)
 
-    // Run Whisper
-    let transcript: string
-    try {
-      transcript = await whisperTranscribe(tempPath)
-    } catch (error) {
-      if (error instanceof ProviderError) {
-        const errorCode =
-          error.statusCode === 504
-            ? 'TRANSCRIBE_TIMEOUT'
-            : error.statusCode === 422
-              ? 'TRANSCRIBE_EMPTY_RESULT'
-              : 'TRANSCRIBE_PROCESSING_FAILED'
-        await db
-          .update(pipelineRuns)
-          .set({
-            status: 'failed',
-            stepFailedAt: 'transcribe',
-            errorMessage: String(error.rawResponse),
-          })
-          .where(eq(pipelineRuns.id, runId))
-        return {
-          error: errorCode as
-            | 'TRANSCRIBE_TIMEOUT'
-            | 'TRANSCRIBE_EMPTY_RESULT'
-            | 'TRANSCRIBE_PROCESSING_FAILED',
-        }
-      }
-      throw error
-    }
+    const transcript = await whisperTranscribe(tempPath)
 
-    // Save transcript (CAS: only if still transcribing)
-    await db
-      .update(pipelineRuns)
-      .set({ status: 'transcribed', transcript })
-      .where(and(eq(pipelineRuns.id, runId), eq(pipelineRuns.status, 'transcribing')))
-
-    const updated = await db.query.pipelineRuns.findFirst({
-      where: eq(pipelineRuns.id, runId),
-    })
-
-    return { run: updated! }
+    // Save transcript via transitionPipeline (records step timing)
+    await transitionPipeline(runId, 'transcribing', 'transcribed', { transcript })
   } finally {
-    // Always clean up temp file
     try {
       await unlink(tempPath)
     } catch {
-      /* ignore */
+      /* ignore cleanup errors */
     }
   }
 }
@@ -134,7 +100,12 @@ export async function getPipelineRun(runId: string) {
     where: eq(pipelineRuns.id, runId),
   })
   if (!run) return { error: 'NOT_FOUND' as const }
-  return { run }
+  return {
+    run: {
+      ...run,
+      transcript: run.transcript ? run.transcript.slice(0, 500) : null,
+    },
+  }
 }
 
 export async function listPipelineRuns(page = 1, perPage = 20) {

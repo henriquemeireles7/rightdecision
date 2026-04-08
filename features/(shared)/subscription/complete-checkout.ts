@@ -117,7 +117,7 @@ completeCheckoutRoutes.post('/complete', zValidator('json', completeCheckoutSche
         sql`${subscriptions.stripeSubscriptionId} = ${stripeSubscriptionId} AND ${subscriptions.userId} IS NULL`,
       )
 
-    if (linked.rowCount === 0) {
+    if ((linked as unknown as { rowCount: number }).rowCount === 0) {
       // Another request linked it first — user created but subscription already taken
       return throwError(
         c,
