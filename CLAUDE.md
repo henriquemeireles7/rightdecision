@@ -122,6 +122,14 @@ Read the files that match your task. Read as many as needed:
 
 Each folder's CLAUDE.md has Critical Rules, Import Maps, and Recipes specific to that module.
 
+### Universal File Sync (ship workflow)
+Before creating a PR via /ship, check if the diff touches areas covered by universal reference files:
+1. Map changed files to relevant universal files (e.g., changes in platform/ → coding.md, deploy.md; changes in features/ → architecture.md)
+2. Read each relevant universal file and check the `> Last verified: YYYY-MM-DD` date
+3. If stale (content doesn't match code reality): update the file and bump the date
+4. Include updated universal files in the same PR
+5. This prevents reference files from going stale as the codebase evolves
+
 ## Design System
 Always read decisions/design.md before making any visual or UI decisions.
 Aesthetic: Ethereal Warmth. Fonts: Instrument Serif + Sans. Palette: warm cream/beige/gold.
