@@ -22,8 +22,6 @@ export const env = createEnv({
     UPLOAD_POST_API_KEY: z.string().min(1).optional(),
     // ─── BD Pipeline: Whisper (local transcription) ───
     WHISPER_MODEL_PATH: z.string().default('models/ggml-large-v3.bin'),
-    // ─── BD Pipeline: Claude API (clip selection + metadata + insights) ───
-    ANTHROPIC_API_KEY: z.string().startsWith('sk-ant-').optional(),
     // ─── BD Pipeline: Configuration ───
     PIPELINE_AUTO_APPROVE: z.coerce.boolean().default(true),
   },
