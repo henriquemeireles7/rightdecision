@@ -29,12 +29,16 @@ mock.module('@/platform/db/client', () => ({
           if (data && typeof data === 'object' && 'transcript' in data) {
             mockFindFirst.mockResolvedValueOnce({
               id: 'run-1',
-              inputVideoUrl: 'https://r2.example.com/bucket/video.mp4',
+              inputVideoUrl: 'episodes/video.mp4',
               status: 'transcribed',
               transcript: '[00:00:01] Hello world',
             } as never)
           }
-          return Promise.resolve()
+          const result = Promise.resolve()
+          // Support both .where() and .where().returning() chains
+          return Object.assign(result, {
+            returning: () => Promise.resolve([{ id: 'run-1' }]),
+          })
         },
       }),
     }),

@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm'
+import { eq, and } from 'drizzle-orm'
 import { db } from '@/platform/db/client'
 import { pipelineRuns, clips } from '@/platform/db/schema'
 import { assertTransition } from '@/features/(business)/workflow/state-machine'
@@ -53,40 +53,45 @@ export async function saveClipSelections(pipelineRunId: string, clipDefs: ClipDe
     }
   }
 
-  // Transition: transcribed → selecting
+  // Atomic CAS: transcribed → selecting
   assertTransition(run.status, 'selecting')
-  await db
+  const [transitioned] = await db
     .update(pipelineRuns)
     .set({ status: 'selecting' })
-    .where(eq(pipelineRuns.id, pipelineRunId))
+    .where(and(eq(pipelineRuns.id, pipelineRunId), eq(pipelineRuns.status, run.status)))
+    .returning({ id: pipelineRuns.id })
 
-  // Delete existing clips (re-selection safe)
-  await db.delete(clips).where(eq(clips.pipelineRunId, pipelineRunId))
+  if (!transitioned) return { error: 'CLIP_SELECT_INVALID_STATE' as const }
 
-  // Insert new clips
-  const newClips = await db
-    .insert(clips)
-    .values(
-      clipDefs.map((c) => ({
-        pipelineRunId,
-        sourceTimestampStart: c.sourceTimestampStart,
-        sourceTimestampEnd: c.sourceTimestampEnd,
-        duration: c.sourceTimestampEnd - c.sourceTimestampStart,
-        score: c.score ?? null,
-        suggestedTitle: c.suggestedTitle ?? null,
-        transcriptSnippet: c.transcriptSnippet ?? null,
-        platformFit: c.platformFit ?? null,
-        approved: false,
-        cutStatus: 'pending' as const,
-      })),
-    )
-    .returning()
+  // Delete + insert in transaction (prevents orphaned state if insert fails)
+  const newClips = await db.transaction(async (tx) => {
+    await tx.delete(clips).where(eq(clips.pipelineRunId, pipelineRunId))
 
-  // Transition: selecting → selected
-  await db
-    .update(pipelineRuns)
-    .set({ status: 'selected', clipsGenerated: newClips.length })
-    .where(eq(pipelineRuns.id, pipelineRunId))
+    const inserted = await tx
+      .insert(clips)
+      .values(
+        clipDefs.map((c) => ({
+          pipelineRunId,
+          sourceTimestampStart: c.sourceTimestampStart,
+          sourceTimestampEnd: c.sourceTimestampEnd,
+          duration: c.sourceTimestampEnd - c.sourceTimestampStart,
+          score: c.score ?? null,
+          suggestedTitle: c.suggestedTitle ?? null,
+          transcriptSnippet: c.transcriptSnippet ?? null,
+          platformFit: c.platformFit ?? null,
+          approved: false,
+          cutStatus: 'pending' as const,
+        })),
+      )
+      .returning()
+
+    await tx
+      .update(pipelineRuns)
+      .set({ status: 'selected', clipsGenerated: inserted.length })
+      .where(eq(pipelineRuns.id, pipelineRunId))
+
+    return inserted
+  })
 
   return { clips: newClips }
 }

@@ -5,6 +5,7 @@ import { throwError } from '@/platform/errors'
 import type { ErrorCode } from '@/platform/errors'
 import { success, paginated, created } from '@/platform/server/responses'
 import type { AppEnv } from '@/platform/types'
+import { requireAuth } from '@/platform/auth/middleware'
 import { startTranscription, processTranscription, getPipelineRun, listPipelineRuns, getClipsForRun } from './service'
 
 const transcribeSchema = z.object({
@@ -18,6 +19,7 @@ const listQuerySchema = z.object({
 })
 
 export const transcribeRoutes = new Hono<AppEnv>()
+  .use(requireAuth)
   .post('/', zValidator('json', transcribeSchema), async (c) => {
     const { videoUrl, config } = c.req.valid('json')
     const result = await startTranscription(videoUrl, config)

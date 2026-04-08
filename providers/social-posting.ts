@@ -2,8 +2,10 @@ import { env } from '@/platform/env'
 import { ProviderError } from '@/providers/errors'
 
 const BASE_URL = 'https://app.upload-post.com/api/v1'
+const MAX_RETRIES = 3
+const RETRY_BASE_MS = 500
 
-async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+async function request<T>(path: string, options: RequestInit = {}, retries = MAX_RETRIES): Promise<T> {
   const apiKey = env.UPLOAD_POST_API_KEY
   if (!apiKey) throw new ProviderError('upload-post', 'auth', 401, 'UPLOAD_POST_API_KEY not configured')
 
@@ -20,8 +22,18 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   if (response.status === 401) {
     throw new ProviderError('upload-post', 'auth', 401, await response.text())
   }
+  if (response.status === 429 && retries > 0) {
+    const delay = RETRY_BASE_MS * (MAX_RETRIES - retries + 1)
+    await new Promise((r) => setTimeout(r, delay))
+    return request<T>(path, options, retries - 1)
+  }
   if (response.status === 429) {
     throw new ProviderError('upload-post', 'rateLimit', 429, await response.text())
+  }
+  if (response.status >= 500 && retries > 0) {
+    const delay = RETRY_BASE_MS * (MAX_RETRIES - retries + 1)
+    await new Promise((r) => setTimeout(r, delay))
+    return request<T>(path, options, retries - 1)
   }
   if (response.status >= 500) {
     throw new ProviderError('upload-post', 'server', response.status, await response.text())

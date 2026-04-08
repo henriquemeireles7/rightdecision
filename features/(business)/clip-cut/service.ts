@@ -41,9 +41,15 @@ export async function cutClipsForRun(pipelineRunId: string) {
     return { error: 'CLIP_CUT_NO_APPROVED_CLIPS' as const }
   }
 
-  // Transition to cutting
+  // Atomic CAS: selected → cutting
   assertTransition(run.status, 'cutting')
-  await db.update(pipelineRuns).set({ status: 'cutting' }).where(eq(pipelineRuns.id, pipelineRunId))
+  const [transitioned] = await db
+    .update(pipelineRuns)
+    .set({ status: 'cutting' })
+    .where(and(eq(pipelineRuns.id, pipelineRunId), eq(pipelineRuns.status, run.status)))
+    .returning({ id: pipelineRuns.id })
+
+  if (!transitioned) return { error: 'CLIP_SELECT_INVALID_STATE' as const }
 
   // Download source video
   // inputVideoUrl is the R2 object key (e.g., "episodes/video.mp4")

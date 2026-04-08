@@ -30,9 +30,15 @@ export async function saveMetadata(pipelineRunId: string, metadataItems: Metadat
     return { error: 'CLIP_SELECT_INVALID_STATE' as const }
   }
 
-  // Transition: cut → generating_metadata
+  // Atomic CAS: cut → generating_metadata
   assertTransition(run.status, 'generating_metadata')
-  await db.update(pipelineRuns).set({ status: 'generating_metadata' }).where(eq(pipelineRuns.id, pipelineRunId))
+  const [transitioned] = await db
+    .update(pipelineRuns)
+    .set({ status: 'generating_metadata' })
+    .where(and(eq(pipelineRuns.id, pipelineRunId), eq(pipelineRuns.status, run.status)))
+    .returning({ id: pipelineRuns.id })
+
+  if (!transitioned) return { error: 'CLIP_SELECT_INVALID_STATE' as const }
 
   // Validate platform accounts exist and check char limits
   const accounts = await db.query.platformAccounts.findMany()

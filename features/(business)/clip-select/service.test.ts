@@ -11,14 +11,21 @@ const mockInsertReturning = mock(() => Promise.resolve([
 ]))
 const mockUpdateSet = mock(() => ({ where: () => Promise.resolve() }))
 
+const mockTx = {
+  delete: () => ({ where: () => Promise.resolve() }),
+  insert: () => ({ values: () => ({ returning: () => mockInsertReturning() }) }),
+  update: () => ({ set: () => ({ where: () => Promise.resolve() }) }),
+}
+
 mock.module('@/platform/db/client', () => ({
   db: {
     query: {
       pipelineRuns: { findFirst: () => mockFindFirst() },
     },
-    update: () => ({ set: (data: unknown) => ({ where: () => Promise.resolve() }) }),
+    update: () => ({ set: () => ({ where: () => Object.assign(Promise.resolve(), { returning: () => Promise.resolve([{ id: 'run-1' }]) }) }) }),
     delete: () => ({ where: () => Promise.resolve() }),
     insert: () => ({ values: () => ({ returning: () => mockInsertReturning() }) }),
+    transaction: (fn: (tx: typeof mockTx) => Promise<unknown>) => fn(mockTx),
   },
 }))
 

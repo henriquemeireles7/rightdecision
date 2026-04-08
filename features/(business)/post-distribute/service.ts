@@ -38,9 +38,15 @@ export async function distributePostsForRun(pipelineRunId: string) {
   // Pre-load all clips into a map (avoid N+1)
   const clipMap = new Map(runClips.map((c) => [c.id, c]))
 
-  // Transition: metadata_ready → posting
+  // Atomic CAS: metadata_ready → posting
   assertTransition(run.status, 'posting')
-  await db.update(pipelineRuns).set({ status: 'posting' }).where(eq(pipelineRuns.id, pipelineRunId))
+  const [transitioned] = await db
+    .update(pipelineRuns)
+    .set({ status: 'posting' })
+    .where(and(eq(pipelineRuns.id, pipelineRunId), eq(pipelineRuns.status, run.status)))
+    .returning({ id: pipelineRuns.id })
+
+  if (!transitioned) return { error: 'CLIP_SELECT_INVALID_STATE' as const }
 
   const results: Array<{ postId: string; success: boolean; error?: string }> = []
 

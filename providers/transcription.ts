@@ -16,8 +16,13 @@ export async function transcribe(videoPath: string): Promise<string> {
       { stdout: 'pipe', stderr: 'pipe' },
     )
 
-    const result = await Promise.race([
-      proc.exited,
+    // Read stdout/stderr concurrently with exit to avoid pipe buffer deadlock
+    const [exitCode, stdout, stderr] = await Promise.race([
+      Promise.all([
+        proc.exited,
+        new Response(proc.stdout).text(),
+        new Response(proc.stderr).text(),
+      ]),
       new Promise<never>((_, reject) =>
         setTimeout(() => {
           proc.kill()
@@ -26,13 +31,11 @@ export async function transcribe(videoPath: string): Promise<string> {
       ),
     ])
 
-    if (result !== 0) {
-      const stderr = await new Response(proc.stderr).text()
-      throw new ProviderError('whisper', 'transcribe', 500, stderr || `Exit code: ${result}`)
+    if (exitCode !== 0) {
+      throw new ProviderError('whisper', 'transcribe', 500, stderr || `Exit code: ${exitCode}`)
     }
 
-    const output = await new Response(proc.stdout).text()
-    const trimmed = output.trim()
+    const trimmed = stdout.trim()
 
     if (!trimmed) {
       throw new ProviderError('whisper', 'transcribe', 422, 'Transcription returned no text')

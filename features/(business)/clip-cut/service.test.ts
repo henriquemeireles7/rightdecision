@@ -14,7 +14,7 @@ mock.module('@/platform/db/client', () => ({
       pipelineRuns: { findFirst: () => mockFindFirstRun() },
       clips: { findMany: () => mockFindManyClips() },
     },
-    update: () => ({ set: () => ({ where: () => Promise.resolve() }) }),
+    update: () => ({ set: () => ({ where: () => Object.assign(Promise.resolve(), { returning: () => Promise.resolve([{ id: 'run-1' }]) }) }) }),
     delete: () => ({ where: () => Promise.resolve() }),
   },
 }))

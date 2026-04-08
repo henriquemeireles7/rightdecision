@@ -5,6 +5,7 @@ import { throwError } from '@/platform/errors'
 import type { ErrorCode } from '@/platform/errors'
 import { success, partial } from '@/platform/server/responses'
 import type { AppEnv } from '@/platform/types'
+import { requireAuth } from '@/platform/auth/middleware'
 import { cutClipsForRun } from './service'
 
 const cutSchema = z.object({
@@ -12,6 +13,7 @@ const cutSchema = z.object({
 })
 
 export const clipCutRoutes = new Hono<AppEnv>()
+  .use(requireAuth)
   .post('/', zValidator('json', cutSchema), async (c) => {
     const { pipelineRunId } = c.req.valid('json')
     const result = await cutClipsForRun(pipelineRunId)

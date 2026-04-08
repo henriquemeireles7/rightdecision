@@ -1,4 +1,4 @@
-import { eq, desc, count } from 'drizzle-orm'
+import { eq, and, desc, count } from 'drizzle-orm'
 import { db } from '@/platform/db/client'
 import { pipelineRuns, clips } from '@/platform/db/schema'
 import { assertTransition } from '@/features/(business)/workflow/state-machine'
@@ -43,12 +43,15 @@ export async function processTranscription(runId: string) {
 
   if (!run) return { error: 'NOT_FOUND' as const }
 
-  // Transition: queued → transcribing
+  // Atomic CAS: queued → transcribing (prevents race conditions)
   assertTransition(run.status, 'transcribing')
-  await db
+  const [transitioned] = await db
     .update(pipelineRuns)
     .set({ status: 'transcribing', startedAt: new Date() })
-    .where(eq(pipelineRuns.id, runId))
+    .where(and(eq(pipelineRuns.id, runId), eq(pipelineRuns.status, run.status)))
+    .returning({ id: pipelineRuns.id })
+
+  if (!transitioned) return { error: 'CLIP_SELECT_INVALID_STATE' as const }
 
   // Download video to temp file
   const tempPath = join(tmpdir(), `transcribe-${randomUUID()}.${getExtension(run.inputVideoUrl)}`)

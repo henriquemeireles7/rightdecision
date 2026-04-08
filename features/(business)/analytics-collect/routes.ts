@@ -3,6 +3,7 @@ import { Hono } from 'hono'
 import { z } from 'zod'
 import { success } from '@/platform/server/responses'
 import type { AppEnv } from '@/platform/types'
+import { requireAuth } from '@/platform/auth/middleware'
 import { collectAnalytics } from './service'
 
 const collectSchema = z.object({
@@ -10,6 +11,7 @@ const collectSchema = z.object({
 })
 
 export const analyticsRoutes = new Hono<AppEnv>()
+  .use(requireAuth)
   .post('/', zValidator('json', collectSchema), async (c) => {
     const { postIds } = c.req.valid('json')
     const result = await collectAnalytics(postIds)

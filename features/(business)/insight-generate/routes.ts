@@ -5,6 +5,7 @@ import { throwError } from '@/platform/errors'
 import type { ErrorCode } from '@/platform/errors'
 import { success, paginated } from '@/platform/server/responses'
 import type { AppEnv } from '@/platform/types'
+import { requireAuth } from '@/platform/auth/middleware'
 import { insightInputSchema, saveInsight, listInsights } from './service'
 
 const listQuerySchema = z.object({
@@ -13,6 +14,7 @@ const listQuerySchema = z.object({
 })
 
 export const insightRoutes = new Hono<AppEnv>()
+  .use(requireAuth)
   .post('/', zValidator('json', insightInputSchema), async (c) => {
     const input = c.req.valid('json')
     const result = await saveInsight(input)

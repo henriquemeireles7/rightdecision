@@ -35,8 +35,9 @@ describe('providers/social-posting', () => {
       }
     })
 
-    it('throws ProviderError on 429 rate limit', async () => {
-      mockFetch.mockResolvedValueOnce(new Response('Rate limited', { status: 429 }))
+    it('throws ProviderError on 429 after retries exhausted', async () => {
+      // Provider retries 3 times, so mock 4 responses (initial + 3 retries)
+      for (let i = 0; i < 4; i++) mockFetch.mockResolvedValueOnce(new Response('Rate limited', { status: 429 }))
       try {
         await post('url', 'desc', [], 'p1')
         expect(true).toBe(false)
@@ -46,8 +47,8 @@ describe('providers/social-posting', () => {
       }
     })
 
-    it('throws ProviderError on 503', async () => {
-      mockFetch.mockResolvedValueOnce(new Response('Service down', { status: 503 }))
+    it('throws ProviderError on 503 after retries exhausted', async () => {
+      for (let i = 0; i < 4; i++) mockFetch.mockResolvedValueOnce(new Response('Service down', { status: 503 }))
       try {
         await post('url', 'desc', [], 'p1')
         expect(true).toBe(false)

@@ -13,7 +13,7 @@ mock.module('@/platform/db/client', () => ({
       posts: { findMany: () => mockFindManyPosts() },
       clips: { findMany: () => mockFindManyClips() },
     },
-    update: () => ({ set: () => ({ where: () => Promise.resolve() }) }),
+    update: () => ({ set: () => ({ where: () => Object.assign(Promise.resolve(), { returning: () => Promise.resolve([{ id: 'run-1' }]) }) }) }),
   },
 }))
 

@@ -1,4 +1,4 @@
-import { desc, gte, count } from 'drizzle-orm'
+import { desc, gte, lte, and, count } from 'drizzle-orm'
 import { db } from '@/platform/db/client'
 import { insights, postAnalytics } from '@/platform/db/schema'
 import { z } from 'zod'
@@ -18,11 +18,11 @@ export async function saveInsight(input: InsightInput) {
   const from = new Date(input.dateRange.from)
   const to = new Date(input.dateRange.to)
 
-  // Check there's analytics data in range
+  // Check there's analytics data in range (both bounds)
   const [analyticsCount] = await db
     .select({ count: count() })
     .from(postAnalytics)
-    .where(gte(postAnalytics.snapshotAt, from))
+    .where(and(gte(postAnalytics.snapshotAt, from), lte(postAnalytics.snapshotAt, to)))
 
   if (!analyticsCount || analyticsCount.count === 0) {
     return { error: 'INSIGHT_NO_DATA' as const }
