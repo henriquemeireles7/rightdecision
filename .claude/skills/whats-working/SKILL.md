@@ -5,13 +5,24 @@ Analyze engagement analytics and generate one actionable recommendation. This sk
 ## When to use
 On demand, after at least 7 days of analytics data exists.
 
+## Input
+- `--profile <name>` (optional) — Scope insights to a specific profile's posts. When provided, only analyzes posts WHERE profileSlug matches.
+
 ## Steps
+
+0. **Load profile context (if --profile provided)**
+   ```ts
+   import { readProfile, listProfiles } from '@/providers/profile'
+   ```
+   - If `--profile` provided, scope all queries to posts with matching profileSlug
+   - If not provided, analyze all posts (backward compatible)
 
 1. **Read analytics data**
    ```
    GET /api/analytics-collect
    ```
    Or query the pipeline runs and their post analytics.
+   If `--profile` is set, filter to posts WHERE profileSlug = profileName.
 
 2. **Analyze patterns**
    Look for:
@@ -20,6 +31,8 @@ On demand, after at least 7 days of analytics data exists.
    - What posting times correlate with higher views?
    - Which clip scores correlated with actual performance?
    - Are there diminishing returns on any platform?
+   - (Profile mode) Which plays are performing best?
+   - (Profile mode) Which hooks/angles drive the most engagement?
 
 3. **Generate ONE actionable recommendation**
    Not a report — a single, specific action the user should take.

@@ -13,6 +13,17 @@ The user provides either:
 - A video URL (R2 key, e.g. `episodes/video.mp4`) for a new run
 - A run ID with `--resume` to continue from a failed step
 - `--dry-run` flag to skip actual social posting
+- `--profile <name>` — Target profile slug (REQUIRED when profiles exist)
+
+### Profile Selection (MANDATORY)
+Before starting the pipeline, check if `content/profiles/` has any profiles:
+```ts
+import { listProfiles } from '@/providers/profile'
+const profiles = listProfiles()
+```
+- If profiles exist and `--profile` is NOT specified: prompt the user to select from the list. Do NOT allow skipping.
+- If profiles exist and `--profile` IS specified: validate it exists, then pass to `/select-clips --profile` and `/generate-metadata --profile`
+- If NO profiles exist (first-run): proceed without profile (backward compatible). Suggest running `/profile-create` after.
 
 ## Pre-flight Checks (MANDATORY)
 
