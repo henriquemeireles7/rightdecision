@@ -17,17 +17,20 @@ function Header() {
 
         {/* Desktop nav */}
         <div class="hidden md:flex items-center gap-lg">
-          <a href="/about" class="text-secondary no-underline hover:text-ink text-sm font-medium">
-            About
+          <a
+            href="/handbook"
+            class="text-secondary no-underline hover:text-ink text-sm font-medium"
+          >
+            Handbook
           </a>
           <a href="/blog" class="text-secondary no-underline hover:text-ink text-sm font-medium">
             Blog
           </a>
-          <a
-            href="/concepts"
-            class="text-secondary no-underline hover:text-ink text-sm font-medium"
-          >
-            Concepts
+          <a href="/method" class="text-secondary no-underline hover:text-ink text-sm font-medium">
+            Method
+          </a>
+          <a href="/about" class="text-secondary no-underline hover:text-ink text-sm font-medium">
+            About
           </a>
           <a
             href="/life"
@@ -68,16 +71,22 @@ function Header() {
                 About
               </a>
               <a
+                href="/handbook"
+                class="block px-md py-xs text-secondary hover:text-ink hover:bg-cream no-underline text-sm"
+              >
+                Handbook
+              </a>
+              <a
                 href="/blog"
                 class="block px-md py-xs text-secondary hover:text-ink hover:bg-cream no-underline text-sm"
               >
                 Blog
               </a>
               <a
-                href="/concepts"
+                href="/method"
                 class="block px-md py-xs text-secondary hover:text-ink hover:bg-cream no-underline text-sm"
               >
-                Concepts
+                Method
               </a>
               <a
                 href="/life"
@@ -108,13 +117,18 @@ function Footer() {
               <p class="text-sm font-semibold text-ink mb-sm">Resources</p>
               <ul class="list-none p-0 m-0 space-y-xs">
                 <li>
+                  <a href="/handbook" class="text-sm text-secondary no-underline hover:text-ink">
+                    Handbook
+                  </a>
+                </li>
+                <li>
                   <a href="/blog" class="text-sm text-secondary no-underline hover:text-ink">
                     Blog
                   </a>
                 </li>
                 <li>
-                  <a href="/concepts" class="text-sm text-secondary no-underline hover:text-ink">
-                    Concepts
+                  <a href="/method" class="text-sm text-secondary no-underline hover:text-ink">
+                    Method
                   </a>
                 </li>
                 <li>

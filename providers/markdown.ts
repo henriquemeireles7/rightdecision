@@ -1,5 +1,5 @@
-import { readdirSync, readFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { readdirSync, readFileSync, statSync } from 'node:fs'
+import { join, resolve } from 'node:path'
 import matter from 'gray-matter'
 import { Marked } from 'marked'
 import { z } from 'zod'
@@ -30,6 +30,60 @@ export const ConceptFrontmatter = z.object({
   status: z.enum(['draft', 'published']),
 })
 
+export const MethodFrontmatter = z.object({
+  title: z.string(),
+  slug: z.string(),
+  description: z.string(),
+  keywords: z.array(z.string()),
+  related: z.array(z.string()).optional(),
+  relatedConcepts: z.array(z.string()).optional(),
+  internalConcept: z.string().optional(),
+  faq: z.array(z.object({ question: z.string(), answer: z.string() })),
+  status: z.enum(['draft', 'published']),
+})
+
+export const HandbookFrontmatter = z.object({
+  title: z.string(),
+  slug: z.string().optional(),
+  description: z.string(),
+  section: z.string().optional(),
+  order: z.number().optional(),
+  keywords: z.array(z.string()).optional(),
+  related: z.array(z.string()).optional(),
+  status: z.enum(['draft', 'published']),
+})
+
+export const GuideFrontmatter = z.object({
+  title: z.string(),
+  slug: z.string().optional(),
+  description: z.string(),
+  order: z.number().optional(),
+  keywords: z.array(z.string()).optional(),
+  related: z.array(z.string()).optional(),
+  status: z.enum(['draft', 'published']),
+})
+
+export const HelpFrontmatter = z.object({
+  title: z.string(),
+  slug: z.string().optional(),
+  description: z.string(),
+  topic: z.string().optional(),
+  order: z.number().optional(),
+  keywords: z.array(z.string()).optional(),
+  related: z.array(z.string()).optional(),
+  status: z.enum(['draft', 'published']),
+})
+
+export const ChangelogFrontmatter = z.object({
+  title: z.string(),
+  slug: z.string().optional(),
+  description: z.string().optional(),
+  date: z.string(),
+  version: z.string().optional(),
+  type: z.enum(['feature', 'fix', 'improvement']).optional(),
+  status: z.enum(['draft', 'published']),
+})
+
 export const LegalFrontmatter = z.object({
   title: z.string(),
   slug: z.string(),
@@ -39,6 +93,11 @@ export const LegalFrontmatter = z.object({
 
 export type BlogPost = z.infer<typeof BlogPostFrontmatter>
 export type Concept = z.infer<typeof ConceptFrontmatter>
+export type Method = z.infer<typeof MethodFrontmatter>
+export type Handbook = z.infer<typeof HandbookFrontmatter>
+export type Guide = z.infer<typeof GuideFrontmatter>
+export type Help = z.infer<typeof HelpFrontmatter>
+export type Changelog = z.infer<typeof ChangelogFrontmatter>
 export type Legal = z.infer<typeof LegalFrontmatter>
 
 // ─── Markdown Renderer ──────────────────────────────────────────────────────
@@ -52,6 +111,13 @@ function slugify(text: string): string {
     .trim()
 }
 
+function isSafeUrl(url: string): boolean {
+  const lower = url.trim().toLowerCase()
+  return (
+    !lower.startsWith('javascript:') && !lower.startsWith('data:') && !lower.startsWith('vbscript:')
+  )
+}
+
 const marked = new Marked({
   renderer: {
     heading({ text, depth }) {
@@ -59,6 +125,7 @@ const marked = new Marked({
       return `<h${depth} id="${id}">${text}</h${depth}>\n`
     },
     link({ href, text }) {
+      if (!isSafeUrl(href)) return text
       const isExternal = href.startsWith('http://') || href.startsWith('https://')
       if (isExternal) {
         return `<a href="${href}" target="_blank" rel="noopener noreferrer">${text}</a>`
@@ -66,6 +133,7 @@ const marked = new Marked({
       return `<a href="${href}">${text}</a>`
     },
     image({ href, title, text }) {
+      if (!isSafeUrl(href)) return ''
       const alt = text ? ` alt="${text}"` : ' alt=""'
       const titleAttr = title ? ` title="${title}"` : ''
       return `<img src="${href}"${alt}${titleAttr} loading="lazy" />`
@@ -154,6 +222,27 @@ export function calculateReadTime(body: string): number {
   return Math.max(1, Math.ceil(words / 200))
 }
 
+export type ContentHeading = {
+  id: string
+  text: string
+  depth: number
+}
+
+export function extractHeadings(body: string): ContentHeading[] {
+  const headings: ContentHeading[] = []
+  const regex = /^(#{2,3})\s+(.+)$/gm
+  let match: RegExpExecArray | null = regex.exec(body)
+  while (match !== null) {
+    headings.push({
+      id: slugify(match[2]!),
+      text: match[2]!,
+      depth: match[1]!.length,
+    })
+    match = regex.exec(body)
+  }
+  return headings
+}
+
 export type ParsedContentItem = {
   frontmatter: Record<string, unknown>
   slug: string
@@ -164,15 +253,38 @@ export type ParsedContentFull = {
   html: string
   body: string
   readTime: number
+  headings: ContentHeading[]
 }
 
-export async function listContentFiles(dir: string): Promise<ParsedContentItem[]> {
-  let files: string[]
+function collectMdFiles(dir: string, recursive: boolean, prefix = ''): string[] {
+  let entries: string[]
   try {
-    files = readdirSync(dir).filter((f) => f.endsWith('.md'))
+    entries = readdirSync(dir)
   } catch {
     return []
   }
+
+  const files: string[] = []
+  for (const entry of entries) {
+    const fullPath = join(dir, entry)
+    try {
+      const stat = statSync(fullPath)
+      if (stat.isFile() && entry.endsWith('.md')) {
+        files.push(prefix ? `${prefix}/${entry}` : entry)
+      } else if (recursive && stat.isDirectory() && !entry.startsWith('.')) {
+        files.push(...collectMdFiles(fullPath, true, prefix ? `${prefix}/${entry}` : entry))
+      }
+    } catch {}
+  }
+  return files
+}
+
+export async function listContentFiles(
+  dir: string,
+  options?: { recursive?: boolean },
+): Promise<ParsedContentItem[]> {
+  const recursive = options?.recursive ?? false
+  const files = collectMdFiles(dir, recursive)
 
   const items: ParsedContentItem[] = []
 
@@ -181,9 +293,11 @@ export async function listContentFiles(dir: string): Promise<ParsedContentItem[]
     try {
       const { frontmatter } = parseFrontmatter(raw)
       if (frontmatter.status === 'draft') continue
-      const slug = (frontmatter.slug as string) || file.replace('.md', '')
+      const slug = (frontmatter.slug as string) || file.replace('.md', '').replace(/\\/g, '/')
       items.push({ frontmatter: { ...frontmatter, slug }, slug })
-    } catch {}
+    } catch {
+      console.warn(`Skipping ${file}: invalid frontmatter`)
+    }
   }
 
   items.sort((a, b) => {
@@ -195,11 +309,22 @@ export async function listContentFiles(dir: string): Promise<ParsedContentItem[]
   return items
 }
 
-export async function getContentFile(dir: string, slug: string): Promise<ParsedContentFull | null> {
-  // Sanitize slug to prevent path traversal
-  if (slug.includes('..') || slug.includes('/') || slug.includes('\\')) return null
+export async function getContentFile(
+  dir: string,
+  slug: string,
+  options?: { allowNested?: boolean },
+): Promise<ParsedContentFull | null> {
+  // Block path traversal
+  if (slug.includes('..') || slug.includes('\\')) return null
 
-  const filePath = join(dir, `${slug}.md`)
+  // Nested slugs (section/page) allowed when explicitly enabled
+  if (slug.includes('/') && !options?.allowNested) return null
+
+  // Resolve and verify the path stays within the content directory
+  const resolvedDir = resolve(dir)
+  const filePath = resolve(dir, `${slug}.md`)
+  if (!filePath.startsWith(resolvedDir)) return null
+
   let raw: string
   try {
     raw = readFileSync(filePath, 'utf-8')
@@ -207,11 +332,17 @@ export async function getContentFile(dir: string, slug: string): Promise<ParsedC
     return null
   }
 
-  const { frontmatter, body } = parseFrontmatter(raw)
-  if (frontmatter.status === 'draft') return null
+  try {
+    const { frontmatter, body } = parseFrontmatter(raw)
+    if (frontmatter.status === 'draft') return null
 
-  const html = renderMarkdown(body)
-  const readTime = calculateReadTime(body)
+    const html = renderMarkdown(body)
+    const readTime = calculateReadTime(body)
+    const headings = extractHeadings(body)
 
-  return { frontmatter: { ...frontmatter, slug }, html, body, readTime }
+    return { frontmatter: { ...frontmatter, slug }, html, body, readTime, headings }
+  } catch {
+    console.warn(`Failed to parse ${slug}: invalid frontmatter`)
+    return null
+  }
 }

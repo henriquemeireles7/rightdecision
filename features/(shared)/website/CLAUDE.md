@@ -28,3 +28,32 @@ websiteRoutes.get('/my-page', (c) => {
   ))
 })
 ```
+
+---
+<!-- AUTO-GENERATED BELOW — do not edit manually -->
+
+## Files
+| File | Exports |
+|------|---------|
+| about.tsx | AboutPage |
+| blog-index.tsx | BlogIndex |
+| blog-post.tsx | BlogPost |
+| blog-routes.tsx | blogRoutes |
+| concept-index.tsx | ConceptIndex |
+| concept-page.tsx | ConceptPage |
+| concept-routes.tsx | conceptRoutes |
+| homepage.tsx | Homepage, getHomepageProps |
+| layout.tsx | Layout |
+| legal-routes.tsx | legalRoutes |
+| og-image.ts | generateOgImage |
+| routes.tsx | websiteRoutes |
+| seo.ts | SeoConfig, renderMetaTags, renderJsonLd, buildArticleSchema, buildFaqSchema, buildOrganizationSchema, buildWebSiteSchema, buildPersonSchema, buildProductSchema, buildBreadcrumbSchema |
+| sitemap.ts | sitemapRoutes |
+
+## Internal Dependencies
+- features/(life)
+- platform/env
+- platform/server
+- providers/markdown
+
+<!-- Generated: 2026-04-09T08:39:56.731Z -->

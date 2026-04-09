@@ -27,6 +27,8 @@ jobs:
       PUBLIC_STRIPE_KEY: pk_test_placeholder
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: oven-sh/setup-bun@v2
 
       - name: Install
@@ -57,6 +59,8 @@ jobs:
       DATABASE_URL: postgresql://test:test@localhost:5432/test
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: oven-sh/setup-bun@v2
       - name: Install
         run: bun install --frozen-lockfile
