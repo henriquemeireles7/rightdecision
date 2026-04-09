@@ -22,7 +22,7 @@ CREATE TABLE "free_intro_sessions" (
 );
 --> statement-breakpoint
 DROP INDEX "user_decisions_user_class_idx";--> statement-breakpoint
-ALTER TABLE "pipeline_runs" ADD COLUMN "step_timings" jsonb;--> statement-breakpoint
+ALTER TABLE "pipeline_runs" ADD COLUMN IF NOT EXISTS "step_timings" jsonb;--> statement-breakpoint
 ALTER TABLE "subscriptions" ADD COLUMN "plan_interval" text DEFAULT 'year' NOT NULL;--> statement-breakpoint
 ALTER TABLE "user_decisions" ADD COLUMN "block_id" text NOT NULL;--> statement-breakpoint
 ALTER TABLE "user_decisions" ADD COLUMN "is_custom" boolean DEFAULT false NOT NULL;--> statement-breakpoint
