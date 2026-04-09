@@ -13,7 +13,7 @@ import { env } from '@/platform/env'
 import { throwError } from '@/platform/errors'
 import { success } from '@/platform/server/responses'
 import { sendEmail } from '@/providers/email'
-import { payments } from '@/providers/payments'
+import { intervalFromPriceId, payments } from '@/providers/payments'
 import { getUserForSubscription } from './helpers'
 
 export const webhookRoutes = new Hono()
@@ -80,6 +80,9 @@ webhookRoutes.post('/', async (c) => {
 
       const sub = await payments.subscriptions.retrieve(subscriptionId)
       const periodEnd = (sub as unknown as { current_period_end: number }).current_period_end
+      const priceId =
+        (sub as unknown as { items?: { data?: Array<{ price?: { id?: string } }> } }).items
+          ?.data?.[0]?.price?.id ?? ''
 
       await db
         .insert(subscriptions)
@@ -87,6 +90,7 @@ webhookRoutes.post('/', async (c) => {
           stripeCustomerId: customerId,
           stripeSubscriptionId: subscriptionId,
           status: 'active',
+          planInterval: intervalFromPriceId(priceId),
           currentPeriodEnd: new Date(periodEnd * 1000),
         })
         .onConflictDoNothing({ target: subscriptions.stripeSubscriptionId })

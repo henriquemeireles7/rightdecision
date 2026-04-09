@@ -83,14 +83,24 @@ bunx tsc --noEmit providers/*.ts
 ## Files
 | File | Exports |
 |------|---------|
+<<<<<<< HEAD
+| ai.ts | generateSuggestions |
+| analytics.ts | track, identify, shutdown |
+| content.ts | ClassType, DecisionBlockDef, ContentSegment, CourseClass, CourseModule, Course, splitIntoSegments, resolveClassId, getClass, getModule, getAllModules, getClassesByCourse, searchClasses, getTotalClasses, getCourse, getAllCourses |
+=======
 | analytics.ts | track, identify, shutdown |
 | content.ts | ClassType, CourseClass, CourseModule, Course, resolveClassId, getClass, getModule, getAllModules, getClassesByCourse, searchClasses, getTotalClasses, getCourse, getAllCourses |
+>>>>>>> origin/master
 | email.ts | email, sendEmail |
 | errors.ts | ProviderError |
 | indexnow.ts | submitUrls, loadSubmittedLog, saveSubmittedLog, getUnsubmittedUrls |
 | markdown.ts | BlogPostFrontmatter, ConceptFrontmatter, LegalFrontmatter, BlogPost, Concept, Legal, renderCourseMarkdown, parseFrontmatter, renderMarkdown, calculateReadTime, ParsedContentItem, ParsedContentFull, listContentFiles, getContentFile |
+<<<<<<< HEAD
+| payments.ts | payments, plans, PlanInterval, PlanId, intervalFromPriceId |
+=======
 | payments.ts | payments, plans, PlanId |
 | profile.ts | QuickRef, ProfileData, ProfileReport, listProfiles, readProfile, getHealthScore, validateProfiles |
+>>>>>>> origin/master
 | search-console.ts | isConfigured, getAccessToken, InspectionResult, inspectUrl, AnalyticsRow, getSearchAnalytics |
 | social-analytics.ts | PostMetrics, getMetrics |
 | social-posting.ts | PostResult, Profile, post, getPostStatus, listProfiles |
@@ -101,4 +111,8 @@ bunx tsc --noEmit providers/*.ts
 - platform/env
 - providers/errors
 
+<<<<<<< HEAD
+<!-- Generated: 2026-04-09T09:30:25.865Z -->
+=======
 <!-- Generated: 2026-04-09T08:16:27.993Z -->
+>>>>>>> origin/master

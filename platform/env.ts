@@ -8,6 +8,9 @@ export const env = createEnv({
     STRIPE_SECRET_KEY: z.string().startsWith('sk_'),
     STRIPE_WEBHOOK_SECRET: z.string().startsWith('whsec_'),
     STRIPE_PRICE_ID: z.string().startsWith('price_'),
+    STRIPE_MONTHLY_PRICE_ID: z.string().startsWith('price_'),
+    // ─── AI: Anthropic (decision block suggestions) ───
+    ANTHROPIC_API_KEY: z.string().startsWith('sk-ant-'),
     RESEND_API_KEY: z.string().min(1),
     BETTER_AUTH_SECRET: z.string().min(32),
     PORT: z.coerce.number().default(3000),

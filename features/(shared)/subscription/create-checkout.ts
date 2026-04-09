@@ -9,21 +9,25 @@ import { payments, plans } from '@/providers/payments'
 
 const checkoutSchema = z.object({
   email: z.string().email().optional(),
+  plan: z.enum(['monthly', 'yearly']).default('yearly'),
 })
 
 export const checkoutRoutes = new Hono()
 
 checkoutRoutes.get('/redirect', async (c) => {
+  const planKey = c.req.query('plan') === 'monthly' ? 'monthly' : 'yearly'
+  const plan = plans[planKey]
+
   try {
     const session = await payments.checkout.sessions.create({
       mode: 'subscription',
       payment_method_types: ['card'],
-      line_items: [{ price: plans.course.priceId, quantity: 1 }],
+      line_items: [{ price: plan.priceId, quantity: 1 }],
       success_url: `${env.PUBLIC_APP_URL}/purchase/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: env.PUBLIC_APP_URL,
       allow_promotion_codes: true,
     })
-    track('checkout_started', { plan: 'course', price: plans.course.priceId })
+    track('checkout_started', { plan: planKey, price: plan.priceId })
     if (!session.url) return c.redirect(env.PUBLIC_APP_URL, 303)
     return c.redirect(session.url, 303)
   } catch (error) {
@@ -33,13 +37,14 @@ checkoutRoutes.get('/redirect', async (c) => {
 })
 
 checkoutRoutes.post('/', zValidator('json', checkoutSchema), async (c) => {
-  const { email } = c.req.valid('json')
+  const { email, plan: planKey } = c.req.valid('json')
+  const plan = plans[planKey]
 
   try {
     const session = await payments.checkout.sessions.create({
       mode: 'subscription',
       payment_method_types: ['card'],
-      line_items: [{ price: plans.course.priceId, quantity: 1 }],
+      line_items: [{ price: plan.priceId, quantity: 1 }],
       success_url: `${env.PUBLIC_APP_URL}/purchase/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: env.PUBLIC_APP_URL,
       allow_promotion_codes: true,

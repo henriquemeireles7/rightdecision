@@ -43,9 +43,10 @@ bunx tsc --noEmit platform/scripts/*.ts
 | seed-accounts.ts | — |
 | seed-users.ts | — |
 | seed-wins.ts | — |
+| validate-block-ids.ts | — |
 
 ## Internal Dependencies
 - platform/auth
 - platform/db
 
-<!-- Generated: 2026-04-09T05:18:36.330Z -->
+<!-- Generated: 2026-04-09T09:30:25.867Z -->
