@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0.1] - 2026-04-08
+
+### Fixed
+- OG image font loading crash on Railway deploy — `import.meta.dir` resolved incorrectly after bundling to `dist/`, causing ENOENT for `InstrumentSerif-Regular.ttf`. Switched to `process.cwd()` which resolves correctly in both dev and production.
+
 ## [0.2.0.0] - 2026-04-08
 
 ### Added
