@@ -1,4 +1,4 @@
-# /whats-working — AI Insight Generation
+# /d-whats-working — AI Insight Generation
 
 Analyze engagement analytics and generate one actionable recommendation. This skill does the AI thinking; the server endpoint validates and saves.
 

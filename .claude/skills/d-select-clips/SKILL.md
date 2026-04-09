@@ -1,12 +1,12 @@
-# /select-clips — AI Clip Selection
+# /d-select-clips — AI Clip Selection
 
 Pick the best clips from a podcast transcript. This skill does the AI thinking; the server endpoint validates and saves.
 
 ## When to use
-After a pipeline run reaches "transcribed" status. Usually called by /process-episode, but can be run standalone.
+After a pipeline run reaches "transcribed" status. Usually called by /d-process-episode, but can be run standalone.
 
 ## Input
-- Pipeline run ID (the user provides this, or you get it from /process-episode context)
+- Pipeline run ID (the user provides this, or you get it from /d-process-episode context)
 - `--profile <name>` (optional) — Target profile slug (e.g., `indy-kaz`, `henry-kaz`). When provided, clip scoring is persona-aware.
 
 ## Steps
@@ -78,7 +78,7 @@ When a profile is loaded, scoring criteria shift to prioritize content that matc
 ## Output Format
 
 ### SUCCESS (clips found)
-Show a formatted table of selected clips with scores, titles, and platform fit. If profile was used, note which play each clip maps to. Suggest next action: "Run `/generate-metadata --profile <name>` to create posts for these clips."
+Show a formatted table of selected clips with scores, titles, and platform fit. If profile was used, note which play each clip maps to. Suggest next action: "Run `/d-generate-metadata --profile <name>` to create posts for these clips."
 
 ### ERROR (pipeline or profile issue)
 Show actionable error message with fix command. Example: "Profile 'nonexistent' not found. Available profiles: indy-kaz, henry-kaz, the-right-decision"

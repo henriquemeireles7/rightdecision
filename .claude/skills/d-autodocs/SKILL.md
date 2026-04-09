@@ -16,10 +16,10 @@ d-meta → d-input → d-docs → d-write
 
 ## Usage
 ```
-/autodocs "VSL script"
-/autodocs "social media strategy"
-/autodocs "course module 3 content"
-/autodocs "Business Decisions methodology"
+/d-autodocs "VSL script"
+/d-autodocs "social media strategy"
+/d-autodocs "course module 3 content"
+/d-autodocs "Business Decisions methodology"
 ```
 
 ## How it works

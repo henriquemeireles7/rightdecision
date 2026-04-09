@@ -16,9 +16,9 @@ d-jtbd → d-prd → d-tasks → d-code → d-review → suggest /ship
 
 ## Usage
 ```
-/autocode "Life Decisions V1"
-/autocode "Business Decisions onboarding"
-/autocode "Wins Board feature"
+/d-autocode "Life Decisions V1"
+/d-autocode "Business Decisions onboarding"
+/d-autocode "Wins Board feature"
 ```
 
 ## How it works

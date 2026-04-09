@@ -1,4 +1,4 @@
-# /collect-analytics — Trigger Analytics Collection
+# /d-collect-analytics — Trigger Analytics Collection
 
 Simple automation skill that triggers the analytics collection endpoint. No AI thinking needed.
 

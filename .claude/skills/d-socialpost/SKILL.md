@@ -53,11 +53,11 @@ Idea: "You don't need another book, you need to decide"
 [post text]
 #hashtags
 
-Next: Copy these to your scheduling tool, or run /process-episode --profile indy-kaz for podcast-derived content.
+Next: Copy these to your scheduling tool, or run /d-process-episode --profile indy-kaz for podcast-derived content.
 ```
 
 ### ERROR
-"Profile 'xyz' not found. Available: indy-kaz, henry-kaz, the-right-decision. Run `/profile-create` to add a new one."
+"Profile 'xyz' not found. Available: indy-kaz, henry-kaz, the-right-decision. Run `/d-profile-create` to add a new one."
 
 ### EMPTY (no active platforms)
 "Profile 'indy-kaz' has no active platforms configured in social.md. Add platform accounts first."

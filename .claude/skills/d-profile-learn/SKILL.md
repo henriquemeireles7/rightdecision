@@ -1,4 +1,4 @@
-# /profile-learn — Analytics to Learning to Profile Update
+# /d-profile-learn — Analytics to Learning to Profile Update
 
 The learning flywheel. Pulls analytics for a profile's posts, analyzes what worked, writes a learning file, optionally updates the profile, and writes a changelog. Makes profiles smarter over time.
 
@@ -98,14 +98,14 @@ Posts analyzed: 47 | Date range: 2026-03-01 — 2026-04-08
 Learning file: content/profiles/indy-kaz/learning/2026_04_08-weekly-review.md
 Changelog: content/profiles/indy-kaz/changelog/2026_04_08-hook-optimization.md
 Changes: Updated 2 hooks in Play 1, added Instagram posting time insight.
-Next: Run /profile-preview to see how the updated profile generates content.
+Next: Run /d-profile-preview to see how the updated profile generates content.
 ```
 
 ### ERROR
 "Profile 'xyz' not found. Available profiles: indy-kaz, henry-kaz, the-right-decision"
 
 ### EMPTY (insufficient data)
-"indy-kaz has 3/10 required posts with analytics. Post more content and collect analytics first. Run `/collect-analytics --profile indy-kaz` to pull latest metrics."
+"indy-kaz has 3/10 required posts with analytics. Post more content and collect analytics first. Run `/d-collect-analytics --profile indy-kaz` to pull latest metrics."
 
 ## Rules
 - NEVER guess from insufficient data — the min data gate exists for a reason

@@ -1,4 +1,4 @@
-# /profile-preview — Sample Posts Without Real Episode
+# /d-profile-preview — Sample Posts Without Real Episode
 
 Generate sample social media posts to preview what a profile produces. Zero-cost iteration before committing real content.
 
@@ -20,7 +20,7 @@ After creating or updating a profile, before running a real episode. For BD clie
    The profile needs at least:
    - Filled Identity section
    - At least 1 play with hooks
-   If plays are empty, suggest: "Run `/profile-create` or `/d-input` to add plays first."
+   If plays are empty, suggest: "Run `/d-profile-create` or `/d-input` to add plays first."
 
 3. **Generate sample posts**
    For each play in the profile (up to 3 plays):
@@ -52,15 +52,15 @@ Profile Preview: indy-kaz | Health: 4/10 | Plays: 2
   TikTok (256/300 chars):
   [post text...]
 
-Satisfied? Run /process-episode --profile indy-kaz to generate real content.
-Not right? Edit content/profiles/indy-kaz/profile.md and run /profile-preview again.
+Satisfied? Run /d-process-episode --profile indy-kaz to generate real content.
+Not right? Edit content/profiles/indy-kaz/profile.md and run /d-profile-preview again.
 ```
 
 ### ERROR
 "Profile 'xyz' not found. Available: indy-kaz, henry-kaz, the-right-decision"
 
 ### EMPTY (profile not ready)
-"Profile 'indy-kaz' has no plays defined. Run `/profile-create indy-kaz` or `/d-input` to add the copy framework."
+"Profile 'indy-kaz' has no plays defined. Run `/d-profile-create indy-kaz` or `/d-input` to add the copy framework."
 
 ## Rules
 - NEVER post or save these samples — preview only

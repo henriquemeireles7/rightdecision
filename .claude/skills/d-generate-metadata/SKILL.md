@@ -1,9 +1,9 @@
-# /generate-metadata — AI Metadata Generation
+# /d-generate-metadata — AI Metadata Generation
 
 Generate platform-specific descriptions, hashtags, and CTAs for cut clips. This skill does the AI thinking; the server endpoint validates and saves.
 
 ## When to use
-After clips are cut (pipeline status "cut"). Usually called by /process-episode, but can run standalone.
+After clips are cut (pipeline status "cut"). Usually called by /d-process-episode, but can run standalone.
 
 ## Input
 - Pipeline run ID
@@ -80,10 +80,10 @@ When profile context is loaded, metadata generation becomes persona-specific:
 ## Output Format
 
 ### SUCCESS (metadata generated)
-Show a brief per platform: profile used, play matched, character count vs limit, first 100 chars of description. Suggest next action: "Run `/process-episode` to post, or review metadata in the pipeline dashboard."
+Show a brief per platform: profile used, play matched, character count vs limit, first 100 chars of description. Suggest next action: "Run `/d-process-episode` to post, or review metadata in the pipeline dashboard."
 
 ### ERROR (profile or pipeline issue)
 Actionable error with fix command. Example: "Profile 'indy-kaz' has no plays defined yet. Run `/d-input` to fill in the copy framework."
 
 ### EMPTY (no clips available)
-"No cut clips found for pipeline run. Run `/select-clips --profile <name>` first."
+"No cut clips found for pipeline run. Run `/d-select-clips --profile <name>` first."

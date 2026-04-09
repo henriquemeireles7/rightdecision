@@ -1,4 +1,4 @@
-# /profile-create — Bootstrap New Profiles from Framework
+# /d-profile-create — Bootstrap New Profiles from Framework
 
 Create a new persona profile from the template using the founder's structured copy framework. This is the BD client onboarding entry point.
 
@@ -75,9 +75,9 @@ Health score: 7/10
   Completeness: 5/5 | Depth: 2/3 (need 3+ hooks/play) | Maturity: 0/3 (no learnings yet)
 
 Next steps:
-1. Run /profile-preview jane-doe to see sample posts
-2. Run /process-episode --profile jane-doe to generate content from a podcast
-3. After 10+ posts, run /profile-learn jane-doe to start the flywheel
+1. Run /d-profile-preview jane-doe to see sample posts
+2. Run /d-process-episode --profile jane-doe to generate content from a podcast
+3. After 10+ posts, run /d-profile-learn jane-doe to start the flywheel
 ```
 
 ### ERROR

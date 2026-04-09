@@ -1,12 +1,12 @@
-# /process-episode -- Master Pipeline Skill
+# /d-process-episode -- Master Pipeline Skill
 
 Run the full podcast-to-social pipeline from video URL to distributed posts.
 Accepts a new video URL or a run ID to resume from a failed step.
 
 ## When to use
-- New episode: `/process-episode episodes/my-episode.mp4`
-- Resume failed: `/process-episode --resume <run-id>`
-- Dry run: `/process-episode episodes/test.mp4 --dry-run`
+- New episode: `/d-process-episode episodes/my-episode.mp4`
+- Resume failed: `/d-process-episode --resume <run-id>`
+- Dry run: `/d-process-episode episodes/test.mp4 --dry-run`
 
 ## Input
 The user provides either:
@@ -22,8 +22,8 @@ import { listProfiles } from '@/providers/profile'
 const profiles = listProfiles()
 ```
 - If profiles exist and `--profile` is NOT specified: prompt the user to select from the list. Do NOT allow skipping.
-- If profiles exist and `--profile` IS specified: validate it exists, then pass to `/select-clips --profile` and `/generate-metadata --profile`
-- If NO profiles exist (first-run): proceed without profile (backward compatible). Suggest running `/profile-create` after.
+- If profiles exist and `--profile` IS specified: validate it exists, then pass to `/d-select-clips --profile` and `/d-generate-metadata --profile`
+- If NO profiles exist (first-run): proceed without profile (backward compatible). Suggest running `/d-profile-create` after.
 
 ## Pre-flight Checks (MANDATORY)
 
@@ -85,7 +85,7 @@ Read the `transcript` field. Analyze it and pick the best 30-60 second segments.
 **Phase 1 (now):** Prompt the user for clip selections. Show the transcript and ask
 which segments to clip. The user provides timestamps, scores, and titles.
 
-**Phase 2 (future):** Use /select-clips skill to have AI analyze the transcript
+**Phase 2 (future):** Use /d-select-clips skill to have AI analyze the transcript
 and suggest clips automatically.
 
 Then POST the selections:
@@ -116,7 +116,7 @@ Read the cut clips. For each clip, generate platform-specific metadata.
 
 **Phase 1 (now):** Prompt the user for descriptions, hashtags, and CTAs per clip per platform.
 
-**Phase 2 (future):** Use /generate-metadata skill to have AI write platform-native copy.
+**Phase 2 (future):** Use /d-generate-metadata skill to have AI write platform-native copy.
 
 Then POST:
 ```
