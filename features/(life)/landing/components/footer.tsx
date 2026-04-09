@@ -11,7 +11,7 @@ export function Footer() {
           </div>
 
           <div class="flex items-center gap-6 text-sm">
-            <a href="/api/auth/signin" class="text-body hover:text-ink transition-colors">
+            <a href="/login" class="text-body hover:text-ink transition-colors">
               Already a student? Log in
             </a>
           </div>
