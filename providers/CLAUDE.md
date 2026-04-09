@@ -25,7 +25,7 @@ Thin wrappers around external services. One file per capability, named by WHAT i
 ## email.ts (Resend)
 - Docs: https://resend.com/docs/api-reference
 - Exports: `email` (Resend client), `sendEmail()` helper
-- From address: `Right Decision <hello@rightdecision.com>` — hardcoded, do not change without approval
+- From address: `Right Decision <henry@rightdecision.io>` — hardcoded, do not change without approval
 - Use `sendEmail(to, subject, html)` helper — NEVER call `email.emails.send()` directly from features
 - HTML emails only (no plain text fallback needed for now)
 
@@ -88,8 +88,9 @@ bunx tsc --noEmit providers/*.ts
 | email.ts | email, sendEmail |
 | errors.ts | ProviderError |
 | indexnow.ts | submitUrls, loadSubmittedLog, saveSubmittedLog, getUnsubmittedUrls |
-| markdown.ts | BlogPostFrontmatter, ConceptFrontmatter, MethodFrontmatter, HandbookFrontmatter, GuideFrontmatter, HelpFrontmatter, ChangelogFrontmatter, LegalFrontmatter, BlogPost, Concept, Method, Handbook, Guide, Help, Changelog, Legal, renderCourseMarkdown, parseFrontmatter, renderMarkdown, calculateReadTime, ContentHeading, extractHeadings, ParsedContentItem, ParsedContentFull, listContentFiles, getContentFile |
+| markdown.ts | BlogPostFrontmatter, ConceptFrontmatter, LegalFrontmatter, BlogPost, Concept, Legal, renderCourseMarkdown, parseFrontmatter, renderMarkdown, calculateReadTime, ParsedContentItem, ParsedContentFull, listContentFiles, getContentFile |
 | payments.ts | payments, plans, PlanId |
+| profile.ts | QuickRef, ProfileData, ProfileReport, listProfiles, readProfile, getHealthScore, validateProfiles |
 | search-console.ts | isConfigured, getAccessToken, InspectionResult, inspectUrl, AnalyticsRow, getSearchAnalytics |
 | social-analytics.ts | PostMetrics, getMetrics |
 | social-posting.ts | PostResult, Profile, post, getPostStatus, listProfiles |
@@ -100,4 +101,4 @@ bunx tsc --noEmit providers/*.ts
 - platform/env
 - providers/errors
 
-<!-- Generated: 2026-04-09T09:28:53.844Z -->
+<!-- Generated: 2026-04-09T08:16:27.993Z -->

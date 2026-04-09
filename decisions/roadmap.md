@@ -83,7 +83,7 @@ Things AI flagged but needs human action to unblock:
 - [ ] Set up social media accounts per doc #7 specs
 - [ ] Railway PostgreSQL production database setup
 - [ ] Stripe account configuration
-- [ ] Domain registration for therightdecision.com
+- [ ] Domain registration for rightdecision.io
 - [ ] Henry + Indy do Life Decisions exercises as example content (later)
 - [ ] Choose Wins Board taxonomy — "Wins Board", "Victory Hall", or something else (brand-aligned naming)
 

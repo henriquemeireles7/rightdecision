@@ -208,7 +208,7 @@ Run anytime. "Test everything, fix what you find."
 Daily smoke test at 8am. Results posted or saved to `.context/qa-reports/`.
 ```
 Schedule: "57 7 * * *" (daily at 7:57am local)
-Prompt: "Run /qa-only on https://therightdecision.com — Quick tier.
+Prompt: "Run /qa-only on https://rightdecision.io — Quick tier.
          Save report to .context/qa-reports/YYYY-MM-DD.md.
          If any critical failures, flag for review."
 ```

@@ -2,11 +2,21 @@ import { Hono } from 'hono'
 import { renderPage } from '@/platform/server/render'
 import { payments } from '@/providers/payments'
 import { ForgotPasswordPage } from './forgot-password'
+import { LoginPage } from './login'
 import { PurchaseSuccessPage } from './purchase-success'
 import { ResetPasswordPage } from './reset-password'
 import { VerifyEmailPage } from './verify-email'
 
 export const authPageRoutes = new Hono()
+
+authPageRoutes.get('/login', (c) => {
+  return c.html(
+    renderPage(<LoginPage />, {
+      title: 'Log In — Right Decision',
+      description: 'Log in to your Right Decision account.',
+    }),
+  )
+})
 
 authPageRoutes.get('/forgot-password', (c) => {
   return c.html(

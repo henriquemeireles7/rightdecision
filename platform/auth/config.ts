@@ -11,6 +11,16 @@ export const auth = betterAuth({
   }),
   secret: env.BETTER_AUTH_SECRET,
   baseURL: env.PUBLIC_APP_URL,
+  trustedOrigins: ['http://localhost:*', 'http://127.0.0.1:*'],
+  socialProviders:
+    env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
+      ? {
+          google: {
+            clientId: env.GOOGLE_CLIENT_ID,
+            clientSecret: env.GOOGLE_CLIENT_SECRET,
+          },
+        }
+      : undefined,
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,

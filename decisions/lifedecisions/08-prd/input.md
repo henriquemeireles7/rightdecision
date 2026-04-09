@@ -3,7 +3,7 @@
 ## Key Decisions Made
 
 ### 1. Two-App Architecture
-- **Web app** (therightdecision.com): course player, onboarding, auth, payment, Wins Board, progress tracking
+- **Web app** (rightdecision.io): course player, onboarding, auth, payment, Wins Board, progress tracking
 - **Claude Cowork** (user's desktop): AI skills, decision work, methodology exercises, file storage
 - **V1 connection:** None. The two apps are separate. Skills-to-API connection deferred to V1.1
 - **Rationale:** Simplest to build. Matches "your computer, your data" positioning. Skills are docs-only.

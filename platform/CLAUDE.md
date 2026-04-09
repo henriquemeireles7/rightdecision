@@ -47,4 +47,4 @@ bunx tsc --noEmit platform/env.ts platform/errors.ts platform/types.ts
 | errors.ts | errors, ErrorCode, throwError |
 | types.ts | AppUser, AppEnv |
 
-<!-- Generated: 2026-04-06T23:27:10.498Z -->
+<!-- Generated: 2026-04-09T06:41:37.137Z -->

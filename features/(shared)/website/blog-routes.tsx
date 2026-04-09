@@ -7,7 +7,7 @@ import { BlogIndex } from './blog-index'
 import { BlogPost } from './blog-post'
 import { buildArticleSchema, buildBreadcrumbSchema, renderJsonLd } from './seo'
 
-const BLOG_DIR = join(import.meta.dir, '../../../content/blog')
+const BLOG_DIR = join(process.cwd(), 'content/blog')
 const PER_PAGE = 10
 
 export const blogRoutes = new Hono()
