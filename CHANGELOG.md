@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0.0] - 2026-04-09
+
+### Added
+- Free 3-part intro funnel: social media → anonymous L1 → email gate L2 → decision L3 → paywall
+- Decision blocks: inline question + 3 AI-generated suggestions (Claude Haiku 4.5) + open text, content below blurred until answered
+- Content segmentation: lessons split at `:::decision-block` markers, server-side gating (no CSS-only blur)
+- Monthly billing ($19.70/mo) alongside existing yearly ($197/year) via Stripe
+- 3-email drip sequence (24h/72h/7d) with check-before-send conversion cancellation
+- Homepage redesign: vision-forward hero, decision block micro-demo, multi-program grid, pricing section
+- Decision export: branded PNG card via satori with constraint + decision + action step
+- Anonymous sessions with cookie-based tracking, merged to real account at email gate
+- A/B variant tracking via query params + PostHog registration
+- Rate limiting for email gate (5/IP/hr) and AI suggestions (10/IP/min)
+- Progressive reveal: blurred preview of locked modules in course dashboard
+- BlockId validator build-time script for content integrity
+- `providers/ai.ts`: Anthropic SDK wrapper for decision block suggestions
+- `freeIntroSessions` and `dripEmails` database tables
+- `planInterval` column on subscriptions table (month/year)
+
+### Changed
+- `userDecisions` table: added `blockId`, `isCustom`, `previousContext` columns for multi-block support
+- `payments.ts`: two plans (yearly + monthly) with `intervalFromPriceId()` helper
+- `create-checkout.ts`: accepts `plan` parameter (monthly/yearly)
+- `handle-webhook.ts`: sets `planInterval` from Stripe price ID mapping
+- `access.ts`: `canAccessClass()` supports `isFreeClass` parameter
+- `content.ts`: added `ContentSegment`, `DecisionBlockDef` types, `splitIntoSegments()`, `free` frontmatter flag
+
 ## [0.2.3.1] - 2026-04-09
 
 ### Added
