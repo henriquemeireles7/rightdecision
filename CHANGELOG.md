@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.1.0] - 2026-04-08
+
+### Fixed
+- Blog, concepts, and legal pages showed "No articles yet" in production — Dockerfile never copied `content/` directory into the runtime stage.
+- All content path references used `import.meta.dir` which resolves incorrectly after `bun build` bundles to `dist/app.js`. Switched to `process.cwd()` across 8 files (same fix previously applied to OG images).
+- IndexNow submitted-log path had the same `import.meta.dir` bug.
+
+### Added
+- `prose-warm` CSS styles for blog, concept, and legal markdown content (headings, lists, links, blockquotes, code blocks, images, horizontal rules).
+
 ## [0.2.0.2] - 2026-04-08
 
 ### Fixed
