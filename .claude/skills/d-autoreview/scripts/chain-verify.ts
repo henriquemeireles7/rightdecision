@@ -14,7 +14,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 const EXPECTED_STEPS = [
-  { step: 1, name: 'd-harden' },
+  { step: 1, name: 'd-health' },
   { step: 2, name: '/review' },
   { step: 3, name: '/simplify' },
   { step: 4, name: 'd-review' },

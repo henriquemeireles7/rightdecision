@@ -1,210 +1,328 @@
 ---
 name: d-review
-description: "Deep code review using fresh eyes methodology. Security, performance, TDD, architecture checks. Triggers: 'd-review', 'deep review', 'fresh eyes', 'check quality', 'review the code'."
+description: "Intelligent pre-commit review: script-first mechanical checks + AI-powered logic review. Fix-first, finding-first. Triggers: 'd-review', 'review', 'check quality', 'review the code', 'pre-commit check'."
 ---
 
-# d-review — Deep Code Review
+# d-review — Intelligent Pre-Commit Review
+
+## Quick Reference
+- `/d-review` — Full review: orchestrator + 6 AI phases (~1-2 min)
+- `/d-review quick` — Orchestrator + final gate only (~15s)
+- `/d-review mechanical` — Just orchestrator JSON, no AI phases
 
 ## What this does
-Reviews code changes with fresh eyes before committing. Checks security, performance,
-TDD compliance, architecture rules, and bead acceptance criteria. Produces a structured
-pass/fail report. Fixes issues found.
+Script-first quality gate before committing. The orchestrator runs all mechanical checks
+in parallel (~5s), then AI focuses on what scripts can't catch: logic bugs, ripple effects,
+test quality, coherence, and adversarial thinking.
+
+Fix-first: every issue found is fixed immediately. Report leads with findings, not phases.
 
 ## Pipeline
-d-meta → d-input → d-docs → d-tasks → d-code → **d-review** → /ship
+d-code → **d-review** → /ship
 
 ## When to run
-- After d-code completes a batch of beads (before committing)
-- Before /ship (pre-landing review)
-- Anytime code quality is in question
+- Before every commit
+- Before /ship
+- After d-code completes a batch of beads
 
-## Before Starting
-1. Read root CLAUDE.md (build order, rules)
-2. Read `decisions/coding.md` (dependency rules, security, performance, content layer)
-3. Read `decisions/hardening.md` (known issues, prior audit findings)
-4. Run `bun run check` — get a baseline (includes harden-check.ts)
-5. Run `git diff --stat` — understand the scope of changes
+---
 
-## Review Methodology: Fresh Eyes + Structured Checks
+## Pre-condition: bun run check
 
-### Phase 0: Mechanical Gate (MANDATORY — run FIRST)
-Run the full check pipeline before starting any analysis:
 ```sh
 bun run check
 ```
-This runs: biome ci (lint+format) → tsc --noEmit (typecheck) → harden-check → bun test.
 
-If it FAILS, FIX THE FAILURES before proceeding. Do not start the review until this passes.
-This catches the class of issues that human review misses: import ordering, button types,
-label a11y, implicit any, CSS issues — the mechanical stuff that caused CI failures on
-the website-seo-strategy branch (2026-04-08).
+This runs lint + typecheck + tests. MUST pass before the review starts.
+If it fails, fix those failures first. This is NOT part of the review.
 
-### Phase 1: Fresh Eyes Scan (random exploration)
-Pretend you've never seen this code. Pick 3-5 random changed files and read them cold:
-- Does the code make sense without context?
-- Are variable names clear?
-- Are there magic numbers or strings?
-- Does the code read like the CLAUDE.md describes?
-- Would a new agent understand this file?
+---
 
-### Phase 2: Architecture Check
-Read `decisions/coding.md` dependency rules, then verify:
-
-**2a. Dependency direction**
-- `features/` does NOT import from other `features/`
-- `providers/` does NOT import from `features/`
-- `platform/` does NOT import from `features/`
-- `pages/` files are < 20 lines
-- Route chains are connected (`.route()` chaining in routes.ts)
-
-**2b. Folder CLAUDE.md consistency**
-- Every new folder has a CLAUDE.md
-- CLAUDE.md Purpose matches what the code actually does
-- Critical Rules are followed by the code in that folder
-- Import maps match actual imports used
-
-**2c. Build Order compliance**
-- Schema changes exist before feature code
-- Error codes added before they're used
-- Env vars added before they're referenced
-- Tests exist alongside implementation files
-
-### Phase 2.5: UBS Bug Scan
-Run UBS on changed files to catch bugs the structured review might miss:
-```sh
-ubs --diff --format=toon
-```
-If UBS finds issues:
-- Severity error: fix immediately
-- Severity warn: fix if straightforward, otherwise note in report
-- Skip categories 11,14 (TODO/debug nits) unless the finding is clearly a bug
-
-UBS catches patterns that Biome and harden-check miss: null derefs, resource leaks,
-error swallowing, unsafe regex, off-by-one errors, and 1000+ language-specific pitfalls.
-
-### Phase 3: Security Check (delegates to d-harden phases 2-4)
-Run the mechanical hardening check first:
-```sh
-bun platform/scripts/harden-check.ts
-```
-If errors found, fix them before continuing.
-
-Then apply judgment-level checks from d-harden phases 2-4:
-- [ ] All user input validated via Zod (`@hono/zod-validator`) — schema completeness, not just presence
-- [ ] No `process.env` usage outside `platform/env.ts`
-- [ ] No stack traces returned in error responses
-- [ ] No sensitive data logged (passwords, tokens, card numbers)
-- [ ] Auth middleware on protected routes (`requireAuth`)
-- [ ] Permission checks where needed (`requirePermission`)
-- [ ] IDOR check: can user A access user B's data by changing IDs?
-- [ ] No SQL injection (all queries through Drizzle ORM)
-- [ ] XSS test: `<script>alert(1)</script>` renders escaped in user-content areas
-- [ ] Stripe webhook signature verified before processing
-- [ ] Payment amounts validated server-side (not from client)
-- [ ] Rate limiting on public endpoints (auth, checkout)
-
-Reference: `decisions/coding.md` Security Patterns + `decisions/hardening.md` for known issues.
-
-### Phase 4: Performance Check (delegates to d-harden phase 5)
-Reference: `decisions/coding.md` Performance Patterns
-
-- [ ] No N+1 queries (use Drizzle relational queries for joins)
-- [ ] API responses designed for < 200ms (single DB operations)
-- [ ] No unnecessary re-renders in Preact components
-- [ ] Content loaded from in-memory Map, not per-request file I/O
-- [ ] No blocking operations in request handlers
-- [ ] Pagination for list endpoints (not unbounded queries)
-- [ ] Indexes exist for queried columns (check schema.ts)
-- [ ] fetch() calls have timeouts
-
-### Phase 5: TDD Check
-Reference: `decisions/coding.md` TDD Methodology
-
-- [ ] Every `.ts` file has a corresponding `.test.ts` in the same folder
-- [ ] Tests test BEHAVIOR ("when I call X with Y, I get Z"), not implementation
-- [ ] Error paths tested (bad input, missing auth, locked resources)
-- [ ] Edge cases tested (empty arrays, null values, boundary conditions)
-- [ ] No test helpers abstracted prematurely (< 3 duplications)
-- [ ] `bun run check` passes (lint + typecheck + test)
-
-### Phase 6: Beads Compliance Check
-For each bead that was implemented:
+## Phase 0: Orchestrator (script, ~5s)
 
 ```sh
-br show <bead-id>
+bun .claude/skills/d-review/scripts/review-orchestrator.ts
 ```
 
-- [ ] All files listed in bead description were created/modified
-- [ ] Acceptance criteria met (check each criterion)
-- [ ] No scope creep (code doesn't do more than the bead specifies)
-- [ ] No scope gaps (code does everything the bead specifies)
+Read the JSON output. It runs 4 checks in parallel:
+- **harden-check** — security patterns, raw env, raw json, SQL injection, secrets
+- **coverage-check** — every changed .ts file has a .test.ts
+- **dep-check** — no cross-feature imports, no upward dependencies
+- **ubs** — bug scanner (optional, skipped if not installed)
 
-### Phase 7: Content/Voice Check (if user-facing content was changed)
-Only if changes include user-facing text (course content, onboarding copy, emails):
+If any check has `status: "error"` or `status: "skipped"`, note the warning:
+- Tool crash: "[tool] crashed (exit code N). Run `bun [path]` manually to see the error. Review continues without [tool] checks."
+- Tool timeout: "[tool] timed out after Ns. Your diff may touch many files. Run `bun [path]` manually."
+- Tool missing: "[tool] not found. Install with [command] or skip (optional tool)."
 
-- Read `decisions/voice.md`
-- [ ] No AI-sounding language ("I'd be happy to", "Let me help you")
-- [ ] Questions that stop, not questions that flow
-- [ ] Pattern interrupts present
-- [ ] Specificity over generality
+**For `/d-review quick`:** Skip to Phase 7 after this phase.
+**For `/d-review mechanical`:** Output the JSON and stop.
 
-## Fix Loop
-For each issue found:
-1. Fix the issue directly (don't just report it)
-2. Re-run the check that caught it
-3. Continue until all checks pass
+---
 
-If a fix is too large for this review session, create a bead:
+## Phase 1: Mechanical Fix (AI)
+
+Read the Phase 0 JSON. For each check with `status: "fail"`:
+1. Read the findings array
+2. Fix each issue
+3. Re-run the specific check that failed to verify the fix
+4. Run `bun run check` to ensure no regressions
+
+Move on only when all fixable issues are resolved.
+
+---
+
+## Phase 2: Fresh Eyes (AI — logic bug hunting)
+
+Read every changed file via `git diff -p`.
+
+**Systematic technique** — for each changed function:
+1. Read the function name and signature
+2. Predict what it should do based on the name alone
+3. Read the implementation
+4. Note any mismatch between prediction and reality
+5. Check every branch: what happens with null? empty string? 0? negative? max value?
+
+Specific patterns to catch:
+- Logic bugs (function says X but does Y)
+- Off-by-one errors, wrong comparisons (< vs <=, > vs >=)
+- Wrong variable used (copy-paste with a different name)
+- Missing null/undefined checks on paths that CAN be null
+- Dead code introduced by the diff
+- Function names that don't match actual behavior
+
+For each finding: file, line, what's wrong, suggested fix, confidence 1-10.
+
+**Auto-fix** findings with confidence >= 4. Run `bun run check` after each fix.
+If check fails, revert the fix and report as "attempted fix failed."
+
+---
+
+## Phase 3: Ripple Effect (AI — trace callers)
+
+**Smart filter:** Only analyze exports where the SIGNATURE changed (parameters, return
+type, or export name). If only the function body changed, skip that export.
+
+For each export with a changed signature:
+1. Run `rg 'functionName' --glob '*.{ts,tsx}'` to find all callers
+2. Read each caller's surrounding context (~10 lines)
+3. Check: does the change break any caller's assumptions?
+4. Check: did return type change? Callers may not handle new cases.
+5. Check: did parameter order or types change?
+
+Limits:
+- Max 10 exports analyzed regardless of diff size
+- Priority: changed signatures > changed return types > changed behavior
+- 1-hop depth only (direct callers, not callers of callers)
+
+---
+
+## Phase 4: Test Quality (AI — assertion review)
+
+For each changed file that has a `.test.ts` or `.test.tsx`:
+1. Read the test file completely
+2. List what IS asserted
+3. List what is NOT asserted (compare against the function's branches)
+4. Check: are assertions testing behavior or implementation details?
+5. Check: are error paths tested (not just happy path)?
+6. Check: are edge cases covered (empty arrays, null, 0, boundaries)?
+7. Check: are mocks targeting external deps (correct) or internal logic (wrong)?
+8. Check: do test descriptions match what they actually test?
+
+To find shared/integration tests that may also cover changed code:
 ```sh
-br create "Fix: [description]" -t bug -p 1 --parent <epic-id>
+rg 'from.*changed-module-name' --glob '*.test.{ts,tsx}'
 ```
 
-### Final Gate (MANDATORY — run LAST, after all fixes)
-After applying all fixes from all phases, run:
+---
+
+## Phase 5: Coherence (AI — Seven Files cross-check)
+
+Read all seven files:
+1. `platform/env.ts`
+2. `platform/errors.ts`
+3. `platform/db/schema.ts`
+4. `platform/server/routes.ts`
+5. `platform/server/responses.ts`
+6. `platform/auth/permissions.ts`
+7. `providers/analytics.ts`
+
+Then check coherence **only for entities touched by the diff**:
+
+### 5a. Schema → Routes
+If a **new table** was added to schema.ts:
+- [ ] At least one route reads/writes it (or it's a join table)
+- [ ] Route is registered in routes.ts
+
+### 5b. Schema → Errors
+If a **new table or lookup** was added:
+- [ ] Corresponding NOT_FOUND error exists in errors.ts
+- [ ] Validation errors exist if the table has constrained fields
+
+### 5c. Routes → Errors
+If a **new route** was added:
+- [ ] Uses `throwError()` for all error paths
+- [ ] Error codes it throws actually exist in errors.ts
+
+### 5d. Routes → Responses
+If a **new route** was added:
+- [ ] Returns via `success()`, `created()`, `paginated()`, `accepted()`, `noContent()`, or `partial()`
+- [ ] Never returns raw `c.json()`
+
+### 5e. Routes → Auth
+If a **new route** was added under `/api/*`:
+- [ ] Has `requireAuth` middleware (unless auth/webhook endpoint)
+- [ ] If role-specific, uses `requirePermission()`
+
+### 5f. Routes → Permissions
+If a **new permission-gated feature** was added:
+- [ ] Permission exists in permissions.ts
+- [ ] At least one role has the permission
+
+### 5g. Env → Usage
+If a **new env var** was added:
+- [ ] Actually referenced in at least one file outside env.ts
+- [ ] Has correct Zod type
+
+If code **references a new external service**:
+- [ ] Env var exists in env.ts for its API key/config
+
+### 5h. Errors → Usage
+If a **new error code** was added:
+- [ ] Actually thrown somewhere via `throwError()`
+
+### 5i. Permissions → Completeness
+If a **new feature route** was added that serves paying users:
+- [ ] `pro` role has a permission that gates it
+
+### 5j. Analytics gaps
+If a **new user-facing action** was added:
+- [ ] `track()` call exists for the action
+
+**Fix every coherence gap found. If a fix requires adding to a Seven File, do it.**
+
+---
+
+## Phase 6: Adversarial (AI — hostile QA)
+
+**NEVER SKIP regardless of diff size.**
+For large diffs (>500 lines): scope to the top 5 riskiest changes
+(endpoints handling auth, payments, data mutations, or user-facing state changes).
+
+**Systematic technique** — for each new/changed endpoint or user action:
+1. Identify the input surface (params, body, headers, query)
+2. Try each input as: null, empty, negative, huge string, special chars, HTML/script
+3. Ask: "What if two requests hit this simultaneously?" (race condition)
+4. Ask: "What if the user submits twice in 100ms?" (double-submit)
+5. Ask: "Old code and new code running during deploy... what breaks?" (deploy edge)
+6. Ask: "Process crashes mid-operation... what state is left?" (corruption)
+
+---
+
+## Phase 7: Final Gate
+
 ```sh
 bun run check
 ```
-If it fails, you introduced a regression. Fix it. Do not output VERDICT: READY until this passes.
-This is the same command CI runs — if it passes locally, CI will pass.
 
-## Mandatory Output
+Must pass. If it fails, you introduced a regression. Fix it.
 
-### Review Report
+---
+
+## Checkpoint Behavior
+
+Before starting each AI phase (2-6), note internally which phases have completed.
+If the review crashes or is interrupted:
+- Fixes from completed phases are already applied to files
+- On the next `/d-review` invocation, check for an incomplete prior review
+- Offer: "Previous review completed through Phase N. Resume from Phase N+1? Or start fresh?"
+
+---
+
+## Confidence Scores (AI phases 2-6)
+
+Every finding gets a confidence score:
+- **1-3 (Low):** Flagged for human review. NOT auto-fixed. "I think this might be an issue but I'm not sure."
+- **4-6 (Medium):** Auto-fix attempted with safety net. Reported with caveat: "Medium confidence, verify this is correct."
+- **7-10 (High):** Auto-fixed with safety net. Clear issue with evidence.
+
+**Safety net:** `bun run check` after each AI-generated fix. If check fails, revert the fix and report as "attempted fix failed."
+
+All findings appear in the report regardless of confidence. Confidence only determines auto-fix behavior.
+
+Evidence format per finding:
 ```
-=== D-REVIEW REPORT ===
-Scope: [X files changed, Y beads reviewed]
-
-Architecture:  ✅ PASS | ❌ FAIL (list issues)
-Security:      ✅ PASS | ❌ FAIL (list issues)
-Performance:   ✅ PASS | ❌ FAIL (list issues)
-TDD:           ✅ PASS | ❌ FAIL (list issues)
-Beads:         ✅ PASS | ❌ FAIL (list issues)
-Voice:         ✅ PASS | ⏭ N/A (no user-facing content)
-
-Issues found:  X
-Issues fixed:  Y
-Beads created: Z (for deferred fixes)
-
-VERDICT: ✅ READY TO COMMIT | ❌ NEEDS FIXES
+[CONFIDENCE/10] file:line — description
+  Evidence: what the code does vs what it should do
+  Fix: applied / attempted-failed / needs-human
 ```
 
-### If READY TO COMMIT
-```
-All checks pass. Run:
-  git add <files>
-  git commit -m "feat: [summary]"
-  git push
+---
 
-Then run /ship to create PR.
+## Scaling Rules
+- **< 200 lines:** All phases, full depth
+- **200-500 lines:** Phase 3 limited to top 10 modified exports
+- **500+ lines:** Phase 3 limited to top 5 exports. Phase 6 scoped to top 5 riskiest changes. Warning: "Large diff, consider splitting."
+- **1000+ lines:** Same as 500+ with stronger warning: "This diff is very large. Review quality degrades. Strongly recommend splitting."
+
+---
+
+## Output
+
+### Finding-First Report
+
+When issues ARE found, lead with findings (sorted by confidence, highest first):
+
 ```
+=== D-REVIEW: X ISSUES FOUND ===
+
+FINDINGS (sorted by confidence):
+  [9/10] platform/auth/routes.ts:34 — Missing null check on session.userId
+         Evidence: getUserById called with potentially undefined userId when session expires
+         Fix: Applied. Added early return with throwError(UNAUTHORIZED).
+
+  [6/10] features/(life)/course/progress.ts:89 — Off-by-one in lesson completion check
+         Evidence: lessonIndex >= lessons.length should be lessonIndex > lessons.length - 1
+         Fix: Applied (medium confidence, verify this is correct).
+
+  [3/10] providers/payments.ts:52 — Possible race condition on concurrent webhook delivery
+         Fix: Needs human review.
+
+PHASE DETAILS:
+  Phase 0 (Orchestrator): Harden PASS | Coverage PASS | Deps PASS | UBS SKIPPED
+  Phase 1 (Mechanical Fix): 0 issues
+  Phase 2 (Fresh Eyes): 2 findings
+  Phase 3 (Ripple Effect): 5 callers checked, 0 concerns
+  Phase 4 (Test Quality): 3 tests reviewed, 1 shallow
+  Phase 5 (Coherence): 8/8 checks passed
+  Phase 6 (Adversarial): 1 attack vector
+
+CONFIDENCE SUMMARY:
+  High (7-10): 1 finding (auto-fixed)
+  Medium (4-6): 1 finding (auto-fixed with caveat)
+  Low (1-3): 1 finding (NEEDS HUMAN REVIEW)
+
+Review completed in 1:47 | 8 files | 3 findings | 2 auto-fixes
+VERDICT: NEEDS HUMAN REVIEW (1 low-confidence finding requires your attention)
+```
+
+### Clean Report (0 issues found)
+
+When ALL phases find zero issues:
+
+```
+=== D-REVIEW: READY TO COMMIT ===
+0 issues found | 8 files checked | 47s
+All phases clean. Commit away.
+```
+
+---
 
 ## Rules
-- ALWAYS run `bun run check` as the FIRST and LAST action — it is the mechanical safety net that catches what human review misses
-- NEVER skip a check phase — even if the change looks small
+- ALWAYS run `bun run check` as pre-condition before starting
+- NEVER skip a phase (use `/d-review quick` if you need speed)
 - NEVER approve code with failing `bun run check`
-- ALWAYS read the folder's CLAUDE.md before reviewing code in that folder
-- ALWAYS verify bead acceptance criteria, not just "does it compile"
-- Fix issues directly when possible — don't just report them
-- Create beads for issues too large to fix in review
-- Security and performance checks reference decisions/coding.md patterns
-- Voice check only applies when user-facing content was changed
+- FIX first, report second
+- Create beads only for issues too large to fix in-session: `br create "Fix: [description]" -t bug -p 1`
+- Coherence checks only apply to entities touched by the diff (that's d-health's job for the full codebase)
+- Lead the report with findings, not phases

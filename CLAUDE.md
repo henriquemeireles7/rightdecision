@@ -127,7 +127,7 @@ Hooks are defined in .claude/settings.json and run automatically:
 When work is done and the user confirms, run `bun run check` (lint + typecheck + test), then commit and push. Do not commit after every edit — commit at logical completion points.
 
 ### Auto-commit for doc-only skills
-Document skills (d-meta, d-input, d-plan, d-auto, d-jtbd, d-prd, d-tasks, d-write, autodocs) auto-commit and push after saving. These skills only modify non-code files (md, json, jsonl) so they can't break anything. Code skills (d-code, d-review, d-harden) do NOT auto-commit — they modify ts/tsx files that need `bun run check` first.
+Document skills (d-meta, d-input, d-plan, d-auto, d-jtbd, d-prd, d-tasks, d-write, autodocs) auto-commit and push after saving. These skills only modify non-code files (md, json, jsonl) so they can't break anything. Code skills (d-code, d-review, d-health) do NOT auto-commit — they modify ts/tsx files that need `bun run check` first.
 
 ## Universal Reference Files (decisions/*.md)
 Read the files that match your task. Read as many as needed:
@@ -371,11 +371,11 @@ Key routing rules:
 - Full document pipeline → invoke autodocs
 - Transform document into tasks → invoke d-tasks
 - Code from beads tasks → invoke d-code
-- Deep code review, fresh eyes, check quality → invoke d-review
-- Security hardening, production ready, is this secure → invoke d-harden
+- Pre-commit review, check quality, review the code → invoke d-review (fast: harden quick + coherence quick, fix-first)
+- Codebase health, full audit, how healthy is the code, security check → invoke d-health (10 sessions, report-only, never fixes)
 - Write content from strategy docs → invoke d-write
 - JTBD, validate demand, what to build → invoke d-jtbd
 - PRD, product requirements → invoke d-prd
 - Full coding pipeline end-to-end → invoke autocode
-- Review and ship, full review chain → invoke d-autoreview
+- Review and ship, full review chain → invoke d-autoreview (d-review → /simplify → /qa → /ship)
 - Build/deploy error, prevent this, learn from error → invoke d-harness

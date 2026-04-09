@@ -15,6 +15,7 @@ const ROOT = import.meta.dir.replace('/platform/scripts', '')
 const args = process.argv.slice(2)
 const _FIX_MODE = args.includes('--fix')
 const QUIET = args.includes('--quiet')
+const JSON_OUTPUT = args.includes('--json')
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -332,7 +333,16 @@ for (const f of uiFiles) {
 const errors = findings.filter((f) => f.severity === 'error')
 const warnings = findings.filter((f) => f.severity === 'warn')
 
-if (!QUIET && findings.length > 0) {
+if (JSON_OUTPUT) {
+  console.log(
+    JSON.stringify({
+      pass: errors.length === 0,
+      errors: errors.length,
+      warnings: warnings.length,
+      findings,
+    }),
+  )
+} else if (!QUIET && findings.length > 0) {
   console.log('\n  Hardening Check Results')
   console.log('  ═══════════════════════\n')
 
@@ -343,9 +353,7 @@ if (!QUIET && findings.length > 0) {
   }
 
   console.log(`  Summary: ${errors.length} error(s), ${warnings.length} warning(s)\n`)
-}
-
-if (!QUIET && findings.length === 0) {
+} else if (!QUIET && findings.length === 0) {
   console.log('  Hardening check passed — no issues found.\n')
 }
 

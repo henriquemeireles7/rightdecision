@@ -5,7 +5,7 @@
 > Mode: —
 
 ## Current Status
-No audit has been run yet. Run `/d-harden` to perform the first hardening audit.
+No audit has been run yet. Run `/d-health` to perform the first health audit (d-harden was merged into d-health).
 
 ## Outstanding Issues
 | ID | Severity | Phase | Description | Bead |
