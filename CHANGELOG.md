@@ -2,11 +2,38 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.2.2.4] - 2026-04-09
+## [0.2.3.1] - 2026-04-09
 
 ### Added
 - Health Stack config in CLAUDE.md for `/health` code quality dashboard (typecheck, lint, test, shell)
 - `knip` devDependency for dead code detection
+
+## [0.2.3.0] - 2026-04-09
+
+### Added
+- Unified content platform: 3-column DocsLayout with tab bar, sidebar, and "on this page" navigation
+- Route factory (createContentRoutes): one config object per content type, zero boilerplate
+- 6 content types: Handbook, Blog, Method, Guides, Help Center, Changelog
+- Handbook: section cards index, system-map SVG diagram, open-source page with GitHub star CTA
+- Blog migration into DocsLayout with cluster filter pills preserved
+- Concepts renamed to Method with 301 redirects from /concepts to /method
+- Full-text search across all content types (Fuse.js, CDN-loaded, PostHog analytics)
+- Interactive features: copy code blocks, keyboard nav (Cmd+K, j/k), page feedback, social share
+- Mobile bottom sheet navigation for docs pages
+- Collapsible "on this page" section for tablet/mobile
+- Build scripts: search index, git timestamps, GitHub star count
+- DOMPurify sanitization on all rendered markdown
+- In-memory content caching with TTL (60s dev, 5min prod)
+- Print-friendly stylesheet for docs pages
+- XSS protection: HTML escaping in search results, isSafeUrl guard for markdown links
+- Starter content: 2 handbook pages, 1 guide, 1 help article, 1 changelog entry
+
+### Changed
+- Header/footer navigation: Handbook, Blog, Method replace old Concepts link
+- Sitemap includes all 6 content types with correct priorities
+- OG image route searches all content directories
+- CI: fetch-depth 0 for git timestamp accuracy
+- Dockerfile: build scripts run before app build, content directory copied to runtime
 
 ## [0.2.2.3] - 2026-04-09
 

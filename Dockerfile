@@ -9,6 +9,7 @@ FROM base AS build
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
 COPY . .
+RUN bun run scripts/build-search-index.ts && bun run scripts/build-timestamps.ts && bun run scripts/build-github-stars.ts || true
 RUN bun run build
 
 FROM base AS runtime
