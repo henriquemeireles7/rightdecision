@@ -1,12 +1,12 @@
 ---
 name: d-autoreview
-description: "Unified review chain before shipping: d-harden -> /review -> /simplify -> d-review -> /qa -> /ship. One command, fully reviewed code out. Triggers: 'd-autoreview', 'full review', 'review and ship'."
+description: "Unified review chain before shipping: d-review -> /simplify -> /qa -> /ship. One command, fully reviewed code out. Triggers: 'd-autoreview', 'full review', 'review and ship'."
 ---
 
 # d-autoreview — Unified Review Chain
 
 ## What this does
-Chains all quality checks into a single pre-ship pipeline. Runs six review steps sequentially,
+Chains all quality checks into a single pre-ship pipeline. Runs four review steps sequentially,
 fixing issues found at each step before proceeding to the next. The output is a fully reviewed
 PR ready for merge.
 
@@ -15,28 +15,17 @@ d-code (implement) → **d-autoreview** (review + ship)
 
 ## The Chain
 
-### Step 1: Security & Performance Hardening (d-harden)
-Run security and performance hardening as the foundational first step:
-- Check for SQL injection, missing parameterization, unsafe queries
-- Check for missing auth/permission guards on routes
-- Check for exposed secrets, unsafe env access, missing rate limiting
-- Check Dockerfile runtime stage includes all files needed by railway.toml commands
-- Check for performance anti-patterns (N+1 queries, missing indexes)
-- Fix any issues found before proceeding
+### Step 1: d-review (harden quick + coherence quick)
+Run the fast pre-commit review:
+- Harden quick: security, perf, pattern compliance on changed files
+- Coherence quick: cross-check changes against the Seven Files for logical gaps
+- Fixes all issues found before proceeding
 
-If critical issues found: fix them, re-run `bun run check`, then proceed.
+d-review already runs `bun run check` as first and last action.
 
-### Step 2: Pre-Landing Diff Review (/review)
-Run the pre-landing PR review on the current diff against master:
-- SQL safety (injection, missing parameterization)
-- LLM/AI trust boundary violations
-- Conditional side effects (actions that should be atomic)
-- Error handling gaps
-- Fix any issues found before proceeding
+If critical issues found: fix them, verify `bun run check` passes, then proceed.
 
-If critical issues found: fix them, re-run `bun run check`, then proceed.
-
-### Step 3: DRY & Simplify (/simplify)
+### Step 2: /simplify (DRY & reuse)
 Review changed code for reuse opportunities and quality:
 - Flag any function that duplicates existing platform/ or provider/ utilities
 - Flag any Zod schema that could reuse existing schema via `.extend()` or `.pick()`
@@ -46,30 +35,17 @@ Review changed code for reuse opportunities and quality:
 
 If issues found: fix them, re-run `bun run check`, then proceed.
 
-### Step 4: Fresh Eyes Review (d-review)
-Run a deep code review using fresh eyes methodology:
-- Reread ALL changed code looking for bugs, security issues, performance problems
-- Check TDD coverage — are there missing test cases?
-- Check architecture — does the code follow DSA patterns?
-- Check dependency direction (features/ must not import from other features/)
-- Check test coverage (every .ts file needs a .test.ts)
-- Fix any issues found before proceeding
-- Creates beads for deferred fixes that are not blocking
-
-If critical issues found: fix them, re-run `bun run check`, then proceed.
-
-### Step 5: QA — Runtime Bug Check (/qa)
+### Step 3: /qa (runtime bug check)
 Run QA to catch runtime bugs that static analysis misses:
-- Test all changed routes/endpoints manually
+- Test all changed routes/endpoints
 - Verify error paths return correct status codes and error shapes
 - Check edge cases: empty inputs, missing fields, invalid types
-- Verify database operations work end-to-end
 - Check browser rendering if pages/ changed
 - Fix any issues found before proceeding
 
 If critical issues found: fix them, re-run `bun run check`, then proceed.
 
-### Step 6: Ship (/ship)
+### Step 4: /ship (create PR)
 Run the ship workflow:
 - Merge base branch, run tests, review diff
 - Bump VERSION, update CHANGELOG
@@ -80,10 +56,8 @@ Run the ship workflow:
 - ALWAYS fix issues before proceeding to the next step (don't accumulate)
 - ALWAYS run `bun run check` after fixing issues at any step
 - If a step reveals issues that require significant rework, stop and inform the user
-- The chain is mandatory before any code hits master (founder decision from eng review)
-- No individual gates on beads during d-code — this chain catches everything at once
-- d-harden is FIRST because security/performance issues are foundational
-- d-review is late because it creates beads for deferred fixes — do quick fixes first
+- d-review is FIRST because it covers both hardening and coherence in one pass
+- /simplify is second because it catches duplication before QA runs
 - /qa is before /ship to catch runtime bugs before creating the PR
 
 ## When to use
@@ -95,12 +69,10 @@ Run the ship workflow:
 After completion, report:
 ```
 === AUTOREVIEW SUMMARY ===
-Step 1 (d-harden): X issues found, X fixed
-Step 2 (/review): X issues found, X fixed
-Step 3 (/simplify): X issues found, X fixed
-Step 4 (d-review): X issues found, X fixed, X deferred as beads
-Step 5 (/qa): X issues found, X fixed
-Step 6 (/ship): PR created → [URL]
+Step 1 (d-review): X issues found, X fixed
+Step 2 (/simplify): X issues found, X fixed
+Step 3 (/qa): X issues found, X fixed
+Step 4 (/ship): PR created → [URL]
 
 Total issues caught: X
 All checks passing: ✅

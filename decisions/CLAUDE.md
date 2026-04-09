@@ -43,4 +43,4 @@ company.md, roadmap.md, voice.md, architecture.md, coding.md, design.md, deploy.
 | roadmap.md | Roadmap — Current Priorities |
 | voice.md | Human Communication Guide |
 
-<!-- Generated: 2026-04-09T06:41:37.134Z -->
+<!-- Generated: 2026-04-09T21:54:19.091Z -->

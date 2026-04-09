@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.1.0] - 2026-04-09
+
+### Added
+- Unified d-health skill: 10-session codebase health audit (security, performance, UI, coherence, dead weight, tests, architecture, deps, content, scoring)
+- 4 companion scripts for automated checks: health-coherence.ts, health-dead-exports.ts, health-test-coverage.ts, health-architecture.ts
+- Shared utils.ts with walkDir, JSON output helpers for health scripts
+- Intelligent d-review v2: script-first orchestrator + 6 AI review phases
+- Review orchestrator script with parallel mechanical checks (harden, coverage, deps, UBS)
+
+### Changed
+- d-health absorbs d-harden (deleted), single mode, report-only, zero interaction
+- d-review upgraded from checklist-based to script-first architecture
+- CLAUDE.md skill routing updated (d-harden removed, d-health expanded)
+
+### Removed
+- d-harden skill (absorbed into d-health)
+
 ## [0.3.0.0] - 2026-04-09
 
 ### Added

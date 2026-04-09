@@ -48,8 +48,4 @@ bunx tsc --noEmit platform/env.ts platform/errors.ts platform/types.ts
 | rate-limit.ts | checkRateLimit |
 | types.ts | AppUser, AppEnv |
 
-<<<<<<< HEAD
 <!-- Generated: 2026-04-09T09:30:25.861Z -->
-=======
-<!-- Generated: 2026-04-09T06:41:37.137Z -->
->>>>>>> origin/master
