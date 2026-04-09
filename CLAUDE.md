@@ -382,3 +382,10 @@ Key routing rules:
 - Review and ship, full review chain → invoke d-autoreview
 - Build/deploy error, prevent this, learn from error → invoke d-harness
 - Deploy failed, fix the deploy, railway failed → invoke d-fail
+
+## Health Stack
+
+- typecheck: tsc --noEmit
+- lint: biome check .
+- test: bun test
+- shell: shellcheck .claude/hooks/*.sh

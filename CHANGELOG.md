@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.2.4] - 2026-04-09
+
+### Added
+- Health Stack config in CLAUDE.md for `/health` code quality dashboard (typecheck, lint, test, shell)
+- `knip` devDependency for dead code detection
+
 ## [0.2.2.3] - 2026-04-09
 
 ### Fixed
