@@ -7,8 +7,18 @@ After a pipeline run reaches "transcribed" status. Usually called by /process-ep
 
 ## Input
 - Pipeline run ID (the user provides this, or you get it from /process-episode context)
+- `--profile <name>` (optional) — Target profile slug (e.g., `indy-kaz`, `henry-kaz`). When provided, clip scoring is persona-aware.
 
 ## Steps
+
+0. **Load profile context (if --profile provided)**
+   ```ts
+   import { readProfile, listProfiles } from '@/providers/profile'
+   ```
+   - If `--profile` is provided, call `readProfile(profileName)` to get profile.md + social.md content
+   - If `--profile` is not provided, skip this step (backward compatible — score generically)
+   - If the profile doesn't exist, show available profiles via `listProfiles()` and ask the user to choose
+   - Inject the full profile.md content as context for scoring in step 2
 
 1. **Read the transcript**
    ```
@@ -50,12 +60,31 @@ After a pipeline run reaches "transcribed" status. Usually called by /process-ep
    { "pipelineRunId": "...", "clips": [...] }
    ```
 
-## Selection Criteria
+## Selection Criteria (Generic — no profile)
 - **Hook in first 3 seconds** — Would someone stop scrolling?
 - **Standalone value** — Does it make sense without context?
 - **Emotional beat** — Does it provoke curiosity, surprise, or recognition?
 - **Clean boundaries** — Does it start/end at natural pauses?
 - **Platform fit** — Short punchy = TikTok, story arc = YouTube, provocative = X
+
+## Selection Criteria (Profile-Aware — when --profile provided)
+When a profile is loaded, scoring criteria shift to prioritize content that matches the profile's audience:
+- **ICP alignment** — Does this clip speak to the profile's target audience? (e.g., Indy's women 30-50 vs Henry's entrepreneurs)
+- **Play match** — Which play does this clip best fit? Infer audience awareness state from the content, match to the profile's plays
+- **Hook resonance** — Does the hook match the profile's voice and hooks? (e.g., Indy = emotional truth, Henry = tactical insight)
+- **CTA potential** — Can this clip naturally lead to the profile's primary CTA?
+- All generic criteria still apply (standalone value, clean boundaries, platform fit)
+
+## Output Format
+
+### SUCCESS (clips found)
+Show a formatted table of selected clips with scores, titles, and platform fit. If profile was used, note which play each clip maps to. Suggest next action: "Run `/generate-metadata --profile <name>` to create posts for these clips."
+
+### ERROR (pipeline or profile issue)
+Show actionable error message with fix command. Example: "Profile 'nonexistent' not found. Available profiles: indy-kaz, henry-kaz, the-right-decision"
+
+### EMPTY (no good clips found)
+"No clips scored above threshold. The transcript may need a different content angle. Try: re-record focusing on [profile's big idea], or run without --profile for generic scoring."
 
 ## Quality Rules
 - Minimum 5 clips, target 15
