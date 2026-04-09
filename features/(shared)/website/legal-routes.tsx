@@ -4,7 +4,7 @@ import { renderPage } from '@/platform/server/render'
 import { getContentFile } from '@/providers/markdown'
 import { Layout } from './layout'
 
-const LEGAL_DIR = join(import.meta.dir, '../../../content/legal')
+const LEGAL_DIR = join(process.cwd(), 'content/legal')
 
 export const legalRoutes = new Hono()
 

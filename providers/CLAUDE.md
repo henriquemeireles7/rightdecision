@@ -25,7 +25,7 @@ Thin wrappers around external services. One file per capability, named by WHAT i
 ## email.ts (Resend)
 - Docs: https://resend.com/docs/api-reference
 - Exports: `email` (Resend client), `sendEmail()` helper
-- From address: `Right Decision <hello@rightdecision.com>` — hardcoded, do not change without approval
+- From address: `Right Decision <henry@rightdecision.io>` — hardcoded, do not change without approval
 - Use `sendEmail(to, subject, html)` helper — NEVER call `email.emails.send()` directly from features
 - HTML emails only (no plain text fallback needed for now)
 
@@ -83,10 +83,23 @@ bunx tsc --noEmit providers/*.ts
 ## Files
 | File | Exports |
 |------|---------|
+| ai.ts | generateSuggestions |
+| analytics.ts | track, identify, shutdown |
+| content.ts | ClassType, DecisionBlockDef, ContentSegment, CourseClass, CourseModule, Course, splitIntoSegments, resolveClassId, getClass, getModule, getAllModules, getClassesByCourse, searchClasses, getTotalClasses, getCourse, getAllCourses |
 | email.ts | email, sendEmail |
-| payments.ts | payments, plans, PlanId |
+| errors.ts | ProviderError |
+| indexnow.ts | submitUrls, loadSubmittedLog, saveSubmittedLog, getUnsubmittedUrls |
+| markdown.ts | BlogPostFrontmatter, ConceptFrontmatter, LegalFrontmatter, BlogPost, Concept, Legal, renderCourseMarkdown, parseFrontmatter, renderMarkdown, calculateReadTime, ParsedContentItem, ParsedContentFull, listContentFiles, getContentFile |
+| payments.ts | payments, plans, PlanInterval, PlanId, intervalFromPriceId |
+| profile.ts | QuickRef, ProfileData, ProfileReport, listProfiles, readProfile, getHealthScore, validateProfiles |
+| search-console.ts | isConfigured, getAccessToken, InspectionResult, inspectUrl, AnalyticsRow, getSearchAnalytics |
+| social-analytics.ts | PostMetrics, getMetrics |
+| social-posting.ts | PostResult, Profile, post, getPostStatus, listProfiles |
+| storage.ts | upload, download, getSignedUrl, remove |
+| transcription.ts | transcribe |
 
 ## Internal Dependencies
 - platform/env
+- providers/errors
 
-<!-- Generated: 2026-04-06T23:27:10.500Z -->
+<!-- Generated: 2026-04-09T09:30:25.865Z -->

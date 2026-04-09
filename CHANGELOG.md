@@ -2,6 +2,153 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0.0] - 2026-04-09
+
+### Added
+- Free 3-part intro funnel: social media → anonymous L1 → email gate L2 → decision L3 → paywall
+- Decision blocks: inline question + 3 AI-generated suggestions (Claude Haiku 4.5) + open text, content below blurred until answered
+- Content segmentation: lessons split at `:::decision-block` markers, server-side gating (no CSS-only blur)
+- Monthly billing ($19.70/mo) alongside existing yearly ($197/year) via Stripe
+- 3-email drip sequence (24h/72h/7d) with check-before-send conversion cancellation
+- Homepage redesign: vision-forward hero, decision block micro-demo, multi-program grid, pricing section
+- Decision export: branded PNG card via satori with constraint + decision + action step
+- Anonymous sessions with cookie-based tracking, merged to real account at email gate
+- A/B variant tracking via query params + PostHog registration
+- Rate limiting for email gate (5/IP/hr) and AI suggestions (10/IP/min)
+- Progressive reveal: blurred preview of locked modules in course dashboard
+- BlockId validator build-time script for content integrity
+- `providers/ai.ts`: Anthropic SDK wrapper for decision block suggestions
+- `freeIntroSessions` and `dripEmails` database tables
+- `planInterval` column on subscriptions table (month/year)
+
+### Changed
+- `userDecisions` table: added `blockId`, `isCustom`, `previousContext` columns for multi-block support
+- `payments.ts`: two plans (yearly + monthly) with `intervalFromPriceId()` helper
+- `create-checkout.ts`: accepts `plan` parameter (monthly/yearly)
+- `handle-webhook.ts`: sets `planInterval` from Stripe price ID mapping
+- `access.ts`: `canAccessClass()` supports `isFreeClass` parameter
+- `content.ts`: added `ContentSegment`, `DecisionBlockDef` types, `splitIntoSegments()`, `free` frontmatter flag
+
+## [0.2.3.1] - 2026-04-09
+
+### Added
+- Health Stack config in CLAUDE.md for `/health` code quality dashboard (typecheck, lint, test, shell)
+- `knip` devDependency for dead code detection
+
+## [0.2.3.0] - 2026-04-09
+
+### Added
+- Unified content platform: 3-column DocsLayout with tab bar, sidebar, and "on this page" navigation
+- Route factory (createContentRoutes): one config object per content type, zero boilerplate
+- 6 content types: Handbook, Blog, Method, Guides, Help Center, Changelog
+- Handbook: section cards index, system-map SVG diagram, open-source page with GitHub star CTA
+- Blog migration into DocsLayout with cluster filter pills preserved
+- Concepts renamed to Method with 301 redirects from /concepts to /method
+- Full-text search across all content types (Fuse.js, CDN-loaded, PostHog analytics)
+- Interactive features: copy code blocks, keyboard nav (Cmd+K, j/k), page feedback, social share
+- Mobile bottom sheet navigation for docs pages
+- Collapsible "on this page" section for tablet/mobile
+- Build scripts: search index, git timestamps, GitHub star count
+- DOMPurify sanitization on all rendered markdown
+- In-memory content caching with TTL (60s dev, 5min prod)
+- Print-friendly stylesheet for docs pages
+- XSS protection: HTML escaping in search results, isSafeUrl guard for markdown links
+- Starter content: 2 handbook pages, 1 guide, 1 help article, 1 changelog entry
+
+### Changed
+- Header/footer navigation: Handbook, Blog, Method replace old Concepts link
+- Sitemap includes all 6 content types with correct priorities
+- OG image route searches all content directories
+- CI: fetch-depth 0 for git timestamp accuracy
+- Dockerfile: build scripts run before app build, content directory copied to runtime
+
+## [0.2.2.3] - 2026-04-09
+
+### Fixed
+- Add security headers to all HTTP responses via Hono `secureHeaders()` middleware (CSP, X-Frame-Options, HSTS, X-Content-Type-Options, Referrer-Policy)
+- Dockerfile runs as non-root `bun` user in production container
+- SHA-pin third-party CI action `oven-sh/setup-bun` to prevent supply chain attacks
+
+### Added
+- `.dockerignore` to prevent secrets from leaking into Docker build layers
+
+## [0.2.2.2] - 2026-04-09
+
+### Changed
+- Refactor `providers/profile.ts`: extract `matchField()` helper to eliminate copy-paste in `parseQuickRef()`, remove dead `section` field from health score computation, fix TOCTOU race in `readProfile()` by replacing `existsSync` + `readFileSync` with try/catch
+
+## [0.2.2.1] - 2026-04-09
+
+### Fixed
+- Deploy failure: migration `0004_silent_deathbird.sql` tried to CREATE TABLE `webhook_events` which already existed in prod — changed to `CREATE TABLE IF NOT EXISTS`
+
+### Added
+- `/d-fail` skill for automated deploy failure recovery (pull Railway logs, diagnose, fix, ship, merge)
+- Skill routing rule for `d-fail` in CLAUDE.md
+
+## [0.2.2.0] - 2026-04-09
+
+### Added
+- Password visibility toggle (eye icon) on login page
+- Google OAuth login button and Better Auth social provider config
+- `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` optional env vars for OAuth
+- `trustedOrigins` config for Better Auth to fix "Invalid origin" error on localhost
+- Railway database access instructions in CLAUDE.md
+
+### Fixed
+- All domain references updated from `therightdecision.com` / `rightdecision.com` to `rightdecision.io` across 20+ files
+- Email sender address updated from `hello@` to `henry@rightdecision.io`
+- Social Media Profiles Intelligence Layer: persona-aware content pipeline with 3 profiles (indy-kaz, henry-kaz, the-right-decision), structured copy framework templates, and learning flywheel.
+- `providers/profile.ts`: readProfile(), listProfiles(), getHealthScore(), validateProfiles() with path traversal guards and profile name validation.
+- `profileSlug` column on posts table for analytics attribution per persona.
+- 6 PROFILE_* error codes in platform/errors.ts.
+- 4 new skills: /d-socialpost, /d-profile-learn, /d-profile-create, /d-profile-preview.
+- Profile-awareness in /d-select-clips, /d-generate-metadata, /d-process-episode, /d-whats-working.
+- `bun run validate-profiles` CLI command with health scoring and colored output.
+- All skills renamed to d- prefix for consistency (10 skills renamed).
+
+### Changed
+- `saveMetadata()` now accepts and propagates profileSlug to post rows.
+- decisions/architecture.md updated with Website Architecture section.
+- decisions/coding.md updated with new providers list.
+
+### Fixed
+- `import.meta.dir` in providers/profile.ts replaced with `process.cwd()` (production bundling fix).
+- Biome CI errors reduced from 18 to 0 across the codebase.
+- Non-null assertions replaced with optional chaining in profile provider and SEO scripts.
+
+## [0.2.1.1] - 2026-04-09
+
+### Added
+- Login page at `/login` with email/password form calling Better Auth sign-in endpoint.
+- User seed script (`platform/scripts/seed-users.ts`) for bootstrapping admin and test accounts.
+
+### Fixed
+- Footer "Log in" link pointed to non-existent `/api/auth/signin`. Now points to `/login`.
+
+## [0.2.1.0] - 2026-04-08
+
+### Fixed
+- Blog, concepts, and legal pages showed "No articles yet" in production — Dockerfile never copied `content/` directory into the runtime stage.
+- All content path references used `import.meta.dir` which resolves incorrectly after `bun build` bundles to `dist/app.js`. Switched to `process.cwd()` across 8 files (same fix previously applied to OG images).
+- IndexNow submitted-log path had the same `import.meta.dir` bug.
+
+### Added
+- `prose-warm` CSS styles for blog, concept, and legal markdown content (headings, lists, links, blockquotes, code blocks, images, horizontal rules).
+
+## [0.2.0.2] - 2026-04-08
+
+### Fixed
+- Conductor workspace config: archive script errored when no process found on port (empty `kill` args). Fixed with PID capture + conditional kill.
+- Conductor setup/run split: moved dev server from `setup` (runs once) to `run` (Conductor manages lifecycle). Dev server now runs in foreground so Conductor can monitor it.
+- Removed agent mail from per-workspace lifecycle — it's a shared global service that should run independently, not be started/killed by individual workspaces.
+- Fixed `.env` creation logic: shell operator precedence bug caused `sed` to run even when `.env` already existed.
+
+## [0.2.0.1] - 2026-04-08
+
+### Fixed
+- OG image font loading crash on Railway deploy — `import.meta.dir` resolved incorrectly after bundling to `dist/`, causing ENOENT for `InstrumentSerif-Regular.ttf`. Switched to `process.cwd()` which resolves correctly in both dev and production.
+
 ## [0.2.0.0] - 2026-04-08
 
 ### Added
@@ -151,7 +298,7 @@ All notable changes to this project will be documented in this file.
 ## [0.1.1.0] - 2026-04-08
 
 ### Added
-- Life Decisions landing page: 11-section sales page at therightdecision.com
+- Life Decisions landing page: 11-section sales page at rightdecision.io
 - SSR infrastructure: renderPage() function wraps any Preact component in full HTML document
 - Tailwind CSS v4 pipeline with design tokens from design.md (cream, gold, sand palette)
 - Static file serving via Hono serveStatic middleware

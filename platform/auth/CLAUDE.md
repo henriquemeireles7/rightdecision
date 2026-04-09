@@ -35,9 +35,11 @@ bun test platform/auth/
 | routes.ts | authRoutes |
 
 ## Internal Dependencies
+- features/(shared)
 - platform/db
 - platform/env
 - platform/errors
 - platform/types
+- providers/email
 
-<!-- Generated: 2026-04-06T23:27:10.494Z -->
+<!-- Generated: 2026-04-09T06:41:37.136Z -->

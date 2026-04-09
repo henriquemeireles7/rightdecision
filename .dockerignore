@@ -1,0 +1,15 @@
+.env
+.env.*
+!.env.example
+.git
+node_modules
+.beads
+coverage
+.gstack
+.claude
+.context
+.bv
+models
+mcp_agent_mail
+.DS_Store
+*.pem

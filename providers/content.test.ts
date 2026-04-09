@@ -52,7 +52,7 @@ describe('content provider', () => {
   })
 
   test('getModule returns undefined for nonexistent module', () => {
-    expect(getModule(99)).toBeUndefined()
+    expect(getModule(999)).toBeUndefined()
   })
 
   test('module 0 is free-course, others are full-course', () => {

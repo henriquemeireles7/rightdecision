@@ -135,7 +135,7 @@ Infrastructure first, then auth, then emails, then payments:
 - Fallback email provider (accepted risk — Resend is single point of failure for MVP)
 
 ## Dependencies
-- Resend account with custom domain (rightdecision.com)
+- Resend account with custom domain (rightdecision.io)
 - Stripe Dashboard: enable Smart Retries, configure Customer Portal
 - Better Auth: Google OAuth provider configuration
 - Google Cloud Console: OAuth client credentials

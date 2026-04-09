@@ -1,7 +1,7 @@
 # landing
 
 ## Purpose
-Landing page — main sales page at therightdecision.com. Pure SSR, zero client JS. Converts visitors to Stripe Checkout.
+Landing page — main sales page at rightdecision.io. Pure SSR, zero client JS. Converts visitors to Stripe Checkout.
 
 ## Critical Rules
 - NEVER add client-side JavaScript — this is 100% server-rendered HTML

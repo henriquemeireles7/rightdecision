@@ -5,6 +5,17 @@ import { join } from 'node:path'
 
 export type ClassType = 'theory' | 'practical'
 
+export type DecisionBlockDef = {
+  blockId: string
+  question: string
+}
+
+export type ContentSegment = {
+  type: 'content' | 'decision-block'
+  content?: string
+  block?: DecisionBlockDef
+}
+
 export type CourseClass = {
   id: string
   courseId: string
@@ -16,7 +27,9 @@ export type CourseClass = {
   durationMinutes: number
   type: ClassType
   content: string
+  free: boolean
   decisionPrompt: string | null
+  segments: ContentSegment[]
 }
 
 export type CourseModule = {
@@ -55,10 +68,53 @@ function parseFrontmatter(raw: string): { meta: Record<string, string>; content:
   return { meta, content: (match[2] ?? '').trim() }
 }
 
+// ─── Content Segmentation ────────────────────────────────────────────────────
+
+const DECISION_BLOCK_RE = /^:::decision-block\{([^}]+)\}$/gm
+
+function parseBlockAttributes(attrStr: string): DecisionBlockDef | null {
+  const questionMatch = attrStr.match(/question="([^"]+)"/)
+  const blockIdMatch = attrStr.match(/blockId="([^"]+)"/)
+  if (!questionMatch || !blockIdMatch) return null
+  return { question: questionMatch[1]!, blockId: blockIdMatch[1]! }
+}
+
+/** Split lesson markdown into segments at decision block markers. */
+export function splitIntoSegments(markdown: string): ContentSegment[] {
+  const segments: ContentSegment[] = []
+  let lastIndex = 0
+
+  for (const match of markdown.matchAll(DECISION_BLOCK_RE)) {
+    const beforeContent = markdown.slice(lastIndex, match.index).trim()
+    if (beforeContent) {
+      segments.push({ type: 'content', content: beforeContent })
+    }
+
+    const block = parseBlockAttributes(match[1] ?? '')
+    if (block) {
+      segments.push({ type: 'decision-block', block })
+    }
+
+    lastIndex = (match.index ?? 0) + match[0].length
+  }
+
+  const remaining = markdown.slice(lastIndex).trim()
+  if (remaining) {
+    segments.push({ type: 'content', content: remaining })
+  }
+
+  // If no decision blocks found, return single segment
+  if (segments.length === 0 && markdown.trim()) {
+    segments.push({ type: 'content', content: markdown.trim() })
+  }
+
+  return segments
+}
+
 // ─── Content Loading ─────────────────────────────────────────────────────────
 
-const COURSES_JSON_PATH = join(import.meta.dir, '../content/courses.json')
-const REDIRECTS_PATH = join(import.meta.dir, '../content/redirects.json')
+const COURSES_JSON_PATH = join(process.cwd(), 'content/courses.json')
+const REDIRECTS_PATH = join(process.cwd(), 'content/redirects.json')
 
 let redirects: Record<string, string> = {}
 const classMap = new Map<string, CourseClass>()
@@ -85,7 +141,7 @@ type CourseConfig = {
 }
 
 function loadCourseContent(config: CourseConfig) {
-  const contentDir = join(import.meta.dir, '..', config.contentDir)
+  const contentDir = join(process.cwd(), config.contentDir)
   const courseModules: CourseModule[] = []
 
   try {
@@ -127,7 +183,9 @@ function loadCourseContent(config: CourseConfig) {
           durationMinutes: Number.parseInt(meta.duration_minutes ?? '0', 10),
           type: inferClassType(meta.slug ?? file),
           content,
+          free: meta.free === 'true',
           decisionPrompt: meta.decision_prompt || null,
+          segments: splitIntoSegments(content),
         }
 
         classes.push(courseClass)

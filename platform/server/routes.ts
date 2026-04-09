@@ -24,6 +24,7 @@ import { onboardingRoutes } from '@/features/(life)/onboarding/routes'
 import { winsRoutes } from '@/features/(life)/wins/routes'
 import { accountRoutes } from '@/features/(shared)/account/routes'
 import { adminRoutes } from '@/features/(shared)/admin/routes'
+import { freeIntroRoutes } from '@/features/(shared)/free-intro/routes'
 import { completeCheckoutRoutes } from '@/features/(shared)/subscription/complete-checkout'
 import { checkoutRoutes } from '@/features/(shared)/subscription/create-checkout'
 import { portalRoutes } from '@/features/(shared)/subscription/customer-portal'
@@ -49,6 +50,7 @@ export function mountRoutes(app: Hono) {
       .route('/api/analytics/reading', analyticsReadingRoutes)
       .route('/api/journey', journeyRoutes)
       .route('/api/share', shareRoutes)
+      .route('/api/free-intro', freeIntroRoutes)
       .route('/api/account', accountRoutes)
       .route('/api/search', searchRoutes)
       .route('/api/admin', adminRoutes)

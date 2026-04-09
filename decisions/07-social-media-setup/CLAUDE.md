@@ -25,4 +25,4 @@ Before working in this folder, read:
 | meta.md | META-DOC: Social Media Setup |
 | raw.md | Raw Input — Social Media Setup (Doc #7) |
 
-<!-- Generated: 2026-04-06T23:19:47.776Z -->
+<!-- Generated: 2026-04-09T06:41:37.135Z -->

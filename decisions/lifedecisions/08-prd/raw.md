@@ -1,7 +1,7 @@
 # RAW FOUNDER ANSWERS — PRD (Life Decisions)
 
 ## Q1: Course delivery model
-**Answer:** Web app — users log in to therightdecision.com to watch/read course content, run skills separately in Claude Cowork. Simplest to build, course + skills are separate apps.
+**Answer:** Web app — users log in to rightdecision.io to watch/read course content, run skills separately in Claude Cowork. Simplest to build, course + skills are separate apps.
 
 ## Q2: Time-bounded phase enforcement
 **Answer:** Soft nudges — suggested timelines per phase (e.g., '3 days recommended for state mapping') with reminders, but user can proceed at their own pace. Reduces drop-off risk from pressure while still addressing the preparation trap.

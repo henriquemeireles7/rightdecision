@@ -10,9 +10,9 @@
 - **Email:** hsameireles@gmail.com
 
 ## Subdomain Strategy
-- `therightdecision.com` — Main website (brand, pricing page, both products)
-- `app.therightdecision.com` — Course platform (Life Decisions + Business Decisions)
-- `api.therightdecision.com` — Automation APIs (Business Decisions)
+- `rightdecision.io` — Main website (brand, pricing page, both products)
+- `app.rightdecision.io` — Course platform (Life Decisions + Business Decisions)
+- `api.rightdecision.io` — Automation APIs (Business Decisions)
 - All served from same Railway deployment, route-based separation
 
 ## Environment Variables
@@ -88,9 +88,9 @@ bun run db:studio    # Open Drizzle Studio for inspection
 - Deploying on Fridays without monitoring in place
 
 ## Domain Setup
-- Primary: therightdecision.com (TBD)
-- App: app.therightdecision.com (course platform)
-- API: api.therightdecision.com (Business Decisions automation)
+- Primary: rightdecision.io (TBD)
+- App: app.rightdecision.io (course platform)
+- API: api.rightdecision.io (Business Decisions automation)
 
 ## Dockerfile Rules
 

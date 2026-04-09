@@ -8,6 +8,9 @@ export const env = createEnv({
     STRIPE_SECRET_KEY: z.string().startsWith('sk_'),
     STRIPE_WEBHOOK_SECRET: z.string().startsWith('whsec_'),
     STRIPE_PRICE_ID: z.string().startsWith('price_'),
+    STRIPE_MONTHLY_PRICE_ID: z.string().startsWith('price_'),
+    // ─── AI: Anthropic (decision block suggestions) ───
+    ANTHROPIC_API_KEY: z.string().startsWith('sk-ant-'),
     RESEND_API_KEY: z.string().min(1),
     BETTER_AUTH_SECRET: z.string().min(32),
     PORT: z.coerce.number().default(3000),
@@ -27,6 +30,9 @@ export const env = createEnv({
     // ─── PostHog: Server-side analytics ───
     POSTHOG_API_KEY: z.string().min(1).optional(),
     POSTHOG_HOST: z.string().url().default('https://us.i.posthog.com'),
+    // ─── OAuth: Google ───
+    GOOGLE_CLIENT_ID: z.string().min(1).optional(),
+    GOOGLE_CLIENT_SECRET: z.string().min(1).optional(),
     // ─── SEO: IndexNow ───
     INDEXNOW_KEY: z.string().min(8).optional(),
     // ─── SEO: Google Search Console API ───

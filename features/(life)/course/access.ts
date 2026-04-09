@@ -2,10 +2,16 @@ export type AccessTier = 'free' | 'paid' | 'expired'
 
 /**
  * Check if a user can access a specific class.
+ * Classes with free:true frontmatter flag are always accessible (free intro).
  * Module 0 (onboarding) and Module 1 are free for everyone.
  * Modules 2-9 require an active subscription.
  */
-export function canAccessClass(moduleNumber: number, accessTier: AccessTier): boolean {
+export function canAccessClass(
+  moduleNumber: number,
+  accessTier: AccessTier,
+  isFreeClass?: boolean,
+): boolean {
+  if (isFreeClass) return true
   if (moduleNumber <= 1) return true
   return accessTier === 'paid'
 }

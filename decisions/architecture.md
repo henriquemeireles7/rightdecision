@@ -1,6 +1,6 @@
 # Architecture — How We Design Systems
 
-> Last verified: 2026-04-07
+> Last verified: 2026-04-08
 > Implementation patterns: decisions/coding.md
 > Deep dive: decisions/001-architecture.md (DSA original)
 
@@ -128,6 +128,39 @@ Import path: `@/features/(business)/transcribe/service`
 - Features inside `(life)/` NEVER import from `(business)/` and vice versa.
 - If a `(life)/` or `(business)/` feature needs to be shared, move it to `(shared)/`.
 - Each feature folder still has its own CLAUDE.md, routes.ts, service.ts, tests.
+
+---
+
+## Website Architecture (Doc 11)
+
+Public-facing website at rightdecisions.io. All pages SSR'd via `renderPage()` — no client-side JS for content pages.
+
+### Content System
+- **Blog:** Markdown files in `content/blog/`, rendered by `providers/markdown.ts`. Frontmatter: title, date, author, cluster, keywords, FAQ.
+- **Concepts:** Markdown in `content/concepts/`. SEO-keyword-targeted pages with FAQ schema + DefinedTerm schema.
+- **Profiles:** Persona intelligence in `content/profiles/`. Template system, validation script, health scoring.
+
+### SEO Infrastructure
+- `features/(shared)/website/seo.ts` — JSON-LD schema builders (Article, FAQ, Organization, Person, Product, WebSite, Breadcrumb, DefinedTerm)
+- `features/(shared)/website/sitemap.ts` — Dynamic sitemap.xml, robots.txt, RSS feed, IndexNow key verification
+- `features/(shared)/website/og-image.ts` — Programmatic OG images via satori + resvg
+
+### SEO Providers
+- `providers/indexnow.ts` — Push URLs to Bing/Yandex/Seznam via IndexNow protocol
+- `providers/search-console.ts` — Google Search Console API for indexing status
+
+### SEO Scripts
+- `bun run indexnow` — Post-deploy URL submission
+- `bun run seo-health` — Monthly SEO dashboard
+- `bun run freshness` — Content age tracker (90-day GEO decay threshold)
+- `bun run content:check` — Content quality validation
+
+### Data Storage
+| Store | Content |
+|-------|---------|
+| `content/blog/` | Blog posts (markdown + frontmatter) |
+| `content/concepts/` | Concept pages (markdown + FAQ + keywords) |
+| `content/profiles/` | Persona profiles (markdown + learning + changelog) |
 
 ---
 

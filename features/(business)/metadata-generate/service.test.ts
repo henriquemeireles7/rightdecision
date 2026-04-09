@@ -88,6 +88,27 @@ describe('features/(business)/metadata-generate/service', () => {
     expect(result).toEqual({ error: 'METADATA_UNKNOWN_PLATFORM' })
   })
 
+  it('saves metadata with profileSlug', async () => {
+    mockFindFirstRun.mockResolvedValueOnce({ id: 'run-1', status: 'cut' } as never)
+    const result = await saveMetadata('run-1', validMetadata, 'indy-kaz')
+    expect(result).toHaveProperty('posts')
+    expect('error' in result).toBe(false)
+  })
+
+  it('saves metadata without profileSlug (backward compat)', async () => {
+    mockFindFirstRun.mockResolvedValueOnce({ id: 'run-1', status: 'cut' } as never)
+    const result = await saveMetadata('run-1', validMetadata)
+    expect(result).toHaveProperty('posts')
+    expect('error' in result).toBe(false)
+  })
+
+  it('saves metadata with null profileSlug', async () => {
+    mockFindFirstRun.mockResolvedValueOnce({ id: 'run-1', status: 'cut' } as never)
+    const result = await saveMetadata('run-1', validMetadata, null)
+    expect(result).toHaveProperty('posts')
+    expect('error' in result).toBe(false)
+  })
+
   it('returns METADATA_CHAR_LIMIT_EXCEEDED for long description', async () => {
     mockFindFirstRun.mockResolvedValueOnce({ id: 'run-1', status: 'cut' } as never)
     mockFindManyAccounts.mockResolvedValueOnce([

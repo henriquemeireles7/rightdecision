@@ -80,20 +80,50 @@ export function CourseDashboard(props: DashboardProps) {
           {modules.map((mod, idx) => {
             const isLocked = mod.id > 1 && accessTier !== 'paid'
 
-            // Show graceful locked message once, not per-module
+            // Show first locked module as a blurred preview, rest hidden
             if (isLocked && idx === firstLockedIdx) {
               const lastModNum = modules[modules.length - 1]?.id ?? mod.id
               return (
-                <div key="locked" class="py-6 text-center">
-                  <p class="text-body italic">
-                    Chapters {mod.id}–{lastModNum}: available with full access
-                  </p>
-                  <a
-                    href="/api/checkout"
-                    class="inline-block mt-3 text-gold hover:text-gold-hover transition-colors text-sm underline underline-offset-2"
-                  >
-                    Get full access — $197/year
-                  </a>
+                <div key="locked">
+                  {/* Blurred preview of next module */}
+                  <div class="py-4 border-b border-linen relative overflow-hidden">
+                    <div class="blur-[6px] opacity-60 pointer-events-none select-none">
+                      <div class="flex items-baseline justify-between mb-2">
+                        <h3 class="font-display text-lg text-ink">
+                          <span class="text-muted mr-3">{mod.id}.</span>
+                          {mod.name}
+                        </h3>
+                      </div>
+                      <div class="pl-8 space-y-1">
+                        {mod.classes.slice(0, 3).map((cls) => (
+                          <p key={cls.id} class="text-sm text-body py-1">
+                            {cls.title}
+                          </p>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Upgrade CTA */}
+                  <div class="py-6 text-center">
+                    <p class="text-body italic text-sm">
+                      Modules {mod.id}–{lastModNum}: available with full access
+                    </p>
+                    <div class="flex gap-md justify-center mt-3">
+                      <a
+                        href="/api/checkout/redirect?plan=yearly"
+                        class="inline-block text-gold hover:text-gold-hover transition-colors text-sm underline underline-offset-2"
+                      >
+                        $197/year
+                      </a>
+                      <a
+                        href="/api/checkout/redirect?plan=monthly"
+                        class="inline-block text-muted hover:text-ink transition-colors text-sm underline underline-offset-2"
+                      >
+                        or $19.70/month
+                      </a>
+                    </div>
+                  </div>
                 </div>
               )
             }
