@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.2.3] - 2026-04-09
+
+### Fixed
+- Add security headers to all HTTP responses via Hono `secureHeaders()` middleware (CSP, X-Frame-Options, HSTS, X-Content-Type-Options, Referrer-Policy)
+- Dockerfile runs as non-root `bun` user in production container
+- SHA-pin third-party CI action `oven-sh/setup-bun` to prevent supply chain attacks
+
+### Added
+- `.dockerignore` to prevent secrets from leaking into Docker build layers
+
 ## [0.2.2.2] - 2026-04-09
 
 ### Changed

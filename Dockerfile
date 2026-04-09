@@ -21,5 +21,7 @@ COPY --from=build /app/tsconfig.json ./tsconfig.json
 COPY --from=build /app/platform/scripts/migrate.ts ./platform/scripts/migrate.ts
 COPY --from=build /app/platform/db ./platform/db
 COPY --from=build /app/platform/env.ts ./platform/env.ts
+RUN chown -R bun:bun /app
+USER bun
 EXPOSE 3000
 CMD ["bun", "run", "dist/app.js"]
