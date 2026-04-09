@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0.3] - 2026-04-09
+
+### Added
+- Login page at `/login` with email/password form calling Better Auth sign-in endpoint.
+- User seed script (`platform/scripts/seed-users.ts`) for bootstrapping admin and test accounts.
+
+### Fixed
+- Footer "Log in" link pointed to non-existent `/api/auth/signin`. Now points to `/login`.
+
 ## [0.2.0.2] - 2026-04-08
 
 ### Fixed
