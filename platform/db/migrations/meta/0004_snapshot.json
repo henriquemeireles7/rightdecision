@@ -1,6 +1,6 @@
 {
-  "id": "606690cb-0c02-4105-b504-f10a1e190582",
-  "prevId": "9ff8d314-8f6b-47e8-bfc4-af62e1f0119b",
+  "id": "bfc65488-bce8-4937-8ada-7137d8e00eba",
+  "prevId": "466cb8b5-8dd0-4743-a312-dd7f7a7dcaee",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -679,6 +679,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "step_timings": {
+          "name": "step_timings",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
         "clips_generated": {
           "name": "clips_generated",
           "type": "integer",
@@ -1045,6 +1051,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "profile_slug": {
+          "name": "profile_slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "status": {
           "name": "status",
           "type": "text",
@@ -1134,6 +1146,21 @@
           "columns": [
             {
               "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_posts_profile_slug": {
+          "name": "idx_posts_profile_slug",
+          "columns": [
+            {
+              "expression": "profile_slug",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -1247,110 +1274,6 @@
           "columns": ["stripe_session_id"]
         }
       },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.reading_analytics": {
-      "name": "reading_analytics",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "class_id": {
-          "name": "class_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "course_slug": {
-          "name": "course_slug",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "time_spent_sec": {
-          "name": "time_spent_sec",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "scroll_depth": {
-          "name": "scroll_depth",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "completed_at": {
-          "name": "completed_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "reading_analytics_user_class_idx": {
-          "name": "reading_analytics_user_class_idx",
-          "columns": [
-            {
-              "expression": "user_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "class_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "reading_analytics_user_id_users_id_fk": {
-          "name": "reading_analytics_user_id_users_id_fk",
-          "tableFrom": "reading_analytics",
-          "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -1512,108 +1435,6 @@
           "columns": ["stripe_subscription_id"]
         }
       },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.user_decisions": {
-      "name": "user_decisions",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "class_id": {
-          "name": "class_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "course_slug": {
-          "name": "course_slug",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "decision_type": {
-          "name": "decision_type",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "prompt": {
-          "name": "prompt",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "response": {
-          "name": "response",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "user_decisions_user_class_idx": {
-          "name": "user_decisions_user_class_idx",
-          "columns": [
-            {
-              "expression": "user_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "class_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "user_decisions_user_id_users_id_fk": {
-          "name": "user_decisions_user_id_users_id_fk",
-          "tableFrom": "user_decisions",
-          "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false

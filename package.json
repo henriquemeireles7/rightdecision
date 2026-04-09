@@ -23,7 +23,8 @@
     "indexnow": "bun scripts/post-deploy-indexnow.ts",
     "freshness": "bun scripts/freshness.ts",
     "content:check": "bun scripts/content-quality.ts",
-    "seo-health": "bun scripts/seo-health.ts"
+    "seo-health": "bun scripts/seo-health.ts",
+    "validate-profiles": "bun content/profiles/validate.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.10",
