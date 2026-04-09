@@ -1,96 +1,100 @@
 # Roadmap — Current Priorities
 
-> Last verified: 2026-04-07
-> Full document index: decisions/00-general/document.md
+> Last verified: 2026-04-08
+> 5-year vision: decisions/00-general/5yearsroadmap.md
+> Phase details: decisions/00-general/roadmap-phase1.md (and phase2-5)
 > Pipeline: d-meta → d-input → d-plan → d-tasks
 
-## Current Phase
-Foundation docs (1-9) complete. Business model expanded to two products. Life Decisions is course-first (docs done, building landing page + course player). Business Decisions is software-first (content pipeline IS the MVP, course teaches the platform later). The content pipeline (doc 08) serves both tracks — it's the BD product AND the distribution engine for LD.
+## The Cycle
 
-## Two Tracks
+This is how we build, every day:
 
-### Track: Life Decisions (B2C — $197/year)
-Course + Claude skills for personal life decisions.
+```
+Refine roadmap → Pick project → /office-hours → /plan-ceo-review → /d-tasks → /d-code → /ship → repeat
+```
 
-| Priority | Milestone | Status |
-|----------|-----------|--------|
-| 1 | Restructure decisions/ folder (shared vs product-specific) | In progress |
-| 2 | Build Life Decisions landing page (from doc 05 spec) | Not started |
-| 2.5 | Write PRD from JTBD findings (doc 08) | COMPLETE |
-| 3 | Build course player MVP | Not started |
-| 4 | Design methodology → skills mapping (one skill per exercise) | Not started |
-| 5 | Record first 3 course modules | Not started |
-| 6 | Design free course funnel (simplified methodology) | Not started |
-| 7 | V1 launch | Not started |
+Each project is sized for one full cycle (~20 beads, one plan, one PR). Pick the next project from the current phase file. When done, update the roadmap with what you learned.
 
-### Track: Business Decisions (B2B — $1,997/year)
-Software-first: the platform IS the product. Course teaches the platform later.
-Content pipeline (doc 08) powers distribution for BOTH tracks.
+## Current Phase: PHASE 1 — GTM (Now → Month 12)
 
-**Write workflow (strategy docs):**
+**Thesis:** The decision methodology works for real humans. The infobusiness model generates revenue.
 
-| Priority | Doc | Status | Why this order |
-|----------|-----|--------|----------------|
-| 1 | 07-jtbd — Jobs to Be Done | In progress | Understand the Drowning Builder's software needs |
-| 2 | 08-prd — Platform MVP | Not started | Define BD platform from JTBD findings |
-| 3 | 03-methodology — Business decision cycle | Not started | Needs platform context to map skills |
-| 4 | 04-course-outline — Course | Not started | Course teaches the platform (platform must exist first) |
-| 5 | 05-landing-page — Landing page | Not started | Needs product to be defined |
-| 6 | 06-free-course-funnel | Not started | Post-launch |
+**Targets:** $50K ARR | 250 LD + 3 BD clients | 1,000+ decision records
 
-**Code workflow (building the platform):**
+### What's Built (foundation)
+Auth, Stripe checkout/webhooks, course hub (10 modules, free/paid gating, progress, bookmarks), 6-step onboarding, Wins Board V1 (4 life areas, rate limiting), landing page, full BD 7-step pipeline, website (blog, 10 concept pages, sitemap, SEO), email system, R2 storage, PostHog analytics.
 
-| Priority | Milestone | Status | Serves |
-|----------|-----------|--------|--------|
-| 1 | Content pipeline MVP — manual walkthrough of doc 08 | Not started | Both (distribution) |
-| 2 | Content pipeline automation — file watchers, OpusClip, metadata | Not started | Both (distribution) |
-| 3 | Auto-posting scripts — platform APIs (TikTok, IG, etc.) | Not started | Both (distribution) |
-| 4 | Analytics/monitoring — pipeline health, posting logs | Not started | Both (ops) |
-| 5 | Client-facing packaging — multi-tenant, client decisions/ folders | Not started | BD only (product) |
-| 6 | "Vibe Coding for Non-Tech Creators" bonus course | Not started | BD only (course) |
+### Next Projects (pick from here)
 
-**Sequencing:** Write and code workflows run in parallel. JTBD + PRD inform later code stages (client packaging). Code pipeline doesn't wait for BD docs — it's specified in shared doc 08.
+| # | Project | Track | Status | File Reference |
+|---|---------|-------|--------|----------------|
+| P1.1 | Merge Course UX Branch + QA | LD | Ready to merge | roadmap-phase1.md |
+| P1.2 | Decision Graph Schema V1 | Shared | Not started | roadmap-phase1.md |
+| P1.3 | Free Course Content + Funnel | LD | Not started | roadmap-phase1.md |
+| P1.4 | Decision Record + Follow-Up System | LD | Not started | roadmap-phase1.md |
+| P1.5 | Delight Features Pack 1 (Birthday, Streak, Score) | LD | Not started | roadmap-phase1.md |
+
+Full Phase 1 has 12 projects. See `decisions/00-general/roadmap-phase1.md` for all details.
+
+### How to Start a Project
+
+1. Copy the project description from `roadmap-phase1.md`
+2. Run `/office-hours` with that description as context
+3. Run `/plan-ceo-review` on the resulting design doc
+4. Run `/d-tasks` to create beads
+5. Run `/d-code` to implement
+6. Run `/ship` to deploy
+7. Update this roadmap + phase file with COMPLETE status and learnings
+
+## 6-Phase Arc (Decision OS)
+
+| Phase | Name | Timeline | Key Milestone |
+|-------|------|----------|---------------|
+| **1** | **GTM** | **Now → M12** | **Free course live, 250 LD customers, 3 BD clients** |
+| 2 | AI Platform + White-Label | M12 → M24 | Intelligent Decision Engine, self-serve BD, Stripe Connect |
+| 3 | Developer Platform + Research | M24 → M36 | Decision Protocol, API, Marketplace, Research Institute |
+| 4 | Own AI Model + BaaS | M36 → M48 | Decision Foundation Model, model-powered features |
+| 5 | Own Hardware | M48 → M60+ | On-device model, custom silicon (horizon bet) |
+
+## Decision Framework (5 Tests)
+
+Every project must pass:
+1. **Flywheel?** Does it generate structured decision data?
+2. **Load-bearing?** Will this serve us in Phase 2+?
+3. **Schema?** Does the Decision Graph support it?
+4. **Anti-self-help?** Is this about action, not introspection?
+5. **Dogfood?** Will Henry + Indy use this themselves?
 
 ## Document Pipeline Status
 
 ### Shared Documents
 - Docs 1-5: COMPLETE (business model, manifesto, methodology, course outline, landing page)
-- Doc 6 (VSL): DEFERRED — needs podcast recordings first
-- Docs 7-9: COMPLETE (social media setup, viral strategy, knowledge base)
+- Doc 6 (VSL): DEFERRED (needs podcast recordings)
+- Docs 7-9: COMPLETE (social media, viral strategy, knowledge base)
 - Doc 10 (Company Branding): Not started
-- Doc 11 (Website & SEO/GEO Strategy): COMPLETE — full website architecture, technical SEO, GEO optimization, keyword strategy (4 clusters), blog system, concept pages, content pipeline, phased launch plan (V1/V2/V3)
+- Doc 11 (Website & SEO/GEO Strategy): COMPLETE
 
-### Life Decisions Documents (in decisions/lifedecisions/)
-- 03-methodology: COMPLETE (moved from root) — updated 2026-04-06 with win-oriented reframing
-- 04-course-outline: COMPLETE (moved from root) — updated 2026-04-06: exercises = AI skills, win-writing added
-- 05-landing-page: COMPLETE (moved from root) — updated 2026-04-06: eternal self-help loop, three failure points
-- 06-free-course-funnel: NOT STARTED
-- 07-jobs-to-be-done: COMPLETE — JTBD analysis for Life Decisions software
-- 08-prd: COMPLETE — PRD for Life Decisions V1. Two-app architecture, interactive onboarding, Wins Board V1, free mini-course. Decision primitive deferred.
+### Life Decisions Documents (decisions/lifedecisions/)
+- 03-methodology: COMPLETE | 04-course-outline: COMPLETE | 05-landing-page: COMPLETE
+- 06-free-course-funnel: NOT STARTED | 07-jtbd: COMPLETE | 08-prd: COMPLETE
 
-### Business Decisions Documents (in decisions/businessdecisions/)
-- 07-jtbd: IN PROGRESS — JTBD analysis for BD platform (software-first, using doc 08 as reference input)
-- 08-prd: NOT STARTED — BD platform MVP (depends on JTBD)
-- 03-methodology: NOT STARTED — business decision cycle (depends on platform clarity)
-- 04-course-outline: NOT STARTED — course teaches the platform (depends on platform existing)
-- 05-landing-page: NOT STARTED
-- 06-free-course-funnel: NOT STARTED
+### Business Decisions Documents (decisions/businessdecisions/)
+- 07-jtbd: IN PROGRESS | 08-prd: NOT STARTED
+- 03-06: NOT STARTED (depends on JTBD + PRD)
 
 ## Human Tasks
-Things AI flagged but needs human action to unblock:
 - [ ] Record podcast episodes (needed before VSL doc #6)
 - [ ] Indy's origin story for manifesto (Section 10 gap)
 - [ ] Set up social media accounts per doc #7 specs
 - [ ] Railway PostgreSQL production database setup
 - [ ] Stripe account configuration
-- [ ] Domain registration for rightdecision.io
-- [ ] Henry + Indy do Life Decisions exercises as example content (later)
-- [ ] Choose Wins Board taxonomy — "Wins Board", "Victory Hall", or something else (brand-aligned naming)
+- [ ] Domain registration for therightdecision.com
+- [ ] Henry + Indy do Life Decisions exercises as example content
+- [ ] Choose Wins Board taxonomy naming
 
-## Open Questions (blocking future work)
-1. Storage for video files (cloud vs local vs hybrid)
-2. How non-tech B2B customers run the platform
-3. Skill distribution mechanism (npm, git, MCP server)
-4. Free course funnel design (what's free vs paid)
-5. Wins Board mechanics — anonymity model, gamification without over-tracking, win categories
-6. Daily content pipeline — podcast-to-blog-to-email, free users or paid, Little Hire retention mechanism
+## Key Strategic Decisions (locked)
+- BD is a white-label platform (clients create their own Decision course)
+- Cross-tenant anonymized data rights in BD ToS from day 1
+- Stripe Connect in Phase 2, BaaS in Phase 4+ (after fundraise)
+- Decision Protocol: build 3 reference implementations before expecting adoption
+- Own model + own hardware is non-negotiable (full stack ownership)
