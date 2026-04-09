@@ -43,42 +43,25 @@ export type ProfileReport = {
 
 // ─── Quick Reference Parser ──────────────────────────────────────────────────
 
+function matchField(content: string, pattern: RegExp): string | null {
+  const match = content.match(pattern)
+  return match?.[1]?.trim() ?? null
+}
+
 function parseQuickRef(content: string): QuickRef {
-  const defaults: QuickRef = {
-    who: '',
-    for: '',
-    bigIdea: '',
-    primaryCta: '',
-    health: 0,
-    playCount: 0,
-    lastLearning: null,
+  const health = matchField(content, /\*\*Health:\*\*\s*(\d+)\/10/)
+  const plays = matchField(content, /\*\*Plays:\*\*\s*(\d+)/)
+  const lastLearning = matchField(content, /\*\*Last Learning:\*\*\s*(.+)/)
+
+  return {
+    who: matchField(content, /\*\*Who:\*\*\s*(.+)/) ?? '',
+    for: matchField(content, /\*\*For:\*\*\s*(.+)/) ?? '',
+    bigIdea: matchField(content, /\*\*Big Idea:\*\*\s*(.+)/) ?? '',
+    primaryCta: matchField(content, /\*\*Primary CTA:\*\*\s*(.+)/) ?? '',
+    health: health ? Number.parseInt(health, 10) : 0,
+    playCount: plays ? Number.parseInt(plays, 10) : 0,
+    lastLearning: lastLearning === 'none yet' ? null : lastLearning,
   }
-
-  const whoMatch = content.match(/\*\*Who:\*\*\s*(.+)/)
-  if (whoMatch?.[1]) defaults.who = whoMatch[1].trim()
-
-  const forMatch = content.match(/\*\*For:\*\*\s*(.+)/)
-  if (forMatch?.[1]) defaults.for = forMatch[1].trim()
-
-  const bigIdeaMatch = content.match(/\*\*Big Idea:\*\*\s*(.+)/)
-  if (bigIdeaMatch?.[1]) defaults.bigIdea = bigIdeaMatch[1].trim()
-
-  const ctaMatch = content.match(/\*\*Primary CTA:\*\*\s*(.+)/)
-  if (ctaMatch?.[1]) defaults.primaryCta = ctaMatch[1].trim()
-
-  const healthMatch = content.match(/\*\*Health:\*\*\s*(\d+)\/10/)
-  if (healthMatch?.[1]) defaults.health = Number.parseInt(healthMatch[1], 10)
-
-  const playsMatch = content.match(/\*\*Plays:\*\*\s*(\d+)/)
-  if (playsMatch?.[1]) defaults.playCount = Number.parseInt(playsMatch[1], 10)
-
-  const learningMatch = content.match(/\*\*Last Learning:\*\*\s*(.+)/)
-  if (learningMatch?.[1]) {
-    const val = learningMatch[1].trim()
-    defaults.lastLearning = val === 'none yet' ? null : val
-  }
-
-  return defaults
 }
 
 // ─── Section Validation ──────────────────────────────────────────────────────
@@ -99,18 +82,15 @@ function computeHealthScore(profileContent: string, socialContent: string, name:
   let score = 0
 
   // Completeness (0-5): 1 point each for filled sections
-  const completenessChecks = [
-    { section: '## Identity', hasContent: hasFilledSection(profileContent, '## Identity') },
-    { section: '## ICP', hasContent: hasFilledSection(profileContent, '## ICP') },
-    {
-      section: '## Core Messaging Framework',
-      hasContent: hasFilledSection(profileContent, '## Core Messaging Framework'),
-    },
-    { section: '## Plays', hasContent: hasFilledSection(profileContent, '## Plays') },
-    { section: '## Voice', hasContent: hasFilledSection(profileContent, '## Voice') },
+  const scoredSections = [
+    '## Identity',
+    '## ICP',
+    '## Core Messaging Framework',
+    '## Plays',
+    '## Voice',
   ]
-  for (const check of completenessChecks) {
-    if (check.hasContent) score++
+  for (const section of scoredSections) {
+    if (hasFilledSection(profileContent, section)) score++
   }
 
   // Depth (0-3)
@@ -185,24 +165,25 @@ export function readProfile(name: string): ProfileData {
   }
 
   const dir = join(PROFILES_DIR, name)
-
-  if (!existsSync(dir) || !existsSync(join(dir, 'profile.md'))) {
-    throw new ProviderError('profile', 'readProfile', 404, { name })
-  }
-
   const profilePath = join(dir, 'profile.md')
   const socialPath = join(dir, 'social.md')
 
-  const profileContent = readFileSync(profilePath, 'utf-8')
+  let profileContent: string
+  try {
+    profileContent = readFileSync(profilePath, 'utf-8')
+  } catch {
+    throw new ProviderError('profile', 'readProfile', 404, { name })
+  }
 
-  if (!existsSync(socialPath)) {
+  let socialContent: string
+  try {
+    socialContent = readFileSync(socialPath, 'utf-8')
+  } catch {
     throw new ProviderError('profile', 'readProfile', 422, {
       name,
       error: 'Missing social.md',
     })
   }
-
-  const socialContent = readFileSync(socialPath, 'utf-8')
 
   // Validate required sections
   const errors = [
