@@ -5,9 +5,9 @@ import satori from 'satori'
 
 // Load font at module level (once, not per-request)
 // Satori requires TTF/OTF (not woff2) for font rendering
-const fontBuffer = readFileSync(
-  join(import.meta.dir, '../../../public/fonts/InstrumentSerif-Regular.ttf'),
-)
+// Uses process.cwd() instead of import.meta.dir because after bundling to dist/,
+// the relative path from import.meta.dir resolves incorrectly in production
+const fontBuffer = readFileSync(join(process.cwd(), 'public/fonts/InstrumentSerif-Regular.ttf'))
 
 export async function generateOgImage(title: string): Promise<Buffer> {
   // Truncate long titles
