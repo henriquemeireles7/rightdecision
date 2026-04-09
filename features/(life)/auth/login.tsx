@@ -24,14 +24,60 @@ export function LoginPage() {
             <label for="password" class="block text-sm font-medium text-ink mb-xs">
               Password
             </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              required
-              minLength={8}
-              class="w-full px-md py-sm border border-linen rounded-sm bg-white text-ink"
-            />
+            <div class="relative">
+              <input
+                type="password"
+                id="password"
+                name="password"
+                required
+                minLength={8}
+                class="w-full px-md py-sm border border-linen rounded-sm bg-white text-ink pr-[44px]"
+              />
+              <button
+                type="button"
+                id="toggle-password"
+                class="absolute right-0 top-0 h-full px-sm flex items-center text-muted hover:text-ink transition-colors"
+                aria-label="Show password"
+              >
+                <svg
+                  id="eye-icon"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  role="img"
+                >
+                  <title>Show password</title>
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+                <svg
+                  id="eye-off-icon"
+                  class="hidden"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  role="img"
+                >
+                  <title>Hide password</title>
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+                  <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+                  <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24" />
+                  <line x1="1" y1="1" x2="23" y2="23" />
+                </svg>
+              </button>
+            </div>
           </div>
           <button
             type="submit"
@@ -44,6 +90,43 @@ export function LoginPage() {
         <div id="login-loading" class="mt-md text-center text-secondary hidden">
           Signing in...
         </div>
+        <div class="mt-lg flex items-center gap-sm">
+          <div class="flex-1 border-t border-linen" />
+          <span class="text-xs text-muted">or</span>
+          <div class="flex-1 border-t border-linen" />
+        </div>
+        <button
+          id="google-btn"
+          type="button"
+          class="mt-lg w-full flex items-center justify-center gap-sm border border-linen rounded-sm py-sm px-md bg-white hover:bg-sand transition-colors font-medium text-ink"
+        >
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 18 18"
+            xmlns="http://www.w3.org/2000/svg"
+            role="img"
+          >
+            <title>Google</title>
+            <path
+              d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"
+              fill="#4285F4"
+            />
+            <path
+              d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"
+              fill="#34A853"
+            />
+            <path
+              d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.997 8.997 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"
+              fill="#FBBC05"
+            />
+            <path
+              d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"
+              fill="#EA4335"
+            />
+          </svg>
+          Continue with Google
+        </button>
         <p class="mt-xl text-center text-sm text-muted">
           <a href="/forgot-password" class="text-accent hover:underline">
             Forgot your password?
@@ -55,6 +138,19 @@ export function LoginPage() {
   var form=document.getElementById('login-form');
   var err=document.getElementById('login-error');
   var loading=document.getElementById('login-loading');
+  var toggleBtn=document.getElementById('toggle-password');
+  var pwInput=document.getElementById('password');
+  var eyeIcon=document.getElementById('eye-icon');
+  var eyeOffIcon=document.getElementById('eye-off-icon');
+
+  toggleBtn.addEventListener('click',function(){
+    var isPassword=pwInput.type==='password';
+    pwInput.type=isPassword?'text':'password';
+    toggleBtn.setAttribute('aria-label',isPassword?'Hide password':'Show password');
+    eyeIcon.classList.toggle('hidden');
+    eyeOffIcon.classList.toggle('hidden');
+  });
+
   form.addEventListener('submit',function(e){
     e.preventDefault();
     err.classList.add('hidden');
@@ -77,6 +173,10 @@ export function LoginPage() {
       loading.classList.add('hidden');
       form.querySelector('button[type=submit]').disabled=false;
     });
+  });
+
+  document.getElementById('google-btn').addEventListener('click',function(){
+    window.location.href='/api/auth/sign-in/social?provider=google&callbackURL=/course';
   });
 })()`,
           }}
