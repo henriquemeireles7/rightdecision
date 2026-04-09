@@ -255,6 +255,29 @@ export const errors = {
     status: 422,
     message: 'Insight data failed validation',
   },
+  // ─── Profile Intelligence Layer ───
+  PROFILE_NOT_FOUND: { code: 'PROFILE_NOT_FOUND', status: 404, message: 'Profile not found' },
+  PROFILE_VALIDATION_FAILED: {
+    code: 'PROFILE_VALIDATION_FAILED',
+    status: 422,
+    message: 'Profile validation failed',
+  },
+  PROFILE_WRITE_FAILED: {
+    code: 'PROFILE_WRITE_FAILED',
+    status: 500,
+    message: 'Failed to write profile file',
+  },
+  PROFILE_EMPTY_RESPONSE: {
+    code: 'PROFILE_EMPTY_RESPONSE',
+    status: 502,
+    message: 'AI returned empty response for profile operation',
+  },
+  PROFILE_EXISTS: { code: 'PROFILE_EXISTS', status: 409, message: 'Profile already exists' },
+  METADATA_MISSING_PROFILE: {
+    code: 'METADATA_MISSING_PROFILE',
+    status: 422,
+    message: 'Profile slug required for profile-aware pipeline',
+  },
   // ─── BD Pipeline: Workflow Orchestrator ───
   WORKFLOW_UPLOAD_FAILED: {
     code: 'WORKFLOW_UPLOAD_FAILED',
