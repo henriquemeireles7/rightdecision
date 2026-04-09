@@ -10,7 +10,7 @@
 Context from codebase: Current checkout creates subscriptions with stripeCustomerId but no userId. The subscription record needs to be linked to the user account after they sign up on the success page.
 
 ### Q2: Infrastructure state
-**Answer:** Resend domain is verified (rightdecision.com), no Google OAuth credentials yet.
+**Answer:** Resend domain is verified (rightdecision.io), no Google OAuth credentials yet.
 
 Implication: Google OAuth is deferred — ship email/password + payment emails first. Google OAuth becomes a future enhancement.
 
@@ -31,7 +31,7 @@ Key theme: "Professional app, senior developer with attention to detail." Not ov
 
 ### Email (providers/email.ts)
 - Resend wrapper, exports `sendEmail(to, subject, html)`
-- From: `Right Decision <hello@rightdecision.com>`
+- From: `Right Decision <henry@rightdecision.io>`
 - No template system, no plain-text fallback
 - Domain verified in Resend
 

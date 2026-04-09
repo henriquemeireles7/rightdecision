@@ -28,7 +28,7 @@
 - Personal content = more flexible, personality-driven, ICP-specific topics
 
 ## Q5: Funnel structure?
-**Answer:** All accounts link to therightdecision.com directly. One funnel. No link-in-bio tools.
+**Answer:** All accounts link to rightdecision.io directly. One funnel. No link-in-bio tools.
 
 ## Q6: Podcast distribution?
 **Answer:** Publish everywhere from day 1 — video on YouTube, audio on Spotify/Apple, clips on all socials.

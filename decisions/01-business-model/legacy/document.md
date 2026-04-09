@@ -229,7 +229,7 @@ At 50 sales/month: ~$9,500 profit (97% margin after Stripe + infra).
 ### Funnel
 
 ```
-Indy's content → therightdecision.com → Stripe ($197/year) → Better Auth → Course + AI
+Indy's content → rightdecision.io → Stripe ($197/year) → Better Auth → Course + AI
 ```
 
 🔴 *Confidence: guess. Indy's current reach unknown. Content strategy untested.*

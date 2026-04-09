@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 ## [0.2.2.0] - 2026-04-09
 
 ### Added
+- Password visibility toggle (eye icon) on login page
+- Google OAuth login button and Better Auth social provider config
+- `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` optional env vars for OAuth
+- `trustedOrigins` config for Better Auth to fix "Invalid origin" error on localhost
+- Railway database access instructions in CLAUDE.md
+
+### Fixed
+- All domain references updated from `therightdecision.com` / `rightdecision.com` to `rightdecision.io` across 20+ files
+- Email sender address updated from `hello@` to `henry@rightdecision.io`
 - Social Media Profiles Intelligence Layer: persona-aware content pipeline with 3 profiles (indy-kaz, henry-kaz, the-right-decision), structured copy framework templates, and learning flywheel.
 - `providers/profile.ts`: readProfile(), listProfiles(), getHealthScore(), validateProfiles() with path traversal guards and profile name validation.
 - `profileSlug` column on posts table for analytics attribution per persona.
@@ -205,7 +214,7 @@ All notable changes to this project will be documented in this file.
 ## [0.1.1.0] - 2026-04-08
 
 ### Added
-- Life Decisions landing page: 11-section sales page at therightdecision.com
+- Life Decisions landing page: 11-section sales page at rightdecision.io
 - SSR infrastructure: renderPage() function wraps any Preact component in full HTML document
 - Tailwind CSS v4 pipeline with design tokens from design.md (cream, gold, sand palette)
 - Static file serving via Hono serveStatic middleware

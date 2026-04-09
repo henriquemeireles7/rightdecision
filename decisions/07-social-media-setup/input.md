@@ -48,7 +48,7 @@ All 13 simultaneously. Automation (doc #8) makes this feasible. No phased rollou
 
 ## Funnel
 
-All accounts → therightdecision.com → Stripe ($197/year). One funnel. No intermediary link-in-bio tools.
+All accounts → rightdecision.io → Stripe ($197/year). One funnel. No intermediary link-in-bio tools.
 
 ## Key decisions from founder
 
