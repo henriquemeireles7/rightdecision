@@ -57,8 +57,8 @@ function parseFrontmatter(raw: string): { meta: Record<string, string>; content:
 
 // ─── Content Loading ─────────────────────────────────────────────────────────
 
-const COURSES_JSON_PATH = join(import.meta.dir, '../content/courses.json')
-const REDIRECTS_PATH = join(import.meta.dir, '../content/redirects.json')
+const COURSES_JSON_PATH = join(process.cwd(), 'content/courses.json')
+const REDIRECTS_PATH = join(process.cwd(), 'content/redirects.json')
 
 let redirects: Record<string, string> = {}
 const classMap = new Map<string, CourseClass>()
@@ -85,7 +85,7 @@ type CourseConfig = {
 }
 
 function loadCourseContent(config: CourseConfig) {
-  const contentDir = join(import.meta.dir, '..', config.contentDir)
+  const contentDir = join(process.cwd(), config.contentDir)
   const courseModules: CourseModule[] = []
 
   try {

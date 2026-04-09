@@ -4,8 +4,8 @@ import { Hono } from 'hono'
 import { env } from '@/platform/env'
 import { getContentFile, listContentFiles } from '@/providers/markdown'
 
-const BLOG_DIR = join(import.meta.dir, '../../../content/blog')
-const CONCEPTS_DIR = join(import.meta.dir, '../../../content/concepts')
+const BLOG_DIR = join(process.cwd(), 'content/blog')
+const CONCEPTS_DIR = join(process.cwd(), 'content/concepts')
 
 export const sitemapRoutes = new Hono()
 

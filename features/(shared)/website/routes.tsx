@@ -19,8 +19,8 @@ import {
 } from './seo'
 import { sitemapRoutes } from './sitemap'
 
-const BLOG_DIR = join(import.meta.dir, '../../../content/blog')
-const CONCEPTS_DIR = join(import.meta.dir, '../../../content/concepts')
+const BLOG_DIR = join(process.cwd(), 'content/blog')
+const CONCEPTS_DIR = join(process.cwd(), 'content/concepts')
 
 export const websiteRoutes = new Hono()
 
