@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.2.0] - 2026-04-09
+
+### Added
+- Password visibility toggle (eye icon) on login page
+- Google OAuth login button and Better Auth social provider config
+- `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` optional env vars for OAuth
+- `trustedOrigins` config for Better Auth to fix "Invalid origin" error on localhost
+- Railway database access instructions in CLAUDE.md
+
+### Fixed
+- All domain references updated from `therightdecision.com` / `rightdecision.com` to `rightdecision.io` across 20+ files
+- Email sender address updated from `hello@` to `henry@rightdecision.io`
+
 ## [0.2.1.1] - 2026-04-09
 
 ### Added
@@ -183,7 +196,7 @@ All notable changes to this project will be documented in this file.
 ## [0.1.1.0] - 2026-04-08
 
 ### Added
-- Life Decisions landing page: 11-section sales page at therightdecision.com
+- Life Decisions landing page: 11-section sales page at rightdecision.io
 - SSR infrastructure: renderPage() function wraps any Preact component in full HTML document
 - Tailwind CSS v4 pipeline with design tokens from design.md (cream, gold, sand palette)
 - Static file serving via Hono serveStatic middleware

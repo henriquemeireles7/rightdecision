@@ -281,6 +281,7 @@ You have authenticated CLIs for all external services. Use them directly instead
 
 ### Railway (`railway`) — Hosting & Infra
 Project: decisions | Environment: production | Service: rightdecision
+Railway is linked in every Conductor workspace. Use the CLI directly — NEVER ask the user to check a dashboard or run commands manually.
 ```sh
 railway variable list --kv              # list all env vars
 railway variable set KEY=value          # set env var (triggers redeploy)
@@ -290,7 +291,10 @@ railway logs                            # tail production logs
 railway status                          # current project/env/service
 railway up                              # manual deploy
 railway redeploy                        # redeploy current
+railway connect postgres                # interactive psql session to production DB
 ```
+**Database access:** Use `railway connect postgres` to query production PostgreSQL directly. Pipe SQL or use interactive mode. The dev server runs against the Railway production database (not a local postgres).
+**If `railway status` says "No linked project":** Re-link with `railway link` — project is "decisions", environment is "production".
 
 ### Stripe (`stripe`) — Payments
 ```sh
