@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0.2] - 2026-04-08
+
+### Fixed
+- Conductor workspace config: archive script errored when no process found on port (empty `kill` args). Fixed with PID capture + conditional kill.
+- Conductor setup/run split: moved dev server from `setup` (runs once) to `run` (Conductor manages lifecycle). Dev server now runs in foreground so Conductor can monitor it.
+- Removed agent mail from per-workspace lifecycle — it's a shared global service that should run independently, not be started/killed by individual workspaces.
+- Fixed `.env` creation logic: shell operator precedence bug caused `sed` to run even when `.env` already existed.
+
 ## [0.2.0.1] - 2026-04-08
 
 ### Fixed
