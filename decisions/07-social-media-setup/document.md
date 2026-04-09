@@ -54,7 +54,7 @@ If a handle is taken, try in order:
 - All credentials stored in a shared password manager (1Password or Bitwarden)
 - Both founders have admin access to all brand accounts
 - Each founder is primary owner of their personal accounts, other founder is backup admin
-- Backup email: a shared email (e.g., social@therightdecision.com) for all brand accounts
+- Backup email: a shared email (e.g., social@rightdecision.io) for all brand accounts
 - 2FA enabled on all accounts from day 1
 
 ---
@@ -78,19 +78,19 @@ If a handle is taken, try in order:
 ### Indy Kaz — personal bios
 
 **TikTok (80 chars):**
-> You know what to do. You just haven't decided yet. ↓ therightdecision.com
+> You know what to do. You just haven't decided yet. ↓ rightdecision.io
 
 **Instagram (150 chars):**
-> You already know what you need to do. You've known for months. I help you finally decide — and do it. 🔗 therightdecision.com
+> You already know what you need to do. You've known for months. I help you finally decide — and do it. 🔗 rightdecision.io
 
 **X/Twitter (160 chars):**
-> You don't need another book, another course, or another year of therapy. You need one decision. Co-founder @therightdecision. therightdecision.com
+> You don't need another book, another course, or another year of therapy. You need one decision. Co-founder @therightdecision. rightdecision.io
 
 **Facebook (intro, 101 chars):**
 > Helping women stop preparing and start deciding. Co-founder of The Right Decision.
 
 **Facebook (about, 255 chars):**
-> You've done the therapy, read the books, taken the courses. And you're still stuck. Not because you haven't tried hard enough — because you keep doing everything except deciding. I've been there. That's why we built The Right Decision. therightdecision.com
+> You've done the therapy, read the books, taken the courses. And you're still stuck. Not because you haven't tried hard enough — because you keep doing everything except deciding. I've been there. That's why we built The Right Decision. rightdecision.io
 
 ### Henry Kaz — personal bios
 
@@ -98,7 +98,7 @@ If a handle is taken, try in order:
 > Building The Right Decision. Code + decisions + doing the thing.
 
 **Instagram (150 chars):**
-> Technical founder building The Right Decision. Decisions are the primitive. Everything else is noise. 🔗 therightdecision.com
+> Technical founder building The Right Decision. Decisions are the primitive. Everything else is noise. 🔗 rightdecision.io
 
 **X/Twitter (160 chars):**
 > Building @therightdecision — a methodology + AI that turns stuck goals into clear decisions. Previously: exits, almost unemployed, then one right decision.
@@ -107,7 +107,7 @@ If a handle is taken, try in order:
 > Founder of The Right Decision. Decisions are the atomic unit of change.
 
 **Facebook (about, 255 chars):**
-> I had multiple companies. Exits. Then I was almost unemployed for a year. I did everything: therapy, meditation, books, plans. Still stuck. Then I stopped all of it and just did the thing. That's what we teach. therightdecision.com
+> I had multiple companies. Exits. Then I was almost unemployed for a year. I did everything: therapy, meditation, books, plans. Still stuck. Then I stopped all of it and just did the thing. That's what we teach. rightdecision.io
 
 ### The Right Decision — brand bios
 
@@ -115,16 +115,16 @@ If a handle is taken, try in order:
 > The one decision that transforms your life. $197/year. ↓ Link
 
 **Instagram (150 chars):**
-> Stop preparing. Start deciding. A methodology + AI that turns stuck goals into clear decisions and daily actions. $197/year. 🔗 therightdecision.com
+> Stop preparing. Start deciding. A methodology + AI that turns stuck goals into clear decisions and daily actions. $197/year. 🔗 rightdecision.io
 
 **X/Twitter (160 chars):**
-> The most expensive thing in your life is the decision you haven't made. A methodology + AI for the one decision that matters most. therightdecision.com
+> The most expensive thing in your life is the decision you haven't made. A methodology + AI for the one decision that matters most. rightdecision.io
 
 **Facebook (intro, 101 chars):**
 > The one decision that transforms your life. Methodology + AI. $197/year.
 
 **Facebook (about, 255 chars):**
-> You don't need another course. You need one decision. The Right Decision identifies the single biggest thing standing between where you are and where you want to be — then decomposes it into decisions, tasks, and habits you execute daily. therightdecision.com
+> You don't need another course. You need one decision. The Right Decision identifies the single biggest thing standing between where you are and where you want to be — then decomposes it into decisions, tasks, and habits you execute daily. rightdecision.io
 
 **YouTube (about, 1000 chars):**
 > Every meaningful change in your life begins with a decision.
@@ -140,7 +140,7 @@ If a handle is taken, try in order:
 
 > This is not therapy. Not motivation. Not another self-help framework. It's the discipline of deciding accurately and executing consistently.
 
-> Start here: therightdecision.com
+> Start here: rightdecision.io
 
 > New episodes every day. Subscribe so you don't miss the conversation that changes how you think about decisions.
 
@@ -214,7 +214,7 @@ Update bios when:
 |------|---------|-------------|------------|
 | **Awareness** (top-funnel) | Stop the scroll. Get discovered. | Hooks from 7 angles, sin callouts, provocative questions | 60% |
 | **Consideration** (mid-funnel) | Build trust. Show mechanism. | Methodology explanations, founder stories, before/after, mini-VSLs | 30% |
-| **Conversion** (bottom-funnel) | Drive to therightdecision.com | Offer posts, testimonials, price anchoring, direct CTA | 10% |
+| **Conversion** (bottom-funnel) | Drive to rightdecision.io | Offer posts, testimonials, price anchoring, direct CTA | 10% |
 
 ### Brand accounts (rightdecision) — AI-generated, methodology-mapped
 
@@ -269,7 +269,7 @@ In this episode, Henry and Indy talk about [topic].
 
 The Right Decision is a methodology + AI platform that identifies the one decision that matters most in your life right now — and decomposes it into daily actions.
 
-Start for $197/year: https://therightdecision.com
+Start for $197/year: https://rightdecision.io
 7-day money-back guarantee.
 
 ---
@@ -310,7 +310,7 @@ Subscribe for new episodes every day.
 **Carousel template (brand account):**
 - Slide 1: Bold statement (Instrument Serif, cream background, gold accent)
 - Slides 2-5: Breakdown/explanation (Instrument Sans, one idea per slide)
-- Slide 6: CTA ("Save this. Then go to therightdecision.com")
+- Slide 6: CTA ("Save this. Then go to rightdecision.io")
 - Dimensions: 1080x1350px (4:5 portrait)
 
 **Story template:** Quick, informal, ephemeral. Polls ("Have you been avoiding a decision?"), questions, behind-the-scenes. No heavy design.
@@ -323,14 +323,14 @@ Subscribe for new episodes every day.
 
 [1-2 supporting sentences]
 
-[Optional: link to therightdecision.com]
+[Optional: link to rightdecision.io]
 ```
 
 **Thread formula:**
 ```
 Tweet 1: [Hook — the claim that makes people click "Show more"]
 Tweet 2-5: [Supporting points, stories, examples]
-Tweet 6: [Summary + CTA to therightdecision.com]
+Tweet 6: [Summary + CTA to rightdecision.io]
 ```
 
 **Tone:** X rewards opinion and provocation. Be direct. No emojis. Short sentences. Henry's natural voice works perfectly here.
@@ -345,7 +345,7 @@ Tweet 6: [Summary + CTA to therightdecision.com]
 
 [Question to drive comments: "What decision have you been avoiding?"]
 
-[Optional: link to therightdecision.com]
+[Optional: link to rightdecision.io]
 ```
 
 **Tone:** More conversational than X, longer than TikTok. Facebook audiences in the 30-50 range respond to storytelling and direct questions. Groups strategy: join relevant self-development groups and participate (don't spam).
@@ -480,7 +480,7 @@ Social media is social. Posting without engaging is broadcasting. Algorithms rew
 | Brand | Supportive but methodology-anchored. | "That's what we call the dominant constraint. Module 4 helps you name it." |
 
 ### DM handling
-- **Sales inquiries:** Link to therightdecision.com. Don't sell in DMs.
+- **Sales inquiries:** Link to rightdecision.io. Don't sell in DMs.
 - **Personal stories:** Acknowledge, validate, point to the methodology. "That sounds like a dominant constraint. Have you tried naming it explicitly?"
 - **Hate/trolls:** Don't engage. Block if persistent. Never argue publicly.
 - **Collaboration requests:** Forward to shared email. Evaluate case by case.
@@ -500,7 +500,7 @@ If a personal account post causes brand backlash:
 ### Funnel
 
 ```
-Impressions (all 13 accounts) → Profile visits → Link clicks → therightdecision.com → $197 checkout → Sale
+Impressions (all 13 accounts) → Profile visits → Link clicks → rightdecision.io → $197 checkout → Sale
 ```
 
 ### KPIs by timeframe
@@ -528,7 +528,7 @@ These are aggressive but calibrated to the business model's path to $100K (508 c
 | Apple/Spotify | Downloads per episode | Completion rate | Total subscribers |
 
 ### Link tracking
-- Use UTM parameters on all bio links: `therightdecision.com?utm_source=instagram&utm_medium=bio&utm_campaign=organic`
+- Use UTM parameters on all bio links: `rightdecision.io?utm_source=instagram&utm_medium=bio&utm_campaign=organic`
 - Different UTMs per account: `utm_source=tiktok_indy`, `utm_source=instagram_brand`, etc.
 - Track in whatever analytics the landing page uses (likely Vercel Analytics or PostHog)
 
@@ -574,7 +574,7 @@ These are aggressive but calibrated to the business model's path to $100K (508 c
 
 **Pre-setup:**
 - [ ] Set up shared password manager vault for social accounts
-- [ ] Create shared email: social@therightdecision.com
+- [ ] Create shared email: social@rightdecision.io
 - [ ] Prepare profile photos (Indy headshot, Henry headshot, brand logo)
 - [ ] Prepare cover images (YouTube, Facebook, X/Twitter)
 - [ ] Have bio copy ready (from Section 2)
@@ -686,7 +686,7 @@ These are aggressive but calibrated to the business model's path to $100K (508 c
 | 2026-04-06 | Launch all 13 accounts simultaneously | Founder preference + doc #8 automation makes it feasible | If quality degrades, prioritize top 3-4 accounts |
 | 2026-04-06 | Brand accounts are 100% AI-generated from day 1 | AI-first strategy, human effort reserved for podcasts | If AI content underperforms, add human content to brand accounts |
 | 2026-04-06 | Personal accounts start human, evolve to AI | Build authentic presence first, then scale with voice clones | If AI voice is indistinguishable, accelerate transition |
-| 2026-04-06 | One funnel: all accounts → therightdecision.com | Simplicity. No link-in-bio tools. | If conversion is low, test link-in-bio with multiple CTAs |
+| 2026-04-06 | One funnel: all accounts → rightdecision.io | Simplicity. No link-in-bio tools. | If conversion is low, test link-in-bio with multiple CTAs |
 | 2026-04-06 | Podcasts published on audio platforms from day 1 | Maximum distribution. Audio audiences are different from video. | If audio downloads are negligible, deprioritize audio-only optimization |
 | 2026-04-06 | Transition to live video is readiness-based, not metric-based | Founders need to feel comfortable, not hit a number | If they never feel ready, set a date ceiling (90 days from first recording) |
 | 2026-04-06 | Henry will expand to business/money content for men | Grows total addressable market beyond women 30-50 | If men don't convert to $197, keep focus on women ICP |

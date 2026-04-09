@@ -267,14 +267,14 @@ After a clip lands in `processing/metadata/`, the system generates platform-spec
 |---|---|---|---|---|
 | TikTok | 1-2 sentences | 3-5 | "Follow for more" or "Link in bio" | Trending audio tag if applicable |
 | Instagram | 1 paragraph + question | 5-10 | "Save this" or "Link in bio" | Alt text for accessibility |
-| Facebook | 2-3 sentences + question | 0-3 | "Visit therightdecision.com" | No hashtag spam on FB |
+| Facebook | 2-3 sentences + question | 0-3 | "Visit rightdecision.io" | No hashtag spam on FB |
 | X/Twitter | 1-2 sentences, punchy | 0-2 | Link in reply tweet | Thread format for longer content |
 | YouTube Shorts | 1-2 sentences | 3-5 | Subscribe CTA | Tags in video settings |
 
 **Generation approach:**
 - Use AI (Claude/GPT via API) to generate descriptions from the clip's transcript segment + doc #7's posting templates
 - Each platform gets a unique description (doc #7 cross-posting rule: never copy-paste captions)
-- Include UTM-tagged link where platform allows: `therightdecision.com?utm_source={platform}_{account}`
+- Include UTM-tagged link where platform allows: `rightdecision.io?utm_source={platform}_{account}`
 
 ### Content deduplication
 
@@ -407,7 +407,7 @@ Running 13 accounts for the same business triggers platform detection. Mitigatio
 | Same IP for all accounts | Use different devices or residential proxies for different account groups |
 | Same posting times | Stagger by 2+ hours between accounts on the same platform |
 | Similar content | Deduplication rules (Section 5) ensure no same clip on same platform |
-| Same link in all bios | All bios link to therightdecision.com — this is legitimate. The issue is behavioral, not link-based. |
+| Same link in all bios | All bios link to rightdecision.io — this is legitimate. The issue is behavioral, not link-based. |
 | Account registration pattern | Create accounts over multiple days, not all at once |
 
 ### Ban detection and recovery

@@ -21,7 +21,7 @@
 ---
 
 ## Context
-We need to build the Life Decisions landing page, the main sales page at `therightdecision.com`.
+We need to build the Life Decisions landing page, the main sales page at `rightdecision.io`.
 
 **Current state snapshot (2026-04-07):**
 - The codebase is API-only. Routes return JSON via `success()`.

@@ -436,11 +436,11 @@ Wire in routes.ts: `.route('/api/subscription/portal', portalRoutes)`
 ## 9. Compliance & Deliverability
 
 ### Domain Authentication
-Resend domain (rightdecision.com) is already verified. Verify SPF, DKIM, and DMARC records:
+Resend domain (rightdecision.io) is already verified. Verify SPF, DKIM, and DMARC records:
 ```sh
-dig TXT rightdecision.com +short              # SPF
-dig TXT resend._domainkey.rightdecision.com +short  # DKIM
-dig TXT _dmarc.rightdecision.com +short        # DMARC
+dig TXT rightdecision.io +short              # SPF
+dig TXT resend._domainkey.rightdecision.io +short  # DKIM
+dig TXT _dmarc.rightdecision.io +short        # DMARC
 ```
 
 ### Email Footer
