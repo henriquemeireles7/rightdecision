@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.2.0] - 2026-04-09
+
+### Added
+- Social Media Profiles Intelligence Layer: persona-aware content pipeline with 3 profiles (indy-kaz, henry-kaz, the-right-decision), structured copy framework templates, and learning flywheel.
+- `providers/profile.ts`: readProfile(), listProfiles(), getHealthScore(), validateProfiles() with path traversal guards and profile name validation.
+- `profileSlug` column on posts table for analytics attribution per persona.
+- 6 PROFILE_* error codes in platform/errors.ts.
+- 4 new skills: /d-socialpost, /d-profile-learn, /d-profile-create, /d-profile-preview.
+- Profile-awareness in /d-select-clips, /d-generate-metadata, /d-process-episode, /d-whats-working.
+- `bun run validate-profiles` CLI command with health scoring and colored output.
+- All skills renamed to d- prefix for consistency (10 skills renamed).
+
+### Changed
+- `saveMetadata()` now accepts and propagates profileSlug to post rows.
+- decisions/architecture.md updated with Website Architecture section.
+- decisions/coding.md updated with new providers list.
+
+### Fixed
+- `import.meta.dir` in providers/profile.ts replaced with `process.cwd()` (production bundling fix).
+- Biome CI errors reduced from 18 to 0 across the codebase.
+- Non-null assertions replaced with optional chaining in profile provider and SEO scripts.
+
 ## [0.2.1.1] - 2026-04-09
 
 ### Added
