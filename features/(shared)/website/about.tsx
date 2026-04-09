@@ -1,7 +1,6 @@
 import { Layout } from './layout'
 
 export function AboutPage() {
-
   return (
     <Layout>
       <article class="py-2xl">
@@ -122,7 +121,6 @@ export function AboutPage() {
           </section>
         </div>
       </article>
-
     </Layout>
   )
 }

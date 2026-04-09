@@ -7,13 +7,13 @@
  */
 import { join } from 'node:path'
 import { env } from '@/platform/env'
-import { listContentFiles } from '@/providers/markdown'
 import {
   getUnsubmittedUrls,
   loadSubmittedLog,
   saveSubmittedLog,
   submitUrls,
 } from '@/providers/indexnow'
+import { listContentFiles } from '@/providers/markdown'
 
 const BLOG_DIR = join(import.meta.dir, '../content/blog')
 const CONCEPTS_DIR = join(import.meta.dir, '../content/concepts')

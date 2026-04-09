@@ -55,26 +55,26 @@ function parseQuickRef(content: string): QuickRef {
   }
 
   const whoMatch = content.match(/\*\*Who:\*\*\s*(.+)/)
-  if (whoMatch) defaults.who = whoMatch[1]!.trim()
+  if (whoMatch?.[1]) defaults.who = whoMatch[1].trim()
 
   const forMatch = content.match(/\*\*For:\*\*\s*(.+)/)
-  if (forMatch) defaults.for = forMatch[1]!.trim()
+  if (forMatch?.[1]) defaults.for = forMatch[1].trim()
 
   const bigIdeaMatch = content.match(/\*\*Big Idea:\*\*\s*(.+)/)
-  if (bigIdeaMatch) defaults.bigIdea = bigIdeaMatch[1]!.trim()
+  if (bigIdeaMatch?.[1]) defaults.bigIdea = bigIdeaMatch[1].trim()
 
   const ctaMatch = content.match(/\*\*Primary CTA:\*\*\s*(.+)/)
-  if (ctaMatch) defaults.primaryCta = ctaMatch[1]!.trim()
+  if (ctaMatch?.[1]) defaults.primaryCta = ctaMatch[1].trim()
 
   const healthMatch = content.match(/\*\*Health:\*\*\s*(\d+)\/10/)
-  if (healthMatch) defaults.health = Number.parseInt(healthMatch[1]!, 10)
+  if (healthMatch?.[1]) defaults.health = Number.parseInt(healthMatch[1], 10)
 
   const playsMatch = content.match(/\*\*Plays:\*\*\s*(\d+)/)
-  if (playsMatch) defaults.playCount = Number.parseInt(playsMatch[1]!, 10)
+  if (playsMatch?.[1]) defaults.playCount = Number.parseInt(playsMatch[1], 10)
 
   const learningMatch = content.match(/\*\*Last Learning:\*\*\s*(.+)/)
-  if (learningMatch) {
-    const val = learningMatch[1]!.trim()
+  if (learningMatch?.[1]) {
+    const val = learningMatch[1].trim()
     defaults.lastLearning = val === 'none yet' ? null : val
   }
 
@@ -136,7 +136,9 @@ function computeHealthScore(profileContent: string, socialContent: string, name:
   const changelogDir = join(PROFILES_DIR, name, 'changelog')
   if (existsSync(changelogDir)) {
     const changelogs = readdirSync(changelogDir).filter((f) => f.endsWith('.md'))
-    if (changelogs.some((f) => readFileSync(join(changelogDir, f), 'utf-8').includes('## Metrics'))) {
+    if (
+      changelogs.some((f) => readFileSync(join(changelogDir, f), 'utf-8').includes('## Metrics'))
+    ) {
       score++
     }
   }

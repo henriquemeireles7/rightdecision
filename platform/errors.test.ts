@@ -17,7 +17,7 @@ describe('Profile error codes', () => {
       const error = errors[code as keyof typeof errors]
       expect(error).toBeDefined()
       expect(error.status).toBe(expectedStatus)
-      expect(error.code).toBe(code)
+      expect(error.code).toBe(code as keyof typeof errors)
       expect(error.message).toBeTruthy()
     })
   }

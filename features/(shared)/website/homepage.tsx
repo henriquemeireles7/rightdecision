@@ -121,7 +121,6 @@ export function Homepage({ latestPosts }: HomepageProps) {
           </div>
         </section>
       )}
-
     </Layout>
   )
 }

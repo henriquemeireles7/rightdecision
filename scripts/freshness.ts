@@ -50,7 +50,7 @@ function getContentStatus(): ContentStatus[] {
           (frontmatter.date as string) ??
           statSync(filePath).mtime.toISOString().split('T')[0]
 
-        const lastUpdated = new Date(dateStr!.includes('T') ? dateStr! : `${dateStr}T12:00:00Z`)
+        const lastUpdated = new Date(dateStr?.includes('T') ? dateStr : `${dateStr}T12:00:00Z`)
         const daysOld = Math.floor((now - lastUpdated.getTime()) / (1000 * 60 * 60 * 24))
 
         results.push({
@@ -74,7 +74,9 @@ function main() {
   const fresh = content.filter((c) => !c.stale)
 
   console.log(`\n=== Content Freshness Report ===`)
-  console.log(`Total: ${content.length} | Fresh: ${fresh.length} | Stale (>${STALE_DAYS}d): ${stale.length}\n`)
+  console.log(
+    `Total: ${content.length} | Fresh: ${fresh.length} | Stale (>${STALE_DAYS}d): ${stale.length}\n`,
+  )
 
   if (stale.length > 0) {
     console.log('STALE CONTENT (needs refresh):')

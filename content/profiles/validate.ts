@@ -11,7 +11,9 @@ let report: ReturnType<typeof validateProfiles>
 try {
   report = validateProfiles()
 } catch (err) {
-  console.error(`\n  ${red('Error:')} Failed to validate profiles: ${err instanceof Error ? err.message : String(err)}`)
+  console.error(
+    `\n  ${red('Error:')} Failed to validate profiles: ${err instanceof Error ? err.message : String(err)}`,
+  )
   process.exit(2)
 }
 

@@ -1,6 +1,10 @@
 import { Hono } from 'hono'
 import { getCookie, setCookie } from 'hono/cookie'
-import { buildOrganizationSchema, buildProductSchema, renderJsonLd } from '@/features/(shared)/website/seo'
+import {
+  buildOrganizationSchema,
+  buildProductSchema,
+  renderJsonLd,
+} from '@/features/(shared)/website/seo'
 import { env } from '@/platform/env'
 import { renderPage } from '@/platform/server/render'
 import { LandingPage } from './landing'
