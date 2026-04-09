@@ -2,6 +2,7 @@ import { Hono } from 'hono'
 import { serveStatic } from 'hono/bun'
 import { cors } from 'hono/cors'
 import { logger } from 'hono/logger'
+import { secureHeaders } from 'hono/secure-headers'
 import { env } from '@/platform/env'
 import { track } from '@/providers/analytics'
 import { checkHealth } from './health'
@@ -24,6 +25,7 @@ app.get('/health/ready', async (c) => {
 
 // Middleware stack
 app.use('*', logger())
+app.use('*', secureHeaders())
 app.use('*', cors({ origin: env.PUBLIC_APP_URL, credentials: true }))
 app.use('/*', serveStatic({ root: './public' }))
 

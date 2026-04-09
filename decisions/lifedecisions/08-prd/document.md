@@ -21,10 +21,10 @@
 
 ### What Life Decisions V1 Is
 
-A web application at therightdecision.com paired with Claude Cowork skills that together deliver The Right Decision methodology for personal life transformation.
+A web application at rightdecision.io paired with Claude Cowork skills that together deliver The Right Decision methodology for personal life transformation.
 
 **Two-app architecture:**
-- **Web app** (therightdecision.com): interactive onboarding, course player (free + paid), Wins Board, auth, payment, progress tracking
+- **Web app** (rightdecision.io): interactive onboarding, course player (free + paid), Wins Board, auth, payment, progress tracking
 - **Claude Cowork** (user's desktop): AI skills for each methodology phase — the exercises. Skills ask questions, user answers, AI structures the output into personal files
 
 The two apps are **separate in V1**. No API connection between them. The web app teaches *why*. Claude Cowork does the *doing*. Connection (skills calling our API) is deferred to V1.1 — pending validation that users want it.

@@ -281,6 +281,7 @@ You have authenticated CLIs for all external services. Use them directly instead
 
 ### Railway (`railway`) — Hosting & Infra
 Project: decisions | Environment: production | Service: rightdecision
+Railway is linked in every Conductor workspace. Use the CLI directly — NEVER ask the user to check a dashboard or run commands manually.
 ```sh
 railway variable list --kv              # list all env vars
 railway variable set KEY=value          # set env var (triggers redeploy)
@@ -290,7 +291,10 @@ railway logs                            # tail production logs
 railway status                          # current project/env/service
 railway up                              # manual deploy
 railway redeploy                        # redeploy current
+railway connect postgres                # interactive psql session to production DB
 ```
+**Database access:** Use `railway connect postgres` to query production PostgreSQL directly. Pipe SQL or use interactive mode. The dev server runs against the Railway production database (not a local postgres).
+**If `railway status` says "No linked project":** Re-link with `railway link` — project is "decisions", environment is "production".
 
 ### Stripe (`stripe`) — Payments
 ```sh
@@ -342,14 +346,14 @@ GitHub: henriquemeireles7. Email: hsameireles@gmail.com.
 JTBD → PRD → TASKS → CODE → REVIEW → SHIP
 d-jtbd  d-prd  d-tasks  d-code  d-review  /ship
 ```
-`/autocode` runs the full pipeline. JTBD + PRD are interactive. Tasks/Code/Review are automatic.
+`/d-autocode` runs the full pipeline. JTBD + PRD are interactive. Tasks/Code/Review are automatic.
 
 ### Workflow 2: Writing (strategy docs + content)
 ```
 META → INPUT → DOCS → WRITE
 d-meta  d-input  d-plan  d-write
 ```
-`/autodocs` runs the full pipeline. Input is interactive. d-write puts deliverables in content/.
+`/d-autodocs` runs the full pipeline. Input is interactive. d-write puts deliverables in content/.
 
 ## Skill routing
 When the user's request matches an available skill, ALWAYS invoke it using the Skill
@@ -366,7 +370,7 @@ Key routing rules:
 - Strategy document template → invoke d-meta
 - Brain dump, capture thinking → invoke d-input
 - Write strategy document → invoke d-plan
-- Full document pipeline → invoke autodocs
+- Full document pipeline → invoke d-autodocs
 - Transform document into tasks → invoke d-tasks
 - Code from beads tasks → invoke d-code
 - Deep code review, fresh eyes, check quality → invoke d-review
@@ -374,6 +378,14 @@ Key routing rules:
 - Write content from strategy docs → invoke d-write
 - JTBD, validate demand, what to build → invoke d-jtbd
 - PRD, product requirements → invoke d-prd
-- Full coding pipeline end-to-end → invoke autocode
+- Full coding pipeline end-to-end → invoke d-autocode
 - Review and ship, full review chain → invoke d-autoreview
 - Build/deploy error, prevent this, learn from error → invoke d-harness
+- Deploy failed, fix the deploy, railway failed → invoke d-fail
+
+## Health Stack
+
+- typecheck: tsc --noEmit
+- lint: biome check .
+- test: bun test
+- shell: shellcheck .claude/hooks/*.sh

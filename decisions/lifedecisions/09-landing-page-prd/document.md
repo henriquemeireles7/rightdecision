@@ -7,7 +7,7 @@
 **Pipeline:** 05-landing-page (copy) → 09-landing-page-prd (this) → d-tasks → d-code
 
 ## Document scope
-**This document IS:** An implementation-ready PRD for the Life Decisions landing page at therightdecision.com. Defines every section, component, interaction, visual spec, and integration needed to ship the sales page.
+**This document IS:** An implementation-ready PRD for the Life Decisions landing page at rightdecision.io. Defines every section, component, interaction, visual spec, and integration needed to ship the sales page.
 **This document is NOT:** The full platform PRD (that's 08-prd). Not the copy strategy (that's 05-landing-page). Not a design mockup.
 **Scope boundary:** One page. Frontend + Stripe Checkout. No course player, no onboarding flow, no auth. Those live in the platform PRD.
 **Primary reader:** Henry (builds it), AI agents (implement components)

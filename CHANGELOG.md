@@ -2,6 +2,94 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.3.1] - 2026-04-09
+
+### Added
+- Health Stack config in CLAUDE.md for `/health` code quality dashboard (typecheck, lint, test, shell)
+- `knip` devDependency for dead code detection
+
+## [0.2.3.0] - 2026-04-09
+
+### Added
+- Unified content platform: 3-column DocsLayout with tab bar, sidebar, and "on this page" navigation
+- Route factory (createContentRoutes): one config object per content type, zero boilerplate
+- 6 content types: Handbook, Blog, Method, Guides, Help Center, Changelog
+- Handbook: section cards index, system-map SVG diagram, open-source page with GitHub star CTA
+- Blog migration into DocsLayout with cluster filter pills preserved
+- Concepts renamed to Method with 301 redirects from /concepts to /method
+- Full-text search across all content types (Fuse.js, CDN-loaded, PostHog analytics)
+- Interactive features: copy code blocks, keyboard nav (Cmd+K, j/k), page feedback, social share
+- Mobile bottom sheet navigation for docs pages
+- Collapsible "on this page" section for tablet/mobile
+- Build scripts: search index, git timestamps, GitHub star count
+- DOMPurify sanitization on all rendered markdown
+- In-memory content caching with TTL (60s dev, 5min prod)
+- Print-friendly stylesheet for docs pages
+- XSS protection: HTML escaping in search results, isSafeUrl guard for markdown links
+- Starter content: 2 handbook pages, 1 guide, 1 help article, 1 changelog entry
+
+### Changed
+- Header/footer navigation: Handbook, Blog, Method replace old Concepts link
+- Sitemap includes all 6 content types with correct priorities
+- OG image route searches all content directories
+- CI: fetch-depth 0 for git timestamp accuracy
+- Dockerfile: build scripts run before app build, content directory copied to runtime
+
+## [0.2.2.3] - 2026-04-09
+
+### Fixed
+- Add security headers to all HTTP responses via Hono `secureHeaders()` middleware (CSP, X-Frame-Options, HSTS, X-Content-Type-Options, Referrer-Policy)
+- Dockerfile runs as non-root `bun` user in production container
+- SHA-pin third-party CI action `oven-sh/setup-bun` to prevent supply chain attacks
+
+### Added
+- `.dockerignore` to prevent secrets from leaking into Docker build layers
+
+## [0.2.2.2] - 2026-04-09
+
+### Changed
+- Refactor `providers/profile.ts`: extract `matchField()` helper to eliminate copy-paste in `parseQuickRef()`, remove dead `section` field from health score computation, fix TOCTOU race in `readProfile()` by replacing `existsSync` + `readFileSync` with try/catch
+
+## [0.2.2.1] - 2026-04-09
+
+### Fixed
+- Deploy failure: migration `0004_silent_deathbird.sql` tried to CREATE TABLE `webhook_events` which already existed in prod — changed to `CREATE TABLE IF NOT EXISTS`
+
+### Added
+- `/d-fail` skill for automated deploy failure recovery (pull Railway logs, diagnose, fix, ship, merge)
+- Skill routing rule for `d-fail` in CLAUDE.md
+
+## [0.2.2.0] - 2026-04-09
+
+### Added
+- Password visibility toggle (eye icon) on login page
+- Google OAuth login button and Better Auth social provider config
+- `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` optional env vars for OAuth
+- `trustedOrigins` config for Better Auth to fix "Invalid origin" error on localhost
+- Railway database access instructions in CLAUDE.md
+
+### Fixed
+- All domain references updated from `therightdecision.com` / `rightdecision.com` to `rightdecision.io` across 20+ files
+- Email sender address updated from `hello@` to `henry@rightdecision.io`
+- Social Media Profiles Intelligence Layer: persona-aware content pipeline with 3 profiles (indy-kaz, henry-kaz, the-right-decision), structured copy framework templates, and learning flywheel.
+- `providers/profile.ts`: readProfile(), listProfiles(), getHealthScore(), validateProfiles() with path traversal guards and profile name validation.
+- `profileSlug` column on posts table for analytics attribution per persona.
+- 6 PROFILE_* error codes in platform/errors.ts.
+- 4 new skills: /d-socialpost, /d-profile-learn, /d-profile-create, /d-profile-preview.
+- Profile-awareness in /d-select-clips, /d-generate-metadata, /d-process-episode, /d-whats-working.
+- `bun run validate-profiles` CLI command with health scoring and colored output.
+- All skills renamed to d- prefix for consistency (10 skills renamed).
+
+### Changed
+- `saveMetadata()` now accepts and propagates profileSlug to post rows.
+- decisions/architecture.md updated with Website Architecture section.
+- decisions/coding.md updated with new providers list.
+
+### Fixed
+- `import.meta.dir` in providers/profile.ts replaced with `process.cwd()` (production bundling fix).
+- Biome CI errors reduced from 18 to 0 across the codebase.
+- Non-null assertions replaced with optional chaining in profile provider and SEO scripts.
+
 ## [0.2.1.1] - 2026-04-09
 
 ### Added
@@ -183,7 +271,7 @@ All notable changes to this project will be documented in this file.
 ## [0.1.1.0] - 2026-04-08
 
 ### Added
-- Life Decisions landing page: 11-section sales page at therightdecision.com
+- Life Decisions landing page: 11-section sales page at rightdecision.io
 - SSR infrastructure: renderPage() function wraps any Preact component in full HTML document
 - Tailwind CSS v4 pipeline with design tokens from design.md (cream, gold, sand palette)
 - Static file serving via Hono serveStatic middleware

@@ -1,13 +1,23 @@
+import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { Hono } from 'hono'
 import { freeIntroPageRoutes } from '@/features/(life)/free-intro/routes'
 import { landingRoutes } from '@/features/(life)/landing/routes'
 import { env } from '@/platform/env'
 import { renderPage } from '@/platform/server/render'
-import { getContentFile } from '@/providers/markdown'
+import { getContentFile, listContentFiles } from '@/providers/markdown'
 import { AboutPage } from './about'
-import { blogRoutes } from './blog-routes'
-import { conceptRoutes } from './concept-routes'
+import {
+  blogConfig,
+  changelogConfig,
+  guidesConfig,
+  handbookConfig,
+  helpConfig,
+  methodConfig,
+} from './docs/configs'
+import { createContentRoutes } from './docs/content-routes'
+import { OpenSourcePage } from './docs/handbook-open-source'
+import { SystemMapPage } from './docs/handbook-system-map'
 import { getHomepageProps, Homepage } from './homepage'
 import { legalRoutes } from './legal-routes'
 import { generateOgImage } from './og-image'
@@ -20,8 +30,23 @@ import {
 } from './seo'
 import { sitemapRoutes } from './sitemap'
 
-const BLOG_DIR = join(process.cwd(), 'content/blog')
-const CONCEPTS_DIR = join(process.cwd(), 'content/concepts')
+// Content routes via factory
+const handbookRoutes = createContentRoutes(handbookConfig)
+const blogRoutes = createContentRoutes(blogConfig)
+const methodRoutes = createContentRoutes(methodConfig)
+const guidesRoutes = createContentRoutes(guidesConfig)
+const helpRoutes = createContentRoutes(helpConfig)
+const changelogRoutes = createContentRoutes(changelogConfig)
+
+// Content directories for OG image lookup (resolved lazily)
+const CONTENT_DIRS = [
+  'content/blog',
+  'content/method',
+  'content/handbook',
+  'content/guides',
+  'content/help',
+  'content/changelog',
+]
 
 export const websiteRoutes = new Hono()
 
@@ -100,11 +125,67 @@ websiteRoutes.get('/about', (c) => {
   )
 })
 
-// ─── Blog ────────────────────────────────────────────────────────────────────
-websiteRoutes.route('/blog', blogRoutes)
+// ─── Handbook special pages (static routes before wildcard) ─────────────────
+websiteRoutes.get('/handbook/system-map', async (c) => {
+  const dir = join(process.cwd(), 'content/handbook')
+  const items = await listContentFiles(dir, { recursive: true })
+  const { buildSidebarForConfig } = await import('./docs/content-routes')
+  const sidebar = buildSidebarForConfig(items, handbookConfig, null)
+  const breadcrumb = buildBreadcrumbSchema([
+    { name: 'Home', url: `${env.PUBLIC_APP_URL}/` },
+    { name: 'Handbook', url: `${env.PUBLIC_APP_URL}/handbook` },
+    { name: 'System Map', url: `${env.PUBLIC_APP_URL}/handbook/system-map` },
+  ])
+  return c.html(
+    renderPage(<SystemMapPage sidebar={sidebar} />, {
+      title: 'System Map — The Right Decision',
+      description: 'How decisions flow through The Right Decision company operating system.',
+      canonical: `${env.PUBLIC_APP_URL}/handbook/system-map`,
+    }).replace('</head>', `${renderJsonLd(breadcrumb)}\n</head>`),
+  )
+})
 
-// ─── Concepts ─────────────────────────────────────────────────────────────────
-websiteRoutes.route('/concepts', conceptRoutes)
+websiteRoutes.get('/handbook/open-source', async (c) => {
+  const dir = join(process.cwd(), 'content/handbook')
+  const items = await listContentFiles(dir, { recursive: true })
+  const { buildSidebarForConfig } = await import('./docs/content-routes')
+  const sidebar = buildSidebarForConfig(items, handbookConfig, null)
+  let stars: number | undefined
+  try {
+    const raw = readFileSync(join(process.cwd(), 'public/github-stars.json'), 'utf-8')
+    const data = JSON.parse(raw) as { stars?: number }
+    stars = data.stars
+  } catch {}
+  const breadcrumb = buildBreadcrumbSchema([
+    { name: 'Home', url: `${env.PUBLIC_APP_URL}/` },
+    { name: 'Handbook', url: `${env.PUBLIC_APP_URL}/handbook` },
+    { name: 'Open Source', url: `${env.PUBLIC_APP_URL}/handbook/open-source` },
+  ])
+  return c.html(
+    renderPage(<OpenSourcePage sidebar={sidebar} stars={stars} />, {
+      title: 'Open Source Harness — The Right Decision',
+      description:
+        'Our AI agent harness is open source. Clone it, customize it, run your company the same way.',
+      canonical: `${env.PUBLIC_APP_URL}/handbook/open-source`,
+    }).replace('</head>', `${renderJsonLd(breadcrumb)}\n</head>`),
+  )
+})
+
+// ─── Content types (unified DocsLayout) ──────────────────────────────────────
+websiteRoutes.route('/handbook', handbookRoutes)
+websiteRoutes.route('/blog', blogRoutes)
+websiteRoutes.route('/method', methodRoutes)
+websiteRoutes.route('/guides', guidesRoutes)
+websiteRoutes.route('/help', helpRoutes)
+websiteRoutes.route('/changelog', changelogRoutes)
+
+// ─── 301 redirects: /concepts → /method ─────────────────────────────────────
+websiteRoutes.get('/concepts', (c) => c.redirect('/method', 301))
+websiteRoutes.get('/concepts/:slug', (c) => {
+  const slug = c.req.param('slug')
+  const query = c.req.url.includes('?') ? c.req.url.slice(c.req.url.indexOf('?')) : ''
+  return c.redirect(`/method/${slug}${query}`, 301)
+})
 
 // ─── OG Image Generation ──────────────────────────────────────────────────────
 const ogImageCache = new Map<string, ArrayBuffer>()
@@ -121,8 +202,18 @@ websiteRoutes.get('/og/:filename', async (c) => {
     return c.body(cached)
   }
 
-  // Try blog first, then concepts
-  const post = (await getContentFile(BLOG_DIR, slug)) ?? (await getContentFile(CONCEPTS_DIR, slug))
+  // Search all content directories
+  let post = null
+  for (const dir of CONTENT_DIRS) {
+    const fullDir = join(process.cwd(), dir)
+    post = await getContentFile(fullDir, slug)
+    if (!post) {
+      // Try with dashes converted back to slashes (for nested content OG URLs)
+      const nestedSlug = slug.replace(/-/g, '/')
+      post = await getContentFile(fullDir, nestedSlug, { allowNested: true })
+    }
+    if (post) break
+  }
   if (!post) return c.notFound()
 
   const png = await generateOgImage(post.frontmatter.title as string)

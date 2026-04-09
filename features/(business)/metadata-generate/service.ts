@@ -18,9 +18,19 @@ export type MetadataItem = z.infer<typeof metadataItemSchema>
 export const metadataInputSchema = z.object({
   pipelineRunId: z.string().uuid(),
   metadata: z.array(metadataItemSchema).min(1),
+  profileSlug: z
+    .string()
+    .min(1)
+    .max(100)
+    .regex(/^[a-z0-9][a-z0-9-]*$/)
+    .nullish(),
 })
 
-export async function saveMetadata(pipelineRunId: string, metadataItems: MetadataItem[]) {
+export async function saveMetadata(
+  pipelineRunId: string,
+  metadataItems: MetadataItem[],
+  profileSlug?: string | null,
+) {
   const found = await findRunInState(pipelineRunId, 'cut', 'generating_metadata')
   if ('error' in found) return found
   const { run } = found
@@ -73,6 +83,7 @@ export async function saveMetadata(pipelineRunId: string, metadataItems: Metadat
           description: item.description,
           hashtags: item.hashtags ?? null,
           cta: item.cta ?? null,
+          profileSlug: profileSlug ?? null,
           status: 'scheduled',
         })
         .returning()

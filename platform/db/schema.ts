@@ -313,6 +313,7 @@ export const posts = pgTable(
     description: text('description'),
     hashtags: text('hashtags').array(),
     cta: text('cta'),
+    profileSlug: text('profile_slug'),
     status: text('status', { enum: ['scheduled', 'posted', 'failed', 'retrying', 'deleted'] })
       .notNull()
       .default('scheduled'),
@@ -327,6 +328,7 @@ export const posts = pgTable(
     uniqueIndex('idx_posts_clip_account').on(table.clipId, table.platformAccountId),
     index('idx_posts_clip').on(table.clipId),
     index('idx_posts_status').on(table.status),
+    index('idx_posts_profile_slug').on(table.profileSlug),
   ],
 )
 

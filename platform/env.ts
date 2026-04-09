@@ -30,6 +30,9 @@ export const env = createEnv({
     // ─── PostHog: Server-side analytics ───
     POSTHOG_API_KEY: z.string().min(1).optional(),
     POSTHOG_HOST: z.string().url().default('https://us.i.posthog.com'),
+    // ─── OAuth: Google ───
+    GOOGLE_CLIENT_ID: z.string().min(1).optional(),
+    GOOGLE_CLIENT_SECRET: z.string().min(1).optional(),
     // ─── SEO: IndexNow ───
     INDEXNOW_KEY: z.string().min(8).optional(),
     // ─── SEO: Google Search Console API ───

@@ -13,7 +13,8 @@ describe('Layout', () => {
     expect(html).toContain('href="/"')
     expect(html).toContain('href="/about"')
     expect(html).toContain('href="/blog"')
-    expect(html).toContain('href="/concepts"')
+    expect(html).toContain('href="/method"')
+    expect(html).toContain('href="/handbook"')
     expect(html).toContain('href="/life"')
   })
 

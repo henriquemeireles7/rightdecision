@@ -130,7 +130,7 @@ Indy (creates accounts, posts content, engages), Henry (tech setup, integrations
 **Done when:** The team has a weekly dashboard routine: check these 5 numbers, if this number drops below X, do Y.
 **Failure modes:**
 - Tracks vanity metrics (followers) instead of conversion metrics (link clicks, landing page visits)
-- No link-in-bio strategy (how do 13 accounts funnel to therightdecision.com?)
+- No link-in-bio strategy (how do 13 accounts funnel to rightdecision.io?)
 - No attribution: can't tell which platform drives actual sales
 **Max length:** 1-2 pages (metric tables + dashboard template)
 **Confidence:** 🔴 guess (no data yet)

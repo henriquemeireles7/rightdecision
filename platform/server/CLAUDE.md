@@ -53,4 +53,8 @@ bunx tsc --noEmit platform/server/app.ts && bun test platform/server/
 - providers/email
 - providers/payments
 
+<<<<<<< HEAD
 <!-- Generated: 2026-04-09T09:30:25.862Z -->
+=======
+<!-- Generated: 2026-04-09T08:33:19.626Z -->
+>>>>>>> origin/master
