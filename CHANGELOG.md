@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.2.1] - 2026-04-09
+
+### Fixed
+- Deploy failure: migration `0004_silent_deathbird.sql` tried to CREATE TABLE `webhook_events` which already existed in prod — changed to `CREATE TABLE IF NOT EXISTS`
+
+### Added
+- `/d-fail` skill for automated deploy failure recovery (pull Railway logs, diagnose, fix, ship, merge)
+- Skill routing rule for `d-fail` in CLAUDE.md
+
 ## [0.2.2.0] - 2026-04-09
 
 ### Added
