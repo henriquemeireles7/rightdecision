@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import matter from 'gray-matter'
+import DOMPurify from 'isomorphic-dompurify'
 import { Marked } from 'marked'
 import { z } from 'zod'
 
@@ -213,8 +214,8 @@ export function parseFrontmatter(raw: string): {
 }
 
 export function renderMarkdown(body: string): string {
-  const result = marked.parse(body, { async: false })
-  return result as string
+  const html = marked.parse(body, { async: false }) as string
+  return DOMPurify.sanitize(html, { ADD_ATTR: ['target'] })
 }
 
 export function calculateReadTime(body: string): number {
@@ -256,6 +257,40 @@ export type ParsedContentFull = {
   headings: ContentHeading[]
 }
 
+// ─── Content Cache (TTL-based) ──────────────────────────────────────────────
+
+// Lazy TTL: resolved on first cache access to avoid importing env at module load
+let _cacheTtl: number | null = null
+function getCacheTtl(): number {
+  if (_cacheTtl === null) {
+    try {
+      const { env } = require('@/platform/env')
+      _cacheTtl = env.NODE_ENV === 'production' ? 300_000 : 60_000
+    } catch {
+      _cacheTtl = 60_000 // default to dev TTL
+    }
+  }
+  return _cacheTtl
+}
+
+type CacheEntry<T> = { data: T; timestamp: number }
+const listCache = new Map<string, CacheEntry<ParsedContentItem[]>>()
+const fileCache = new Map<string, CacheEntry<ParsedContentFull | null>>()
+
+function getCached<T>(cache: Map<string, CacheEntry<T>>, key: string): T | undefined {
+  const entry = cache.get(key)
+  if (!entry) return undefined
+  if (Date.now() - entry.timestamp > getCacheTtl()) {
+    cache.delete(key)
+    return undefined
+  }
+  return entry.data
+}
+
+function setCache<T>(cache: Map<string, CacheEntry<T>>, key: string, data: T): void {
+  cache.set(key, { data, timestamp: Date.now() })
+}
+
 function collectMdFiles(dir: string, recursive: boolean, prefix = ''): string[] {
   let entries: string[]
   try {
@@ -284,6 +319,10 @@ export async function listContentFiles(
   options?: { recursive?: boolean },
 ): Promise<ParsedContentItem[]> {
   const recursive = options?.recursive ?? false
+  const cacheKey = `${dir}:${recursive}`
+  const cached = getCached(listCache, cacheKey)
+  if (cached) return cached
+
   const files = collectMdFiles(dir, recursive)
 
   const items: ParsedContentItem[] = []
@@ -306,6 +345,7 @@ export async function listContentFiles(
     return dateB.localeCompare(dateA)
   })
 
+  setCache(listCache, cacheKey, items)
   return items
 }
 
@@ -320,6 +360,11 @@ export async function getContentFile(
   // Nested slugs (section/page) allowed when explicitly enabled
   if (slug.includes('/') && !options?.allowNested) return null
 
+  // Check cache
+  const cacheKey = `${dir}:${slug}`
+  const cached = getCached(fileCache, cacheKey)
+  if (cached !== undefined) return cached
+
   // Resolve and verify the path stays within the content directory
   const resolvedDir = resolve(dir)
   const filePath = resolve(dir, `${slug}.md`)
@@ -329,6 +374,7 @@ export async function getContentFile(
   try {
     raw = readFileSync(filePath, 'utf-8')
   } catch {
+    setCache(fileCache, cacheKey, null)
     return null
   }
 
@@ -340,9 +386,12 @@ export async function getContentFile(
     const readTime = calculateReadTime(body)
     const headings = extractHeadings(body)
 
-    return { frontmatter: { ...frontmatter, slug }, html, body, readTime, headings }
+    const result = { frontmatter: { ...frontmatter, slug }, html, body, readTime, headings }
+    setCache(fileCache, cacheKey, result)
+    return result
   } catch {
     console.warn(`Failed to parse ${slug}: invalid frontmatter`)
+    setCache(fileCache, cacheKey, null)
     return null
   }
 }
