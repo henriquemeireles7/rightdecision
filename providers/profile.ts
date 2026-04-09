@@ -4,7 +4,7 @@ import { ProviderError } from '@/providers/errors'
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-const PROFILES_DIR = join(import.meta.dir, '../content/profiles')
+const PROFILES_DIR = join(process.cwd(), 'content/profiles')
 
 const REQUIRED_PROFILE_SECTIONS = ['## Identity', '## ICP', '## Plays', '## Voice']
 const REQUIRED_SOCIAL_SECTIONS = [
@@ -178,6 +178,10 @@ export function listProfiles(): string[] {
 }
 
 export function readProfile(name: string): ProfileData {
+  if (!/^[a-z0-9][a-z0-9-]*$/.test(name)) {
+    throw new ProviderError('profile', 'readProfile', 422, { name, error: 'Invalid profile name' })
+  }
+
   const dir = join(PROFILES_DIR, name)
 
   if (!existsSync(dir) || !existsSync(join(dir, 'profile.md'))) {

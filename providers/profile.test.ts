@@ -3,7 +3,7 @@ import { mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 // Test against real content/profiles/ created by bead lyon-1d3h.3
-const PROFILES_DIR = join(import.meta.dir, '../content/profiles')
+const PROFILES_DIR = join(process.cwd(), 'content/profiles')
 
 // Create a temp profile for edge-case tests
 const TEMP_DIR = join(PROFILES_DIR, '_test-temp')

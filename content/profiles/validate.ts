@@ -7,7 +7,13 @@ const red = (s: string) => (isTTY ? `\x1b[31m${s}\x1b[0m` : s)
 const bold = (s: string) => (isTTY ? `\x1b[1m${s}\x1b[0m` : s)
 const dim = (s: string) => (isTTY ? `\x1b[2m${s}\x1b[0m` : s)
 
-const report = validateProfiles()
+let report: ReturnType<typeof validateProfiles>
+try {
+  report = validateProfiles()
+} catch (err) {
+  console.error(`\n  ${red('Error:')} Failed to validate profiles: ${err instanceof Error ? err.message : String(err)}`)
+  process.exit(2)
+}
 
 console.log(bold('\n  Profile Validation Report'))
 console.log(dim(`  ${'─'.repeat(40)}`))
