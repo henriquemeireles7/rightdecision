@@ -1,6 +1,6 @@
 # Coding — How We Build Software
 
-> Last verified: 2026-04-06
+> Last verified: 2026-04-08
 > Full architecture: decisions/001-architecture.md
 
 ## Data Flow
@@ -18,7 +18,7 @@ Types flow from ONE source. Never define types manually — infer from Zod/Drizz
 - Permissions: `requirePermission()` from `platform/auth/permissions.ts`
 
 ## Backend Patterns
-- **Providers:** ONE file per capability, named by what it does (`payments.ts`, `email.ts`) not vendor
+- **Providers:** ONE file per capability, named by what it does (`payments.ts`, `email.ts`, `indexnow.ts`, `search-console.ts`, `profile.ts`, `markdown.ts`) not vendor
 - **Middleware:** Hono middleware chain, auth → permissions → handler
 - **Env vars:** ALL through `platform/env.ts` via `@t3-oss/env-core` — never `process.env`
 - **Route chains:** must be connected for AppRoutes type inference
