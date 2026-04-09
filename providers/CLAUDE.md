@@ -90,6 +90,7 @@ bunx tsc --noEmit providers/*.ts
 | indexnow.ts | submitUrls, loadSubmittedLog, saveSubmittedLog, getUnsubmittedUrls |
 | markdown.ts | BlogPostFrontmatter, ConceptFrontmatter, LegalFrontmatter, BlogPost, Concept, Legal, renderCourseMarkdown, parseFrontmatter, renderMarkdown, calculateReadTime, ParsedContentItem, ParsedContentFull, listContentFiles, getContentFile |
 | payments.ts | payments, plans, PlanId |
+| profile.ts | QuickRef, ProfileData, ProfileReport, listProfiles, readProfile, getHealthScore, validateProfiles |
 | search-console.ts | isConfigured, getAccessToken, InspectionResult, inspectUrl, AnalyticsRow, getSearchAnalytics |
 | social-analytics.ts | PostMetrics, getMetrics |
 | social-posting.ts | PostResult, Profile, post, getPostStatus, listProfiles |
@@ -100,4 +101,4 @@ bunx tsc --noEmit providers/*.ts
 - platform/env
 - providers/errors
 
-<!-- Generated: 2026-04-09T06:41:37.140Z -->
+<!-- Generated: 2026-04-09T08:16:27.993Z -->
