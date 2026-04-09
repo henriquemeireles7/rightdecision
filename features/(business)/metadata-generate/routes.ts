@@ -10,8 +10,8 @@ import { metadataInputSchema, saveMetadata } from './service'
 export const metadataRoutes = new Hono<AppEnv>()
   .use(requireAuth)
   .post('/', zValidator('json', metadataInputSchema), async (c) => {
-    const { pipelineRunId, metadata } = c.req.valid('json')
-    const result = await saveMetadata(pipelineRunId, metadata)
+    const { pipelineRunId, metadata, profileSlug } = c.req.valid('json')
+    const result = await saveMetadata(pipelineRunId, metadata, profileSlug)
     if ('error' in result) return throwError(c, result.error as ErrorCode)
     return success(c, result)
   })
