@@ -38,9 +38,14 @@ bunx tsc --noEmit platform/scripts/*.ts
 | File | Exports |
 |------|---------|
 | generate-context-files.ts | — |
+| harden-check.ts | — |
 | migrate.ts | — |
+| seed-accounts.ts | — |
+| seed-users.ts | — |
+| seed-wins.ts | — |
 
 ## Internal Dependencies
+- platform/auth
 - platform/db
 
-<!-- Generated: 2026-04-06T23:27:10.499Z -->
+<!-- Generated: 2026-04-09T05:18:36.330Z -->
