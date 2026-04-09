@@ -61,6 +61,20 @@ freeIntroPageRoutes.get('/', async (c) => {
   return c.redirect('/free/1', 302)
 })
 
+/** Paywall page after lesson 3 — MUST be before /:lesson wildcard */
+freeIntroPageRoutes.get('/paywall', (c) => {
+  const baseUrl = env.PUBLIC_APP_URL
+
+  return c.html(
+    renderPage(<FreeIntroPaywall />, {
+      title: 'Continue Your Journey — The Right Decision',
+      description:
+        'You made your first decision. The full program decomposes it into 9 modules of daily actions.',
+      canonical: `${baseUrl}/free/paywall`,
+    }),
+  )
+})
+
 /** Render free intro lessons */
 freeIntroPageRoutes.get('/:lesson', (c) => {
   const lessonNum = Number.parseInt(c.req.param('lesson') ?? '0', 10)
@@ -114,19 +128,5 @@ freeIntroPageRoutes.get('/:lesson', (c) => {
         posthogHost: env.POSTHOG_HOST,
       },
     ),
-  )
-})
-
-/** Paywall page after lesson 3 */
-freeIntroPageRoutes.get('/paywall', (c) => {
-  const baseUrl = env.PUBLIC_APP_URL
-
-  return c.html(
-    renderPage(<FreeIntroPaywall />, {
-      title: 'Continue Your Journey — The Right Decision',
-      description:
-        'You made your first decision. The full program decomposes it into 9 modules of daily actions.',
-      canonical: `${baseUrl}/free/paywall`,
-    }),
   )
 })
