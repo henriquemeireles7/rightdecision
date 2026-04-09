@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.2.2] - 2026-04-09
+
+### Changed
+- Refactor `providers/profile.ts`: extract `matchField()` helper to eliminate copy-paste in `parseQuickRef()`, remove dead `section` field from health score computation, fix TOCTOU race in `readProfile()` by replacing `existsSync` + `readFileSync` with try/catch
+
 ## [0.2.2.1] - 2026-04-09
 
 ### Fixed
