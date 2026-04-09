@@ -381,3 +381,4 @@ Key routing rules:
 - Full coding pipeline end-to-end → invoke d-autocode
 - Review and ship, full review chain → invoke d-autoreview
 - Build/deploy error, prevent this, learn from error → invoke d-harness
+- Deploy failed, fix the deploy, railway failed → invoke d-fail
