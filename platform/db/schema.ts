@@ -89,6 +89,9 @@ export const subscriptions = pgTable('subscriptions', {
   status: text('status', { enum: ['active', 'past_due', 'cancelled', 'trialing'] })
     .notNull()
     .default('active'),
+  planInterval: text('plan_interval', { enum: ['month', 'year'] })
+    .notNull()
+    .default('year'),
   currentPeriodEnd: timestamp('current_period_end').notNull(),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
@@ -360,7 +363,7 @@ export const webhookEvents = pgTable('webhook_events', {
   createdAt: timestamp('created_at').notNull().defaultNow(),
 })
 
-// ─── User Decisions (LD: in-class micro-decision responses) ───
+// ─── User Decisions (LD: in-class decision block responses) ───
 export const userDecisions = pgTable(
   'user_decisions',
   {
@@ -369,14 +372,24 @@ export const userDecisions = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
     classId: text('class_id').notNull(),
+    blockId: text('block_id').notNull(),
     courseSlug: text('course_slug').notNull(),
     decisionType: text('decision_type', { enum: ['text', 'choice'] }).notNull(),
     prompt: text('prompt').notNull(),
     response: text('response').notNull(),
+    isCustom: boolean('is_custom').notNull().default(false),
+    previousContext: jsonb('previous_context').$type<string[]>(),
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at').notNull().defaultNow(),
   },
-  (table) => [uniqueIndex('user_decisions_user_class_idx').on(table.userId, table.classId)],
+  (table) => [
+    uniqueIndex('user_decisions_user_class_block_idx').on(
+      table.userId,
+      table.classId,
+      table.blockId,
+    ),
+    index('user_decisions_user_created_idx').on(table.userId, table.createdAt),
+  ],
 )
 
 // ─── Reading Analytics (LD: reading behavior tracking) ───
@@ -408,3 +421,45 @@ export const insights = pgTable('insights', {
   actedOn: boolean('acted_on').notNull().default(false),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 })
+
+// ═══════════════════════════════════════════════════════════
+// Free Intro Funnel (Doc 13)
+// ═══════════════════════════════════════════════════════════
+
+// ─── Free Intro Sessions (anonymous pre-account sessions for free intro) ───
+export const freeIntroSessions = pgTable('free_intro_sessions', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  lessonOneAnswer: text('lesson_one_answer'),
+  lessonOneCompletedAt: timestamp('lesson_one_completed_at'),
+  email: text('email'),
+  mergedToUserId: uuid('merged_to_user_id').references(() => users.id, {
+    onDelete: 'set null',
+  }),
+  abVariant: text('ab_variant'),
+  expiresAt: timestamp('expires_at').notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+})
+
+// ─── Drip Emails (scheduled follow-up emails for free intro completers) ───
+export const dripEmails = pgTable(
+  'drip_emails',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    emailIndex: integer('email_index').notNull(),
+    decisionText: text('decision_text').notNull(),
+    scheduledAt: timestamp('scheduled_at').notNull(),
+    sentAt: timestamp('sent_at'),
+    status: text('status', { enum: ['pending', 'sent', 'skipped'] })
+      .notNull()
+      .default('pending'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('drip_emails_user_index_idx').on(table.userId, table.emailIndex),
+    index('drip_emails_pending_idx').on(table.status, table.scheduledAt),
+  ],
+)

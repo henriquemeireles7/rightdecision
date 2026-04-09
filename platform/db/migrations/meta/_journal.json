@@ -36,6 +36,13 @@
       "when": 1775643755354,
       "tag": "0004_first_pestilence",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1775725244572,
+      "tag": "0005_breezy_black_bird",
+      "breakpoints": true
     }
   ]
 }

@@ -32,21 +32,43 @@ import { success } from '@/platform/server/responses'
 | File | Exports |
 |------|---------|
 | access.ts | AccessTier, canAccessClass, getModuleFromClassId, getUserAccessTier |
+| analytics-routes.ts | analyticsReadingRoutes |
 | bookmark-routes.ts | bookmarkRoutes |
 | bookmarks.ts | toggleBookmark, getUserBookmarks, isBookmarked |
+| bottom-nav.tsx | BottomNav |
 | class-view.tsx | ClassView |
 | dashboard.tsx | CourseDashboard |
+| decision-routes.ts | decisionRoutes |
+| decisions.ts | isDecisionEditable, saveDecision, getDecision, getUserDecisionContext, getUserDecisions |
+| journey-page-route.tsx | journeyPageRoute |
+| journey-routes.ts | journeyRoutes |
+| journey.tsx | JourneyPage |
+| listing.tsx | CourseListing |
+| menu-overlay.tsx | MenuOverlay |
+| micro-decision.tsx | MicroDecision |
+| module-landing.tsx | ModuleLandingPage |
 | navigation.tsx | getNavItems, Navigation |
+| page-routes.tsx | coursePageRoutes |
 | progress-routes.ts | progressApiRoutes |
 | progress.ts | markClassComplete, getUserProgress, getModuleProgress, getOverallProgress, getCurrentClass |
+| reading-analytics-client.ts | getReadingAnalyticsScript |
+| reading-analytics.ts | logReading, getReadingStats |
 | search-routes.ts | searchRoutes |
+| session-memory.ts | getSessionMemoryScript, getSessionResumeScript |
+| share-routes.ts | shareRoutes |
+| share.ts | generateDecisionCard |
 | time-nudge.tsx | TimeNudge, DEFAULT_NUDGES |
 
 ## Internal Dependencies
 - platform/auth
 - platform/db
+- platform/errors
+- platform/rate-limit
 - platform/server
 - platform/types
+- providers/ai
+- providers/analytics
 - providers/content
+- providers/markdown
 
-<!-- Generated: 2026-04-08T05:22:13.829Z -->
+<!-- Generated: 2026-04-09T09:30:25.855Z -->

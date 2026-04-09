@@ -83,10 +83,22 @@ bunx tsc --noEmit providers/*.ts
 ## Files
 | File | Exports |
 |------|---------|
+| ai.ts | generateSuggestions |
+| analytics.ts | track, identify, shutdown |
+| content.ts | ClassType, DecisionBlockDef, ContentSegment, CourseClass, CourseModule, Course, splitIntoSegments, resolveClassId, getClass, getModule, getAllModules, getClassesByCourse, searchClasses, getTotalClasses, getCourse, getAllCourses |
 | email.ts | email, sendEmail |
-| payments.ts | payments, plans, PlanId |
+| errors.ts | ProviderError |
+| indexnow.ts | submitUrls, loadSubmittedLog, saveSubmittedLog, getUnsubmittedUrls |
+| markdown.ts | BlogPostFrontmatter, ConceptFrontmatter, LegalFrontmatter, BlogPost, Concept, Legal, renderCourseMarkdown, parseFrontmatter, renderMarkdown, calculateReadTime, ParsedContentItem, ParsedContentFull, listContentFiles, getContentFile |
+| payments.ts | payments, plans, PlanInterval, PlanId, intervalFromPriceId |
+| search-console.ts | isConfigured, getAccessToken, InspectionResult, inspectUrl, AnalyticsRow, getSearchAnalytics |
+| social-analytics.ts | PostMetrics, getMetrics |
+| social-posting.ts | PostResult, Profile, post, getPostStatus, listProfiles |
+| storage.ts | upload, download, getSignedUrl, remove |
+| transcription.ts | transcribe |
 
 ## Internal Dependencies
 - platform/env
+- providers/errors
 
-<!-- Generated: 2026-04-06T23:27:10.500Z -->
+<!-- Generated: 2026-04-09T09:30:25.865Z -->

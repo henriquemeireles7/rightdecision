@@ -19,20 +19,31 @@ export async function saveDecision(
   decisionType: 'text' | 'choice',
   prompt: string,
   response: string,
+  blockId = 'legacy',
+  isCustom = false,
+  previousContext?: string[],
 ) {
   const sanitizedResponse = stripHtml(response)
 
   // Atomic upsert: INSERT or UPDATE within edit window.
   // ON CONFLICT: only update if createdAt is within the 5-min edit window.
-  // If the row exists but is outside the edit window, the UPDATE sets 0 rows
-  // (the WHERE clause excludes it), so we detect locked state by checking rowcount.
   const editCutoff = new Date(Date.now() - EDIT_WINDOW_MS)
 
   const [result] = await db
     .insert(userDecisions)
-    .values({ userId, classId, courseSlug, decisionType, prompt, response: sanitizedResponse })
+    .values({
+      userId,
+      classId,
+      blockId,
+      courseSlug,
+      decisionType,
+      prompt,
+      response: sanitizedResponse,
+      isCustom,
+      previousContext: previousContext ?? null,
+    })
     .onConflictDoUpdate({
-      target: [userDecisions.userId, userDecisions.classId],
+      target: [userDecisions.userId, userDecisions.classId, userDecisions.blockId],
       set: {
         response: sanitizedResponse,
         updatedAt: new Date(),
@@ -49,10 +60,24 @@ export async function saveDecision(
   return { locked: false as const, decision: result }
 }
 
-export async function getDecision(userId: string, classId: string) {
+export async function getDecision(userId: string, classId: string, blockId?: string) {
+  const conditions = [eq(userDecisions.userId, userId), eq(userDecisions.classId, classId)]
+  if (blockId) conditions.push(eq(userDecisions.blockId, blockId))
+
   return db.query.userDecisions.findFirst({
-    where: and(eq(userDecisions.userId, userId), eq(userDecisions.classId, classId)),
+    where: and(...conditions),
   })
+}
+
+/** Get all previous decision answers for a user, ordered by creation time. */
+export async function getUserDecisionContext(userId: string): Promise<string[]> {
+  const decisions = await db.query.userDecisions.findMany({
+    where: eq(userDecisions.userId, userId),
+    orderBy: [desc(userDecisions.createdAt)],
+    columns: { response: true },
+    limit: 10,
+  })
+  return decisions.map((d) => d.response)
 }
 
 export async function getUserDecisions(userId: string, courseSlug?: string) {

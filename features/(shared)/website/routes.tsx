@@ -1,5 +1,6 @@
 import { join } from 'node:path'
 import { Hono } from 'hono'
+import { freeIntroPageRoutes } from '@/features/(life)/free-intro/routes'
 import { landingRoutes } from '@/features/(life)/landing/routes'
 import { env } from '@/platform/env'
 import { renderPage } from '@/platform/server/render'
@@ -48,6 +49,9 @@ websiteRoutes.use('*', async (c, next) => {
 // ─── Sitemap, robots.txt, RSS ─────────────────────────────────────────────────
 websiteRoutes.route('/', sitemapRoutes)
 
+// ─── Free Intro at /free ─────────────────────────────────────────────────────
+websiteRoutes.route('/free', freeIntroPageRoutes)
+
 // ─── Life Decisions LP at /life ──────────────────────────────────────────────
 websiteRoutes.route('/life', landingRoutes)
 
@@ -62,9 +66,9 @@ websiteRoutes.get('/', async (c) => {
 
   return c.html(
     renderPage(<Homepage {...props} />, {
-      title: 'The Right Decision — Solving Decision-Making with AI',
+      title: 'The Right Decision — The Future of Decision-Making with AI',
       description:
-        'A methodology + AI platform for personal and business decisions. Life transformation through action, not introspection.',
+        'AI that helps you see the one constraint holding you back, make the decision that changes everything, and turn it into daily actions.',
       ogImage: `${baseUrl}/og/why-we-built-the-right-decision.png`,
       canonical: baseUrl,
     }).replace('</head>', `${jsonLd}\n</head>`),

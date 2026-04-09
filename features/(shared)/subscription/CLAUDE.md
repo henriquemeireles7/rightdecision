@@ -33,15 +33,23 @@ bun test features/subscription/
 ## Files
 | File | Exports |
 |------|---------|
+| complete-checkout.ts | completeCheckoutRoutes |
 | create-checkout.ts | checkoutRoutes |
+| customer-portal.ts | portalRoutes |
 | handle-webhook.ts | webhookRoutes |
+| helpers.ts | getUserForSubscription |
+| require-subscription.ts | requireActiveSubscription |
 
 ## Internal Dependencies
+- features/(shared)
+- platform/auth
 - platform/db
 - platform/env
 - platform/errors
 - platform/server
+- platform/types
 - providers/analytics
+- providers/email
 - providers/payments
 
-<!-- Generated: 2026-04-08T05:22:13.833Z -->
+<!-- Generated: 2026-04-09T09:30:25.857Z -->
