@@ -15,6 +15,7 @@ FROM base AS runtime
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/public ./public
+COPY --from=build /app/content ./content
 COPY --from=build /app/package.json ./package.json
 COPY --from=build /app/tsconfig.json ./tsconfig.json
 COPY --from=build /app/platform/scripts/migrate.ts ./platform/scripts/migrate.ts

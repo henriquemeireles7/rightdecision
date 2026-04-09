@@ -13,13 +13,9 @@ type DashboardProps = {
 function DecisionAnchor({ throughlineNamed }: { throughlineNamed?: string }) {
   if (!throughlineNamed) return null
   return (
-    <div class="bg-amber-50 border-b border-amber-200 px-6 py-4">
-      <div class="max-w-3xl mx-auto flex items-center justify-between">
-        <div>
-          <div class="text-xs text-amber-700 uppercase tracking-wide mb-1">Your decision</div>
-          <p class="font-serif text-neutral-900">{throughlineNamed}</p>
-        </div>
-      </div>
+    <div class="border-l-3 border-gold pl-6 py-4 mb-10">
+      <div class="text-xs text-gold uppercase tracking-wide mb-1">Your decision</div>
+      <p class="font-display italic text-ink text-lg">{throughlineNamed}</p>
     </div>
   )
 }
@@ -35,87 +31,108 @@ export function CourseDashboard(props: DashboardProps) {
   } = props
   const isComplete = overallPercent === 100
 
+  // Find first locked module index for graceful message
+  const firstLockedIdx = modules.findIndex((mod) => mod.id > 1 && accessTier !== 'paid')
+
   return (
-    <div>
-      <DecisionAnchor throughlineNamed={throughlineNamed} />
-
-      <div class="max-w-3xl mx-auto px-6 py-12">
-        <h1 class="text-3xl font-serif mb-2">Your Course</h1>
-
-        {/* Overall progress */}
-        <div class="mb-8">
-          <div class="flex items-center justify-between text-sm text-neutral-600 mb-2">
-            <span>{overallPercent}% complete</span>
-            {isComplete && <span class="text-green-700 font-medium">Course complete</span>}
-          </div>
-          <div class="h-2 bg-neutral-200 rounded-full overflow-hidden">
-            <div
-              class="h-full bg-amber-700 rounded-full transition-all"
-              style={{ width: `${overallPercent}%` }}
-            />
-          </div>
+    <div class="bg-cream min-h-screen">
+      <div class="max-w-[65ch] mx-auto px-6 py-12">
+        {/* Header with subtle progress */}
+        <div class="flex items-baseline justify-between mb-2">
+          <h1 class="text-3xl font-display text-ink">Your Course</h1>
+          {!isComplete && <span class="text-sm text-muted">{overallPercent}% read</span>}
+          {isComplete && <span class="text-sm text-success font-medium">Complete</span>}
         </div>
 
-        {/* Continue CTA */}
+        {/* Thin progress line */}
+        <div class="h-0.5 bg-linen rounded-full mb-10">
+          <div
+            class="h-full bg-gold rounded-full transition-all"
+            style={{ width: `${overallPercent}%` }}
+          />
+        </div>
+
+        <DecisionAnchor throughlineNamed={throughlineNamed} />
+
+        {/* Continue reading CTA */}
         {!isComplete && currentClassId && (
-          <div class="space-y-3 mb-8">
-            <a
-              href={`/class/${currentClassId}`}
-              class="block bg-amber-700 text-white px-6 py-4 rounded-lg hover:bg-amber-800 transition-colors text-center text-lg"
-            >
-              {overallPercent === 0
-                ? 'Begin Module 1'
-                : `Continue: ${currentClassName ?? 'Next class'}`}
-            </a>
-            {overallPercent === 0 && accessTier === 'paid' && (
-              <a
-                href="/class/module-01/class-04"
-                class="block border border-amber-700 text-amber-700 px-6 py-3 rounded-lg hover:bg-amber-50 transition-colors text-center"
-              >
-                Quick Start: go straight to your first exercise
-              </a>
-            )}
-          </div>
+          <a
+            href={`/class/${currentClassId}`}
+            class="block bg-gold text-white px-6 py-4 rounded-md hover:bg-gold-hover transition-colors text-center text-lg mb-10"
+          >
+            {overallPercent === 0
+              ? 'Begin reading'
+              : `Continue reading: ${currentClassName ?? 'Next class'}`}
+          </a>
         )}
 
         {isComplete && (
           <a
             href="/wins/share"
-            class="block bg-green-700 text-white px-6 py-4 rounded-lg mb-8 hover:bg-green-800 transition-colors text-center text-lg"
+            class="block bg-success text-white px-6 py-4 rounded-md mb-10 hover:opacity-90 transition-opacity text-center text-lg"
           >
             Write a win
           </a>
         )}
 
-        {/* Module list */}
-        <div class="space-y-4">
-          {modules.map((mod) => {
+        {/* Chapter list (book table of contents) */}
+        <div class="space-y-1">
+          {modules.map((mod, idx) => {
             const isLocked = mod.id > 1 && accessTier !== 'paid'
-            return (
-              <div
-                key={mod.id}
-                class={`border rounded-lg p-6 ${isLocked ? 'opacity-50' : 'bg-white'}`}
-              >
-                <div class="flex items-center justify-between mb-2">
-                  <h3 class="font-serif text-lg">
-                    Module {mod.id}: {mod.name}
-                  </h3>
-                  {isLocked ? (
-                    <span class="text-xs text-neutral-500">Locked</span>
-                  ) : (
-                    <span class="text-sm text-neutral-600">
-                      {mod.progress.completed}/{mod.progress.total}
-                    </span>
-                  )}
+
+            // Show graceful locked message once, not per-module
+            if (isLocked && idx === firstLockedIdx) {
+              const lastModNum = modules[modules.length - 1]?.id ?? mod.id
+              return (
+                <div key="locked" class="py-6 text-center">
+                  <p class="text-body italic">
+                    Chapters {mod.id}–{lastModNum}: available with full access
+                  </p>
+                  <a
+                    href="/api/checkout"
+                    class="inline-block mt-3 text-gold hover:text-gold-hover transition-colors text-sm underline underline-offset-2"
+                  >
+                    Get full access — $197/year
+                  </a>
                 </div>
-                {!isLocked && (
-                  <div class="h-1.5 bg-neutral-100 rounded-full overflow-hidden">
-                    <div
-                      class="h-full bg-amber-700 rounded-full"
-                      style={{ width: `${mod.progress.percent}%` }}
-                    />
-                  </div>
-                )}
+              )
+            }
+            if (isLocked) return null
+
+            const hasCurrentClass = mod.classes.some((c) => c.id === currentClassId)
+
+            return (
+              <div key={mod.id} class="py-4 border-b border-linen last:border-0">
+                <div class="flex items-baseline justify-between mb-2">
+                  <h3 class={`font-display text-lg ${hasCurrentClass ? 'text-gold' : 'text-ink'}`}>
+                    <span class="text-muted mr-3">{mod.id}.</span>
+                    {mod.name}
+                  </h3>
+                  <span class="text-sm text-muted whitespace-nowrap ml-4">
+                    {mod.progress.completed} of {mod.progress.total} read
+                  </span>
+                </div>
+
+                {/* Individual class titles */}
+                <div class="pl-8 space-y-1">
+                  {mod.classes.map((cls) => {
+                    const isCurrent = cls.id === currentClassId
+                    return (
+                      <a
+                        key={cls.id}
+                        href={`/class/${cls.id}`}
+                        class={`block text-sm py-1 transition-colors ${
+                          isCurrent ? 'text-gold font-medium' : 'text-body hover:text-ink'
+                        }`}
+                      >
+                        {cls.title}
+                        {cls.type === 'practical' && (
+                          <span class="text-xs text-muted ml-2">· Exercise</span>
+                        )}
+                      </a>
+                    )
+                  })}
+                </div>
               </div>
             )
           })}

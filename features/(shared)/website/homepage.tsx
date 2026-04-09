@@ -2,7 +2,7 @@ import { join } from 'node:path'
 import { listContentFiles, type ParsedContentItem } from '@/providers/markdown'
 import { Layout } from './layout'
 
-const BLOG_DIR = join(import.meta.dir, '../../../content/blog')
+const BLOG_DIR = join(process.cwd(), 'content/blog')
 
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr.includes('T') ? dateStr : `${dateStr}T12:00:00Z`)

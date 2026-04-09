@@ -38,6 +38,9 @@ jobs:
       - name: Typecheck
         run: bunx tsc --noEmit
 
+      - name: Harden Check
+        run: bun platform/scripts/harden-check.ts
+
       - name: Test + Coverage
         run: bun test --coverage
 

@@ -9,9 +9,15 @@ import { metadataRoutes } from '@/features/(business)/metadata-generate/routes'
 import { postDistributeRoutes } from '@/features/(business)/post-distribute/routes'
 import { transcribeRoutes } from '@/features/(business)/transcribe/routes'
 import { authPageRoutes } from '@/features/(life)/auth/routes'
+import { analyticsReadingRoutes } from '@/features/(life)/course/analytics-routes'
 import { bookmarkRoutes } from '@/features/(life)/course/bookmark-routes'
+import { decisionRoutes } from '@/features/(life)/course/decision-routes'
+import { journeyPageRoute } from '@/features/(life)/course/journey-page-route'
+import { journeyRoutes } from '@/features/(life)/course/journey-routes'
+import { coursePageRoutes } from '@/features/(life)/course/page-routes'
 import { progressApiRoutes } from '@/features/(life)/course/progress-routes'
 import { searchRoutes } from '@/features/(life)/course/search-routes'
+import { shareRoutes } from '@/features/(life)/course/share-routes'
 import { courseRoutes } from '@/features/(life)/course-player/routes'
 import { progressRoutes } from '@/features/(life)/course-progress/routes'
 import { onboardingRoutes } from '@/features/(life)/onboarding/routes'
@@ -39,6 +45,10 @@ export function mountRoutes(app: Hono) {
       .route('/api/progress/v2', progressApiRoutes)
       .route('/api/wins', winsRoutes)
       .route('/api/bookmarks', bookmarkRoutes)
+      .route('/api/decisions', decisionRoutes)
+      .route('/api/analytics/reading', analyticsReadingRoutes)
+      .route('/api/journey', journeyRoutes)
+      .route('/api/share', shareRoutes)
       .route('/api/account', accountRoutes)
       .route('/api/search', searchRoutes)
       .route('/api/admin', adminRoutes)
@@ -52,6 +62,9 @@ export function mountRoutes(app: Hono) {
       .route('/api/post-distribute', postDistributeRoutes)
       .route('/api/analytics-collect', analyticsRoutes)
       .route('/api/insights', insightRoutes)
+      // ─── Course SSR Pages ───
+      .route('/courses', coursePageRoutes)
+      .route('/journey', journeyPageRoute)
       // Auth pages — BEFORE website catch-all
       .route('/', authPageRoutes)
       // Website — AFTER all /api/* routes (homepage, LP at /life, blog, concepts, legal)

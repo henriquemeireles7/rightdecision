@@ -73,6 +73,64 @@ const marked = new Marked({
   },
 })
 
+// ─── Course Markdown Renderer (editorial extensions) ────────────────────────
+
+const courseMarked = new Marked({
+  renderer: {
+    heading({ text, depth }) {
+      const id = slugify(text)
+      return `<h${depth} id="${id}">${text}</h${depth}>\n`
+    },
+    link({ href, text }) {
+      const isExternal = href.startsWith('http://') || href.startsWith('https://')
+      if (isExternal) {
+        return `<a href="${href}" target="_blank" rel="noopener noreferrer">${text}</a>`
+      }
+      return `<a href="${href}">${text}</a>`
+    },
+    blockquote({ text }) {
+      // text is the rendered inner HTML of the blockquote
+      const trimmed = text.trim()
+
+      // Check for [!quote] directive — with or without <p> wrapping
+      const quoteWithP = trimmed.match(/^<p>\[!quote\]\s*(?:<br\s*\/?>)?\s*([\s\S]*?)<\/p>/)
+      if (quoteWithP) {
+        return `<div class="pull-quote">${quoteWithP[1]!.trim()}</div>\n`
+      }
+      const quoteRaw = trimmed.match(/^\[!quote\]\s*([\s\S]*)/)
+      if (quoteRaw) {
+        return `<div class="pull-quote">${quoteRaw[1]!.trim()}</div>\n`
+      }
+
+      // Check for [!insight] directive — with or without <p> wrapping
+      const insightWithP = trimmed.match(/^<p>\[!insight\]\s*(?:<br\s*\/?>)?\s*([\s\S]*?)<\/p>/)
+      if (insightWithP) {
+        return `<div class="insight-callout"><span class="insight-label">Insight</span>${insightWithP[1]!.trim()}</div>\n`
+      }
+      const insightRaw = trimmed.match(/^\[!insight\]\s*([\s\S]*)/)
+      if (insightRaw) {
+        return `<div class="insight-callout"><span class="insight-label">Insight</span>${insightRaw[1]!.trim()}</div>\n`
+      }
+
+      // Default blockquote
+      return `<blockquote>\n${text}</blockquote>\n`
+    },
+  },
+})
+
+/**
+ * Render course content with editorial extensions:
+ * - [!quote] blockquotes → pull quotes with gold border
+ * - [!insight] blockquotes → insight callouts with sand background
+ * - First paragraph gets .drop-cap class for ::first-letter styling
+ */
+export function renderCourseMarkdown(body: string): string {
+  let result = courseMarked.parse(body, { async: false }) as string
+  // Add drop-cap class to first <p> tag
+  result = result.replace(/<p>/, '<p class="drop-cap">')
+  return result
+}
+
 // ─── Public API ─────────────────────────────────────────────────────────────
 
 export function parseFrontmatter(raw: string): {

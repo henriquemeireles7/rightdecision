@@ -7,7 +7,7 @@ import { ConceptIndex } from './concept-index'
 import { ConceptPage } from './concept-page'
 import { buildArticleSchema, buildBreadcrumbSchema, buildFaqSchema, renderJsonLd } from './seo'
 
-const CONCEPTS_DIR = join(import.meta.dir, '../../../content/concepts')
+const CONCEPTS_DIR = join(process.cwd(), 'content/concepts')
 
 export const conceptRoutes = new Hono()
 

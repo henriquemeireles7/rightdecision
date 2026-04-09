@@ -32,6 +32,10 @@
           {
             "command": "bun run .claude/hooks/block-dangerous.ts",
             "type": "command"
+          },
+          {
+            "command": "bun run .claude/hooks/pre-commit-check.ts",
+            "type": "command"
           }
         ],
         "matcher": "Bash"

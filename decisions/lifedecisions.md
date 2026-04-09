@@ -1,6 +1,6 @@
 # Life Decisions — Product Reference
 
-> Last verified: 2026-04-06
+> Last verified: 2026-04-08
 > Deep dive: decisions/lifedecisions/ (product-specific docs)
 
 ## What it is
@@ -19,13 +19,17 @@ Man, 25-40. Overthinks career/business moves. Consumes content obsessively but n
 
 ## Product Architecture
 - **Course:** 3 acts (See Clearly, Decide, Move), 9 modules, ~23 hours, 3 months
-- **Skills:** One Claude skill per methodology exercise — the skill IS the exercise. User runs skill → answers questions → AI saves structured output to personal folder.
-- **Delivery:** User installs skills in Claude Cowork. Exercises = skill interactions. Output saved to personal folder.
-- **Exercise flow:** Thinking-first, structuring-second. The student does the thinking (answers questions). The AI does the structuring (organizes into documents).
-- **No API needed.** Life Decisions is docs + skills only.
-- **Wins Board (V2):** Anonymous decision sharing + win stories. Categories: health, relationships, money. Win-oriented retention, social proof, and methodology embedding in one feature.
-- **Bonus course:** "Claude Cowork for Personal Decisions" (standalone, not part of main course)
-- **Free course funnel:** Simplified methodology (fewer steps) as lead generation
+- **Editorial reading experience:** Rendered markdown with pull quotes, insight callouts, drop caps. Book-like (65ch max-width, Instrument Serif/Sans)
+- **Micro-decisions:** In-class decision prompts where reading becomes practice. 5-min edit window, then locked. The 10-star moment.
+- **Your Journey:** Timeline of all decisions made throughout the course. Retention hook + screenshot IS the marketing.
+- **Reading analytics:** Time spent, scroll depth, completion tracking. Fire-and-forget.
+- **Share moments:** Server-side card generation (satori + resvg). Decision text on branded card.
+- **Session memory:** localStorage scroll position save/restore with 7-day expiry
+- **Multi-course architecture:** courses.json registry. Currently "life-decisions" only. Future: 10+ bonus courses.
+- **Skills:** One Claude skill per methodology exercise — the skill IS the exercise.
+- **Delivery:** User installs skills in Claude Cowork. Exercises = skill interactions.
+- **Wins Board (V2):** Anonymous decision sharing + win stories.
+- **Free course funnel:** Module 0 + Module 1 are free
 
 ## Skills Architecture
 Each methodology step = one Claude skill. Skills use the same pattern as our d-meta → d-input → d-plan:

@@ -207,10 +207,8 @@ When multiple agents work simultaneously (Conductor workspaces):
 - NEVER stash, revert, or overwrite other agents' work.
 
 #### Agent Mail (MCP) — File Reservations
-Agent Mail is configured as HTTP MCP at `127.0.0.1:8765`. If tools aren't available, the server needs starting:
-```sh
-cd mcp_agent_mail && HTTP_BEARER_TOKEN=$(grep HTTP_BEARER_TOKEN .env | cut -d= -f2) uv run python -m mcp_agent_mail.cli serve-http --port 8765 &
-```
+Agent Mail is a global service running at `127.0.0.1:8765` — started outside Conductor, not per-workspace.
+If tools aren't available, ask the user to start the agent mail server in a separate terminal.
 
 **At session start (MANDATORY for multi-agent):**
 1. `mcp__mcp-agent-mail__ensure_project(human_key: "<absolute repo path>")`

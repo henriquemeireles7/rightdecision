@@ -2,6 +2,69 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.1.1] - 2026-04-09
+
+### Added
+- Login page at `/login` with email/password form calling Better Auth sign-in endpoint.
+- User seed script (`platform/scripts/seed-users.ts`) for bootstrapping admin and test accounts.
+
+### Fixed
+- Footer "Log in" link pointed to non-existent `/api/auth/signin`. Now points to `/login`.
+
+## [0.2.1.0] - 2026-04-08
+
+### Fixed
+- Blog, concepts, and legal pages showed "No articles yet" in production — Dockerfile never copied `content/` directory into the runtime stage.
+- All content path references used `import.meta.dir` which resolves incorrectly after `bun build` bundles to `dist/app.js`. Switched to `process.cwd()` across 8 files (same fix previously applied to OG images).
+- IndexNow submitted-log path had the same `import.meta.dir` bug.
+
+### Added
+- `prose-warm` CSS styles for blog, concept, and legal markdown content (headings, lists, links, blockquotes, code blocks, images, horizontal rules).
+
+## [0.2.0.2] - 2026-04-08
+
+### Fixed
+- Conductor workspace config: archive script errored when no process found on port (empty `kill` args). Fixed with PID capture + conditional kill.
+- Conductor setup/run split: moved dev server from `setup` (runs once) to `run` (Conductor manages lifecycle). Dev server now runs in foreground so Conductor can monitor it.
+- Removed agent mail from per-workspace lifecycle — it's a shared global service that should run independently, not be started/killed by individual workspaces.
+- Fixed `.env` creation logic: shell operator precedence bug caused `sed` to run even when `.env` already existed.
+
+## [0.2.0.1] - 2026-04-08
+
+### Fixed
+- OG image font loading crash on Railway deploy — `import.meta.dir` resolved incorrectly after bundling to `dist/`, causing ENOENT for `InstrumentSerif-Regular.ttf`. Switched to `process.cwd()` which resolves correctly in both dev and production.
+
+## [0.2.0.0] - 2026-04-08
+
+### Added
+- Editorial reading room: course content renders as formatted markdown with pull quotes (`[!quote]`), insight callouts (`[!insight]`), and drop caps via `renderCourseMarkdown()`
+- Micro-decisions: in-class decision prompts where reading becomes active practice. 5-minute edit window, then locked forever. Atomic upsert prevents race conditions.
+- Your Journey page: vertical timeline of all decisions made throughout the course. Retention hook where the screenshot IS the marketing.
+- Reading analytics: time spent, scroll depth, completion tracking. Fire-and-forget client tracker (<1KB) with sendBeacon.
+- Share card generation: server-side satori + resvg branded decision cards (1200x630). SVG fallback for Bun compatibility.
+- Multi-course architecture: `courses.json` registry, content moved to `content/courses/life-decisions/`. Future-proof for 10+ courses.
+- Mobile bottom navigation: prev/next/bookmark/menu with 44px touch targets, safe area insets, full-screen menu overlay
+- Session memory: localStorage scroll position save/restore with 7-day expiry
+- Module landing page: class list with completion status per module
+- Course listing page: card-based course browser at `/courses`
+- SSR page routes: `/courses`, `/courses/:slug`, `/courses/:slug/module/:num`, `/courses/:slug/class/:classId`, `/journey`
+- Editorial CSS: `.prose-editorial` (65ch max-width, Instrument Serif/Sans, 1.6 line-height), View Transitions API
+- DB migration 0004: `user_decisions` + `reading_analytics` tables with unique indexes
+- Decision prompts in 9 practice `.mdx` files with `decision_prompt` frontmatter
+
+### Changed
+- Dashboard redesigned as book-style table of contents with individual class titles
+- Navigation updated with Journey link for paid users, `/courses/life-decisions` URLs
+- Content directory moved from `content/course/` to `content/courses/life-decisions/`
+
+### Fixed
+- Route collision: journey page mounting at root intercepted homepage
+- Slash-in-param routing: `/:classId` changed to `/:classId{.+}` for `module-XX/class-YY` format
+- Race condition in decision saves: replaced TOCTOU with atomic INSERT ON CONFLICT
+- N+1 query in dashboard: module progress computed from pre-fetched data
+- Unbounded queries: added LIMIT to getUserDecisions (200) and getReadingStats (500)
+- Share card cache: LRU eviction at 500 entries, fetch timeouts on font loading
+
 ## [0.1.5.0] - 2026-04-08
 
 ### Added

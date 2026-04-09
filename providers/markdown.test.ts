@@ -9,6 +9,7 @@ import {
   LegalFrontmatter,
   listContentFiles,
   parseFrontmatter,
+  renderCourseMarkdown,
   renderMarkdown,
 } from './markdown'
 
@@ -200,6 +201,69 @@ describe('renderMarkdown', () => {
     const html = renderMarkdown('![](image.png)')
     expect(html).toContain('alt=""')
     expect(html).toContain('loading="lazy"')
+  })
+})
+
+// ─── renderCourseMarkdown ───
+
+describe('renderCourseMarkdown', () => {
+  test('renders [!quote] as pull quote', () => {
+    const html = renderCourseMarkdown('> [!quote]\n> Some inspiring text')
+    expect(html).toContain('class="pull-quote"')
+    expect(html).toContain('Some inspiring text')
+    expect(html).not.toContain('<blockquote>')
+  })
+
+  test('renders [!insight] as insight callout', () => {
+    const html = renderCourseMarkdown('> [!insight]\n> This is a key insight')
+    expect(html).toContain('class="insight-callout"')
+    expect(html).toContain('class="insight-label"')
+    expect(html).toContain('Insight')
+    expect(html).toContain('This is a key insight')
+    expect(html).not.toContain('<blockquote>')
+  })
+
+  test('renders regular blockquotes unchanged', () => {
+    const html = renderCourseMarkdown('> Regular quote text')
+    expect(html).toContain('<blockquote>')
+    expect(html).not.toContain('pull-quote')
+    expect(html).not.toContain('insight-callout')
+  })
+
+  test('adds drop-cap class to first paragraph', () => {
+    const html = renderCourseMarkdown('First paragraph.\n\nSecond paragraph.')
+    expect(html).toContain('<p class="drop-cap">First paragraph.')
+    // Second paragraph should NOT have drop-cap
+    expect(html).toMatch(/<p class="drop-cap">.*?<\/p>[\s\S]*<p>Second/)
+  })
+
+  test('renders standard markdown (bold, italic, lists)', () => {
+    const html = renderCourseMarkdown('**bold** and *italic*\n\n- item 1\n- item 2')
+    expect(html).toContain('<strong>bold</strong>')
+    expect(html).toContain('<em>italic</em>')
+    expect(html).toContain('<li>')
+  })
+
+  test('renders headings with IDs', () => {
+    const html = renderCourseMarkdown('# My Title\n\nContent here.')
+    expect(html).toContain('<h1 id="my-title">My Title</h1>')
+  })
+
+  test('renders external links with target=_blank', () => {
+    const html = renderCourseMarkdown('[Link](https://example.com)')
+    expect(html).toContain('target="_blank"')
+  })
+
+  test('[!quote] with inline content (no line break)', () => {
+    const html = renderCourseMarkdown('> [!quote] Direct quote text')
+    expect(html).toContain('class="pull-quote"')
+    expect(html).toContain('Direct quote text')
+  })
+
+  test('[!insight] with inline content (no line break)', () => {
+    const html = renderCourseMarkdown('> [!insight] Direct insight text')
+    expect(html).toContain('class="insight-callout"')
+    expect(html).toContain('Direct insight text')
   })
 })
 
