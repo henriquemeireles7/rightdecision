@@ -1,4 +1,4 @@
-CREATE TABLE "webhook_events" (
+CREATE TABLE IF NOT EXISTS "webhook_events" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"stripe_event_id" text NOT NULL,
 	"event_type" text NOT NULL,
