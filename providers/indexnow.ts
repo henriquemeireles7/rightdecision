@@ -3,7 +3,7 @@ import { join } from 'node:path'
 import { env } from '@/platform/env'
 import { ProviderError } from '@/providers/errors'
 
-const SUBMITTED_LOG_PATH = join(import.meta.dir, '../.indexnow-submitted.json')
+const SUBMITTED_LOG_PATH = join(process.cwd(), '.indexnow-submitted.json')
 const INDEXNOW_API = 'https://api.indexnow.org/indexnow'
 const MAX_URLS_PER_REQUEST = 10_000
 

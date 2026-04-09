@@ -118,6 +118,11 @@
     line-height: 1.2;
   }
 
+  .prose-warm h1 {
+    font-size: 2.25rem;
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+  }
   .prose-warm h2 {
     font-size: 1.75rem;
     margin-top: 2.5rem;
