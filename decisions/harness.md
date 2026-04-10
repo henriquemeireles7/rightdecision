@@ -17,13 +17,12 @@ Layer 1: Folder CLAUDE.md (auto-loaded per directory)
   └── Auto-generated footer (files, exports, deps — refreshed by Stop hook)
 
 Layer 2: Universal Reference Files (decisions/*.md)
-  ├── company, voice, code, architecture, design, deploy, harness, health
-  ├── lifedecisions, businessdecisions, humantasks
+  ├── maturity, company, voice, code, architecture, design, deploy, harness, health, humantasks
   └── Each <100 lines, authoritative. Root CLAUDE.md routing table says WHEN to read each.
 
 Layer 3: Strategy Documents (decisions/{domain}/NN-name/)
-  ├── Three domains: product/, ops/, harness/
-  ├── Each domain has: vision.md, market.md, 00-legacy/, NN-initiative/
+  ├── Three domains: product/, growth/, harness/
+  ├── Each domain has: context.md, 00-legacy/, NN-initiative/
   └── Initiatives contain document.md + project subfolders with roadmap.md
 ```
 
@@ -100,10 +99,10 @@ Prevention artifacts (in order of preference):
 | design.md | Design system changes |
 | deploy.md | Infrastructure or CI changes |
 | harness.md | Hooks, skills, or context architecture changes |
-| health.md | Security/quality audit findings |
+| health.md | Maturity scores change, audit findings |
 | humantasks.md | AI discovers human-required action |
-| lifedecisions.md | Life Decisions product scope changes |
-| businessdecisions.md | Business Decisions product scope changes |
+| maturity.md | Principles, level definitions, or categories change |
+| {domain}/context.md | Domain strategy, references, or bottlenecks change |
 
 ## Key Decisions History
 | Date | Decision | Why |
@@ -118,3 +117,29 @@ Prevention artifacts (in order of preference):
 | 2026-04-08 | Scripts in skills | Mechanical checks as TypeScript scripts in skills/*/scripts/ |
 | 2026-04-08 | Error feedback loop | d-harness skill analyzes errors and creates prevention rules |
 | 2026-04-09 | Harness V2 consolidation | 27 skills → 8, three-domain structure, beads removed |
+| 2026-04-09 | Maturity System | 12 principles, 5 universal levels, 10 categories, maturity.md as core file |
+| 2026-04-09 | ops → growth rename | Three domains: Product (generate value), Growth (capture value), Harness (self-evolving AI) |
+| 2026-04-09 | context.md replaces market+vision | Single file per domain with references, vision, bottlenecks, anti-killability |
+
+## Skill Data Flow
+
+| Skill | Reads | Writes |
+|-------|-------|--------|
+| d-strategy | maturity.md, health.md, company.md, {domain}/context.md | decisions/{domain}/NN-initiative/document.md |
+| d-roadmap | NN-initiative/document.md | NN-initiative/NN-project/roadmap.md |
+| d-code | project/roadmap.md, code.md, folder CLAUDE.md | Source code, tests |
+| d-content | voice.md, company.md, strategy doc | content/{type}/post.md |
+| d-review | code.md, Seven Files, git diff | Fix suggestions, humantasks.md |
+| d-harness | harness.md, code.md, deploy.md, health.md | Hooks, CLAUDE.md rules, scripts |
+| d-health | health.md, code.md, architecture.md, design.md | decisions/health.md (scores) |
+| d-fail | Railway logs | Code fixes, d-harness invocation |
+
+## Failure Recovery
+
+| Scenario | Response |
+|----------|----------|
+| Hook blocks legitimate command | Check hook logic. If correct, the command is wrong. If wrong, fix hook, not bypass. |
+| Stop hook fails (format/lint/typecheck) | Fix the issues it found. Never disable the hook. |
+| Skill produces bad output | Run d-review on the output. If pattern, file d-harness to add prevention. |
+| Context file stale | Update the file. Stop hook auto-updates CLAUDE.md footers. Reference files need manual update. |
+| Agent loops on same error | Stop. Read the error. Check if a learning exists. If not, d-harness it. |

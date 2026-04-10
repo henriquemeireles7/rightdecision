@@ -140,6 +140,42 @@ Use `mcp__posthog__*` tools directly:
 - Force-pushing to main branch — always use PRs with CI green
 - Deploying on Fridays without monitoring in place
 
+## Rollback Procedure
+
+When a deploy breaks production:
+```bash
+# 1. Check what's broken
+railway logs --latest
+
+# 2. Option A: Rollback to previous deploy (fastest)
+railway rollback
+
+# 3. Option B: Hotfix-forward (if rollback would lose data)
+# Fix the code, push, wait for CI, deploy
+
+# 4. Option C: Revert the commit (if the change is isolated)
+git revert HEAD
+git push
+```
+
+**When to rollback vs hotfix-forward:**
+- Rollback: UI broken, API errors, startup crash — anything that blocks ALL users
+- Hotfix-forward: data migration issue, partial feature broken, edge case — rollback would lose data
+- After any rollback: invoke `/d-harness` to generate prevention artifact
+
+## Post-Deploy Verification (5-minute checklist)
+
+1. Health endpoint responds: `curl https://rightdecision.io/health`
+2. PostHog: no new error events in last 5 minutes
+3. Railway: deploy status = "Active", no restart loops
+4. Stripe webhooks: test endpoint responds (if payment changes deployed)
+5. DB migrations: verify via `railway run bunx drizzle-kit studio`
+
+## Environment Strategy
+
+- **V1 (current):** No staging environment. Deploy directly to Railway prod. CI runs all tests before merge.
+- **V2 trigger:** First paying customer. Then add Railway staging environment with separate DB.
+
 ## Domain Setup
 - Primary: rightdecision.io (TBD)
 - App: app.rightdecision.io (course platform)

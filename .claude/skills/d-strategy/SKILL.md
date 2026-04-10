@@ -12,9 +12,10 @@ Interactive founder Q&A that produces a strategy initiative. Reads codebase stat
 **d-strategy** → gstack reviews (CEO/eng/design) → d-roadmap → /ship
 
 ## When to use
-- Starting a new initiative in any domain (product, ops, harness)
+- Starting a new initiative in any domain (product, growth, harness)
 - The founder has a strategic idea that needs structure
 - Quarterly planning or roadmap refresh
+- Maturity bottleneck identified in health.md needs a project
 
 ---
 
@@ -33,10 +34,14 @@ Before asking questions, load this context silently:
    fd CLAUDE.md --type f
    ```
 
-3. **Domain context** (based on which domain the user specifies):
-   - Product: `decisions/product/vision.md` + `decisions/product/market.md`
-   - Ops: `decisions/ops/vision.md` + `decisions/ops/market.md`
-   - Harness: `decisions/harness/vision.md` + `decisions/harness/market.md`
+3. **Maturity context** (ALWAYS read these first):
+   - `decisions/maturity.md` — principles, level definitions, categories, decision filter
+   - `decisions/health.md` — current maturity scores per category, bottlenecks
+
+4. **Domain context** (based on which domain the user specifies):
+   - Product: `decisions/product/context.md`
+   - Growth: `decisions/growth/context.md`
+   - Harness: `decisions/harness/context.md`
 
 4. **Previous initiative** (if exists):
    - Latest initiative folder in the domain: `ls decisions/{domain}/`
@@ -44,9 +49,13 @@ Before asking questions, load this context silently:
 
 5. **Universal files** relevant to the domain:
    - Always: `decisions/company.md`
-   - Product: `decisions/lifedecisions.md`, `decisions/businessdecisions.md`
-   - Ops: `decisions/voice.md`
+   - Product: `decisions/voice.md` (for content positioning)
+   - Growth: `decisions/voice.md`
    - Harness: `decisions/harness.md`, `decisions/code.md`
+
+6. **Previous initiative** (if exists):
+   - Latest initiative folder in the domain: `ls decisions/{domain}/`
+   - Read its `document.md` and `future-work.md` for continuity
 
 ---
 
@@ -57,7 +66,7 @@ If the user didn't specify a domain, ask:
 ```
 Which domain is this initiative for?
 A) Product — features, UX, pricing, user experience
-B) Ops — content, SEO, social, business model
+B) Growth — content, distribution, conversion, expansion
 C) Harness — AI methodology, skills, hooks, workflows
 ```
 Wait for response. Use the selected domain for all subsequent steps.
@@ -105,7 +114,7 @@ Increment by 1. Create the folder.
 ```markdown
 # {Initiative Title}
 
-> Domain: {product|ops|harness}
+> Domain: {product|growth|harness}
 > Created: {YYYY-MM-DD}
 > Status: draft
 

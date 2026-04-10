@@ -142,17 +142,19 @@ Document skills (d-strategy, d-roadmap, d-content) auto-commit and push after sa
 
 ## Universal Reference Files (decisions/*.md)
 Read the files that match your task. Read as many as needed:
-- Customer-facing content, ICP → decisions/company.md
+- Maturity framework, principles, scoring → decisions/maturity.md
+- Company identity, ICP, pricing, principles → decisions/company.md
 - Content for end users (copy, courses, emails) → decisions/voice.md
 - Architecture (data storage, workflows, feature groups) → decisions/architecture.md
 - Coding (features, platform, providers) → decisions/code.md
-- Security & quality baseline → decisions/health.md
+- Current maturity scores, bottlenecks → decisions/health.md
 - Visual/UI/CSS/components → decisions/design.md
 - Deploy, CI/CD, infrastructure → decisions/deploy.md
-- Life Decisions product (B2C) → decisions/lifedecisions.md
-- Business Decisions product (B2B) → decisions/businessdecisions.md
 - AI harness methodology → decisions/harness.md
 - Human tasks (AI-to-human) → decisions/humantasks.md
+- Product domain context + references → decisions/product/context.md
+- Growth domain context + references → decisions/growth/context.md
+- Harness domain context + references → decisions/harness/context.md
 
 Each folder's CLAUDE.md has Critical Rules, Import Maps, and Recipes specific to that module.
 
@@ -187,24 +189,24 @@ All strategy documents live in decisions/, organized into three domains:
 
 ```
 decisions/
-├── *.md                    # Universal reference files (company, voice, code, etc.)
-├── humantasks.md           # AI-to-human task list
-├── product/                # Product initiatives (features, UX, pricing)
-│   ├── vision.md, market.md
+├── *.md                    # Universal reference files (maturity, company, voice, etc.)
+├── product/                # Generate value (features, UX, engagement)
+│   ├── context.md          # Flywheel map, current state, bottlenecks, references
 │   ├── 00-legacy/          # Previous numbered docs
 │   └── NN-initiative/      # d-strategy outputs
-├── ops/                    # Business ops (content, SEO, social, biz model)
-│   ├── vision.md, market.md
+├── growth/                 # Capture value as money (content, distribution, conversion)
+│   ├── context.md          # Value capture map, AI-native ops patterns, references
 │   ├── 00-legacy/
 │   └── NN-initiative/
-└── harness/                # AI methodology (skills, hooks, workflows)
-    ├── vision.md, market.md
+└── harness/                # Self-evolving AI system (skills, hooks, workflows)
+    ├── context.md          # Self-* capability map, harness engineering references
     ├── 00-legacy/
     └── NN-initiative/
 ```
 
 Each initiative folder contains document.md + project subfolders with roadmap.md.
-Full document index: decisions/ops/00-legacy/00-general/document.md
+Every initiative must declare which maturity category it targets (see maturity.md).
+Full document index: decisions/growth/00-legacy/00-general/document.md
 
 ## Agent Tools
 

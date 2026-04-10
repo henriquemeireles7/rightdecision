@@ -4,6 +4,18 @@
 
 Tasks that require manual human action. AI agents add items here when they hit something only a human can do. Check this file regularly and mark items done.
 
+## Priority Framework
+
+- **P0:** Blocks launch or blocks ALL users. Do this week.
+- **P1:** Blocks first 100 users or first revenue. Do this month.
+- **P2:** Nice-to-have before launch. Do when P0/P1 are clear.
+
+| Owner | Meaning |
+|-------|---------|
+| Henry | Technical tasks, infrastructure, API setup |
+| Indy | Content, brand, creative, social |
+| Either | Non-technical tasks anyone can do |
+
 ---
 
 ## Entity Building (SEO — P0)

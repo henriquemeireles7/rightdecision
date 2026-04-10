@@ -2,58 +2,56 @@
 
 ## Purpose
 All strategy knowledge lives here in three layers:
-1. **Universal reference files** (*.md at root) — compact summaries, <100 lines each
-2. **Domain folders** (product/, ops/, harness/) — initiatives with vision.md, market.md, and project roadmaps
+1. **Universal reference files** (*.md at root) — compact summaries, authoritative
+2. **Domain folders** (product/, growth/, harness/) — context.md + initiatives with project roadmaps
 3. **This CLAUDE.md** — auto-updated file inventory
 
 ## Must-Read Context
 Before working in this folder, read:
-- decisions/company.md — product, ICP, positioning
-- decisions/humantasks.md — pending human actions
+- decisions/maturity.md — 12 principles, maturity levels, categories, scoring
+- decisions/company.md — product tiers, ICP, positioning, principles
+- decisions/health.md — current maturity scores per category
 
 ## Three Domains
 
-### product/
-Product initiatives: features, UX, pricing, user experience.
-- vision.md — Decision OS layers, data flywheel, 5 tests
-- market.md — ICP, competitors, pricing, distribution
+### product/ — Generate Value
+Features, UX, pricing, user experience. Four categories: Engagement, Data, Network, Intelligence.
+- context.md — flywheel deepening map, current state, bottlenecks, references, anti-killability
 - 00-legacy/ — previous numbered docs (11-email-auth, 12-courses-ux, lifedecisions/, businessdecisions/, 001-architecture.md)
 
-### ops/
-Business operations: content, SEO, social, business model.
-- vision.md — revenue arc, operational principles
-- market.md — distribution channels, tools, content pipeline
+### growth/ — Capture Value as Money
+Content, distribution, conversion, expansion. Three categories: Distribution, Conversion, Expansion.
+- context.md — value capture map, current state, bottlenecks, AI-native ops patterns, references
 - 00-legacy/ — previous numbered docs (00-general, 01-business-model, 02-manifesto, 07-social, 08-video, 09-kb, 11-seo)
 
-### harness/
-AI development methodology: skills, hooks, workflows.
-- vision.md — harness purpose, workflow, philosophy
-- market.md — AI tools landscape, methodology influences
-- 00-legacy/ — previous docs (10-engineering-automation, 14-harness)
+### harness/ — Self-Evolving AI System
+Skills, hooks, workflows, methodology. Three categories: Self-Learning, Self-Growth, Self-Product.
+- context.md — self-* capability map, current state, bottlenecks, harness engineering references
+- 00-legacy/ — previous docs (10-engineering-automation, 14-harness, 15-maturity-system)
 
-## Reference files
-company.md, voice.md, code.md, architecture.md, design.md, deploy.md, harness.md, health.md, lifedecisions.md, businessdecisions.md, humantasks.md
+## Reference Files
+maturity.md, company.md, voice.md, code.md, architecture.md, design.md, deploy.md, harness.md, health.md, humantasks.md
 
 ## Rules
 - Reference files: updated when major decisions change. Each has "Last verified" date.
-- Domain vision.md + market.md: updated as strategy evolves.
+- Domain context.md: updated as strategy, scores, or references change.
 - Initiative document.md: static once reviewed.
 - When in doubt, read the reference file first. Follow pointers for depth.
+- Every initiative must declare which maturity category it targets (see maturity.md).
 
 ---
 ## Files
 | File | Exports |
 |------|---------|
+| maturity.md | Maturity — The Company Operating System |
 | architecture.md | Architecture — How We Design Systems |
-| businessdecisions.md | Business Decisions — Product Reference |
 | code.md | Coding — How We Build Software |
 | company.md | Company — The Right Decision |
 | deploy.md | Deploy — How We Ship |
 | design.md | Design System — Right Decision |
 | harness.md | Harness — AI Development System |
-| health.md | Health — Security & Quality Baseline |
+| health.md | Health — Living Maturity Scorecard |
 | humantasks.md | Human Tasks — AI-to-human task list |
-| lifedecisions.md | Life Decisions — Product Reference |
 | voice.md | Human Communication Guide |
 
 ---
@@ -63,15 +61,14 @@ company.md, voice.md, code.md, architecture.md, design.md, deploy.md, harness.md
 | File | Exports |
 |------|---------|
 | architecture.md | Architecture — How We Design Systems |
-| businessdecisions.md | Business Decisions — Product Reference |
 | code.md | Coding — How We Build Software |
 | company.md | Company — The Right Decision |
 | deploy.md | Deploy — How We Ship |
 | design.md | Design System — Right Decision |
 | harness.md | Harness — AI Development System |
-| health.md | Health — Security & Quality Baseline |
+| health.md | Health — Living Maturity Scorecard |
 | humantasks.md | Human Tasks |
-| lifedecisions.md | Life Decisions — Product Reference |
+| maturity.md | Maturity — The Company Operating System |
 | voice.md | Human Communication Guide |
 
-<!-- Generated: 2026-04-10T03:32:19.784Z -->
+<!-- Generated: 2026-04-10T07:50:04.400Z -->

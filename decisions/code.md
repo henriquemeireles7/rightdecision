@@ -1,6 +1,6 @@
 # Coding — How We Build Software
 
-> Last verified: 2026-04-08
+> Last verified: 2026-04-09
 > Full architecture: decisions/product/00-legacy/001-architecture.md
 
 ## Data Flow
@@ -254,3 +254,42 @@ time_nudge: "Take 3-4 days..."  # last class per module only
 | `platform/db/schema.ts` | All database tables |
 | `platform/server/routes.ts` | All API endpoints |
 | `platform/auth/permissions.ts` | Roles + permissions |
+
+## Error Handling Recipe
+
+```ts
+// In platform/errors.ts — define the error
+export const errors = {
+  COURSE_NOT_FOUND: { status: 404, message: 'Course not found' },
+  DECISION_LIMIT:   { status: 429, message: 'Decision limit reached' },
+  // ... add new errors here, never ad-hoc
+}
+
+// In feature code — throw the error
+throwError('COURSE_NOT_FOUND')  // → 404 + structured JSON response
+
+// In API handler — errors auto-map to HTTP status via responses.ts
+// The client sees: { error: true, code: 'COURSE_NOT_FOUND', message: 'Course not found' }
+```
+
+Rule: every new error path needs a named error code in platform/errors.ts. Catch-all `catch(e)` is forbidden — name the specific error.
+
+## Database Migration Recipe
+
+1. Edit `platform/db/schema.ts` — add/modify table
+2. Run `bunx drizzle-kit generate` — creates migration file
+3. Review the generated SQL (check for table locks, data loss)
+4. Run `bunx drizzle-kit migrate` — applies migration
+5. Verify: `bunx drizzle-kit studio` to inspect the result
+6. For renames: create new column → copy data → drop old column (never direct rename in prod)
+7. For rollback: write a reverse migration manually (drizzle doesn't auto-rollback)
+
+## Performance Budget
+
+| Metric | Target | Enforcement |
+|--------|--------|-------------|
+| Client JS bundle | <50KB gzipped | Check in CI |
+| API p95 latency | <500ms | PostHog monitoring |
+| Lighthouse performance | >90 | Monthly check via d-health |
+| DB query count per request | <5 (no N+1) | Code review |
+| Time to interactive | <2s on 3G | Lighthouse |
