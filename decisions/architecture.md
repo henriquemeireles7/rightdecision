@@ -1,12 +1,12 @@
 # Architecture — How We Design Systems
 
-> Last verified: 2026-04-08
-> Implementation patterns: decisions/coding.md
-> Deep dive: decisions/001-architecture.md (DSA original)
+> Last verified: 2026-04-09
+> Implementation patterns: decisions/code.md
+> Deep dive: decisions/product/00-legacy/001-architecture.md (DSA original)
 
 ## When to Read This
-Before writing a PRD (d-prd), designing a new feature, or making any data/storage decision.
-This file defines the architectural PATTERNS. coding.md defines the implementation RULES.
+Before designing a new feature or making any data/storage decision.
+This file defines the architectural PATTERNS. code.md defines the implementation RULES.
 
 ---
 

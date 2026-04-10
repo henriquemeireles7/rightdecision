@@ -23,7 +23,7 @@ d-code → **d-review** → /ship
 ## When to run
 - Before every commit
 - Before /ship
-- After d-code completes a batch of beads
+- After d-code completes a project
 
 ---
 
@@ -323,6 +323,6 @@ All phases clean. Commit away.
 - NEVER skip a phase (use `/d-review quick` if you need speed)
 - NEVER approve code with failing `bun run check`
 - FIX first, report second
-- Create beads only for issues too large to fix in-session: `br create "Fix: [description]" -t bug -p 1`
+- Add issues too large to fix in-session to decisions/humantasks.md
 - Coherence checks only apply to entities touched by the diff (that's d-health's job for the full codebase)
 - Lead the report with findings, not phases

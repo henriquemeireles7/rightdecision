@@ -104,17 +104,28 @@ brew services stop postgresql@16
 CI uses a PostgreSQL service container automatically (see .github/workflows/ci.yml).
 NEVER use the production Railway DATABASE_URL for tests — teardown truncates all tables.
 
-## CLI & Tooling Best Practices
-- Use rg (ripgrep) instead of grep — faster, fewer tokens, Rust-based.
-- Use fd instead of find — faster file discovery.
-- Use bat instead of cat — syntax highlighting for file inspection.
+## CLI & Tooling Rules (NEVER use the banned tool)
+- NEVER use grep in Bash — use the Grep tool or `rg` (ripgrep). Faster, fewer tokens.
+- NEVER use find in Bash — use the Glob tool or `fd`. Faster file discovery.
+- NEVER use cat/head/tail in Bash to read files — use the Read tool. Better UX, line numbers.
+- NEVER use npm/yarn/npx — use Bun for everything. Always `bunx`, `bun test`, `bun run`.
+- NEVER use ESLint/Prettier — use Biome for everything. Single tool for format+lint+imports.
 - Use delta/difft for git diffs — difft understands TypeScript AST, delta gives side-by-side.
 - Use tokei for codebase stats — quick line counts by language.
-- Use dust for directory sizes — find bloat that wastes search time.
-- Use Bun for everything — never npm/yarn/npx. Always bunx, bun test, bun run.
-- Use Biome for everything — never ESLint/Prettier. Single tool for format+lint+imports.
+- Use dust for directory sizes.
 - Never run bun run dev inside Claude Code sessions — use a separate terminal/tmux pane.
 - Hooks run as TypeScript on Bun (no bash/jq dependency).
+
+## Token Efficiency Rules
+- NEVER read entire files — use Grep to find line numbers, then Read with offset/limit
+- NEVER run unbounded commands — always constrain: head_limit on Grep, `| head` on Bash
+- NEVER run full test suite when working on one module — scope: `bun test path/to/file.test.ts`
+- ALWAYS use `--json`, `--robot`, `--format=toon` flags for CLI tools that support compact output
+- ALWAYS use Grep `output_mode="files_with_matches"` when you only need file paths
+- ALWAYS set `head_limit` on exploratory Grep searches (start at 20, increase if needed)
+- Use subagents for multi-file exploration — keeps main context clean
+- Use `tree -L 2 --dirsfirst` for directory orientation instead of reading files
+- Use /compact at logical task boundaries (after planning, before switching focus)
 
 ## Hooks System (auto-enforced)
 Hooks are defined in .claude/settings.json and run automatically:
@@ -127,27 +138,27 @@ Hooks are defined in .claude/settings.json and run automatically:
 When work is done and the user confirms, run `bun run check` (lint + typecheck + test), then commit and push. Do not commit after every edit — commit at logical completion points.
 
 ### Auto-commit for doc-only skills
-Document skills (d-meta, d-input, d-plan, d-auto, d-jtbd, d-prd, d-tasks, d-write, autodocs) auto-commit and push after saving. These skills only modify non-code files (md, json, jsonl) so they can't break anything. Code skills (d-code, d-review, d-health) do NOT auto-commit — they modify ts/tsx files that need `bun run check` first.
+Document skills (d-strategy, d-roadmap, d-content) auto-commit and push after saving. These skills only modify non-code files (md, json, mdx) so they can't break anything. Code skills (d-code, d-review, d-health) do NOT auto-commit — they modify ts/tsx files that need `bun run check` first.
 
 ## Universal Reference Files (decisions/*.md)
 Read the files that match your task. Read as many as needed:
 - Customer-facing content, ICP → decisions/company.md
-- Roadmap, priorities, "what's next" → decisions/roadmap.md
 - Content for end users (copy, courses, emails) → decisions/voice.md
 - Architecture (data storage, workflows, feature groups) → decisions/architecture.md
-- Coding (features, platform, providers) → decisions/coding.md
-- Security & hardening baseline → decisions/hardening.md
+- Coding (features, platform, providers) → decisions/code.md
+- Security & quality baseline → decisions/health.md
 - Visual/UI/CSS/components → decisions/design.md
 - Deploy, CI/CD, infrastructure → decisions/deploy.md
 - Life Decisions product (B2C) → decisions/lifedecisions.md
 - Business Decisions product (B2B) → decisions/businessdecisions.md
-- Improving the AI harness → decisions/harness.md
+- AI harness methodology → decisions/harness.md
+- Human tasks (AI-to-human) → decisions/humantasks.md
 
 Each folder's CLAUDE.md has Critical Rules, Import Maps, and Recipes specific to that module.
 
 ### Universal File Sync (ship workflow)
 Before creating a PR via /ship, check if the diff touches areas covered by universal reference files:
-1. Map changed files to relevant universal files (e.g., changes in platform/ → coding.md, deploy.md; changes in features/ → architecture.md)
+1. Map changed files to relevant universal files (e.g., changes in platform/ → code.md, deploy.md; changes in features/ → architecture.md)
 2. Read each relevant universal file and check the `> Last verified: YYYY-MM-DD` date
 3. If stale (content doesn't match code reality): update the file and bump the date
 4. Include updated universal files in the same PR
@@ -171,74 +182,31 @@ If you find contradictions between universal files, folder CLAUDE.md, or strateg
 4. Update the wrong file immediately so the contradiction is gone.
 Never leave contradictions unresolved — they compound into bigger problems.
 
-## Beads (Task Tracking) — Agent Flywheel Methodology
-All coding tasks are tracked as beads issues. Two CLIs: `br` (beads_rust — task management) and `bv` (beads_viewer — graph analysis).
-Tasks live in `.beads/` (SQLite + JSONL). JSONL is committed to git. Always commit `.beads/` with code changes.
+## Decisions Folder (Three-Domain Structure)
+All strategy documents live in decisions/, organized into three domains:
 
-### CLI Quick Reference
-```sh
-br ready --json                    # unblocked tasks
-br show <id>                       # full task details
-br update <id> --claim             # atomic: assign + set in_progress
-br close <id> -r "Done" --suggest-next  # close + get newly unblocked
-br create "..." -t task -p 1 -d "desc" --parent <epic> --deps "blocks:<id>"
-br dep add <from> <depends-on>     # add dependency
-br sync --flush-only               # export JSONL for git
-bv --robot-triage --format toon    # graph-aware recommendations (NEVER bare bv)
-bv --robot-next                    # single top pick + claim command
-bv --robot-plan                    # parallel execution tracks
-bv --robot-suggest                 # hygiene: duplicates, missing deps
+```
+decisions/
+├── *.md                    # Universal reference files (company, voice, code, etc.)
+├── humantasks.md           # AI-to-human task list
+├── product/                # Product initiatives (features, UX, pricing)
+│   ├── vision.md, market.md
+│   ├── 00-legacy/          # Previous numbered docs
+│   └── NN-initiative/      # d-strategy outputs
+├── ops/                    # Business ops (content, SEO, social, biz model)
+│   ├── vision.md, market.md
+│   ├── 00-legacy/
+│   └── NN-initiative/
+└── harness/                # AI methodology (skills, hooks, workflows)
+    ├── vision.md, market.md
+    ├── 00-legacy/
+    └── NN-initiative/
 ```
 
-### Agent Workflow (per bead)
-1. `bv --robot-next` → pick graph-optimal task
-2. `br update <id> --claim` → claim it (prevents duplicate work)
-3. Implement following Build Order (CLAUDE.md → schema → errors → env → tests → code → pages)
-4. Fresh eyes self-review: reread new code looking for bugs, fix, repeat (1-2 rounds)
-5. `bun run check` → all tests + lint + typecheck pass
-6. `br close <id> -r "Done: [summary]" --suggest-next` → close + get next
-7. `br sync --flush-only` at session end
+Each initiative folder contains document.md + project subfolders with roadmap.md.
+Full document index: decisions/ops/00-legacy/00-general/document.md
 
-### Multi-Agent Coordination
-When multiple agents work simultaneously (Conductor workspaces):
-- All agents target the same branch (master). No worktree isolation.
-- Each agent claims beads before working (`--claim`).
-- Discovered issues: `br create "Fix: ..." --deps "discovered-from:<current-id>"`
-- NEVER stash, revert, or overwrite other agents' work.
-
-#### Agent Mail (MCP) — File Reservations
-Agent Mail is a global service running at `127.0.0.1:8765` — started outside Conductor, not per-workspace.
-If tools aren't available, ask the user to start the agent mail server in a separate terminal.
-
-**At session start (MANDATORY for multi-agent):**
-1. `mcp__mcp-agent-mail__ensure_project(human_key: "<absolute repo path>")`
-2. `mcp__mcp-agent-mail__register_agent(project_key: "<repo path>", agent_name: "<workspace-name>")`
-3. `mcp__mcp-agent-mail__fetch_inbox(project_key: "<repo path>", agent_name: "<workspace-name>")`
-4. Reserve files you'll edit:
-   `mcp__mcp-agent-mail__file_reservation_paths(project_key, agent_name, paths: ["platform/env.ts", ...], ttl_seconds: 3600, exclusive: true)`
-
-**Before editing a shared file:**
-- Check reservations first. If another agent reserved it, pick a different bead.
-
-**At session end:**
-- `mcp__mcp-agent-mail__release_file_reservations(project_key, agent_name)`
-- `mcp__mcp-agent-mail__send_message(project_key, from_agent, to_agent: "all", body: "Completed beads: ...")`
-
-### Key Rules
-- NEVER skip dependencies — if `br ready` returns nothing, blocked tasks need deps completed first
-- NEVER run bare `bv` — always use `--robot-*` flags (bare launches TUI, blocks agent)
-- Strategy docs → beads via d-tasks: `document.md → /d-tasks → beads issues`
-- Coding from beads via d-code: `/d-code → implement → verify → close`
-- Deep review via d-review: `/d-review → fresh eyes → random exploration → architectural check`
-
-## Agent Flywheel Tools
-
-### UBS (Ultimate Bug Scanner)
-Run `ubs .` to scan the full codebase for bugs (1000+ patterns, 8 languages).
-- After completing beads: `ubs . --format=toon` (token-efficient output)
-- Before shipping: `ubs --staged` (scan only staged files)
-- NEVER ignore UBS findings — fix or explicitly suppress with `# ubs:ignore`
-- Skip categories: `ubs . --skip=11,14` (skip TODO/debug nits)
+## Agent Tools
 
 ### DCG (Destructive Command Guard)
 Pre-execution safety guard. 49+ rule packs across 17 categories. Blocks dangerous commands before they run.
@@ -246,114 +214,24 @@ Pre-execution safety guard. 49+ rule packs across 17 categories. Blocks dangerou
 - Override: `DCG_BYPASS=1` ONLY when certain the command is safe
 - Explain why blocked: `dcg explain "<command>"`
 
-### CASS (Coding Agent Session Search)
-Search past agent sessions for patterns, solutions, and context.
-- Before unfamiliar work: `cass search "topic" --robot --limit 5`
-- NEVER run bare `cass` — always use `--robot` or `--json` flags (bare launches TUI)
-- Indexes Claude Code, Codex, Cursor, Gemini sessions automatically
-
-### CM (CASS Memory System)
-Three-layer procedural memory: episodic → working → procedural.
-- Before non-trivial work: `cm context "task description" --json` (get relevant patterns)
-- After completing a bead: `cm outcome success <bead-id> --summary "what was done"` (teach future agents)
-- After a failure: `cm outcome failure <bead-id> --summary "what went wrong"` (learn from mistakes)
-- Rules decay without revalidation (90-day half-life) — recent patterns weighted higher
-
-### Agent Mail (Multi-Agent Coordination — MCP)
-MCP-based messaging for coordinating between Conductor workspaces. Tools: `mcp__mcp-agent-mail__*`
-- At session start: register identity, check inbox, reserve files you'll edit
-- During work: check reservations before editing shared files
-- At session end: release reservations, announce completed beads
-- File reservations prevent edit conflicts between parallel agents
-
-## Decisions Folder (Strategy Documents)
-All strategy documents live in decisions/. See decisions/roadmap.md for current priorities.
-Full document index: decisions/00-general/document.md
-Document pipeline: d-meta → d-input → d-plan → d-tasks (beads) → d-code (implement).
-Methodology: Meta → Draft → Document → Tasks → Code. Each phase catches problems before the next.
-
-## Stripe Skills
-- `/stripe-best-practices` — ALWAYS invoke before writing or reviewing any Stripe integration code. Covers API selection (Checkout vs PaymentIntents), subscriptions/billing, Connect, security (RAKs, webhooks, key management). Read the relevant reference file it surfaces before coding.
-- `/stripe-projects` — Only for bootstrapping a brand new Stripe project via CLI (`stripe projects init`). NOT needed for this repo — we already have Stripe wired up. Only use if starting a completely new Stripe integration from scratch.
-
-## External Service CLIs (DO stuff, don't ASK the user to do it)
-You have authenticated CLIs for all external services. Use them directly instead of telling the user to go to a dashboard.
-
-### Railway (`railway`) — Hosting & Infra
-Project: decisions | Environment: production | Service: rightdecision
-Railway is linked in every Conductor workspace. Use the CLI directly — NEVER ask the user to check a dashboard or run commands manually.
-```sh
-railway variable list --kv              # list all env vars
-railway variable set KEY=value          # set env var (triggers redeploy)
-railway variable set KEY=value --skip-deploys  # set without redeploying
-railway variable delete KEY             # remove env var
-railway logs                            # tail production logs
-railway status                          # current project/env/service
-railway up                              # manual deploy
-railway redeploy                        # redeploy current
-railway connect postgres                # interactive psql session to production DB
-```
-**Database access:** Use `railway connect postgres` to query production PostgreSQL directly. Pipe SQL or use interactive mode. The dev server runs against the Railway production database (not a local postgres).
-**If `railway status` says "No linked project":** Re-link with `railway link` — project is "decisions", environment is "production".
-
-### Stripe (`stripe`) — Payments
-```sh
-stripe products list                    # list products
-stripe products create --name "..."     # create product
-stripe prices list                      # list prices
-stripe prices create --product <id> --unit-amount <cents> --currency usd -d "recurring[interval]=year"
-stripe customers list                   # list customers
-stripe listen --forward-to localhost:3000/api/stripe/webhook  # local webhook testing
-stripe logs tail                        # watch API request logs
-stripe trigger <event>                  # fire test webhook events
-```
-
-### GitHub (`gh`) — Code & PRs
-```sh
-gh pr create --title "..." --body "..."   # create PR
-gh pr list                                # list PRs
-gh pr merge <number>                      # merge PR
-gh issue list                             # list issues
-gh run list                               # list CI runs
-gh run watch <id>                         # watch CI run
-gh api repos/{owner}/{repo}/...           # raw API calls
-```
-
-### PostHog (MCP tools, not CLI)
-No CLI installed — use `mcp__posthog__*` tools directly:
-- `mcp__posthog__query-trends` — analytics trends
-- `mcp__posthog__query-funnel` — funnel analysis
-- `mcp__posthog__feature-flag-get-all` — list feature flags
-- `mcp__posthog__create-feature-flag` — create feature flag
-- `mcp__posthog__insights-get-all` — list saved insights
-- `mcp__posthog__error-tracking-issues-list` — production errors
-
-### Rule: Act First, Ask Never
-- Need to set an env var? `railway variable set` — don't tell the user to go to Railway dashboard.
-- Need a Stripe price ID? `stripe prices list` or `stripe prices create` — don't tell the user to check the dashboard.
-- Need to check CI? `gh run list` — don't send the user to GitHub Actions.
-- Need analytics? Use PostHog MCP tools — don't send the user to PostHog dashboard.
+## External Service CLIs — Act First, Ask Never
+You have authenticated CLIs: `railway`, `stripe`, `gh`, and PostHog MCP tools. Use them directly — NEVER tell the user to check a dashboard. Full CLI reference: `decisions/deploy.md`.
+- ALWAYS invoke `/stripe-best-practices` before writing or reviewing Stripe code.
 - Only ask the user when: you need a secret value they must provide, or the action is destructive/irreversible.
 
-## Deployment
-Railway. Dockerfile deploy. PostgreSQL on Railway.
-GitHub: henriquemeireles7. Email: hsameireles@gmail.com.
+## Two Session Types
 
-## Two Workflows
+### Strategy Session (1 workspace per initiative)
+```
+d-strategy → gstack reviews (CEO/eng/design) → d-roadmap → /ship
+```
+Interactive Q&A with founder → initiative document → project breakdown → roadmaps.
 
-### Workflow 1: Coding (feature development)
+### Execution Session (1 workspace per project)
 ```
-JTBD → PRD → TASKS → CODE → REVIEW → SHIP
-d-jtbd  d-prd  d-tasks  d-code  d-review  /ship
+Read project/roadmap.md → gstack reviews → d-code or d-content → d-review → /ship
 ```
-`/d-autocode` runs the full pipeline. JTBD + PRD are interactive. Tasks/Code/Review are automatic.
-
-### Workflow 2: Writing (strategy docs + content)
-```
-META → INPUT → DOCS → WRITE
-d-meta  d-input  d-plan  d-write
-```
-`/d-autodocs` runs the full pipeline. Input is interactive. d-write puts deliverables in content/.
+TDD implementation from roadmap (d-code) or content creation (d-content).
 
 ## Skill routing
 When the user's request matches an available skill, ALWAYS invoke it using the Skill
@@ -367,19 +245,12 @@ Key routing rules:
 - Code review, check my diff → invoke review
 - Design system, brand → invoke design-consultation
 - Architecture review → invoke plan-eng-review
-- Strategy document template → invoke d-meta
-- Brain dump, capture thinking → invoke d-input
-- Write strategy document → invoke d-plan
-- Full document pipeline → invoke d-autodocs
-- Transform document into tasks → invoke d-tasks
-- Code from beads tasks → invoke d-code
-- Pre-commit review, check quality, review the code → invoke d-review (fast: harden quick + coherence quick, fix-first)
-- Codebase health, full audit, how healthy is the code, security check → invoke d-health (10 sessions, report-only, never fixes)
-- Write content from strategy docs → invoke d-write
-- JTBD, validate demand, what to build → invoke d-jtbd
-- PRD, product requirements → invoke d-prd
-- Full coding pipeline end-to-end → invoke d-autocode
-- Review and ship, full review chain → invoke d-autoreview (d-review → /simplify → /qa → /ship)
+- Strategy session, new initiative, what to build next → invoke d-strategy
+- Extract projects from initiative → invoke d-roadmap
+- Implement from roadmap, start coding → invoke d-code
+- Write content (blog, handbook, social, clips) → invoke d-content
+- Pre-commit review, check quality, review the code → invoke d-review
+- Codebase health, full audit, security check → invoke d-health
 - Build/deploy error, prevent this, learn from error → invoke d-harness
 - Deploy failed, fix the deploy, railway failed → invoke d-fail
 

@@ -1,7 +1,7 @@
 # Company — The Right Decision
 
 > Last verified: 2026-04-06
-> Deep dive: decisions/01-business-model/input.md, decisions/02-manifesto/document.md
+> Deep dive: decisions/ops/00-legacy/01-business-model/input.md, decisions/ops/00-legacy/02-manifesto/document.md
 
 ## What we are
 The Right Decision is an infobusiness + software company. US-registered LLC. Solo developer (Henry) + AI agents + content partner (Indy). Two products under one brand, delivered through AI-powered Claude skills and automation APIs.
@@ -25,11 +25,11 @@ The decision is the primitive. Every meaningful change in a human life begins wi
 ## Two Products
 
 ### Life Decisions ($197/year)
-Course + Claude skills for personal life decisions. User runs skills in Claude Cowork on their own computer. No API needed — docs and skills only.
+Course + Claude skills for personal life decisions. User runs skills on their own computer. No API needed — docs and skills only.
 > See: decisions/lifedecisions.md
 
 ### Business Decisions ($1,997/year)
-Course + Claude skills + automation APIs for non-tech entrepreneurs. "Vibe coding for non-tech creators/founders." Users interact via Claude Code/Cowork.
+Course + Claude skills + automation APIs for non-tech entrepreneurs. "Vibe coding for non-tech creators/founders." Users interact via Claude Code.
 > See: decisions/businessdecisions.md
 
 ## Three Personas

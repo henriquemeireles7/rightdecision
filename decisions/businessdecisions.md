@@ -1,8 +1,8 @@
 # Business Decisions — Product Reference
 
 > Last verified: 2026-04-06
-> Deep dive: decisions/businessdecisions/ (product-specific docs)
-> Automation pipeline: decisions/08-short-video-viral-strategy/document.md
+> Deep dive: decisions/product/00-legacy/businessdecisions/ (product-specific docs)
+> Automation pipeline: decisions/ops/00-legacy/08-short-video-viral-strategy/document.md
 
 ## What it is
 Business Decisions is The Right Decision's B2B product ($1,997/year). A course + AI skills + automation APIs that teach non-tech creators how to build and run an AI-native infobusiness — plus the platform to do it.
@@ -19,7 +19,7 @@ Non-tech entrepreneur, 28-45. Has an idea or early-stage business. Drowns in pla
 - **Course:** Business-specific methodology (same decision cycle, applied to business building)
 - **Skills:** One Claude skill per business exercise (business model, manifesto, methodology, course design, distribution, etc.)
 - **APIs:** Automation endpoints for content pipeline, social media posting, analytics
-- **Delivery:** Skills run in Claude Code or Claude Cowork. APIs handle the automation.
+- **Delivery:** Skills run in Claude Code or Claude Code. APIs handle the automation.
 - **Bonus course:** "Vibe Coding for Non-Tech Creators/Founders" (Claude Code course)
 - **Free course funnel:** Simplified business methodology as lead generation
 
@@ -33,7 +33,7 @@ Users only touch `decisions/` and `content/` folders. Everything else is abstrac
 ## Agent-First Design
 This product is NOT a traditional SaaS:
 - APIs + Claude skills compose the platform
-- Users interact via Claude Cowork (non-tech) or Claude Code (tech)
+- Users interact via Claude Code (non-tech) or Claude Code (tech)
 - We don't compete with Claude — we provide methodology + skills + APIs that work WITH Claude
 - No web dashboard required for core workflow
 

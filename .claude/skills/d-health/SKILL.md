@@ -7,7 +7,7 @@ description: "Comprehensive codebase health audit: 10 sessions covering security
 
 ## What this does
 Deep periodic audit of the entire codebase across 10 sessions. Report-only — never fixes code,
-never creates beads. Produces a scored report with a prioritized fix plan.
+never fixes code. Produces a scored report with a prioritized fix plan.
 
 Run this every few days, before major releases, or when the codebase "feels off."
 
@@ -17,7 +17,7 @@ Run this every few days, before major releases, or when the codebase "feels off.
 - Every few days as a health pulse
 - Before a major release or milestone
 - When the codebase "feels off" but nothing specific is broken
-- After a large batch of beads (post d-code marathon)
+- After a large implementation session (post d-code)
 
 ## Before Starting
 ```sh
@@ -28,8 +28,8 @@ Do NOT stop. Do NOT ask the user what to do.
 
 Read:
 - Root CLAUDE.md (build order, seven files, rules)
-- `decisions/coding.md` (dependency rules, security, performance)
-- `decisions/hardening.md` (prior audit findings, if exists)
+- `decisions/code.md` (dependency rules, security, performance)
+- `decisions/health.md` (prior audit findings, if exists)
 - `decisions/architecture.md` (data storage rule, feature groups)
 - `decisions/design.md` (for UI session)
 - `decisions/health.md` (prior health report, if exists — needed for trend)
@@ -39,7 +39,7 @@ Read:
 ## DX Rules (mandatory)
 - **NEVER ask questions during the audit.** Zero interaction. Pure diagnostic.
 - **NEVER fix code.** Report only. The fix plan tells the user what to fix.
-- **NEVER create beads.** The report IS the output.
+- **NEVER create tasks.** The report IS the output.
 - **ALWAYS produce a report**, even if some sessions fail or scripts crash.
 - **After each session**, print one line: `Session N (Name): X findings (Y critical)`
 - **At the end**, print a 3-line summary in chat:
@@ -199,7 +199,7 @@ If the script crashes, note the error and check manually.
 - [ ] Feature bleeding: all code for a feature lives in its folder
 - [ ] No feature logic scattered across platform/ or providers/
 - [ ] CLAUDE.md freshness: footer matches actual files in each folder
-- [ ] decisions/ drift: architecture.md and coding.md match actual patterns
+- [ ] decisions/ drift: architecture.md and code.md match actual patterns
 
 ---
 
@@ -387,7 +387,7 @@ Default (no argument): run all 10 sessions sequentially.
 ## Rules
 - NEVER fix issues during d-health — this is a diagnostic, not a treatment
 - NEVER ask questions — this is a zero-interaction skill
-- NEVER create beads — the report is the output
+- NEVER create tasks or fix code — the report is the output
 - ALWAYS produce a report, even if partial (some sessions errored)
 - ALWAYS save the full report to `decisions/health.md`
 - ALWAYS produce the fix plan — the report without a plan is just complaining

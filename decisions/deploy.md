@@ -76,6 +76,59 @@ bun run db:seed      # Seed dev data (dev only)
 bun run db:studio    # Open Drizzle Studio for inspection
 ```
 
+## External Service CLIs
+
+Act first, ask never. Use authenticated CLIs directly — NEVER tell the user to check a dashboard.
+
+### Railway (`railway`)
+Project: decisions | Environment: production | Service: rightdecision
+```sh
+railway variable list --kv              # list all env vars
+railway variable set KEY=value          # set env var (triggers redeploy)
+railway variable set KEY=value --skip-deploys  # set without redeploying
+railway variable delete KEY             # remove env var
+railway logs                            # tail production logs
+railway status                          # current project/env/service
+railway up                              # manual deploy
+railway redeploy                        # redeploy current
+railway connect postgres                # interactive psql session to production DB
+```
+**Database access:** `railway connect postgres` for production PostgreSQL. Dev server runs against Railway production DB.
+**If "No linked project":** `railway link` — project "decisions", environment "production".
+
+### Stripe (`stripe`)
+```sh
+stripe products list                    # list products
+stripe products create --name "..."     # create product
+stripe prices list                      # list prices
+stripe prices create --product <id> --unit-amount <cents> --currency usd -d "recurring[interval]=year"
+stripe customers list                   # list customers
+stripe listen --forward-to localhost:3000/api/stripe/webhook  # local webhook testing
+stripe logs tail                        # watch API request logs
+stripe trigger <event>                  # fire test webhook events
+```
+ALWAYS invoke `/stripe-best-practices` before writing or reviewing Stripe integration code.
+
+### GitHub (`gh`)
+```sh
+gh pr create --title "..." --body "..."   # create PR
+gh pr list                                # list PRs
+gh pr merge <number>                      # merge PR
+gh issue list                             # list issues
+gh run list                               # list CI runs
+gh run watch <id>                         # watch CI run
+gh api repos/{owner}/{repo}/...           # raw API calls
+```
+
+### PostHog (MCP tools, not CLI)
+Use `mcp__posthog__*` tools directly:
+- `mcp__posthog__query-trends` — analytics trends
+- `mcp__posthog__query-funnel` — funnel analysis
+- `mcp__posthog__feature-flag-get-all` — list feature flags
+- `mcp__posthog__create-feature-flag` — create feature flag
+- `mcp__posthog__insights-get-all` — list saved insights
+- `mcp__posthog__error-tracking-issues-list` — production errors
+
 ## Deploy Anti-patterns
 - Deploying without running `bun run check` first
 - Manual database migrations on production — automate in deploy pipeline
@@ -97,7 +150,7 @@ bun run db:studio    # Open Drizzle Studio for inspection
 ### Runtime Stage Must Include All Files Needed by railway.toml
 The Dockerfile runtime stage (final `FROM`) must COPY all files and directories referenced by `railway.toml` commands (`preDeployCommand`, `startCommand`). If `startCommand = "bun run dist/app.js"`, then `dist/` must be in a COPY statement. If `preDeployCommand = "bun run db:migrate"`, then migration files and `package.json` must be copied.
 
-Use `bun .claude/skills/d-harden/scripts/dockerfile-check.ts` to verify automatically.
+Verify manually: check that every path in `railway.toml` commands has a matching COPY in the Dockerfile runtime stage.
 
 ### Lockfile Sync Rule
 If `package.json` is modified (new dependencies, version bumps), `bun.lock` MUST also be committed. Otherwise Docker builds use a stale lockfile and `bun install` installs wrong versions or fails entirely.
@@ -107,4 +160,4 @@ Use `bun .claude/skills/d-code/scripts/lockfile-check.ts` to verify automaticall
 ### Incident: 2026-04-08 — Lockfile + Migration Files Missing
 **What happened:** Railway build failed because `package.json` had new dependencies but `bun.lock` wasn't committed. Additionally, migration files needed by `preDeployCommand` were not included in the Dockerfile runtime COPY stage.
 **Root cause:** No automated check for lockfile sync or Dockerfile completeness.
-**Fix:** Added `lockfile-check.ts` and `dockerfile-check.ts` scripts to catch these issues before shipping. Added to the d-autoreview chain (d-harden step).
+**Fix:** Added `lockfile-check.ts` script and Dockerfile verification rules. Checked during d-review.
