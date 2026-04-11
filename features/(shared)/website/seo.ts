@@ -8,7 +8,7 @@ const esc = (s: string) =>
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
 
-export type SeoConfig = {
+type SeoConfig = {
   title: string
   description: string
   canonical: string

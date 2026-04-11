@@ -92,15 +92,6 @@ export const LegalFrontmatter = z.object({
   date: z.string(),
 })
 
-export type BlogPost = z.infer<typeof BlogPostFrontmatter>
-export type Concept = z.infer<typeof ConceptFrontmatter>
-export type Method = z.infer<typeof MethodFrontmatter>
-export type Handbook = z.infer<typeof HandbookFrontmatter>
-export type Guide = z.infer<typeof GuideFrontmatter>
-export type Help = z.infer<typeof HelpFrontmatter>
-export type Changelog = z.infer<typeof ChangelogFrontmatter>
-export type Legal = z.infer<typeof LegalFrontmatter>
-
 // ─── Markdown Renderer ──────────────────────────────────────────────────────
 
 function slugify(text: string): string {
@@ -229,7 +220,7 @@ export type ContentHeading = {
   depth: number
 }
 
-export function extractHeadings(body: string): ContentHeading[] {
+function extractHeadings(body: string): ContentHeading[] {
   const headings: ContentHeading[] = []
   const regex = /^(#{2,3})\s+(.+)$/gm
   let match: RegExpExecArray | null = regex.exec(body)
@@ -249,7 +240,7 @@ export type ParsedContentItem = {
   slug: string
 }
 
-export type ParsedContentFull = {
+type ParsedContentFull = {
   frontmatter: Record<string, unknown>
   html: string
   body: string

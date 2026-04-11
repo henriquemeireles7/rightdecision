@@ -37,9 +37,9 @@ bunx tsc --noEmit platform/server/app.ts && bun test platform/server/
 | File | Exports |
 |------|---------|
 | app.ts | AppRoutes, default |
-| health.ts | checkDatabase, checkPayments, checkEmail, checkStorage, checkHealth |
+| health.ts | checkHealth |
 | render.tsx | renderPage |
-| responses.ts | success, paginated, created, accepted, noContent, partial |
+| responses.ts | success, paginated, created, accepted, partial |
 | routes.ts | mountRoutes |
 
 ## Internal Dependencies
@@ -53,4 +53,4 @@ bunx tsc --noEmit platform/server/app.ts && bun test platform/server/
 - providers/email
 - providers/payments
 
-<!-- Generated: 2026-04-09T09:30:25.862Z -->
+<!-- Generated: 2026-04-10T08:28:38.407Z -->

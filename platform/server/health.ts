@@ -39,19 +39,19 @@ async function check(label: string, fn: () => Promise<unknown>): Promise<Service
   }
 }
 
-export function checkDatabase(): Promise<ServiceStatus> {
+function checkDatabase(): Promise<ServiceStatus> {
   return check('database', () => db.execute(sql`SELECT 1`))
 }
 
-export function checkPayments(): Promise<ServiceStatus> {
+function checkPayments(): Promise<ServiceStatus> {
   return check('payments', () => payments.balance.retrieve())
 }
 
-export function checkEmail(): Promise<ServiceStatus> {
+function checkEmail(): Promise<ServiceStatus> {
   return check('email', () => email.apiKeys.list())
 }
 
-export async function checkStorage(): Promise<ServiceStatus> {
+async function checkStorage(): Promise<ServiceStatus> {
   if (!env.R2_ENDPOINT || !env.R2_ACCESS_KEY_ID) {
     return { status: 'skipped' }
   }

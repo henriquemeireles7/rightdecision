@@ -1,292 +1,198 @@
 ---
 name: d-code
-description: "Code from beads tasks. Implements the next ready bead using TDD, runs tests, closes it. Triggers: 'd-code', 'code the beads', 'implement tasks', 'start coding'."
+description: "TDD implementation from project roadmaps. Five phases: plan decomposition, TDD implementation, completion audit, wiring audit, handoff. Triggers: 'd-code', 'implement', 'start coding', 'code this project'."
 ---
 
-# d-code — Code From Beads
+# d-code — TDD Implementation
 
 ## What this does
-Implements beads tasks one at a time. Uses bv (beads_viewer) to pick the highest-impact
-ready task, claims it, codes it following the Build Order and TDD methodology, runs all
-checks, closes the bead, and picks the next. Repeats until all beads are done.
+Implements a project from its roadmap.md using strict TDD. Five phases ensure nothing is missed:
+plan decomposition, TDD implementation, completion audit, wiring audit, and handoff.
 
 ## Pipeline
-d-meta → d-input → d-docs → d-tasks → **d-code** → d-review
+d-strategy → gstack reviews → d-roadmap → **d-code** → d-review → /ship
 
-## Prerequisites
-- beads CLI installed (`br` command available — Jeffrey's beads_rust)
-- beads viewer installed (`bv` command available — for graph-aware task picking)
-- Beads created via d-tasks skill
-- `br ready` returns at least one task
+## When to use
+- A project has a roadmap.md with deliverables and acceptance criteria
+- Ready to write code (not strategy, not content)
 
-## CLI Quick Reference
+---
 
-### Querying
-```sh
-br ready --json                                    # unblocked work (flat list)
-bv --robot-next                                    # graph-aware top pick + claim command
-bv --robot-triage --format toon                    # full project state (token-efficient)
-bv --robot-plan                                    # parallel execution tracks
-br show <id> --json                                # full task details
-```
-
-### Working
-```sh
-br update <id> --claim                             # atomic: set assignee + in_progress
-br create "Fix: ..." -t bug -p 1 --deps "discovered-from:<id>"  # discovered issue
-br close <id> -r "Done" --suggest-next --json      # close + get newly unblocked
-br sync --flush-only                               # export JSONL at session end
-```
-
-### CRITICAL: Never run bare `bv` — it launches TUI and blocks the agent.
+## Input
+The user provides the path to a project's `roadmap.md` or the project folder.
+If not provided, ask the user which project to implement.
 
 ## Before Starting
 
-### Step 0: Codebase Audit (MANDATORY)
-Understand what exists before coding:
-```sh
-cat platform/db/schema.ts                          # What tables exist?
-find features -type f -not -name 'CLAUDE.md' | sort  # What features exist?
-cat platform/server/routes.ts                      # What routes exist?
-cat platform/errors.ts                             # What errors exist?
-cat platform/env.ts                                # What env vars exist?
+### Codebase Audit (MANDATORY)
+Understand what exists before coding. Read these files using the Read tool (not cat):
+- `platform/db/schema.ts` — What tables exist?
+- `platform/server/routes.ts` — What routes exist?
+- `platform/errors.ts` — What errors exist?
+- `platform/env.ts` — What env vars exist?
+
+Read root CLAUDE.md (build order, rules, seven key files).
+Read `decisions/code.md` (patterns, TDD, dependency rules).
+Read the CLAUDE.md of EVERY folder you're about to modify.
+
+---
+
+## Phase 1: Plan Decomposition
+
+Read the project's `roadmap.md`. Extract every deliverable into a checklist:
+
+```
+CHECKLIST:
+[ ] Deliverable 1: {name}
+    Acceptance: {criteria from roadmap}
+    Files: {CREATE/MODIFY list}
+[ ] Deliverable 2: {name}
+    ...
 ```
 
-### Step 1: Context Loading
-1. Read root CLAUDE.md (build order, rules, seven key files)
-2. Read `decisions/coding.md` (patterns, TDD, dependency rules, security, performance)
-3. Read the plan document referenced in the epic: `br show <epic-id>`
-4. Run `bv --robot-triage --format toon` for graph-aware project state
-5. Run `cm context "<epic-description>" --json` to get relevant patterns from past sessions
-6. Check Agent Mail inbox: use `mcp__mcp-agent-mail__fetch_inbox` for messages from other agents
-7. Tell the user what you plan to do: list the ready beads and your intended order
+Order the checklist by the Build Order:
+1. CLAUDE.md (new folders)
+2. schema.ts changes
+3. errors.ts additions
+4. env.ts additions
+5. Tests (write first)
+6. Implementation code
+7. Route wiring
+8. Page wiring
 
-## The Loop
+---
 
-### Step 2: Pick Next Task
+## Phase 2: TDD Implementation
+
+For each deliverable in order:
+
+### 2a. RED — Write Failing Tests
+Write tests derived from the **acceptance criteria in the roadmap**, NOT from your implementation model.
+
 ```sh
-bv --robot-next
-```
-This returns the graph-optimal next task considering PageRank, betweenness, blocker ratio,
-staleness, and priority. It also returns a ready-to-paste claim command.
-
-Fallback if bv is unavailable: `br ready --json` and pick highest priority that unblocks the most.
-
-### Step 3: Claim the Task
-```sh
-br update <task-id> --claim
-```
-Atomic operation: sets assignee + status=in_progress. Prevents other agents from picking it.
-
-**Reserve files** (if Agent Mail is available):
-Use `mcp__mcp-agent-mail__file_reservation_paths` with:
-- `project_key`: current repo path
-- `paths`: files listed in the bead description (e.g., `["platform/db/schema.ts"]`)
-- `ttl_seconds`: 3600
-- `exclusive`: true
-- `reason`: `"<bead-id>: <bead-title>"`
-
-### Step 4: Read Task Context
-```sh
-br show <task-id>
-```
-The bead description + acceptance criteria contain everything needed:
-- Files to create/modify (CREATE vs MODIFY)
-- Imports to use (from CLAUDE.md import maps)
-- Recipe to follow (from CLAUDE.md recipes)
-- Test obligations (specific test cases)
-- Acceptance criteria
-
-**CRITICAL: Complete the REUSE CHECK before implementing:**
-- Search for existing helpers that overlap with this task (`rg "functionName"`)
-- Check `platform/errors.ts` for applicable error codes (don't create new ones if they exist)
-- Check `providers/` for existing integration patterns (don't duplicate)
-- Don't create new utilities if an existing one can be extended
-
-**CRITICAL: Read the CLAUDE.md of EVERY folder you're about to modify.**
-If the bead says "CREATE features/onboarding/session.ts", read `features/` CLAUDE.md first.
-If the folder doesn't exist yet, create its CLAUDE.md FIRST (using the template from root CLAUDE.md).
-
-### Step 5: TDD Implementation (Red → Green → Refactor)
-
-Follow the Build Order strictly:
-
-**5a. CLAUDE.md** — Create/update folder CLAUDE.md if creating a new folder
-
-**5b. Schema** — If the bead requires schema changes:
-```sh
-# Modify platform/db/schema.ts, then:
-bun run db:generate && bun run db:migrate
+bun test <test-file>  # MUST fail
 ```
 
-**5c. Errors** — If new error codes needed, add to `platform/errors.ts`
+If the test passes without writing implementation code, the test is wrong — it's not testing anything new.
 
-**5d. Env** — If new env vars needed, add to `platform/env.ts`
-
-**5e. RED — Write failing tests**
-Write tests from the bead's TEST OBLIGATIONS / acceptance criteria.
-Run: `bun test <test-file>` — it MUST fail. If it passes, the test is wrong.
-
-**5f. GREEN — Write minimum code to pass**
+### 2b. GREEN — Write Minimum Code
 Write only what's needed to make the failing test pass. No more.
-Run: `bun test <test-file>` — it MUST pass now.
 
-**5g. REFACTOR — Clean up while tests stay green**
+```sh
+bun test <test-file>  # MUST pass now
+```
+
+### 2c. REFACTOR — Clean Up
 Extract shared logic only if duplicated 3+ times. Run tests after every change.
 
-**5h. WIRE — Connect to routes/pages (last step)**
-Wire routes in `platform/server/routes.ts` (must chain with `.route()`).
-Wire pages in `pages/` (max 20 lines).
-
-### Step 6: Verify
+### 2d. VERIFY — All Checks Pass
 ```sh
-bun test                   # all tests pass
-bunx tsc --noEmit          # no type errors
-bunx biome ci .            # lint + format clean
-ubs --diff --format=toon   # bug scan on changed files (fix any findings)
+bun run check
 ```
 
-### Step 7: Fix Loop
-If ANY check fails:
-1. Read the error output carefully
-2. Fix the issue
-3. Re-run ALL checks: `bun test && bunx tsc --noEmit && bunx biome ci .`
-4. If a fix reveals a new issue outside this bead's scope, create a discovered bead:
-   ```sh
-   br create "Fix: [description]" -t bug -p 1 --deps "discovered-from:<current-task-id>"
-   ```
-5. Repeat until ALL checks pass — NEVER close a bead with failing checks
+NEVER move to the next deliverable until all checks pass.
 
-### Step 8: Harden + Fresh Eyes Review
-After implementing, BEFORE closing:
+### 2e. Mark Complete
+Check off the deliverable in your checklist. Move to next.
 
-**8a. Quick hardening check on changed files:**
-```sh
-bun platform/scripts/harden-check.ts
-```
-If errors found, fix them. If warnings, note them but proceed.
+**CRITICAL: Follow the Build Order strictly.** If a deliverable needs schema changes, do schema → errors → env → tests → code → wire.
 
-**8b. Fresh eyes self-review (Agent Flywheel):**
-1. Read over ALL new/modified code with "fresh eyes" looking for obvious bugs
-2. Check: Are edge cases covered (empty inputs, concurrent access, error paths, boundaries)?
-3. Check: Are similar issues lurking elsewhere in the codebase?
-4. Check: Should the approach be different?
-5. Fix anything found. Repeat until no more issues. (1-2 rounds simple, 2-3 complex)
+**CRITICAL: Read the CLAUDE.md of EVERY folder you modify.** If the folder doesn't exist yet, create its CLAUDE.md FIRST.
 
-### Step 9: Close the Bead + Record Outcome
-Only after ALL checks pass AND fresh eyes review is clean:
-```sh
-br close <task-id> -r "Implemented: [brief summary]" --suggest-next --json
-cm outcome success <task-id> --summary "[what was done, key patterns used, files changed]"
-```
-`--suggest-next` returns newly unblocked tasks. `cm outcome` teaches future agents what worked.
+---
 
-If the bead required significant debugging or unexpected approach changes:
-```sh
-cm outcome failure <task-id> --summary "[what went wrong, why initial approach failed]"
-```
+## Phase 3: Completion Audit
 
-Release file reservations via `mcp__mcp-agent-mail__release_file_reservations`.
+After all deliverables are checked off, re-read the roadmap.md:
 
-### Step 10: Advance to Next Bead
-1. If `--suggest-next` returned unblocked tasks, pick the best candidate
-2. Otherwise: `bv --robot-next` for graph-optimal pick
-3. If no tasks ready but open tasks exist, check blockers: `br blocked`
-4. Start systematically executing beads in optimal logical order
-
-### Step 11: Plan Audit (MANDATORY — when all beads are closed)
-When `br ready` returns nothing and all tasks are closed, **re-audit the original plan
-against what was actually implemented.** Beads can miss details that the plan captured.
-
-1. Read the source plan/design doc (referenced in the epic description)
-2. For EVERY requirement in the plan, verify it exists in actual code:
-   - Check the file exists (grep for function names, routes, schema columns)
+1. For EVERY acceptance criterion in the roadmap, verify it exists in actual code:
+   - Check the file exists
    - Check tests cover it
    - Check DB migrations were generated if schema changed
-   - Check skill files reference correct API endpoints
-3. If ANY gaps found: create new beads with `--deps "discovered-from:<epic-id>"` and implement them
-4. Only proceed to Step 12 when zero gaps remain
+2. For EVERY deliverable, verify the implementation matches the spec
+3. If ANY gaps found: implement them with TDD (back to Phase 2 for that gap)
 
-**Why this step exists:** In practice, beads cover ~90% of the plan. The remaining 10%
-are details like missing DB migrations, GET endpoints the plan assumed existed, or
-config flags referenced in the skill but not wired through the service layer. These
-gaps are invisible until you cross-reference the plan against the actual code.
+**Why this phase exists:** Implementation covers ~90% of the plan. The remaining 10% are details like missing migrations, GET endpoints the plan assumed, or config flags not wired through.
 
-### Step 12: Final Quality Gate
-After the plan audit passes with zero gaps:
-1. Run full quality check: `bun run check` (lint + typecheck + test)
-2. If ANY errors remain, create beads to track them and fix them
-3. Verify the app builds (if applicable)
-4. Run `bv --robot-alerts` to check for any remaining issues
-5. Export: `br sync --flush-only`
-6. Tell the user: **"All X beads implemented and verified. Run `/d-review` for deep review, then `/ship` to ship."**
+---
 
-## Mandatory Output (ALWAYS show at the end of each bead)
+## Phase 4: Wiring Audit
+
+Run dead code detection:
+```sh
+bunx knip 2>/dev/null || echo "knip not installed, skip"
 ```
-=== IMPLEMENTATION SUMMARY ===
-Bead: <id> — <title>
-Status: CLOSED ✅
+
+For each dead export found:
+1. Trace it back to the roadmap — is this an INCOMPLETE implementation?
+2. If yes: the export exists because something should USE it but doesn't yet. Fix the gap with TDD.
+3. If no: it's genuinely dead code. Remove it.
+
+The goal: every export is either used or justified by the roadmap.
+
+---
+
+## Phase 5: Handoff
+
+### 5a. Final Quality Gate
+```sh
+bun run check
+```
+Must pass. No exceptions.
+
+### 5b. Fresh Eyes Self-Review
+1. Re-read ALL new/modified code looking for obvious bugs
+2. Check edge cases: empty inputs, concurrent access, error paths, boundaries
+3. Fix anything found. Repeat 1-2 rounds.
+
+### 5c. Update future-work.md
+Append deferred items to the initiative's `future-work.md`:
+```markdown
+### {Project Name} ({date})
+- {item deferred and why}
+```
+
+### 5d. Output Summary
+```
+=== IMPLEMENTATION COMPLETE ===
+Project: {name}
+Roadmap: {path}
+
+Deliverables: {N}/{N} complete
+Tests: {X} passed, 0 failed
+bun run check: PASS
 
 Files created:  [list]
 Files modified: [list]
-Tests: X passed, 0 failed
-bun run check: ✅ PASS
 
-Ready beads: [list next ready]
-Suggested next: <id> (<title>)
+Deferred to future-work.md:
+- {item} (reason)
+
+Next: /d-review → /ship
 ```
 
-## Multi-Agent Coordination (Agent Mail)
-When running multiple Claude Code instances (Conductor workspaces):
+---
 
-### At Session Start
-1. Check if Agent Mail server is running
-2. Register identity if available
-3. Check for messages from other agents
-4. Reserve files you plan to edit
+## THE LOOP RULE
+**NEVER STOP. NEVER ASK "should I continue?"**
+After completing a deliverable, IMMEDIATELY start the next one.
+Keep going until all deliverables are done and all 5 phases complete.
+The ONLY reasons to stop:
+1. All phases complete
+2. Genuinely blocked (needs user input, external service, credentials)
+3. User explicitly tells you to stop
 
-### During Work
-- Before editing a file: check if another agent has reserved it
-- If reserved: pick a different bead or wait
-- Announce in bead thread what you're working on
-
-### At Session End
-- Release file reservations
-- Announce completion of beads
-- `br sync --flush-only` to export
-
-## Environment Setup
-```sh
-export PATH="$HOME/.cargo/bin:$PATH"
-export BD_ACTOR="claude-agent"
-export RUST_LOG=error
-export BV_OUTPUT_FORMAT=toon
-```
-
-## THE LOOP RULE (most important rule)
-**NEVER STOP. NEVER ASK "should I continue?" NEVER pause between beads.**
-After closing a bead, IMMEDIATELY pick the next one and start coding.
-Keep going until `br ready` returns 0 actionable tasks. The ONLY reasons to stop:
-1. All beads are done (br ready returns nothing)
-2. You are genuinely blocked (needs user input, needs TTY, needs external service)
-3. The user explicitly tells you to stop
-Commit every 2-3 beads, but DO NOT pause for confirmation. Just commit and keep going.
+---
 
 ## Rules
-- NEVER skip the Build Order steps — even if the bead only mentions one file
-- NEVER close a bead without ALL checks passing (tests + typecheck + biome)
-- NEVER run bare `bv` — always use `--robot-*` flags
+- NEVER skip the Build Order — even if the deliverable only mentions one file
+- NEVER move to next deliverable with failing checks
+- NEVER close without the Completion Audit (Phase 3)
+- NEVER ignore dead exports — trace them back to the plan (Phase 4)
 - NEVER modify a file without reading its folder's CLAUDE.md first
-- ALWAYS run codebase audit (Step 0) before starting
-- ALWAYS claim before working (`br update <id> --claim`)
-- ALWAYS read the bead description fully before coding — it's the spec
+- ALWAYS write tests from ACCEPTANCE CRITERIA, not from your implementation
 - ALWAYS follow TDD: write failing test → make it pass → refactor
-- ALWAYS use `--suggest-next` when closing to chain work efficiently
-- ONE bead per cycle — don't batch multiple beads (unless they all modify the same file)
-- If a bead's description is insufficient, DON'T guess — update it with `br update`
-- If implementation reveals sub-tasks, create new beads with `--deps discovered-from:<id>`
+- ALWAYS run `bun run check` before declaring done
 - Security: validate all input via Zod, use throwError(), never log sensitive data
 - Performance: no N+1 queries, < 200ms API responses
-- Commit at natural completion points (every 2-3 beads, or when a feature is complete)
-- Run `br sync --flush-only` at session end to export JSONL for git
 - When done, ALWAYS suggest `/d-review` before `/ship`

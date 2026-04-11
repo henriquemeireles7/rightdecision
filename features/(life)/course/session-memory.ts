@@ -13,16 +13,3 @@ window.addEventListener("scroll",save,{passive:true});
 window.addEventListener("beforeunload",save);
 }catch(e){}})()`.replace(/\n/g, '')
 }
-
-/**
- * Client-side script to read session memory for dashboard "continue where you left off".
- * Returns the classId from session memory if it exists and is < 7 days old.
- */
-export function getSessionResumeScript(courseSlug: string): string {
-  return `(function(){try{
-var s=JSON.parse(localStorage.getItem("rd_session_${courseSlug}")||"{}");
-if(s.classId&&s.ts&&Date.now()-s.ts<604800000){
-var el=document.getElementById("resume-hint");
-if(el)el.style.display="block"}
-}catch(e){}})()`.replace(/\n/g, '')
-}

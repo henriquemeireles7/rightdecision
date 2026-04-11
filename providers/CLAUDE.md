@@ -85,16 +85,16 @@ bunx tsc --noEmit providers/*.ts
 |------|---------|
 | ai.ts | generateSuggestions |
 | analytics.ts | track, identify, shutdown |
-| content.ts | ClassType, DecisionBlockDef, ContentSegment, CourseClass, CourseModule, Course, splitIntoSegments, resolveClassId, getClass, getModule, getAllModules, getClassesByCourse, searchClasses, getTotalClasses, getCourse, getAllCourses |
+| content.ts | ClassType, DecisionBlockDef, ContentSegment, CourseClass, CourseModule, Course, splitIntoSegments, getClass, getModule, getAllModules, getClassesByCourse, searchClasses, getTotalClasses, getCourse, getAllCourses |
 | email.ts | email, sendEmail |
 | errors.ts | ProviderError |
 | indexnow.ts | submitUrls, loadSubmittedLog, saveSubmittedLog, getUnsubmittedUrls |
-| markdown.ts | BlogPostFrontmatter, ConceptFrontmatter, LegalFrontmatter, BlogPost, Concept, Legal, renderCourseMarkdown, parseFrontmatter, renderMarkdown, calculateReadTime, ParsedContentItem, ParsedContentFull, listContentFiles, getContentFile |
-| payments.ts | payments, plans, PlanInterval, PlanId, intervalFromPriceId |
-| profile.ts | QuickRef, ProfileData, ProfileReport, listProfiles, readProfile, getHealthScore, validateProfiles |
-| search-console.ts | isConfigured, getAccessToken, InspectionResult, inspectUrl, AnalyticsRow, getSearchAnalytics |
-| social-analytics.ts | PostMetrics, getMetrics |
-| social-posting.ts | PostResult, Profile, post, getPostStatus, listProfiles |
+| markdown.ts | BlogPostFrontmatter, ConceptFrontmatter, MethodFrontmatter, HandbookFrontmatter, GuideFrontmatter, HelpFrontmatter, ChangelogFrontmatter, LegalFrontmatter, renderCourseMarkdown, parseFrontmatter, renderMarkdown, calculateReadTime, ContentHeading, ParsedContentItem, listContentFiles, getContentFile |
+| payments.ts | payments, plans, intervalFromPriceId |
+| profile.ts | listProfiles, readProfile, getHealthScore, validateProfiles |
+| search-console.ts | isConfigured, getAccessToken, inspectUrl, getSearchAnalytics |
+| social-analytics.ts | getMetrics |
+| social-posting.ts | post, getPostStatus, listProfiles |
 | storage.ts | upload, download, getSignedUrl, remove |
 | transcription.ts | transcribe |
 
@@ -102,4 +102,4 @@ bunx tsc --noEmit providers/*.ts
 - platform/env
 - providers/errors
 
-<!-- Generated: 2026-04-09T09:30:25.865Z -->
+<!-- Generated: 2026-04-10T08:28:38.408Z -->

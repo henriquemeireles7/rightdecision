@@ -37,17 +37,12 @@ websiteRoutes.get('/my-page', (c) => {
 |------|---------|
 | about.tsx | AboutPage |
 | blog-index.tsx | BlogIndex |
-| blog-post.tsx | BlogPost |
-| blog-routes.tsx | blogRoutes |
-| concept-index.tsx | ConceptIndex |
-| concept-page.tsx | ConceptPage |
-| concept-routes.tsx | conceptRoutes |
 | homepage.tsx | Homepage, getHomepageProps |
 | layout.tsx | Layout |
 | legal-routes.tsx | legalRoutes |
 | og-image.ts | generateOgImage |
 | routes.tsx | websiteRoutes |
-| seo.ts | SeoConfig, renderMetaTags, renderJsonLd, buildArticleSchema, buildFaqSchema, buildOrganizationSchema, buildWebSiteSchema, buildPersonSchema, buildProductSchema, buildBreadcrumbSchema |
+| seo.ts | renderMetaTags, renderJsonLd, buildArticleSchema, buildFaqSchema, buildOrganizationSchema, buildWebSiteSchema, buildPersonSchema, buildProductSchema, buildBreadcrumbSchema |
 | sitemap.ts | sitemapRoutes |
 
 ## Internal Dependencies
@@ -56,4 +51,4 @@ websiteRoutes.get('/my-page', (c) => {
 - platform/server
 - providers/markdown
 
-<!-- Generated: 2026-04-09T09:30:25.859Z -->
+<!-- Generated: 2026-04-10T08:28:38.405Z -->

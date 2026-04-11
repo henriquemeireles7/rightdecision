@@ -1,12 +1,13 @@
 # Architecture — How We Design Systems
 
-> Last verified: 2026-04-08
-> Implementation patterns: decisions/coding.md
-> Deep dive: decisions/001-architecture.md (DSA original)
+> Last verified: 2026-04-09
+> Maturity context: decisions/product/context.md, decisions/harness/context.md
+> Implementation patterns: decisions/code.md
+> Deep dive: decisions/product/00-legacy/001-architecture.md (DSA original)
 
 ## When to Read This
-Before writing a PRD (d-prd), designing a new feature, or making any data/storage decision.
-This file defines the architectural PATTERNS. coding.md defines the implementation RULES.
+Before designing a new feature or making any data/storage decision.
+This file defines the architectural PATTERNS. code.md defines the implementation RULES.
 
 ---
 
@@ -163,6 +164,41 @@ Public-facing website at rightdecisions.io. All pages SSR'd via `renderPage()` �
 | `content/profiles/` | Persona profiles (markdown + learning + changelog) |
 
 ---
+
+## Scale Assumptions
+
+| Metric | V1 Target | V2 Trigger |
+|--------|-----------|------------|
+| Users | <1,000 | >5,000 concurrent |
+| Courses | 1 (Life Decisions) | 3+ courses |
+| BD tenants | 0 (dogfooding only) | First paying BD client |
+| DB size | <1GB | >10GB |
+| API requests | <100/min | >1,000/min |
+
+When V2 triggers hit, revisit: connection pooling, read replicas, CDN for static content, service extraction.
+
+## Error Propagation Pattern
+
+```
+Provider (external API) → Feature (business logic) → API (HTTP handler) → Client (user)
+    ↓ throws                   ↓ catches + wraps          ↓ maps to HTTP      ↓ sees message
+  ProviderError             throwError('CODE')          success()/error()    User-friendly text
+```
+
+- Providers throw raw errors (timeout, 429, malformed response)
+- Features catch and wrap with `throwError()` from platform/errors.ts
+- API layer maps error codes to HTTP status via responses.ts
+- Client sees user-friendly message, never raw errors
+- Every error is logged with full context (what was attempted, for whom)
+
+## Monolith Split Criteria
+
+Current architecture is a monolith. Do NOT split until ALL of these are true:
+1. Deploy takes >10 minutes (currently ~2 min)
+2. Two features need different scaling profiles (e.g., content pipeline at 100x vs auth at 1x)
+3. Team size >3 (currently 1 + AI agents)
+
+Split candidates when ready: content pipeline (CPU-heavy), BD tenant isolation, analytics ingestion.
 
 ## Decisions Log
 
