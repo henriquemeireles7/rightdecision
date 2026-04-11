@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.2.0] - 2026-04-10
+
+### Added
+- Maturity system: 12 principles, 10 categories, 3 domain context files (product, growth, harness)
+- Three-domain decisions/ structure: product/, growth/, harness/ with context.md per domain
+- Knip config in package.json for dead code detection as part of CI
+
+### Changed
+- Harness v2: 8 skills restructured, three-domain structure, token optimization
+- d-harness skill simplified: removed 3 automation scripts, manual classification instead
+- 38 dead exports un-exported or deleted across 22 files (kept internally where used)
+
+### Removed
+- Abandoned v1 onboarding funnel: onboarding-steps, rich-profile, paywall-screen (replaced by free-intro flow)
+- Old blog/concept route files (replaced by createContentRoutes() factory)
+- 4 obsolete build scripts: build-github-stars, build-search-index, build-timestamps, generate-context-files
+- 4 marginal skill scripts: build-order-check, classify-error, check-existing-rules, verify-prevention
+- Bun scaffold index.ts
+- Unused dependencies: posthog-js, fuse.js, drizzle-zod
+
 ## [0.3.1.0] - 2026-04-09
 
 ### Added
