@@ -23,3 +23,22 @@ import { assertTransition } from '@/features/(business)/workflow/state-machine'
 ```sh
 bun test features/\(business\)/clip-select/service.test.ts
 ```
+
+---
+<!-- AUTO-GENERATED BELOW — do not edit manually -->
+
+## Files
+| File | Exports |
+|------|---------|
+| routes.ts | clipSelectRoutes |
+| service.ts | clipSelectInputSchema, saveClipSelections |
+
+## Internal Dependencies
+- features/(business)
+- platform/auth
+- platform/db
+- platform/errors
+- platform/server
+- platform/types
+
+<!-- Generated: 2026-04-10T08:28:38.395Z -->

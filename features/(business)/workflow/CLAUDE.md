@@ -28,14 +28,13 @@ bun test features/\(business\)/workflow/
 ## Files
 | File | Exports |
 |------|---------|
-| config.ts | workflowConfigSchema, WorkflowConfig, defaultConfig |
+| config.ts | workflowConfigSchema |
 | preconditions.ts | assertStatus, assertTranscriptExists, assertApprovedClipsExist, assertCutClipsExist, assertScheduledPostsExist, PreconditionError |
 | state-machine.ts | PipelineStatus, assertTransition, getValidTransitions, InvalidTransitionError |
-| transitions.ts | transitionPipeline, findRunInState |
+| transitions.ts | transitionPipeline, failPipeline, findRunInState |
 
 ## Internal Dependencies
 - features/(business)
 - platform/db
-- platform/errors
 
-<!-- Generated: 2026-04-08T05:22:13.825Z -->
+<!-- Generated: 2026-04-10T08:28:38.398Z -->

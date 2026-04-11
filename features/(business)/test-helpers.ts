@@ -45,11 +45,6 @@ export function casResult(id = 'run-1') {
   })
 }
 
-/** Basic db.update mock chain with CAS support */
-export function mockUpdateWithCas(id = 'run-1') {
-  return () => ({ set: () => ({ where: () => casResult(id) }) })
-}
-
 /** Transaction mock — wraps a mock tx object through the callback */
 export function mockTransaction(tx: Record<string, unknown>) {
   return (fn: (t: typeof tx) => Promise<unknown>) => fn(tx)

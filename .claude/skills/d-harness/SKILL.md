@@ -29,18 +29,7 @@ The user provides one of:
 ## The Loop: Error → Classify → Encode → Verify
 
 ### Step 1: Classify the Error
-Run the classification script:
-```sh
-bun .claude/skills/d-harness/scripts/classify-error.ts "<error description or paste>"
-```
-
-This outputs a structured classification:
-- **Layer**: hook | claude-md | config | script | universal-file
-- **Category**: build | runtime | logic | config | deploy | security | performance
-- **Severity**: critical | high | medium | low
-- **Recurrence risk**: high (systematic) | medium (conditional) | low (one-off)
-
-If the script can't classify (ambiguous error), classify manually using these rules:
+Classify the error manually using these rules:
 - Machine-checkable pattern → **hook** (deterministic enforcement)
 - Judgment-required pattern → **CLAUDE.md** (advisory guidance)
 - Config mismatch → **config file** (biome.json, tsconfig, railway.toml, Dockerfile)
@@ -48,12 +37,7 @@ If the script can't classify (ambiguous error), classify manually using these ru
 - Strategic/architectural → **universal file** (decisions/*.md)
 
 ### Step 2: Check for Existing Rules
-Run the rule checker:
-```sh
-bun .claude/skills/d-harness/scripts/check-existing-rules.ts "<error keyword>"
-```
-
-This searches:
+Search the harness layers for existing prevention rules. Check:
 - All CLAUDE.md files (root + folders)
 - All hook scripts in .claude/hooks/
 - Config files (biome.json, tsconfig.json, railway.toml)
@@ -111,14 +95,9 @@ Update the relevant `decisions/*.md` file:
 - `health.md` → security/performance findings
 
 ### Step 4: Verify the Rule
-Run the verification script:
-```sh
-bun .claude/skills/d-harness/scripts/verify-prevention.ts "<original error>" "<rule location>"
-```
-
-This checks:
+Manually verify:
 - The rule file exists and is syntactically valid
-- The rule would have caught the original error (simulation)
+- The rule would have caught the original error
 - The rule doesn't conflict with existing rules
 - If it's a hook, it's registered in settings.json
 

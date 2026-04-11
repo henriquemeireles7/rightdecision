@@ -12,7 +12,7 @@ export const insightInputSchema = z.object({
   supportingData: z.record(z.string(), z.unknown()).optional(),
 })
 
-export type InsightInput = z.infer<typeof insightInputSchema>
+type InsightInput = z.infer<typeof insightInputSchema>
 
 export async function saveInsight(input: InsightInput) {
   const from = new Date(input.dateRange.from)

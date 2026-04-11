@@ -59,14 +59,3 @@ export async function getOverallProgress(userId: string) {
     percent: totalClasses > 0 ? Math.round((completedCount / totalClasses) * 100) : 0,
   }
 }
-
-export function getCurrentClass(completedClassIds: string[], moduleNum: number): string | null {
-  const mod = getModule(moduleNum)
-  if (!mod) return null
-
-  const completedSet = new Set(completedClassIds)
-  for (const cls of mod.classes) {
-    if (!completedSet.has(cls.id)) return cls.id
-  }
-  return null // all completed
-}

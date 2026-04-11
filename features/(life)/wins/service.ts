@@ -3,7 +3,7 @@ import { db } from '@/platform/db/client'
 import { wins } from '@/platform/db/schema'
 import { env } from '@/platform/env'
 
-export type LifeArea = 'health' | 'relationships' | 'career' | 'money'
+type LifeArea = 'health' | 'relationships' | 'career' | 'money'
 
 export async function createWin(userId: string, lifeArea: LifeArea, description: string) {
   // Rate limit check

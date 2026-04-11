@@ -1,4 +1,4 @@
-import { eq, lt } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { db } from '@/platform/db/client'
 import { onboardingProfiles, onboardingSessions } from '@/platform/db/schema'
 import { env } from '@/platform/env'
@@ -13,7 +13,7 @@ export type SessionData = {
   email?: string
 }
 
-export type OnboardingSession = {
+type OnboardingSession = {
   id: string
   sessionData: SessionData | null
   currentStep: number
@@ -93,13 +93,4 @@ export async function consumeSession(
   await db.delete(onboardingSessions).where(eq(onboardingSessions.id, sessionId))
 
   return { profileId: profile?.id ?? '' }
-}
-
-export async function expireSessions(): Promise<number> {
-  const result = await db
-    .delete(onboardingSessions)
-    .where(lt(onboardingSessions.expiresAt, new Date()))
-    .returning()
-
-  return result.length
 }

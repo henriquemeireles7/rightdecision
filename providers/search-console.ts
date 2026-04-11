@@ -52,7 +52,7 @@ export async function getAccessToken(): Promise<string | null> {
   return cachedToken
 }
 
-export type InspectionResult = {
+type InspectionResult = {
   verdict: string
   coverageState: string
   indexingState: string
@@ -106,7 +106,7 @@ export async function inspectUrl(
   }
 }
 
-export type AnalyticsRow = {
+type AnalyticsRow = {
   keys: string[]
   clicks: number
   impressions: number

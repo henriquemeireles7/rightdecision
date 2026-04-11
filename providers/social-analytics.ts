@@ -3,7 +3,7 @@ import { ProviderError } from '@/providers/errors'
 
 const BASE_URL = 'https://app.upload-post.com/api/v1'
 
-export interface PostMetrics {
+interface PostMetrics {
   views: number | null
   likes: number | null
   comments: number | null

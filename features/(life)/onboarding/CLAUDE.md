@@ -31,12 +31,10 @@ bun test features/onboarding/
 ## Files
 | File | Exports |
 |------|---------|
-| ab-test.ts | ABVariant, ABTest, ACTIVE_TESTS, assignVariant, assignAllVariants, getVariantContent |
+| ab-test.ts | ACTIVE_TESTS, assignVariant, assignAllVariants, getVariantContent |
 | link-subscription.ts | linkAccountAfterCreation |
-| onboarding-steps.tsx | Step1Welcome, Step2Intro, Step3Question, Step4Question, Step5Decision, Step6Email |
-| rich-profile.tsx | RichProfileScreen |
 | routes.ts | onboardingRoutes |
-| session.ts | SessionData, OnboardingSession, createSession, getSession, updateSession, consumeSession, expireSessions |
+| session.ts | SessionData, createSession, getSession, updateSession, consumeSession |
 
 ## Internal Dependencies
 - platform/db
@@ -44,4 +42,4 @@ bun test features/onboarding/
 - platform/errors
 - platform/server
 
-<!-- Generated: 2026-04-08T05:22:13.831Z -->
+<!-- Generated: 2026-04-10T08:28:38.403Z -->

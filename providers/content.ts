@@ -249,7 +249,7 @@ function loadContent() {
  * Resolve a classId through the redirects map (for renamed classes).
  * Returns the current classId, following redirect chains.
  */
-export function resolveClassId(classId: string): string {
+function resolveClassId(classId: string): string {
   loadContent()
   let resolved = classId
   let depth = 0

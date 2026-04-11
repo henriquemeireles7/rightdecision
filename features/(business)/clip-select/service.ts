@@ -4,7 +4,7 @@ import { findRunInState, transitionPipeline } from '@/features/(business)/workfl
 import { db } from '@/platform/db/client'
 import { clips, pipelineRuns } from '@/platform/db/schema'
 
-export const clipDefinitionSchema = z.object({
+const clipDefinitionSchema = z.object({
   sourceTimestampStart: z.number().int().min(0),
   sourceTimestampEnd: z.number().int().min(1),
   score: z.number().int().min(1).max(10).optional(),
@@ -13,7 +13,7 @@ export const clipDefinitionSchema = z.object({
   platformFit: z.array(z.string()).optional(),
 })
 
-export type ClipDefinition = z.infer<typeof clipDefinitionSchema>
+type ClipDefinition = z.infer<typeof clipDefinitionSchema>
 
 export const clipSelectInputSchema = z.object({
   pipelineRunId: z.string().uuid(),

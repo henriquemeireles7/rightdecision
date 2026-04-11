@@ -10,7 +10,3 @@ export const workflowConfigSchema = z.object({
   targetAccountIds: z.array(z.string().uuid()).optional(),
   schedulingMode: z.enum(['immediate', 'scheduled']).default('immediate'),
 })
-
-export type WorkflowConfig = z.infer<typeof workflowConfigSchema>
-
-export const defaultConfig: WorkflowConfig = workflowConfigSchema.parse({})

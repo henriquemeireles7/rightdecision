@@ -37,6 +37,33 @@
   "peerDependencies": {
     "typescript": "^5"
   },
+  "knip": {
+    "entry": [
+      "platform/server/index.ts"
+    ],
+    "project": [
+      "**/*.ts",
+      "**/*.tsx"
+    ],
+    "ignore": [
+      ".claude/hooks/**",
+      ".claude/hooks/lib/**",
+      ".claude/skills/**/scripts/**",
+      "styles/global.css",
+      "platform/scripts/seed-*.ts",
+      "platform/scripts/validate-block-ids.ts",
+      "**/test/index.ts",
+      "features/(shared)/website/blog-index.tsx",
+      "features/(life)/wins/wins-board.tsx",
+      "features/(life)/course/navigation.tsx",
+      "features/(life)/course/time-nudge.tsx",
+      "features/(shared)/drip-email/scheduler.ts",
+      "features/(shared)/website/docs/docs-scripts.ts"
+    ],
+    "ignoreDependencies": [
+      "tailwindcss"
+    ]
+  },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.86.1",
     "@aws-sdk/client-s3": "^3.1026.0",
@@ -46,15 +73,12 @@
     "@t3-oss/env-core": "^0.13.11",
     "better-auth": "^1.5.6",
     "drizzle-orm": "^0.45.2",
-    "drizzle-zod": "^0.8.3",
-    "fuse.js": "^7.3.0",
     "gray-matter": "^4.0.3",
     "hono": "^4.12.10",
     "isomorphic-dompurify": "^3.8.0",
     "jose": "^6.2.2",
     "marked": "^18.0.0",
     "postgres": "^3.4.8",
-    "posthog-js": "^1.365.1",
     "posthog-node": "^5.29.1",
     "preact": "^10.29.1",
     "preact-render-to-string": "^6.6.7",

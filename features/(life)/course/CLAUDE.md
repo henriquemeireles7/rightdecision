@@ -50,11 +50,11 @@ import { success } from '@/platform/server/responses'
 | navigation.tsx | getNavItems, Navigation |
 | page-routes.tsx | coursePageRoutes |
 | progress-routes.ts | progressApiRoutes |
-| progress.ts | markClassComplete, getUserProgress, getModuleProgress, getOverallProgress, getCurrentClass |
+| progress.ts | markClassComplete, getUserProgress, getModuleProgress, getOverallProgress |
 | reading-analytics-client.ts | getReadingAnalyticsScript |
 | reading-analytics.ts | logReading, getReadingStats |
 | search-routes.ts | searchRoutes |
-| session-memory.ts | getSessionMemoryScript, getSessionResumeScript |
+| session-memory.ts | getSessionMemoryScript |
 | share-routes.ts | shareRoutes |
 | share.ts | generateDecisionCard |
 | time-nudge.tsx | TimeNudge, DEFAULT_NUDGES |
@@ -71,4 +71,4 @@ import { success } from '@/platform/server/responses'
 - providers/content
 - providers/markdown
 
-<!-- Generated: 2026-04-09T09:30:25.855Z -->
+<!-- Generated: 2026-04-10T08:28:38.402Z -->

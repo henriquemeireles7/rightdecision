@@ -20,9 +20,7 @@ export const plans = {
   },
 } as const
 
-export type PlanInterval = 'month' | 'year'
-
-export type PlanId = keyof typeof plans
+type PlanInterval = 'month' | 'year'
 
 /** Derive billing interval from a Stripe price ID */
 export function intervalFromPriceId(priceId: string): PlanInterval {

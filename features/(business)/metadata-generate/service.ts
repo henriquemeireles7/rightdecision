@@ -5,7 +5,7 @@ import { db } from '@/platform/db/client'
 import { pipelineRuns, posts } from '@/platform/db/schema'
 import { track } from '@/providers/analytics'
 
-export const metadataItemSchema = z.object({
+const metadataItemSchema = z.object({
   clipId: z.string().uuid(),
   platformAccountId: z.string().uuid(),
   description: z.string().min(1),
@@ -13,7 +13,7 @@ export const metadataItemSchema = z.object({
   cta: z.string().optional(),
 })
 
-export type MetadataItem = z.infer<typeof metadataItemSchema>
+type MetadataItem = z.infer<typeof metadataItemSchema>
 
 export const metadataInputSchema = z.object({
   pipelineRunId: z.string().uuid(),

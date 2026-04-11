@@ -1,6 +1,6 @@
 import type { ComponentChildren } from 'preact'
 import type { z } from 'zod'
-import type { ContentHeading, ParsedContentItem } from '@/providers/markdown'
+import type { ParsedContentItem } from '@/providers/markdown'
 
 export type ContentType = 'handbook' | 'blog' | 'method' | 'guides' | 'help' | 'changelog'
 
@@ -32,22 +32,6 @@ export type SidebarItem = {
   href: string
   active: boolean
   subtitle?: string
-}
-
-export type DocsPageProps = {
-  contentType: ContentType
-  title: string
-  html: string
-  readTime: number
-  headings: ContentHeading[]
-  sidebar: SidebarSection[]
-  related?: ParsedContentItem[]
-  prev?: { title: string; href: string }
-  next?: { title: string; href: string }
-  showOnThisPage: boolean
-  showViewSource: boolean
-  sourceUrl?: string
-  lastUpdated?: string
 }
 
 export const CONTENT_TABS: { type: ContentType; label: string; href: string }[] = [

@@ -50,12 +50,12 @@ async function request<T>(
   return response.json() as Promise<T>
 }
 
-export interface PostResult {
+interface PostResult {
   id: string
   status: string
 }
 
-export interface Profile {
+interface Profile {
   id: string
   platform: string
   handle: string

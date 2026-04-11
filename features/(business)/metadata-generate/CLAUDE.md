@@ -13,3 +13,23 @@ Step 4 of BD pipeline. SKILL-DRIVEN RECEIVER: validates and saves metadata (desc
 ```sh
 bun test features/\(business\)/metadata-generate/service.test.ts
 ```
+
+---
+<!-- AUTO-GENERATED BELOW — do not edit manually -->
+
+## Files
+| File | Exports |
+|------|---------|
+| routes.ts | metadataRoutes |
+| service.ts | metadataInputSchema, saveMetadata |
+
+## Internal Dependencies
+- features/(business)
+- platform/auth
+- platform/db
+- platform/errors
+- platform/server
+- platform/types
+- providers/analytics
+
+<!-- Generated: 2026-04-10T08:28:38.396Z -->

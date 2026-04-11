@@ -31,7 +31,7 @@ bun test platform/auth/
 |------|---------|
 | config.ts | auth |
 | middleware.ts | requireAuth |
-| permissions.ts | permissions, Role, Permission, hasPermission, requirePermission |
+| permissions.ts | requirePermission |
 | routes.ts | authRoutes |
 
 ## Internal Dependencies
@@ -42,4 +42,4 @@ bun test platform/auth/
 - platform/types
 - providers/email
 
-<!-- Generated: 2026-04-09T06:41:37.136Z -->
+<!-- Generated: 2026-04-10T08:28:38.406Z -->

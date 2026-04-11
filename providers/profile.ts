@@ -15,7 +15,7 @@ const REQUIRED_SOCIAL_SECTIONS = [
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-export type QuickRef = {
+type QuickRef = {
   who: string
   for: string
   bigIdea: string
@@ -25,14 +25,14 @@ export type QuickRef = {
   lastLearning: string | null
 }
 
-export type ProfileData = {
+type ProfileData = {
   name: string
   profileContent: string
   socialContent: string
   quickRef: QuickRef
 }
 
-export type ProfileReport = {
+type ProfileReport = {
   valid: boolean
   profiles: Array<{
     name: string

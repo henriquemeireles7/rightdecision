@@ -5,9 +5,9 @@
  * Track conversion per variant in analytics.
  */
 
-export type ABVariant = 'A' | 'B'
+type ABVariant = 'A' | 'B'
 
-export type ABTest = {
+type ABTest = {
   name: string
   variants: { A: string; B: string }
 }
