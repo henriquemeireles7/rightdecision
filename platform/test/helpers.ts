@@ -6,7 +6,7 @@ import { errors } from '@/platform/errors'
  * Call a Hono app route in tests. Returns parsed JSON response.
  */
 export async function apiCall(
-  app: { fetch: (req: Request) => Promise<Response> },
+  app: { fetch: (req: Request) => Response | Promise<Response> },
   method: string,
   path: string,
   body?: unknown,
@@ -32,7 +32,7 @@ export async function apiCall(
  * Call a Hono app route with an auth session token.
  */
 export async function authenticatedRequest(
-  app: { fetch: (req: Request) => Promise<Response> },
+  app: { fetch: (req: Request) => Response | Promise<Response> },
   sessionToken: string,
   method: string,
   path: string,

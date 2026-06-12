@@ -1,27 +1,38 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterAll, beforeEach, describe, expect, it, mock } from 'bun:test'
+import {
+  clearDbOverride,
+  clearEnvOverride,
+  dbProxy,
+  envProxy,
+  setDbOverride,
+  setEnvOverride,
+} from '@/platform/test/mocks'
 
-mock.module('@/platform/env', () => ({
-  env: { DATABASE_URL: 'postgres://test', UPLOAD_POST_API_KEY: 'key' },
-}))
+mock.module('@/platform/env', () => ({ env: envProxy }))
+setEnvOverride({ DATABASE_URL: 'postgres://test', UPLOAD_POST_API_KEY: 'key' })
 
 const mockFindFirstRun = mock(() => Promise.resolve(null))
 const mockFindManyPosts = mock(() => Promise.resolve([]))
 const mockFindManyClips = mock(() => Promise.resolve([]))
 
-mock.module('@/platform/db/client', () => ({
-  db: {
-    query: {
-      pipelineRuns: { findFirst: () => mockFindFirstRun() },
-      posts: { findMany: () => mockFindManyPosts() },
-      clips: { findMany: () => mockFindManyClips() },
-    },
-    update: () => ({ set: () => ({ where: () => casResult() }) }),
+mock.module('@/platform/db/client', () => ({ db: dbProxy }))
+setDbOverride({
+  query: {
+    pipelineRuns: { findFirst: () => mockFindFirstRun() },
+    posts: { findMany: () => mockFindManyPosts() },
+    clips: { findMany: () => mockFindManyClips() },
   },
-}))
+  update: () => ({ set: () => ({ where: () => casResult() }) }),
+})
 
 import { casResult, mockSchema } from '@/features/(business)/test-helpers'
 
 mock.module('@/platform/db/schema', () => mockSchema())
+
+afterAll(() => {
+  clearDbOverride()
+  clearEnvOverride()
+})
 
 // Don't mock state-machine — it's pure logic, no external deps
 

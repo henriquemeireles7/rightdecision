@@ -4,6 +4,7 @@
 Test infrastructure shared by all integration and feature tests. Provides database lifecycle management, test data factories, and common assertion helpers. Every integration test imports from here — never roll your own test setup.
 
 ## Critical Rules
+- mock.module leaks process-wide — ALWAYS mock via the passthrough proxies in mocks.ts (`dbProxy`/`envProxy` + `setDbOverride`/`setEnvOverride`) with afterAll cleanup (`clearDbOverride`/`clearEnvOverride`); NEVER hand-roll mock.module replacements for db/env/schema
 - NEVER mock the database — use the real test DB via `setup.ts`
 - ALWAYS clean up test data after tests (transaction rollback in afterEach)
 - ALWAYS use factories from `factories.ts` to create test data — never hand-craft INSERT queries
@@ -39,3 +40,22 @@ describe('integration: my-feature', () => {
 ```sh
 bun test platform/test/
 ```
+
+---
+<!-- AUTO-GENERATED BELOW — do not edit manually -->
+
+## Files
+| File | Exports |
+|------|---------|
+| dom-preload.ts | — |
+| factories.ts | createTestUser, createTestSession, createTestSubscription, createTestWin, createTestOnboardingProfile, createTestPipelineRun, createTestProgram, createTestCohort, createTestCourse, createTestProgramCourse, createTestModule, createTestLesson, createTestEnrollment, createTestMaterial, createTestProgramMaterial, createTestLive, createTestPlatformAccount |
+| helpers.ts | apiCall, authenticatedRequest, assertError, assertSuccess |
+| index.ts | — |
+| mocks.ts | mockSchema |
+| setup.ts | testDb, setupTestDb, teardownTestDb |
+
+## Internal Dependencies
+- platform/db
+- platform/errors
+
+<!-- Generated: 2026-06-12T22:38:50.223Z -->

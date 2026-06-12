@@ -1,12 +1,19 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterAll, beforeEach, describe, expect, it, mock } from 'bun:test'
+import {
+  clearDbOverride,
+  clearEnvOverride,
+  dbProxy,
+  envProxy,
+  setDbOverride,
+  setEnvOverride,
+} from '@/platform/test/mocks'
 
 // Mock env
-mock.module('@/platform/env', () => ({
-  env: {
-    DATABASE_URL: 'postgres://test',
-    WHISPER_MODEL_PATH: 'models/test.bin',
-  },
-}))
+mock.module('@/platform/env', () => ({ env: envProxy }))
+setEnvOverride({
+  DATABASE_URL: 'postgres://test',
+  WHISPER_MODEL_PATH: 'models/test.bin',
+})
 
 // Mock DB
 const mockInsert = mock(() => ({
@@ -24,41 +31,45 @@ const mockFindFirst = mock(() =>
 )
 const mockFindMany = mock(() => Promise.resolve([]))
 
-mock.module('@/platform/db/client', () => ({
-  db: {
-    insert: () => ({
-      values: () => ({
-        returning: () =>
-          Promise.resolve([{ id: 'run-1', inputVideoUrl: 'episodes/video.mp4', status: 'queued' }]),
-      }),
+mock.module('@/platform/db/client', () => ({ db: dbProxy }))
+setDbOverride({
+  insert: () => ({
+    values: () => ({
+      returning: () =>
+        Promise.resolve([{ id: 'run-1', inputVideoUrl: 'episodes/video.mp4', status: 'queued' }]),
     }),
-    update: () => ({
-      set: (data: unknown) => ({
-        where: () => {
-          // If setting transcript, prepare the findFirst to return updated
-          if (data && typeof data === 'object' && 'transcript' in data) {
-            mockFindFirst.mockResolvedValueOnce({
-              id: 'run-1',
-              inputVideoUrl: 'episodes/video.mp4',
-              status: 'transcribed',
-              transcript: '[00:00:01] Hello world',
-            } as never)
-          }
-          return casResult('run-1')
-        },
-      }),
+  }),
+  update: () => ({
+    set: (data: unknown) => ({
+      where: () => {
+        // If setting transcript, prepare the findFirst to return updated
+        if (data && typeof data === 'object' && 'transcript' in data) {
+          mockFindFirst.mockResolvedValueOnce({
+            id: 'run-1',
+            inputVideoUrl: 'episodes/video.mp4',
+            status: 'transcribed',
+            transcript: '[00:00:01] Hello world',
+          } as never)
+        }
+        return casResult('run-1')
+      },
     }),
-    select: () => ({ from: () => Promise.resolve([{ count: 5 }]) }),
-    query: {
-      pipelineRuns: { findFirst: () => mockFindFirst(), findMany: mockFindMany },
-      clips: { findMany: mock(() => Promise.resolve([])) },
-    },
+  }),
+  select: () => ({ from: () => Promise.resolve([{ count: 5 }]) }),
+  query: {
+    pipelineRuns: { findFirst: () => mockFindFirst(), findMany: mockFindMany },
+    clips: { findMany: mock(() => Promise.resolve([])) },
   },
-}))
+})
 
 import { casResult, mockSchema } from '@/features/(business)/test-helpers'
 
 mock.module('@/platform/db/schema', () => mockSchema())
+
+afterAll(() => {
+  clearDbOverride()
+  clearEnvOverride()
+})
 
 // Mock state machine
 // Don't mock state-machine — it's pure logic with no external deps.

@@ -1,42 +1,7 @@
-/** Full schema mock — prevents Bun mock.module leakage between test files */
-export function mockSchema() {
-  return {
-    users: {},
-    sessions: {},
-    accounts: {},
-    verifications: {},
-    purchases: {},
-    subscriptions: {},
-    courseProgress: {},
-    onboardingSessions: {},
-    onboardingProfiles: {},
-    wins: {},
-    bookmarks: {},
-    platformAccounts: { id: 'id', platform: 'platform' },
-    pipelineRuns: {
-      id: 'id',
-      status: 'status',
-      createdAt: 'created_at',
-      inputVideoUrl: 'input_video_url',
-    },
-    clips: {
-      id: 'id',
-      pipelineRunId: 'pipeline_run_id',
-      approved: 'approved',
-      sourceTimestampStart: 'source_timestamp_start',
-    },
-    posts: {
-      id: 'id',
-      status: 'status',
-      clipId: 'clip_id',
-      platformAccountId: 'platform_account_id',
-      postedAt: 'posted_at',
-      uploadPostId: 'upload_post_id',
-    },
-    postAnalytics: { snapshotAt: 'snapshot_at', postId: 'post_id' },
-    insights: { createdAt: 'created_at' },
-  }
-}
+/** Returns the REAL schema module — see platform/test/mocks.ts.
+ * Bun's mock.module leaks process-wide, so schema mocks must hand back the
+ * real tables or later-loaded integration tests crash on real inserts. */
+export { mockSchema } from '@/platform/test/mocks'
 
 /** Promise that also supports .returning() for CAS update mocks */
 export function casResult(id = 'run-1') {

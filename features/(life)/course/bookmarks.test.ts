@@ -1,9 +1,16 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
-import { mockSchema } from '@/platform/test/mocks'
+import { afterAll, beforeEach, describe, expect, it, mock } from 'bun:test'
+import {
+  clearDbOverride,
+  clearEnvOverride,
+  dbProxy,
+  envProxy,
+  mockSchema,
+  setDbOverride,
+  setEnvOverride,
+} from '@/platform/test/mocks'
 
-mock.module('@/platform/env', () => ({
-  env: { DATABASE_URL: 'postgres://test' },
-}))
+mock.module('@/platform/env', () => ({ env: envProxy }))
+setEnvOverride({ DATABASE_URL: 'postgres://test' })
 
 const mockFindFirst = mock(() => Promise.resolve(null))
 const mockFindMany = mock(() => Promise.resolve([]))
@@ -13,17 +20,21 @@ const mockOnConflictDoNothing = mock(() => Promise.resolve())
 const mockInsertValues = mock(() => ({ onConflictDoNothing: mockOnConflictDoNothing }))
 const mockInsert = mock(() => ({ values: mockInsertValues }))
 
-mock.module('@/platform/db/client', () => ({
-  db: {
-    query: {
-      bookmarks: { findFirst: mockFindFirst, findMany: mockFindMany },
-    },
-    delete: mockDelete,
-    insert: mockInsert,
+mock.module('@/platform/db/client', () => ({ db: dbProxy }))
+setDbOverride({
+  query: {
+    bookmarks: { findFirst: mockFindFirst, findMany: mockFindMany },
   },
-}))
+  delete: mockDelete,
+  insert: mockInsert,
+})
 
 mock.module('@/platform/db/schema', () => mockSchema())
+
+afterAll(() => {
+  clearDbOverride()
+  clearEnvOverride()
+})
 
 const { toggleBookmark, getUserBookmarks, isBookmarked } = await import('./bookmarks')
 

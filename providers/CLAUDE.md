@@ -13,6 +13,9 @@ Thin wrappers around external services. One file per capability, named by WHAT i
 - ALWAYS throw ProviderError on failure — NEVER let raw SDK/HTTP errors leak to features
 - ProviderError shape: `{ provider: string, operation: string, statusCode: number, rawResponse: unknown }`
 - Feature layer catches ProviderError and maps to the appropriate throwError() code
+- Providers NEVER import other providers — image-gen.ts returns bytes; the CALLER uploads via storage.ts (TD-8)
+- Optional-env providers (R2_*, CLOUDFLARE_*, IMAGE_GEN_*) throw ProviderError at runtime when vars are absent — schema stays optional so dev/CI boot without secrets
+- Integration tests live in `*.integration.test.ts` and ALWAYS use `describe.skipIf(!process.env.THE_KEY)` so they skip in CI (see storage.integration.test.ts)
 
 ## payments.ts (Stripe)
 - Docs: https://docs.stripe.com/api
@@ -29,11 +32,34 @@ Thin wrappers around external services. One file per capability, named by WHAT i
 - Use `sendEmail(to, subject, html)` helper — NEVER call `email.emails.send()` directly from features
 - HTML emails only (no plain text fallback needed for now)
 
+## video.ts (Cloudflare Stream)
+- Docs: https://developers.cloudflare.com/stream/
+- Exports: `createTusUploadUrl`, `getVideo`, `signPlaybackToken`, `verifyWebhookSignature`, `parseWebhookEvent`, `generateCaptions`
+- Uploads: tus direct creator upload — `createTusUploadUrl()` returns `{ uploadUrl, streamVideoId }` from the `Location` + `stream-media-id` response headers (eng-schema M5)
+- Playback: `signPlaybackToken()` self-signs a JWT via jose with `CLOUDFLARE_STREAM_SIGNING_KEY_ID` + base64 `CLOUDFLARE_STREAM_SIGNING_KEY_JWK` — NEVER call the Cloudflare API per playback (TD-6)
+- Webhooks: `verifyWebhookSignature()` checks Stream's `Webhook-Signature: time=...,sig1=...` header — HMAC-SHA256 of `${time}.${body}`, constant-time compare, timestamps older than 5 min rejected (S4)
+- Captions: `generateCaptions()` hits Stream's `captions/{lang}/generate` endpoint (AI-generated captions)
+- All functions throw ProviderError when CLOUDFLARE_* env vars are absent (optional-env pattern, like storage.ts)
+
+## image-gen.ts (cover art generation, ADR 18)
+- Returns RAW BYTES (`Uint8Array`) — NEVER uploads, NEVER imports providers/storage; the calling feature owns storage (TD-8)
+- `MASTER_PROMPT` is the versioned master cover prompt (bump `COVER_PROMPT_VERSION` on any change) — module subject is the ONLY variable
+- Palette-locked warm family with hex anchors; painterly editorial illustration, scene/object-based; NO text/typography, NO human faces, NO purple/neon/blue-dominant
+- Aspects: `'2:3'` (module covers) and `'16:9'` (lesson thumbnails) — fixed crops happen downstream
+- Vendor swap surface is ONE function (`generateCoverImage`) behind `IMAGE_GEN_API_KEY` — change the endpoint/model constants, the interface stays
+
+## storage.ts (R2)
+- `getSignedUrl()` = presigned GET; `getUploadUrl()` = presigned PUT (eng-schema M5)
+- `getUploadUrl()` rejects path-traversal keys (`..` segments, leading `/`, backslashes, NUL) with ProviderError 400
+
 ## Imports (use from other modules)
 ```ts
 import { payments, plans } from '@/providers/payments'
 import type { PlanId } from '@/providers/payments'
 import { sendEmail } from '@/providers/email'
+import { createTusUploadUrl, signPlaybackToken, verifyWebhookSignature, parseWebhookEvent } from '@/providers/video'
+import { generateCoverImage, MASTER_PROMPT } from '@/providers/image-gen'
+import { getUploadUrl } from '@/providers/storage'
 ```
 
 ## ProviderError Pattern
@@ -88,6 +114,7 @@ bunx tsc --noEmit providers/*.ts
 | content.ts | ClassType, DecisionBlockDef, ContentSegment, CourseClass, CourseModule, Course, splitIntoSegments, getClass, getModule, getAllModules, getClassesByCourse, searchClasses, getTotalClasses, getCourse, getAllCourses |
 | email.ts | email, sendEmail |
 | errors.ts | ProviderError |
+| image-gen.ts | COVER_PROMPT_VERSION, MASTER_PROMPT, CoverImageOptions, generateCoverImage |
 | indexnow.ts | submitUrls, loadSubmittedLog, saveSubmittedLog, getUnsubmittedUrls |
 | markdown.ts | BlogPostFrontmatter, ConceptFrontmatter, MethodFrontmatter, HandbookFrontmatter, GuideFrontmatter, HelpFrontmatter, ChangelogFrontmatter, LegalFrontmatter, renderCourseMarkdown, parseFrontmatter, renderMarkdown, calculateReadTime, ContentHeading, ParsedContentItem, listContentFiles, getContentFile |
 | payments.ts | payments, plans, intervalFromPriceId |
@@ -95,11 +122,12 @@ bunx tsc --noEmit providers/*.ts
 | search-console.ts | isConfigured, getAccessToken, inspectUrl, getSearchAnalytics |
 | social-analytics.ts | getMetrics |
 | social-posting.ts | post, getPostStatus, listProfiles |
-| storage.ts | upload, download, getSignedUrl, remove |
+| storage.ts | upload, download, getSignedUrl, getUploadUrl, remove |
 | transcription.ts | transcribe |
+| video.ts | TusUploadOptions, createTusUploadUrl, getVideo, StreamVideo, AccessRule, PlaybackTokenOptions, signPlaybackToken, verifyWebhookSignature, StreamWebhookEvent, parseWebhookEvent, CaptionGeneration, generateCaptions |
 
 ## Internal Dependencies
 - platform/env
 - providers/errors
 
-<!-- Generated: 2026-04-10T08:28:38.408Z -->
+<!-- Generated: 2026-06-12T22:38:50.282Z -->

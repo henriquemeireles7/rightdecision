@@ -46,6 +46,9 @@ bunx tsc --noEmit platform/env.ts platform/errors.ts platform/types.ts
 | env.ts | env |
 | errors.ts | errors, ErrorCode, throwError |
 | rate-limit.ts | checkRateLimit |
-| types.ts | AppUser, AppEnv |
+| types.ts | AppUser, Enrollment, AppEnv |
 
-<!-- Generated: 2026-04-09T09:30:25.861Z -->
+## Internal Dependencies
+- platform/db
+
+<!-- Generated: 2026-06-12T22:38:50.223Z -->

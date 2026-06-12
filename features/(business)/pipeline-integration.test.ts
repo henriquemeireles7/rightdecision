@@ -1,10 +1,17 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
-import { mockSchema } from '@/platform/test/mocks'
+import { afterAll, beforeEach, describe, expect, it, mock } from 'bun:test'
+import {
+  clearDbOverride,
+  clearEnvOverride,
+  dbProxy,
+  envProxy,
+  mockSchema,
+  setDbOverride,
+  setEnvOverride,
+} from '@/platform/test/mocks'
 
 // ── Mock env ──────────────────────────────────────────────────────────
-mock.module('@/platform/env', () => ({
-  env: { DATABASE_URL: 'postgres://test', WHISPER_MODEL_PATH: 'models/test.bin' },
-}))
+mock.module('@/platform/env', () => ({ env: envProxy }))
+setEnvOverride({ DATABASE_URL: 'postgres://test', WHISPER_MODEL_PATH: 'models/test.bin' })
 
 // ── Mock analytics (no-op) ────────────────────────────────────────────
 mock.module('@/providers/analytics', () => ({ track: () => {} }))
@@ -250,28 +257,19 @@ function makeDbMock() {
   }
 }
 
-const mockSchemaRef = {
-  pipelineRuns: Symbol('pipelineRuns'),
-  clips: Symbol('clips'),
-  posts: Symbol('posts'),
-  postAnalytics: Symbol('postAnalytics'),
-  insights: Symbol('insights'),
-  platformAccounts: Symbol('platformAccounts'),
-}
+// Real schema tables — services receive the same objects from the (real)
+// schema mock below, so identity dispatch in makeDbMock keeps working.
+const mockSchemaRef = mockSchema()
 
-mock.module('@/platform/db/client', () => ({
-  db: makeDbMock(),
-}))
+mock.module('@/platform/db/client', () => ({ db: dbProxy }))
+setDbOverride(makeDbMock())
 
-mock.module('@/platform/db/schema', () => ({
-  ...mockSchema(),
-  platformAccounts: mockSchemaRef.platformAccounts,
-  pipelineRuns: mockSchemaRef.pipelineRuns,
-  clips: mockSchemaRef.clips,
-  posts: mockSchemaRef.posts,
-  postAnalytics: mockSchemaRef.postAnalytics,
-  insights: mockSchemaRef.insights,
-}))
+mock.module('@/platform/db/schema', () => mockSchema())
+
+afterAll(() => {
+  clearDbOverride()
+  clearEnvOverride()
+})
 
 // ── Import state machine (pure logic, no mocking needed) ──────────────
 import {

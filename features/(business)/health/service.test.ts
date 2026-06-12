@@ -1,14 +1,25 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterAll, beforeEach, describe, expect, it, mock } from 'bun:test'
+import {
+  clearDbOverride,
+  clearEnvOverride,
+  dbProxy,
+  envProxy,
+  setDbOverride,
+  setEnvOverride,
+} from '@/platform/test/mocks'
 
-mock.module('@/platform/env', () => ({
-  env: { DATABASE_URL: 'postgres://test' },
-}))
+mock.module('@/platform/env', () => ({ env: envProxy }))
+setEnvOverride({ DATABASE_URL: 'postgres://test' })
 
 // Mock DB
 const mockExecute = mock(() => Promise.resolve([{ result: 1 }]))
-mock.module('@/platform/db/client', () => ({
-  db: { execute: mockExecute },
-}))
+mock.module('@/platform/db/client', () => ({ db: dbProxy }))
+setDbOverride({ execute: mockExecute })
+
+afterAll(() => {
+  clearDbOverride()
+  clearEnvOverride()
+})
 
 // Mock storage
 const mockUpload = mock(() => Promise.resolve('test/health-check'))

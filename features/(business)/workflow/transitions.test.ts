@@ -1,8 +1,15 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterAll, beforeEach, describe, expect, it, mock } from 'bun:test'
+import {
+  clearDbOverride,
+  clearEnvOverride,
+  dbProxy,
+  envProxy,
+  setDbOverride,
+  setEnvOverride,
+} from '@/platform/test/mocks'
 
-mock.module('@/platform/env', () => ({
-  env: { DATABASE_URL: 'postgres://test' },
-}))
+mock.module('@/platform/env', () => ({ env: envProxy }))
+setEnvOverride({ DATABASE_URL: 'postgres://test' })
 
 const mockFindFirst = mock(() => Promise.resolve(null))
 const mockReturning = mock(() => Promise.resolve([{ id: 'run-1' }]))
@@ -10,18 +17,22 @@ const mockUpdateWhere = mock(() => ({ returning: mockReturning }))
 const mockUpdateSet = mock(() => ({ where: mockUpdateWhere }))
 const mockUpdate = mock(() => ({ set: mockUpdateSet }))
 
-mock.module('@/platform/db/client', () => ({
-  db: {
-    query: {
-      pipelineRuns: { findFirst: mockFindFirst },
-    },
-    update: mockUpdate,
+mock.module('@/platform/db/client', () => ({ db: dbProxy }))
+setDbOverride({
+  query: {
+    pipelineRuns: { findFirst: mockFindFirst },
   },
-}))
+  update: mockUpdate,
+})
 
 import { mockSchema } from '@/features/(business)/test-helpers'
 
 mock.module('@/platform/db/schema', () => mockSchema())
+
+afterAll(() => {
+  clearDbOverride()
+  clearEnvOverride()
+})
 
 // Don't mock state-machine — it's pure logic
 const { transitionPipeline, findRunInState, failPipeline } = await import('./transitions')

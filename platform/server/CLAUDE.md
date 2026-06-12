@@ -53,4 +53,4 @@ bunx tsc --noEmit platform/server/app.ts && bun test platform/server/
 - providers/email
 - providers/payments
 
-<!-- Generated: 2026-04-10T08:28:38.407Z -->
+<!-- Generated: 2026-06-12T22:38:50.222Z -->

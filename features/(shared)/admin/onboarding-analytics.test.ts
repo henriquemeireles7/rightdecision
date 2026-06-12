@@ -1,21 +1,32 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
-import { mockSchema } from '@/platform/test/mocks'
+import { afterAll, beforeEach, describe, expect, it, mock } from 'bun:test'
+import {
+  clearDbOverride,
+  clearEnvOverride,
+  dbProxy,
+  envProxy,
+  mockSchema,
+  setDbOverride,
+  setEnvOverride,
+} from '@/platform/test/mocks'
 
-mock.module('@/platform/env', () => ({
-  env: { DATABASE_URL: 'postgres://test' },
-}))
+mock.module('@/platform/env', () => ({ env: envProxy }))
+setEnvOverride({ DATABASE_URL: 'postgres://test' })
 
 const mockSelectFrom = mock(() => Promise.resolve([{ count: 5 }]))
 const mockSelect = mock(() => ({ from: mockSelectFrom }))
 const _mockGroupBy = mock(() => ({ orderBy: mock(() => Promise.resolve([{ step: 1, count: 3 }])) }))
 
-mock.module('@/platform/db/client', () => ({
-  db: {
-    select: mockSelect,
-  },
-}))
+mock.module('@/platform/db/client', () => ({ db: dbProxy }))
+setDbOverride({
+  select: mockSelect,
+})
 
 mock.module('@/platform/db/schema', () => mockSchema())
+
+afterAll(() => {
+  clearDbOverride()
+  clearEnvOverride()
+})
 
 const { getOnboardingAnalytics } = await import('./onboarding-analytics')
 

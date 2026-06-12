@@ -67,6 +67,37 @@ export async function getSignedUrl(key: string, expiresIn = 3600): Promise<strin
   }
 }
 
+/** Reject path-traversal / unsafe keys before signing client-controlled upload URLs. */
+function assertSafeKey(key: string, operation: string): void {
+  const unsafe =
+    key.length === 0 ||
+    key.startsWith('/') ||
+    key.includes('\\') ||
+    key.includes('\0') ||
+    key.split('/').some((segment) => segment === '..' || segment === '.')
+  if (unsafe) {
+    throw new ProviderError('r2', operation, 400, `Unsafe storage key: ${JSON.stringify(key)}`)
+  }
+}
+
+/** Presigned PUT for direct client uploads (eng-schema M5). Mirror of getSignedUrl's GET. */
+export async function getUploadUrl(
+  key: string,
+  contentType: string,
+  expiresIn = 3600,
+): Promise<string> {
+  assertSafeKey(key, 'getUploadUrl')
+  try {
+    return await awsGetSignedUrl(
+      client,
+      new PutObjectCommand({ Bucket: bucket, Key: key, ContentType: contentType }),
+      { expiresIn },
+    )
+  } catch (error) {
+    throw new ProviderError('r2', 'getUploadUrl', 500, error)
+  }
+}
+
 export async function remove(key: string): Promise<void> {
   try {
     await client.send(new DeleteObjectCommand({ Bucket: bucket, Key: key }))

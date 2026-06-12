@@ -1,12 +1,14 @@
-import { describe, expect, mock, test } from 'bun:test'
+import { afterAll, describe, expect, mock, test } from 'bun:test'
+import { clearEnvOverride, envProxy, setEnvOverride } from '@/platform/test/mocks'
 
 // Mock env without credentials
-mock.module('@/platform/env', () => ({
-  env: {
-    GOOGLE_SERVICE_ACCOUNT_JSON: undefined,
-    PUBLIC_APP_URL: 'https://rightdecisions.io',
-  },
-}))
+mock.module('@/platform/env', () => ({ env: envProxy }))
+setEnvOverride({
+  GOOGLE_SERVICE_ACCOUNT_JSON: undefined,
+  PUBLIC_APP_URL: 'https://rightdecisions.io',
+})
+
+afterAll(clearEnvOverride)
 
 describe('search-console (unconfigured)', () => {
   test('isConfigured returns false when env var not set', async () => {

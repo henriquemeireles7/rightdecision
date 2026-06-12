@@ -1,6 +1,15 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterAll, beforeEach, describe, expect, it, mock } from 'bun:test'
+import {
+  clearDbOverride,
+  clearEnvOverride,
+  dbProxy,
+  envProxy,
+  setDbOverride,
+  setEnvOverride,
+} from '@/platform/test/mocks'
 
-mock.module('@/platform/env', () => ({ env: { DATABASE_URL: 'postgres://test' } }))
+mock.module('@/platform/env', () => ({ env: envProxy }))
+setEnvOverride({ DATABASE_URL: 'postgres://test' })
 
 const mockSelectCount = mock(() => Promise.resolve([{ count: 100 }]))
 const mockInsertReturning = mock(() =>
@@ -8,17 +17,21 @@ const mockInsertReturning = mock(() =>
 )
 const mockFindMany = mock(() => Promise.resolve([]))
 
-mock.module('@/platform/db/client', () => ({
-  db: {
-    select: () => ({ from: () => ({ where: () => mockSelectCount() }) }),
-    insert: () => ({ values: () => ({ returning: () => mockInsertReturning() }) }),
-    query: { insights: { findMany: () => mockFindMany() } },
-  },
-}))
+mock.module('@/platform/db/client', () => ({ db: dbProxy }))
+setDbOverride({
+  select: () => ({ from: () => ({ where: () => mockSelectCount() }) }),
+  insert: () => ({ values: () => ({ returning: () => mockInsertReturning() }) }),
+  query: { insights: { findMany: () => mockFindMany() } },
+})
 
 import { mockSchema } from '@/features/(business)/test-helpers'
 
 mock.module('@/platform/db/schema', () => mockSchema())
+
+afterAll(() => {
+  clearDbOverride()
+  clearEnvOverride()
+})
 
 const { saveInsight } = await import('./service')
 

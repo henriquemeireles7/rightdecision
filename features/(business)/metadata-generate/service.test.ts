@@ -1,6 +1,15 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterAll, beforeEach, describe, expect, it, mock } from 'bun:test'
+import {
+  clearDbOverride,
+  clearEnvOverride,
+  dbProxy,
+  envProxy,
+  setDbOverride,
+  setEnvOverride,
+} from '@/platform/test/mocks'
 
-mock.module('@/platform/env', () => ({ env: { DATABASE_URL: 'postgres://test' } }))
+mock.module('@/platform/env', () => ({ env: envProxy }))
+setEnvOverride({ DATABASE_URL: 'postgres://test' })
 
 const mockFindFirstRun = mock(() => Promise.resolve(null))
 const mockFindManyAccounts = mock(() => Promise.resolve([]))
@@ -17,22 +26,26 @@ const mockTx = {
   update: () => ({ set: () => ({ where: () => Promise.resolve() }) }),
 }
 
-mock.module('@/platform/db/client', () => ({
-  db: {
-    query: {
-      pipelineRuns: { findFirst: () => mockFindFirstRun() },
-      platformAccounts: { findMany: () => mockFindManyAccounts() },
-      posts: { findFirst: () => mockFindFirstPost() },
-    },
-    update: () => ({ set: () => ({ where: () => casResult() }) }),
-    insert: () => ({ values: () => ({ returning: () => mockInsertPost() }) }),
-    transaction: mockTransaction(mockTx),
+mock.module('@/platform/db/client', () => ({ db: dbProxy }))
+setDbOverride({
+  query: {
+    pipelineRuns: { findFirst: () => mockFindFirstRun() },
+    platformAccounts: { findMany: () => mockFindManyAccounts() },
+    posts: { findFirst: () => mockFindFirstPost() },
   },
-}))
+  update: () => ({ set: () => ({ where: () => casResult() }) }),
+  insert: () => ({ values: () => ({ returning: () => mockInsertPost() }) }),
+  transaction: mockTransaction(mockTx),
+})
 
 import { casResult, mockSchema, mockTransaction } from '@/features/(business)/test-helpers'
 
 mock.module('@/platform/db/schema', () => mockSchema())
+
+afterAll(() => {
+  clearDbOverride()
+  clearEnvOverride()
+})
 
 // Don't mock state-machine — it's pure logic, no external deps
 

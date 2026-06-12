@@ -1,27 +1,38 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterAll, beforeEach, describe, expect, it, mock } from 'bun:test'
+import {
+  clearDbOverride,
+  clearEnvOverride,
+  dbProxy,
+  envProxy,
+  setDbOverride,
+  setEnvOverride,
+} from '@/platform/test/mocks'
 import { ProviderError } from '@/providers/errors'
 
-mock.module('@/platform/env', () => ({
-  env: { DATABASE_URL: 'postgres://test' },
-}))
+mock.module('@/platform/env', () => ({ env: envProxy }))
+setEnvOverride({ DATABASE_URL: 'postgres://test' })
 
 const mockFindFirstRun = mock(() => Promise.resolve(null))
 const mockFindManyClips = mock(() => Promise.resolve([]))
 
-mock.module('@/platform/db/client', () => ({
-  db: {
-    query: {
-      pipelineRuns: { findFirst: () => mockFindFirstRun() },
-      clips: { findMany: () => mockFindManyClips() },
-    },
-    update: () => ({ set: () => ({ where: () => casResult() }) }),
-    delete: () => ({ where: () => Promise.resolve() }),
+mock.module('@/platform/db/client', () => ({ db: dbProxy }))
+setDbOverride({
+  query: {
+    pipelineRuns: { findFirst: () => mockFindFirstRun() },
+    clips: { findMany: () => mockFindManyClips() },
   },
-}))
+  update: () => ({ set: () => ({ where: () => casResult() }) }),
+  delete: () => ({ where: () => Promise.resolve() }),
+})
 
 import { casResult, mockSchema } from '@/features/(business)/test-helpers'
 
 mock.module('@/platform/db/schema', () => mockSchema())
+
+afterAll(() => {
+  clearDbOverride()
+  clearEnvOverride()
+})
 
 // Don't mock state-machine — it's pure logic, no external deps
 

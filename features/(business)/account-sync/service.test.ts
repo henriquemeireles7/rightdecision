@@ -1,8 +1,15 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterAll, beforeEach, describe, expect, it, mock } from 'bun:test'
+import {
+  clearDbOverride,
+  clearEnvOverride,
+  dbProxy,
+  envProxy,
+  setDbOverride,
+  setEnvOverride,
+} from '@/platform/test/mocks'
 
-mock.module('@/platform/env', () => ({
-  env: { DATABASE_URL: 'postgres://test' },
-}))
+mock.module('@/platform/env', () => ({ env: envProxy }))
+setEnvOverride({ DATABASE_URL: 'postgres://test' })
 
 const mockFindFirst = mock(() => Promise.resolve(null))
 const mockInsertValues = mock(() => Promise.resolve())
@@ -10,22 +17,24 @@ const mockUpdateSet = mock(() => ({ where: mock(() => Promise.resolve()) }))
 
 const mockFindMany = mock(() => Promise.resolve([]))
 
-mock.module('@/platform/db/client', () => ({
-  db: {
-    query: {
-      platformAccounts: { findFirst: () => mockFindFirst(), findMany: () => mockFindMany() },
-    },
-    insert: () => ({ values: mockInsertValues }),
-    update: () => ({ set: mockUpdateSet }),
+mock.module('@/platform/db/client', () => ({ db: dbProxy }))
+setDbOverride({
+  query: {
+    platformAccounts: { findFirst: () => mockFindFirst(), findMany: () => mockFindMany() },
   },
-}))
+  insert: () => ({ values: mockInsertValues }),
+  update: () => ({ set: mockUpdateSet }),
+})
 
 import { mockSchema } from '@/features/(business)/test-helpers'
 
-mock.module('@/platform/db/schema', () => ({
-  ...mockSchema(),
-  platformAccounts: Symbol('platformAccounts'),
-}))
+// Real schema tables — the service dispatches on real table objects now.
+mock.module('@/platform/db/schema', () => mockSchema())
+
+afterAll(() => {
+  clearDbOverride()
+  clearEnvOverride()
+})
 
 const mockListProfiles = mock(() =>
   Promise.resolve([

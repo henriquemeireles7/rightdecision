@@ -3,6 +3,7 @@ import { serveStatic } from 'hono/bun'
 import { cors } from 'hono/cors'
 import { logger } from 'hono/logger'
 import { secureHeaders } from 'hono/secure-headers'
+import { tick } from '@/features/(shared)/scheduler/tick'
 import { env } from '@/platform/env'
 import { track } from '@/providers/analytics'
 import { checkHealth } from './health'
@@ -50,6 +51,13 @@ export type AppRoutes = typeof appRoutes
 // Start server
 const port = env.PORT
 console.log(`Right Decision server running on http://localhost:${port}`)
+
+// In-process scheduler — single Railway instance, idempotent jobs.
+// Guarded by import.meta.main so tests importing app.fetch never start the ticker.
+// Jobs catch up on the next tick after deploy restarts (see features/(shared)/scheduler/CLAUDE.md).
+if (import.meta.main) {
+  setInterval(() => void tick(new Date()), 60_000)
+}
 
 export default {
   port,

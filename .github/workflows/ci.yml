@@ -40,6 +40,9 @@ jobs:
       - name: Typecheck
         run: bunx tsc --noEmit
 
+      - name: Build Client Bundles
+        run: bun run build:client
+
       - name: Harden Check
         run: bun platform/scripts/harden-check.ts
 

@@ -4,12 +4,14 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "bun run css:build && bun run --hot platform/server/app.ts",
-    "build": "bun run css:build && bun build platform/server/app.ts --outdir dist --target bun --external isomorphic-dompurify",
+    "dev": "bun run css:build && bun run build:client && (bun run client:dev & bun run --hot platform/server/app.ts)",
+    "build": "bun run css:build && bun run build:client && bun build platform/server/app.ts --outdir dist --target bun --external isomorphic-dompurify",
     "css:build": "bunx @tailwindcss/cli -i styles/global.css -o public/styles.css --minify",
     "css:dev": "bunx @tailwindcss/cli -i styles/global.css -o public/styles.css --watch",
+    "build:client": "bun platform/scripts/build-client.ts",
+    "client:dev": "bun platform/scripts/build-client.ts --watch",
     "start": "bun run dist/app.js",
-    "check": "bunx biome ci . && tsc --noEmit && bun platform/scripts/harden-check.ts && bun test",
+    "check": "bunx biome ci . && tsc --noEmit && bun run build:client && bun platform/scripts/harden-check.ts && bun test",
     "test": "bun test",
     "test:coverage": "bun test --coverage",
     "test:unit": "bun test --grep unit",
@@ -18,7 +20,7 @@
     "format": "bunx biome format --write .",
     "db:generate": "bun drizzle-kit generate",
     "db:migrate": "bun platform/scripts/migrate.ts",
-    "db:seed": "bun platform/scripts/seed.ts",
+    "db:seed": "bun platform/scripts/seed-v2.ts",
     "db:studio": "bun drizzle-kit studio",
     "indexnow": "bun scripts/post-deploy-indexnow.ts",
     "freshness": "bun scripts/freshness.ts",
@@ -28,9 +30,12 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.10",
+    "@happy-dom/global-registrator": "^20.10.2",
     "@tailwindcss/cli": "^4.2.2",
+    "@testing-library/preact": "^3.2.4",
     "@types/bun": "^1.3.11",
     "drizzle-kit": "^0.31.10",
+    "happy-dom": "^20.10.2",
     "knip": "^6.3.1",
     "tailwindcss": "^4.2.2"
   },
@@ -39,7 +44,8 @@
   },
   "knip": {
     "entry": [
-      "platform/server/index.ts"
+      "platform/server/index.ts",
+      "client/*/index.tsx"
     ],
     "project": [
       "**/*.ts",
