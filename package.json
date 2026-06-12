@@ -49,6 +49,7 @@
       ".claude/hooks/**",
       ".claude/hooks/lib/**",
       ".claude/skills/**/scripts/**",
+      ".claude/skills/gstack/**",
       "styles/global.css",
       "platform/scripts/seed-*.ts",
       "platform/scripts/validate-block-ids.ts",

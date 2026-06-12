@@ -35,7 +35,9 @@ models/
 # IndexNow submission tracking (local state)
 .indexnow-submitted.json
 
-.claude/skills/gstack/
+# gstack is vendored at .claude/skills/gstack (committed) so cloud sessions get it.
+# The entries below ignore LOCAL symlink aliases that gstack's ./setup creates
+# at the top level of .claude/skills/ on developer machines.
 .claude/skills/autoplan
 .claude/skills/benchmark
 .claude/skills/browse
