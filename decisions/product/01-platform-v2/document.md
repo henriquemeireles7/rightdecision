@@ -52,7 +52,7 @@ the text course must not break mid-migration.
 | 3 | Lives | Unlisted YouTube Live embed for the live moment; recording uploaded to Stream as gated replay; ONE Lives section with upcoming/live/replay states | 90% of watch time is replays; zero live-infra risk | Native live streaming (cost+complexity) |
 | 4 | Free program shape | One platform; free users see full catalog with locks; enrollment (user×cohort) is the access primitive | Ambient upsell; one codebase | Separate cohort microsites |
 | 5 | Members-area frontend | Preact client-rendered app at /app on the existing Hono API; marketing stays SSR; share Zod types + API client with mobile, never UI components | One framework, lean; UI-sharing with RN is a trap | React/TanStack rewrite |
-| 6 | Event spine | Append-only `events` table in Postgres as source of truth (typed taxonomy in providers/analytics.ts); same track() mirrors to PostHog; Stream + mobile events ingest here | Owned data feeds AI personalization; PostHog is a viewer | PostHog as sole store (vendor lock) |
+| 6 | Event spine | Append-only `events` table in Postgres as source of truth; typed taxonomy + record()/track() in **platform/events/** (providers/analytics.ts stays the dumb PostHog mirror — providers are external-service wrappers only, and platform/ is the one layer every feature can import). Double-write contract: record() awaits the Postgres insert inside the caller's transaction for decision-bearing events; PostHog mirror fires only after commit, fire-and-forget, never retried — divergence allowed in one direction only (Postgres ≥ PostHog). track() = best-effort telemetry. Stream + mobile events ingest here | Owned data feeds AI personalization; PostHog is a viewer; mirror-before-commit would show events that rolled back | PostHog as sole store (vendor lock); taxonomy in providers (violates layering) |
 | 7 | Course CMS | Courses/modules/lessons in Postgres + media in R2/Stream, edited via admin panel; markdown stays for blog/handbook/SEO only | Non-technical co-founder authors content; git is not her CMS | Admin-writes-markdown-to-git hybrid |
 | 8 | Multi-tenancy | Not now; program/enrollment model provides the seams; add organization_id when first business client pays | Pre-revenue multi-tenant tax kills solo platforms | Nullable org_id columns today |
 | 9 | AI personalization | Structured typed rows (playbook answers, journal, decisions, interview distillations); per-request context assembly; no vector DB | A user's playbook fits in a prompt; debuggable | Embeddings/RAG (premature) |
@@ -130,15 +130,30 @@ Sequencing note (T2): if ads are unconfirmed by Wave 2, Project 7 (distribution-
 moves directly after Project 4 — it is the organic hedge for cohort fill.
 
 ### Project 1: foundation
-- **Scope:** Schema + access control + providers for everything V2. Programs, cohorts,
-  enrollments, courses(db), modules, lessons, lesson decision prompts, materials, lives,
-  document templates, documents, journal entries, interviews, events, ai_usage. New
-  providers: video.ts (Cloudflare Stream), image-gen.ts. Rework analytics.ts into the event
-  spine (Postgres + PostHog mirror). Enrollment-based access middleware replacing
-  role/subscription checks for V2 content.
-- **Deliverables:** migrations; platform/db/schema.ts extended; platform/errors.ts +
-  platform/env.ts updated; providers/video.ts, providers/image-gen.ts, providers/analytics.ts
-  v2; features/(shared)/enrollment/ (grant/check/list); seed script for dev data.
+- **SCHEMA GATE ARTIFACT:** eng-schema.md in this folder is the reviewed schema (19 tables).
+  Project 1 codes against it verbatim; deviations require re-review.
+- **Scope:** Schema + access control + providers for everything V2. 19 tables: programs,
+  cohorts, enrollments, program_courses, courses(db), modules, lessons (decision prompt =
+  column), materials, program_materials, lives, document_templates, documents,
+  **document_answers**, journal_entries, interviews, **conversations, conversation_messages**,
+  events, ai_usage. New providers: video.ts (Cloudflare Stream: tus upload URLs, self-signed
+  JWT playback via jose, HMAC-verified video.ready webhook), image-gen.ts (returns bytes;
+  callers upload via storage.ts). storage.ts gains getUploadUrl() presigned-PUT.
+  **platform/events/** = typed taxonomy + record()/track() per ADR 6.
+  **features/(shared)/scheduler/** = in-process 1-min ticker (single Railway instance) running
+  idempotent jobs: processPendingDrips (wires the existing dead function — drip emails are
+  currently scheduled and NEVER SENT, live production bug), cohort auto-creation, enrollment
+  expiry sweep. Enrollment middleware in platform/auth/enrollment.ts; business queries in
+  features/(shared)/enrollment/. No enrollment cache (one indexed query; request-scoped
+  memoization only; no Redis).
+- **Deliverables:** migrations (scheduling timestamps = timestamptz; events append-only, no
+  updatedAt — db/CLAUDE.md amended same PR); platform/db/schema.ts extended; platform/errors.ts
+  + platform/env.ts per eng-schema.md lists (Stream vars optional like R2_*, runtime
+  ProviderError when absent); providers/video.ts, providers/image-gen.ts;
+  platform/events/; features/(shared)/scheduler/, enrollment/; existing-subscriber
+  auto-enrollment script in platform/scripts/ (never a Drizzle migration; --dry-run;
+  idempotent; NULL-userId subscription rows reported, not enrolled); client build step
+  (bun build --target browser, content-hash manifest); seed script for dev data.
 - **Acceptance criteria:** all tables migrated on empty DB; enrollment check gates a lesson
   fetch; track() writes events row + PostHog mirror; signed playback URL generated for a
   Stream video id; cover image generated and stored to R2; account deletion cascades across
@@ -163,7 +178,9 @@ moves directly after Project 4 — it is the organic hedge for cohort fill.
 - **Acceptance criteria:** the NON-TECHNICAL co-founder completes the full flow unaided —
   create a module with AI cover, upload a lesson video, attach a material, schedule a live,
   see next cohort auto-created; all without code or help.
-- **Risk:** upload UX (large files) — use presigned/direct uploads, never proxy through Hono.
+- **Risk:** upload UX (large files) — tus resumable protocol for Stream (basic direct upload
+  caps ~200MB; tus also delivers the progress %/retry requirement), presigned PUT for R2;
+  never proxy uploads through Hono.
 
 ### Project 3: members-area
 - **Scope:** /app SPA: Netflix-style catalog (program-aware rails, poster cards, lock states),
@@ -179,8 +196,11 @@ moves directly after Project 4 — it is the organic hedge for cohort fill.
   + router with the IA spec: Home (rails: continue-watching, your program, lives, locked
   rails — Home answers "what do I do next" in the first viewport), Playbook, Journal, Chat —
   nav items appear only when their wave ships (no coming-soon items); mobile = bottom tab
-  bar, desktop = top nav; watch-event ingestion to event spine; design.md component
-  pattern updates.
+  bar, desktop = top nav; watch-event ingestion to event spine (batched client buffer,
+  Zod-validated, rate-limited); design.md component pattern updates. Bundle budgets
+  per-surface: /app shell ≤100KB gzipped, player chunk (hls.js) lazy-loaded on lesson route
+  only, marketing pages unchanged (code.md budget table amended in Canon Sync). /app/*
+  routes mount BEFORE the '/' catch-alls in routes.ts or deep links 404 into marketing.
 - **Acceptance criteria:** free user sees locked paid content + their cohort's unlocked
   content per Lock-State UX; paid user watches a lesson (captions toggle available; every
   published lesson has a caption track), answers the decision prompt, progress persists;
@@ -196,8 +216,13 @@ moves directly after Project 4 — it is the organic hedge for cohort fill.
   next-cohort date, join flow (signup→enrollment into current/next cohort), upgrade flow
   (checkout→paid enrollment), drip emails repointed to cohort lifecycle (welcome, starts-soon,
   day-N nudges, upgrade), cron for cohort auto-creation + date rollover.
-- **Deliverables:** features/(life)/join/, cohort cron in features/(shared)/cohort-scheduler/,
-  landing updates, email templates, Stripe webhook → paid enrollment.
+- **Deliverables:** features/(life)/join/, cohort auto-creation job on the Project 1 scheduler,
+  landing updates, email templates, Stripe webhook → paid enrollment. Timezone rule: cohort
+  startsAt = first Monday of month at fixed local time in COHORT_TIMEZONE (IANA, env, default
+  America/Sao_Paulo), stored timestamptz; jobs compare UTC instants — no tz math at read time;
+  users see localized dates via Intl. Pure date-math function with fixture tests
+  (first-Monday-is-the-1st, first-Monday-is-the-7th, year boundary, DST-transition month).
+  Cutover flag: V2_ENROLLMENT_CUTOVER env boolean; rollback = flip + redeploy.
 - **Acceptance criteria:** ad URL → join page shows next start date without manual edits;
   joining enrolls into the right cohort; paying creates paid enrollment; existing yearly/monthly
   Stripe plans keep working.
@@ -238,7 +263,8 @@ moves directly after Project 4 — it is the organic hedge for cohort fill.
 - **Acceptance criteria:** chat answer references user's actual playbook data; interview fills
   a page's fields after confirmation; budget ceiling returns graceful message; per-message
   usage rows written; crisis-signal input returns resources and a boundary, never advice
-  (tested with fixture inputs).
+  (tested with fixture inputs); SSE stream-drop is retriable (assistant message persisted
+  only on completion; ~2-min deploys sever streams — client refetches conversation).
 - **Risk:** prompt quality = product quality; voice.md compliance on all AI copy. The ICP
   will include people in crisis — safety copy is brand, legal, and human risk in one.
 
@@ -275,6 +301,14 @@ Upon founder confirmation, update in the same PR as this initiative's acceptance
   white-on-gold ≈2.7:1 fails the same file's 4.5:1 contrast mandate. Resolution shipped in
   code: ink (#1A1714) text on gold (Design Requirements rule 2); design.md must be amended
   to match (founder may instead choose a darker gold token).
+- code.md → Performance Budget table: per-surface budgets (marketing <50KB unchanged; /app
+  shell ≤100KB; player chunk lazy). The flat 50KB budget is arithmetically incompatible with
+  an HLS player (hls.js ≈70KB gzipped).
+- root CLAUDE.md → Seven Files list: analytics entry points to platform/events/ taxonomy.
+- platform/db/CLAUDE.md → scheduling timestamps are timestamptz; events table append-only
+  (no updatedAt) exception.
+- platform/auth/permissions.ts → document 'pro' role as legacy (enrollments gate content now;
+  admin gating stays role-based; don't migrate the enum).
 
 ## Open Questions
 - Ads unlock (ADR 14) changes a locked decision in company.md — founder to confirm in writing
