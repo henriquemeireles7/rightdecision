@@ -65,7 +65,45 @@ the text course must not break mid-migration.
 | 16 | Naming | Paid doc set = "Life Playbook"; free doc set = "Starter Notebook" | Action-oriented (anti-self-help), short, scales to "Business Playbook" | "Personal Strategy Handbook" (too long) |
 | 17 | Design | Netflix LAYOUT (poster cards, rails, cover images), Ethereal Warmth PALETTE (cream/gold) | Premium + distinct from dark BR members areas; design.md stays locked | Dark cinematic members area |
 
+## Success Metrics & Kill Criteria
+
+| Metric | Target | Branch if missed |
+|--------|--------|------------------|
+| Cohort 1 launch date | Within 6 weeks of Wave 2 ship | Re-scope content gate (see Project 0) |
+| Activation | First decision within 48h of joining (north star) | Rework free course lesson 1 |
+| Free→paid conversion | ≥3% across cohorts 2-3 | <1.5%: stop ad spend, rework offer before cohort 4 |
+| Cohort fill | ≥50 joiners per free cohort by cohort 3 | Shift budget to organic (Project 7 clips) |
+| Total COGS per active user | ≤$3/mo (AI ≤$2 + Stream/R2 ≤$1) | Tier video quality / tighten AI budgets |
+| Refund rate | <5% of paid joins | Pause checkout, fix expectation gap (see Wave-2 copy rule) |
+
+Wave-2 checkout copy sells ONLY what exists at that moment (video + lives), with a
+published content roadmap for the rest — never the full promised library (T3 bridge).
+
+## Content Gates (Project 0 — founder/human track, runs parallel to all waves)
+
+Software cannot move Engagement until videos exist. Content production is a parallel
+human track with hard gates:
+- **Gate A (blocks cohort 1):** free program fully recorded + uploaded (target 3-5 lessons).
+- **Gate B (blocks paid checkout):** ≥2 paid modules recorded + a published monthly drop
+  schedule for the remainder (honesty bridge for ADR 13's instant-access promise).
+- **Gate C (blocks each cohort):** that month's live scheduled with a fallback protocol —
+  if a month is missed, it becomes a replay-month (pre-announced), never a silent skip.
+- Owners: Henry + Indy record; admin panel (Project 2) is the upload path; the existing
+  distribution pipeline (Project 7) turns each recording into clips for cohort fill.
+
+## Migration of Existing Users (hard requirement, Constraint enforcement)
+
+- Active subscribers are auto-enrolled into the paid program at cutover (script in
+  Project 1; tested).
+- Text-course progress, micro-decisions, journey, and wins remain accessible; existing
+  userDecisions backfill into the events spine (free Decision Graph data).
+- The markdown text course remains source of truth and fully functional until enrollment
+  cutover completes; cutover is feature-flagged with an explicit rollback step.
+
 ## Projects (suggested breakdown)
+
+Sequencing note (T2): if ads are unconfirmed by Wave 2, Project 7 (distribution-admin)
+moves directly after Project 4 — it is the organic hedge for cohort fill.
 
 ### Project 1: foundation
 - **Scope:** Schema + access control + providers for everything V2. Programs, cohorts,
@@ -79,8 +117,13 @@ the text course must not break mid-migration.
   v2; features/(shared)/enrollment/ (grant/check/list); seed script for dev data.
 - **Acceptance criteria:** all tables migrated on empty DB; enrollment check gates a lesson
   fetch; track() writes events row + PostHog mirror; signed playback URL generated for a
-  Stream video id; cover image generated and stored to R2; 100% test coverage.
-- **Risk:** schema mistakes here are migration debt everywhere — reviewed before coding.
+  Stream video id; cover image generated and stored to R2; account deletion cascades across
+  ALL new tables (tested); existing-subscriber auto-enrollment script works; events schema
+  is explicitly Decision Graph v1 — define which actions count toward "Decisions Made"
+  (lesson prompts: yes; playbook saves: yes; journal entries: yes, tagged separately);
+  100% test coverage.
+- **Risk:** schema mistakes here are migration debt everywhere — HARD GATE: schema reviewed
+  (eng review pass) before any dependent project codes against it (T4).
 
 ### Project 2: admin-panel
 - **Scope:** /admin SPA (Preact, admin role): course builder (courses→modules→lessons, video
@@ -90,8 +133,9 @@ the text course must not break mid-migration.
   (which courses/lives/materials each program includes).
 - **Deliverables:** features/(admin)/ group: course-builder/, materials/, lives/, cohorts/;
   admin API routes; upload flows (direct-to-Stream/R2 presigned); pages/admin wiring.
-- **Acceptance criteria:** founder can create a module with AI cover, upload a lesson video,
-  attach a material, schedule a live, see next cohort auto-created; all without code.
+- **Acceptance criteria:** the NON-TECHNICAL co-founder completes the full flow unaided —
+  create a module with AI cover, upload a lesson video, attach a material, schedule a live,
+  see next cohort auto-created; all without code or help.
 - **Risk:** upload UX (large files) — use presigned/direct uploads, never proxy through Hono.
 
 ### Project 3: members-area
@@ -123,7 +167,8 @@ the text course must not break mid-migration.
   structured fields), fill-in UX shaped like a book, progress, PDF export (satori), journaling
   (morning/evening prompts, streaks). Template content authored as seed data, editable in admin.
 - **Deliverables:** features/(life)/playbook/, journal/; admin template editor;
-  export endpoint; events for every save (Decision Graph rows).
+  export endpoint; events for every save (Decision Graph rows); privacy policy update
+  covering playbook/journal data class (most sensitive data the company holds).
 - **Acceptance criteria:** free user fills Starter Notebook pages; paid user fills Playbook
   chapters; journal streak displays; export downloads branded PDF; every answer = structured row.
 - **Risk:** template quality is course content — founder reviews seed templates before launch.
@@ -131,13 +176,19 @@ the text course must not break mid-migration.
 ### Project 6: ai-layer
 - **Scope:** AI chat ("talks like it read your playbook"): context assembly from structured
   rows, conversation persistence, interview mode (page-scoped Q&A → distilled fields →
-  user confirmation), usage metering + plan budgets, model tiering.
+  user confirmation), usage metering + plan budgets, model tiering. SAFETY: crisis/self-harm
+  response policy (resource referral + boundary message, never advice), refusal boundaries,
+  "not therapy" disclosure in onboarding and chat UI, AI data-handling disclosure
+  (provider no-training posture documented).
 - **Deliverables:** features/(life)/ai-chat/, interview/; providers/ai.ts v2 (chat +
-  distillation); ai_usage enforcement middleware.
+  distillation); ai_usage enforcement middleware; safety system prompt + crisis-response
+  copy (voice.md compliant).
 - **Acceptance criteria:** chat answer references user's actual playbook data; interview fills
   a page's fields after confirmation; budget ceiling returns graceful message; per-message
-  usage rows written.
-- **Risk:** prompt quality = product quality; voice.md compliance on all AI copy.
+  usage rows written; crisis-signal input returns resources and a boundary, never advice
+  (tested with fixture inputs).
+- **Risk:** prompt quality = product quality; voice.md compliance on all AI copy. The ICP
+  will include people in crisis — safety copy is brand, legal, and human risk in one.
 
 ### Project 7: distribution-admin
 - **Scope:** Admin UI over the existing BD pipeline: upload video → choose flow (short→clips→
@@ -150,6 +201,8 @@ the text course must not break mid-migration.
 - **Risk:** pipeline is battle-tested; risk is only in the new UI wiring.
 
 ### Project 8: mobile-app
+- **START GATE (T1):** do not start until ≥100 paid users AND a positive retention signal
+  (week-4 lesson completion holding). Pre-revenue Expo work is the likeliest runway leak.
 - **Scope:** Expo (React Native) app: login-only (no IAP), catalog, lesson player (Stream HLS),
   lives/replays, playbook fill-in, journal, AI chat. Shares Zod types + API client with web.
 - **Deliverables:** apps/mobile/ Expo project; shared packages/api-client; EAS build config;
@@ -158,8 +211,22 @@ the text course must not break mid-migration.
   entry, chat — all against production API.
 - **Risk:** Apple review (reader-app rules) — no purchase references anywhere in-app.
 
+## Canon Sync (deliverable, per Contradiction Resolution rule)
+
+Upon founder confirmation, update in the same PR as this initiative's acceptance:
+- company.md → Three Product Tiers (delivery model: in-platform, not Claude-skills-on-user-machine)
+- company.md → Locked Decisions table (ads row, ADR 14)
+- company.md → Revenue Model wording (see usage-pricing open question below)
+- decisions/product/context.md → current-state scores and bottleneck map
+
 ## Open Questions
 - Ads unlock (ADR 14) changes a locked decision in company.md — founder to confirm in writing
   before first ad spend (does not block any code).
+- **Usage-based pricing contradiction:** company.md/maturity.md say pricing "MUST be directly
+  correlated to decisions" (usage-based); V2 ships flat $197/yr + $19.70/mo (both kept, annual
+  marketed first — T5). Founder must explicitly resolve: keep flat pricing and amend canon, or
+  define a usage dimension later. Stale canon poisons future agent sessions.
 - Playbook/Notebook naming (ADR 16) — founder may override copy before Project 5 ships.
 - Live cadence ("first Monday monthly" assumed) — confirm before cohort cron ships (config value).
+- Cohort-1 fill source: ads pending confirmation; organic hedge = Project 7 clips + existing
+  email list. Decide before Wave 2 ships.
