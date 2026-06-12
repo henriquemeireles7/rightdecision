@@ -95,6 +95,15 @@ programs ──< cohorts                    programs ──< program_courses >�
     kind enum ['chat','interview','distill','suggestion','cover_gen'], model text notNull,
     inputTokens/outputTokens int notNull, createdAt. Budget check = sum() over (userId, createdAt)
     index for current month; NO materialized counter until measurably slow.
+20. **lesson_progress** — userId FK cascade, lessonId FK cascade, secondsWatched int notNull
+    default 0, durationSeconds int (denormalized at write for % math), completedAt timestamptz
+    nullable (set when decision prompt answered — ADR 1: answering completes the lesson),
+    lastWatchedAt timestamptz notNull, uniqueIndex(userId, lessonId);
+    index(userId, lastWatchedAt) — the continue-watching rail is one query.
+    [Aggregator addition post-roadmap: deriving resume position from append-only heartbeat
+    events means scanning the spine per catalog render; an upsert row is the explicit answer.
+    Heartbeats still flow to events for analytics; this table is the READ model. The existing
+    courseProgress table remains the text course's, untouched.]
 
 **Account deletion:** every user-keyed table cascades from users.id; Project 1 cascade test
 enumerates all 19. GDPR trade: deleting a user deletes their events rows (PostHog mirror retains
