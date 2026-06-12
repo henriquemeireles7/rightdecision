@@ -220,3 +220,32 @@ P8 start-gated (T1).
 
 users.role 'pro' + permissions.ts pro row become legacy once enrollments gate content
 (don't migrate the enum; document as legacy in Canon Sync; admin gating stays role-based).
+
+## TemplateSchema field-type vocabulary v1 (DX SF2 — P5 codes against this)
+
+```ts
+type TemplateField = {
+  id: string            // stable, immutable once published
+  label: string
+  kind: 'short_text' | 'long_text' | 'select' | 'multi_select' | 'date' | 'scale_1_10'
+  required: boolean
+  placeholder?: string
+  options?: string[]    // select/multi_select only
+  exampleAnswer?: string // empty-page invitation copy
+}
+// chapters → pages → fields; page carries instruction prose (Indy register)
+```
+Adding a kind later = additive union change + Zod bump; never repurpose an existing kind.
+
+## Nested CLAUDE.md scaffolding (DX MF7 — Build Order step 1)
+
+NEW: platform/events/, features/(shared)/scheduler/, enrollment/, api-client/,
+features/(admin)/ (group) + course-builder/, materials/, lives/, cohorts/, distribution/,
+features/(life)/catalog/, player/, lives-view/, materials-view/, join/, playbook/, journal/,
+ai-chat/, interview/, apps/mobile/ + packages/api-client/ (post-gate).
+
+UPDATED: platform/db/ (timestamptz + events exception), platform/ (env + cutover seam),
+platform/server/ (mount order + manifest), platform/auth/ (enrollment middleware + legacy
+pro), providers/ (video, image-gen, getUploadUrl, skipIf pattern), platform/scripts/
+(enrollment script + seed entrypoint), root CLAUDE.md (Seven Files + commands),
+features/(shared)/admin/ (migrated into (admin) group).

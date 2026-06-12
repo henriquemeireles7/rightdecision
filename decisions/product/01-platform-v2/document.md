@@ -2,7 +2,7 @@
 
 > Domain: product
 > Created: 2026-06-12
-> Status: draft
+> Status: reviewed
 > Maturity target: Engagement L1→L2, Data L1→L2 (see decisions/maturity.md)
 
 ## Context
@@ -124,6 +124,23 @@ human track with hard gates:
 6. **Admin design bar:** same tokens, "plain Stripe dashboard" polish, desktop-first,
    100% interaction-state coverage (an unexplained spinner = a support call).
 
+## DX Conventions (from DX review — apply to ALL projects)
+
+1. **CLAUDE.md first (Build Order step 1):** every new folder gets its CLAUDE.md before code;
+   the full new/updated list lives in the DX review section of the roadmaps. Lanes never edit
+   the same folder (Stop hook regenerates footers — same-folder lanes = guaranteed conflicts).
+2. **One worktree per project session**, branch `p{N}-{name}`. Lanes A (P2 admin), B (P3
+   members), C (P4 funnel) are file-disjoint except platform/server/routes.ts (trivial
+   .route() mount conflicts; /app/* mounts before '/' catch-alls) and design.md (P3 owns
+   member-area component sections; P2 appends a distinct admin subsection; rebase before ship).
+3. **P2 and P7 both touch features/(admin)/ — sequential, never parallel.** P5→P6 sequential
+   (interviews write document_answers). P1 is the hard gate before all lanes.
+4. **SSE seam (P6, declared now):** providers/ai.ts exposes chat as AsyncIterable<chunk>;
+   the feature layer owns persist-on-completion as a pure function; the Hono streamSSE route
+   is thin piping. Tests iterate a fixture provider — no live socket needed for coverage.
+5. **Mobile (P8) excluded from `bun run check`** until its start gate opens; apps/mobile gets
+   its own workflow then.
+
 ## Projects (suggested breakdown)
 
 Sequencing note (T2): if ads are unconfirmed by Wave 2, Project 7 (distribution-admin)
@@ -149,18 +166,37 @@ moves directly after Project 4 — it is the organic hedge for cohort fill.
 - **Deliverables:** migrations (scheduling timestamps = timestamptz; events append-only, no
   updatedAt — db/CLAUDE.md amended same PR); platform/db/schema.ts extended; platform/errors.ts
   + platform/env.ts per eng-schema.md lists (Stream vars optional like R2_*, runtime
-  ProviderError when absent); providers/video.ts, providers/image-gen.ts;
-  platform/events/; features/(shared)/scheduler/, enrollment/; existing-subscriber
-  auto-enrollment script in platform/scripts/ (never a Drizzle migration; --dry-run;
-  idempotent; NULL-userId subscription rows reported, not enrolled); client build step
-  (bun build --target browser, content-hash manifest); seed script for dev data.
+  ProviderError when absent; AI_MONTHLY_TOKEN_BUDGET_* get env.ts defaults so CI/local boot
+  without new placeholders); providers/video.ts, providers/image-gen.ts (unit tests = mocked
+  fetch + fixture JWK/bytes/HMAC; integration tests follow storage.integration.test.ts's
+  describe.skipIf pattern, skipping when CLOUDFLARE_*/IMAGE_GEN_API_KEY absent);
+  platform/events/ (taxonomy declares the COMPLETE V2 event-name union for waves 1-4 upfront
+  — names reserved like errors.ts does for codes; later projects only fill properties
+  schemas); features/(shared)/scheduler/ (jobs = exported functions taking now: Date;
+  tick(now) is the tested unit; setInterval in app.ts is 3 lines of wiring; idempotency
+  test = call twice, assert no-op), enrollment/; **features/(shared)/api-client/** — typed
+  fetch wrapper over hono/client RPC with throwError-coded error mapping + auth handling;
+  P2/P3/P8 consume it, never hand-roll fetch; **SPA test harness** — happy-dom via bun test
+  preload (bunfig.toml) + @testing-library/preact with one canonical example component test;
+  existing-subscriber auto-enrollment script in platform/scripts/ (never a Drizzle migration;
+  --dry-run; idempotent — run twice = zero duplicate enrollments, tested; NULL-userId
+  subscription rows reported, not enrolled); client build step (bun build --target browser,
+  content-hash manifest) wired into `bun run check` + ci.yml, with gzipped bundle-budget
+  assertion folded into harden-check.ts; `client:dev` watch script wired into `bun run dev`;
+  seed script for dev data — **repoint the dead `db:seed` entrypoint** (points at
+  platform/scripts/seed.ts which does not exist).
 - **Acceptance criteria:** all tables migrated on empty DB; enrollment check gates a lesson
   fetch; track() writes events row + PostHog mirror; signed playback URL generated for a
   Stream video id; cover image generated and stored to R2; account deletion cascades across
   ALL new tables (tested); existing-subscriber auto-enrollment script works; events schema
   is explicitly Decision Graph v1 — define which actions count toward "Decisions Made"
   (lesson prompts: yes; playbook saves: yes; journal entries: yes, tagged separately);
-  100% test coverage.
+  seed produces every UI-relevant state: admin user; paid user (evergreen enrollment); free
+  user mid-cohort; free user pre-start; expired free enrollment; lessons in every videoStatus;
+  a published lesson (captions + prompt, satisfying the publish invariant) and a draft one;
+  lives in upcoming/replay/cancelled states; published template + one filled + one empty
+  document; journal entries; a conversation with messages; an ai_usage row near the budget
+  ceiling; 100% test coverage.
 - **Risk:** schema mistakes here are migration debt everywhere — HARD GATE: schema reviewed
   (eng review pass) before any dependent project codes against it (T4).
 
@@ -172,12 +208,18 @@ moves directly after Project 4 — it is the organic hedge for cohort fill.
   no captions, no publish), materials upload (R2), lives scheduling (YouTube URL + time +
   program scope, replay upload), cohort management (auto first-Monday generation + manual
   override), program content mapping (which courses/lives/materials each program includes).
-  Large-file uploads show progress %, retry-on-fail, and surfaced Stream encoding status.
+  Large-file uploads show progress %, retry-on-fail, and surfaced Stream encoding status —
+  upload component takes an injected uploader interface (real tus-js-client in production,
+  scripted fake drives progress/retry/failure states in tests; never real uploads in CI).
+  The existing features/(shared)/admin/ (analytics API) migrates INTO features/(admin)/ as
+  its first module — one admin group, no orphan.
 - **Deliverables:** features/(admin)/ group: course-builder/, materials/, lives/, cohorts/;
   admin API routes; upload flows (direct-to-Stream/R2 presigned); pages/admin wiring.
 - **Acceptance criteria:** the NON-TECHNICAL co-founder completes the full flow unaided —
   create a module with AI cover, upload a lesson video, attach a material, schedule a live,
-  see next cohort auto-created; all without code or help.
+  see next cohort auto-created; all without code or help. Machine-verifiable proxy:
+  integration tests cover each step of the flow + every upload failure state rendered;
+  the co-founder walkthrough is an explicit human gate (decisions/humantasks.md entry).
 - **Risk:** upload UX (large files) — tus resumable protocol for Stream (basic direct upload
   caps ~200MB; tus also delivers the progress %/retry requirement), presigned PUT for R2;
   never proxy uploads through Hono.
@@ -222,7 +264,10 @@ moves directly after Project 4 — it is the organic hedge for cohort fill.
   America/Sao_Paulo), stored timestamptz; jobs compare UTC instants — no tz math at read time;
   users see localized dates via Intl. Pure date-math function with fixture tests
   (first-Monday-is-the-1st, first-Monday-is-the-7th, year boundary, DST-transition month).
-  Cutover flag: V2_ENROLLMENT_CUTOVER env boolean; rollback = flip + redeploy.
+  Cutover flag: V2_ENROLLMENT_CUTOVER env boolean; rollback = flip + redeploy. The flag is
+  read through a function (isV2CutoverEnabled() with a test override), never a direct env
+  constant at gate sites — env.ts parses once at import, so both flag states must be testable
+  in one process; acceptance: both states covered in the same suite.
 - **Acceptance criteria:** ad URL → join page shows next start date without manual edits;
   joining enrolls into the right cohort; paying creates paid enrollment; existing yearly/monthly
   Stripe plans keep working.
@@ -309,6 +354,9 @@ Upon founder confirmation, update in the same PR as this initiative's acceptance
   (no updatedAt) exception.
 - platform/auth/permissions.ts → document 'pro' role as legacy (enrollments gate content now;
   admin gating stays role-based; don't migrate the enum).
+- platform/server/render.tsx:45 → skip-to-content link is bg-gold text-white — the exact
+  white-on-gold violation Design Requirement 2 bans; fix the existing instance alongside
+  the spec.
 
 ## Open Questions
 - Ads unlock (ADR 14) changes a locked decision in company.md — founder to confirm in writing
@@ -321,3 +369,38 @@ Upon founder confirmation, update in the same PR as this initiative's acceptance
 - Live cadence ("first Monday monthly" assumed) — confirm before cohort cron ships (config value).
 - Cohort-1 fill source: ads pending confirmation; organic hedge = Project 7 clips + existing
   email list. Decide before Wave 2 ships.
+
+## GSTACK REVIEW REPORT
+
+> /autoplan pipeline completed 2026-06-12. Phases: CEO → Design → Eng → DX, sequential,
+> full depth, intermediate decisions auto-decided per the 6 principles (spawned session).
+
+| Phase | Verdict | Must-fix | Should-fix | All folded in |
+|-------|---------|----------|------------|---------------|
+| CEO | approve-with-changes | 6 | 7 | yes |
+| Design | approve-with-changes | 9 | 7 | yes |
+| Eng | approve-with-changes | 8 | 7 | yes (+ eng-schema.md gate artifact) |
+| DX | approve-with-changes | 7 | 9 | yes |
+
+**Live bugs found during review (fix in P1):** (1) drip emails are scheduled but never sent —
+processPendingDrips() has zero callers; (2) `bun run db:seed` points at a file that doesn't
+exist; (3) render.tsx skip-link is white-on-gold (WCAG fail).
+
+**Taste decisions auto-decided (full list in phase reports / git history):** mobile start
+gate kept; P7 reorders after P4 if ads unconfirmed; content-roadmap honesty bridge over
+drip-feed; schema as one gated project; both price plans kept (annual-first); 2:3 covers +
+16:9 thumbnails; illustration medium, no faces, no baked text; ink player canvas; no
+skeuomorphic page-flip; scroll-snap rails (no hover-zoom); derived cohort state; one
+enrollment row per (user, program); decisionPrompt as column; jsonb templates + relational
+answers; TS-enforced event taxonomy; self-signed playback JWTs; in-process scheduler;
+image-gen returns bytes; happy-dom SPA tests; taxonomy declared upfront; bundle gate in
+harden-check; cutover read-through-function; injected uploader fake; mobile out of check
+until gated.
+
+**Escalated to founder (decide anytime; none block coding):**
+1. Usage-based-pricing contradiction in company.md/maturity.md vs flat V2 pricing (Open Questions).
+2. design.md gold-button contrast contradiction — shipped resolution is ink-on-gold; approve
+   or pick a darker gold token (Canon Sync).
+3. Ads unlock (ADR 14) — written confirmation before first ad spend.
+
+Status: **draft → reviewed**. Next: d-roadmap extraction, then execution sessions per project.
