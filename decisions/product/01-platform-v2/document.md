@@ -64,6 +64,9 @@ the text course must not break mid-migration.
 | 15 | Sequencing | Waves: (1) foundation+admin (2) members area+funnel (3) playbook+journal (4) AI chat+interviews (5) Expo app; each production-usable | Free cohort + ads can start before later waves | True one-shot landing |
 | 16 | Naming | Paid doc set = "Life Playbook"; free doc set = "Starter Notebook" | Action-oriented (anti-self-help), short, scales to "Business Playbook" | "Personal Strategy Handbook" (too long) |
 | 17 | Design | Netflix LAYOUT (poster cards, rails, cover images), Ethereal Warmth PALETTE (cream/gold) | Premium + distinct from dark BR members areas; design.md stays locked | Dark cinematic members area |
+| 18 | Cover Art System | Versioned master prompt in providers/image-gen.ts (module subject = only variable); palette-locked to warm family (negative: purple/neon/blue-dominant); painterly editorial illustration, scene/object-based, NO human faces, NO text/typography in images (titles always live HTML below card, never overlaid); 2:3 module covers + 16:9 lesson thumbnails, fixed crops to R2 | Cohesion is a property of the collection; AI text/faces are slop risks; light covers need palette anchor to not dissolve into cream bg | Unconstrained per-module generation |
+| 19 | Player canvas | Full-bleed ink (#1A1714) region around the video inside the cream app — a palette token used as component background, NOT dark mode | Video floating on cream reads as an embed, not a cinema; warm chrome returns when lesson ends | Video directly on cream |
+| 20 | Playbook "book" UX | One page = one scrollable section in the 640px reading column, serif chapter heads + contents spine; autosave on blur with quiet "Saved" indicator; NO skeuomorphic page-flip | Book feeling comes from typography and structure; page-flip is banned decorative motion; explicit Save creates loss anxiety on reflective documents | Page-flip animation |
 
 ## Success Metrics & Kill Criteria
 
@@ -100,6 +103,27 @@ human track with hard gates:
 - The markdown text course remains source of truth and fully functional until enrollment
   cutover completes; cutover is feature-flagged with an explicit rollback step.
 
+## Design Requirements (apply to ALL UI projects — from design review)
+
+1. **Interaction states are scope, not polish:** every screen ships loading (sand/linen
+   skeletons with pinned aspect ratios — no CLS), empty (warm copy + a primary action),
+   error (what/why/how-to-fix), and success states. Lesson cards show "processing" until
+   Stream playback is ready.
+2. **Gold contrast rule:** text on gold backgrounds is ink (#1A1714, ≈6.3:1) — white-on-gold
+   (≈2.7:1, fails WCAG AA) is banned. (design.md's button spec self-contradicts; see Canon Sync.)
+3. **Reduced motion is a primary path (~35% of ICP):** rails use CSS scroll-snap with a
+   partial next-card peek + desktop arrows (no auto-scroll, no hover-zoom/expand); card
+   hover = gold border + subtle shadow; countdowns are static text per minute; all
+   non-essential transitions wrapped in `prefers-reduced-motion: no-preference`.
+4. **Poster cards:** 1px linen border/surface edge (light covers must not dissolve into
+   cream); 44px touch targets; rails are semantic lists under real h2 headings;
+   `:focus-visible` gold ring extends to cards and player controls.
+5. **/app consumes the existing tokens in styles/global.css** — never a forked token set.
+   New component patterns (rail, poster, lock badge, player chrome, chat bubbles, interview
+   confirm) get documented in design.md in the same PR (Universal File Sync).
+6. **Admin design bar:** same tokens, "plain Stripe dashboard" polish, desktop-first,
+   100% interaction-state coverage (an unexplained spinner = a support call).
+
 ## Projects (suggested breakdown)
 
 Sequencing note (T2): if ads are unconfirmed by Wave 2, Project 7 (distribution-admin)
@@ -127,10 +151,13 @@ moves directly after Project 4 — it is the organic hedge for cohort fill.
 
 ### Project 2: admin-panel
 - **Scope:** /admin SPA (Preact, admin role): course builder (courses→modules→lessons, video
-  upload to Stream, AI cover generation with 4-option picker, lesson decision prompt editor),
-  materials upload (R2), lives scheduling (YouTube URL + time + program scope, replay upload),
-  cohort management (auto first-Monday generation + manual override), program content mapping
-  (which courses/lives/materials each program includes).
+  upload to Stream, AI cover generation with 4-option picker — the picker renders candidates
+  ALONGSIDE existing covers so collection cohesion is judged in context, lesson decision
+  prompt editor), caption upload/auto-generate step in the lesson upload flow (publish gate:
+  no captions, no publish), materials upload (R2), lives scheduling (YouTube URL + time +
+  program scope, replay upload), cohort management (auto first-Monday generation + manual
+  override), program content mapping (which courses/lives/materials each program includes).
+  Large-file uploads show progress %, retry-on-fail, and surfaced Stream encoding status.
 - **Deliverables:** features/(admin)/ group: course-builder/, materials/, lives/, cohorts/;
   admin API routes; upload flows (direct-to-Stream/R2 presigned); pages/admin wiring.
 - **Acceptance criteria:** the NON-TECHNICAL co-founder completes the full flow unaided —
@@ -140,14 +167,28 @@ moves directly after Project 4 — it is the organic hedge for cohort fill.
 
 ### Project 3: members-area
 - **Scope:** /app SPA: Netflix-style catalog (program-aware rails, poster cards, lock states),
-  lesson player (Stream playback + decision prompt + complete), materials library, Lives
-  section (upcoming/live/replay), continue-watching, progress. Ethereal Warmth styling per
-  decisions/design.md.
+  lesson player (Stream playback in ink canvas per ADR 19 + decision prompt + complete),
+  materials library, Lives section (upcoming/live/replay), continue-watching, progress.
+  Ethereal Warmth styling per decisions/design.md + Design Requirements above.
+  **Lock-State UX:** free users see their unlocked content FIRST (locked rails below the
+  fold, never above); locked cards keep full-color cover + ink-on-cream pill badge (never
+  grayscale/blur); tapping a locked card opens a preview sheet (description, lesson list,
+  upgrade CTA) — never a dead end; catalog distinguishes "exists, locked" from "drops on
+  {date}" (only with a published date per Gate B).
 - **Deliverables:** features/(life)/catalog/, player/, lives-view/, materials-view/; app shell
-  + router; watch-event ingestion to event spine.
+  + router with the IA spec: Home (rails: continue-watching, your program, lives, locked
+  rails — Home answers "what do I do next" in the first viewport), Playbook, Journal, Chat —
+  nav items appear only when their wave ships (no coming-soon items); mobile = bottom tab
+  bar, desktop = top nav; watch-event ingestion to event spine; design.md component
+  pattern updates.
 - **Acceptance criteria:** free user sees locked paid content + their cohort's unlocked
-  content; paid user watches a lesson, answers the decision prompt, progress persists; live
-  page shows countdown→embed→replay lifecycle.
+  content per Lock-State UX; paid user watches a lesson (captions toggle available; every
+  published lesson has a caption track), answers the decision prompt, progress persists;
+  decision prompt = inline panel below the player (never a modal), unlocks at video end,
+  single question + free-text commitment, sage-green quiet confirmation + visible "Decisions
+  made" count; live page shows countdown→embed→replay lifecycle; pre-start cohort state
+  shows welcome + start date + Starter Notebook unlocked + first live date (never an empty
+  room); gold-contrast and reduced-motion rules verified.
 - **Risk:** this page IS the product's perceived quality — design review required before ship.
 
 ### Project 4: funnel-v2
@@ -164,8 +205,14 @@ moves directly after Project 4 — it is the organic hedge for cohort fill.
 
 ### Project 5: playbook
 - **Scope:** Life Playbook + Starter Notebook: template chapters/pages (instructions +
-  structured fields), fill-in UX shaped like a book, progress, PDF export (satori), journaling
-  (morning/evening prompts, streaks). Template content authored as seed data, editable in admin.
+  structured fields), fill-in UX per ADR 20 (640px reading column, serif chapter heads,
+  contents spine, autosave on blur), progress, PDF export (satori — WHITE background, ink
+  text, gold only for rules/accents; cream wastes ink printed), journaling (morning/evening
+  prompts; cumulative count "47 mornings journaled" — NO flame icons, NO broken-streak shame
+  states; streak-guilt is hustle-culture, the brand's enemy). Empty pages are invitations:
+  instruction prose (Indy register) + one example answer, never a bare form. Playbook shell
+  carries the privacy reassurance line ("Only you and your AI see this"). Template content
+  authored as seed data, editable in admin.
 - **Deliverables:** features/(life)/playbook/, journal/; admin template editor;
   export endpoint; events for every save (Decision Graph rows); privacy policy update
   covering playbook/journal data class (most sensitive data the company holds).
@@ -182,7 +229,12 @@ moves directly after Project 4 — it is the organic hedge for cohort fill.
   (provider no-training posture documented).
 - **Deliverables:** features/(life)/ai-chat/, interview/; providers/ai.ts v2 (chat +
   distillation); ai_usage enforcement middleware; safety system prompt + crisis-response
-  copy (voice.md compliant).
+  copy (voice.md compliant; crisis message gets its own calm visual treatment, not
+  alarm-red); "not therapy" disclosure as a persistent quiet line under the chat input
+  (not a dismissable modal); aria-live="polite" streaming, no animated typing indicator
+  under reduced motion; interview distillation renders proposed-vs-confirmed states
+  (sand-tinted "suggested" fields the user explicitly accepts — the trust-critical
+  moment of ADR 11).
 - **Acceptance criteria:** chat answer references user's actual playbook data; interview fills
   a page's fields after confirmation; budget ceiling returns graceful message; per-message
   usage rows written; crisis-signal input returns resources and a boundary, never advice
@@ -205,8 +257,9 @@ moves directly after Project 4 — it is the organic hedge for cohort fill.
   (week-4 lesson completion holding). Pre-revenue Expo work is the likeliest runway leak.
 - **Scope:** Expo (React Native) app: login-only (no IAP), catalog, lesson player (Stream HLS),
   lives/replays, playbook fill-in, journal, AI chat. Shares Zod types + API client with web.
-- **Deliverables:** apps/mobile/ Expo project; shared packages/api-client; EAS build config;
-  store-readiness checklist (privacy labels, reader-app compliance).
+- **Deliverables:** apps/mobile/ Expo project; shared packages/api-client (including design
+  tokens exported as a typed constants module so palette/spacing stay single-source with web);
+  EAS build config; store-readiness checklist (privacy labels, reader-app compliance).
 - **Acceptance criteria:** TestFlight-ready build: login, watch lesson, answer prompt, journal
   entry, chat — all against production API.
 - **Risk:** Apple review (reader-app rules) — no purchase references anywhere in-app.
@@ -218,6 +271,10 @@ Upon founder confirmation, update in the same PR as this initiative's acceptance
 - company.md → Locked Decisions table (ads row, ADR 14)
 - company.md → Revenue Model wording (see usage-pricing open question below)
 - decisions/product/context.md → current-state scores and bottleneck map
+- design.md → resolve the internal contradiction: button spec says "gold bg, white text" but
+  white-on-gold ≈2.7:1 fails the same file's 4.5:1 contrast mandate. Resolution shipped in
+  code: ink (#1A1714) text on gold (Design Requirements rule 2); design.md must be amended
+  to match (founder may instead choose a darker gold token).
 
 ## Open Questions
 - Ads unlock (ADR 14) changes a locked decision in company.md — founder to confirm in writing
