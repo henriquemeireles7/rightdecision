@@ -7,6 +7,8 @@ Drizzle ORM + PostgreSQL. Single schema file, postgres-js driver, migration syst
 - ALL tables go in `schema.ts` — NEVER define tables in feature folders
 - ALWAYS use `uuid('id').defaultRandom().primaryKey()` for primary keys
 - ALWAYS add `createdAt` and `updatedAt` timestamps to new tables
+  - EXCEPTION: `events` is append-only and has NO `updatedAt` — never add one, never UPDATE events rows (insert-only spine)
+- ALWAYS use `timestamp(..., { withTimezone: true })` (timestamptz) for scheduling timestamps — anything that represents a real-world instant compared across timezones (startsAt, endsAt, scheduledAt, expiresAt, cancelledAt, confirmedAt, occurredAt, completedAt, lastWatchedAt). Legacy pre-V2 columns stay plain `timestamp`; do not retrofit.
 - ALWAYS use `.references(() => parentTable.id, { onDelete: 'cascade' })` for foreign keys
 - After schema changes: `bun run db:generate` then `bun run db:migrate` — NEVER edit migration files manually
 - Use Drizzle query builder — NEVER raw SQL unless performance-critical

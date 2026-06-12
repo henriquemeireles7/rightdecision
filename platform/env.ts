@@ -35,6 +35,21 @@ export const env = createEnv({
     GOOGLE_CLIENT_SECRET: z.string().min(1).optional(),
     // ─── SEO: IndexNow ───
     INDEXNOW_KEY: z.string().min(8).optional(),
+    // ─── Platform V2: Cloudflare Stream (optional like R2_* — runtime ProviderError when absent) ───
+    CLOUDFLARE_ACCOUNT_ID: z.string().min(1).optional(),
+    CLOUDFLARE_STREAM_API_TOKEN: z.string().min(1).optional(),
+    CLOUDFLARE_STREAM_SIGNING_KEY_ID: z.string().min(1).optional(),
+    CLOUDFLARE_STREAM_SIGNING_KEY_JWK: z.string().min(1).optional(), // base64 JWK for jose self-signing
+    CLOUDFLARE_STREAM_WEBHOOK_SECRET: z.string().min(1).optional(),
+    CLOUDFLARE_STREAM_CUSTOMER_CODE: z.string().min(1).optional(), // playback/embed domain
+    // ─── Platform V2: Image generation (capability-named, vendor-agnostic) ───
+    IMAGE_GEN_API_KEY: z.string().min(1).optional(),
+    // ─── Platform V2: Cohorts + cutover ───
+    COHORT_TIMEZONE: z.string().default('America/Sao_Paulo'),
+    V2_ENROLLMENT_CUTOVER: z.coerce.boolean().default(false),
+    // ─── Platform V2: AI monthly token budgets (declared now, Project 6 reads) ───
+    AI_MONTHLY_TOKEN_BUDGET_PAID: z.coerce.number().default(2_000_000),
+    AI_MONTHLY_TOKEN_BUDGET_FREE: z.coerce.number().default(200_000),
     // ─── SEO: Google Search Console API ───
     GOOGLE_SERVICE_ACCOUNT_JSON: z
       .string()
