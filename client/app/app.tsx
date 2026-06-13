@@ -6,6 +6,7 @@
 
 import { Shell } from './components/shell'
 import { EmptyState } from './components/states'
+import { ChatPage } from './pages/chat'
 import { HomePage } from './pages/home'
 import { JournalPage } from './pages/journal'
 import { LessonPage } from './pages/lesson'
@@ -34,6 +35,10 @@ function Page({ route }: { route: ReturnType<typeof useRoute> }) {
       return <LiveReplayPage liveId={route.liveId} />
     case 'materials':
       return <MaterialsPage />
+    case 'chat':
+      return <ChatPage />
+    case 'chat-conversation':
+      return <ChatPage conversationId={route.conversationId} />
     case 'not-found':
       return (
         <div class="px-4 py-16">

@@ -41,6 +41,12 @@ if (!optOut && typeof document === 'undefined') {
     WebSocket: globalThis.WebSocket,
     TextEncoder: globalThis.TextEncoder,
     TextDecoder: globalThis.TextDecoder,
+    // Stream primitives: happy-dom ships versions whose WritableStream lacks
+    // getWriter(), which breaks Hono streamSSE (server-side SSE, e.g. ai-chat).
+    // Restore Bun's natives so server stream tests work under the DOM preload.
+    ReadableStream: globalThis.ReadableStream,
+    WritableStream: globalThis.WritableStream,
+    TransformStream: globalThis.TransformStream,
   }
 
   GlobalRegistrator.register()

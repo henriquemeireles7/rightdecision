@@ -28,6 +28,19 @@ Tasks that require manual human action. AI agents add items here when they hit s
       schedule a live; see the next cohort auto-created on the Cohorts screen. Note ANY
       moment she has to ask Henry something — each one is a UX bug to file.
 
+## Platform V2 — AI crisis-resource list (P0, Henry + Indy)
+
+- [ ] **Supply the real crisis-resource list (BLOCKS AI launch).** The AI safety system is fully
+      built and tested, but the actual hotline numbers are a deliberate placeholder. In
+      `features/(life)/ai-chat/safety.ts`, `CRISIS_RESOURCES` currently uses only generic US
+      988 + "local emergency services" lines (marked `isPlaceholder: true`). Before the AI
+      features go live, replace it with the real, **region-aware** list: which lines we surface
+      for our actual ICP's regions (US 988 is not enough if we have non-US students), text vs
+      call options, and exact wording. The mechanism (crisis detection → referral + boundary,
+      never advice, calm CALM visual treatment) is done and covered by tests — this is purely the
+      human-supplied content the law and the brand both require us to get right. Do NOT ship AI
+      chat with the placeholder live.
+
 ## Entity Building (SEO — P0)
 
 - [ ] **LinkedIn Personal Profile** — Create/update with "Founder, The Right Decision" headline, link to rightdecisions.io/about, professional photo

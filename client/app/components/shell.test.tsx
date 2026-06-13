@@ -27,24 +27,22 @@ describe('component: Shell', () => {
     expect(logo?.className).toContain('font-display')
   })
 
-  test('shows ONLY shipped waves — P5 ships Playbook + Journal; never Chat', () => {
+  test('shows ONLY shipped waves — P6 ships Chat as a primary tab; never "Coming soon"', () => {
     setTestUrl('/app')
     const { queryByText, getAllByRole } = renderShell('home')
     const labels = getAllByRole('link').map((a) => a.textContent)
-    for (const shipped of ['Home', 'Playbook', 'Journal', 'Lives', 'Materials']) {
+    for (const shipped of ['Home', 'Playbook', 'Journal', 'Chat', 'Lives', 'Materials']) {
       expect(labels).toContain(shipped)
     }
-    for (const unshipped of ['Chat', 'Coming soon']) {
-      expect(queryByText(unshipped)).toBeNull()
-    }
+    expect(queryByText('Coming soon')).toBeNull()
   })
 
-  test('mobile tab bar order is Home, Playbook, Journal, Lives, Materials (5 tabs)', () => {
+  test('mobile tab bar order is Home, Playbook, Journal, Chat, Lives, Materials (6 tabs)', () => {
     setTestUrl('/app')
     const { getByLabelText } = renderShell('home')
     const tabBar = getByLabelText('Tab bar')
     const labels = Array.from(tabBar.querySelectorAll('a')).map((a) => a.textContent)
-    expect(labels).toEqual(['Home', 'Playbook', 'Journal', 'Lives', 'Materials'])
+    expect(labels).toEqual(['Home', 'Playbook', 'Journal', 'Chat', 'Lives', 'Materials'])
   })
 
   test('playbook page routes highlight Playbook; journal highlights Journal', () => {

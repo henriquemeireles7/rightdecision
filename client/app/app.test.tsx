@@ -27,7 +27,7 @@ describe('component: AppRoot (route switch)', () => {
   })
 
   test('unknown /app path renders the not-found state with a way home', async () => {
-    setTestUrl('/app/chat')
+    setTestUrl('/app/nope')
     setApiFetchForTests(jsonFetch({}))
     const { findByText, findByRole } = render(<AppRoot />)
     expect(await findByText("That page isn't here")).toBeTruthy()
@@ -47,6 +47,13 @@ describe('component: AppRoot (route switch)', () => {
     setApiFetchForTests(jsonFetch({ 'GET /api/journal': { ok: true, data: journalFixture() } }))
     const { findByRole } = render(<AppRoot />)
     expect(await findByRole('heading', { level: 1, name: 'Journal' })).toBeTruthy()
+  })
+
+  test('deep link to /app/chat renders the Chat page in the shell', async () => {
+    setTestUrl('/app/chat')
+    setApiFetchForTests(jsonFetch({}))
+    const { findByRole } = render(<AppRoot />)
+    expect(await findByRole('heading', { level: 1, name: 'Chat' })).toBeTruthy()
   })
 
   test('/app renders Home', async () => {

@@ -29,6 +29,17 @@ describe('unit: parseRoute', () => {
     expect(parseRoute('/app/materials')).toEqual({ name: 'materials' })
   })
 
+  test('/app/chat is the chat route', () => {
+    expect(parseRoute('/app/chat')).toEqual({ name: 'chat' })
+  })
+
+  test('/app/chat/:id is a specific conversation', () => {
+    expect(parseRoute('/app/chat/conv-1')).toEqual({
+      name: 'chat-conversation',
+      conversationId: 'conv-1',
+    })
+  })
+
   test('/app/playbook is the playbook contents (book spine)', () => {
     expect(parseRoute('/app/playbook')).toEqual({ name: 'playbook' })
   })
@@ -46,7 +57,7 @@ describe('unit: parseRoute', () => {
   })
 
   test('unknown paths are not-found (never silently home)', () => {
-    expect(parseRoute('/app/chat')).toEqual({ name: 'not-found' })
+    expect(parseRoute('/app/nope')).toEqual({ name: 'not-found' })
     expect(parseRoute('/app/lessons')).toEqual({ name: 'not-found' })
     expect(parseRoute('/app/lessons/a/b')).toEqual({ name: 'not-found' })
     expect(parseRoute('/app/playbook/tpl-1')).toEqual({ name: 'not-found' })

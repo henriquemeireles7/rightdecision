@@ -8,6 +8,7 @@ import { CohortsScreen } from './cohorts'
 import { CourseDetailScreen, CoursesScreen, ModuleDetailScreen } from './courses'
 import type { AdminData } from './data'
 import { createAdminData, DataContext } from './data'
+import { DistributionRunScreen, DistributionScreen } from './distribution'
 import { LessonEditorScreen } from './lesson-editor'
 import { LivesScreen } from './lives'
 import { MaterialsScreen } from './materials'
@@ -30,6 +31,11 @@ const NAV: Array<{ label: string; route: Route; matches: Route['name'][] }> = [
   { label: 'Lives', route: { name: 'lives' }, matches: ['lives'] },
   { label: 'Materials', route: { name: 'materials' }, matches: ['materials'] },
   { label: 'Templates', route: { name: 'templates' }, matches: ['templates', 'template'] },
+  {
+    label: 'Distribution',
+    route: { name: 'distribution' },
+    matches: ['distribution', 'distribution-run'],
+  },
 ]
 
 function Screen({ route }: { route: Route }) {
@@ -62,6 +68,10 @@ function Screen({ route }: { route: Route }) {
       return <TemplatesScreen />
     case 'template':
       return <TemplateEditorScreen templateId={route.templateId} />
+    case 'distribution':
+      return <DistributionScreen />
+    case 'distribution-run':
+      return <DistributionRunScreen runId={route.runId} />
   }
 }
 

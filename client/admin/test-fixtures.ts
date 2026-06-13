@@ -17,6 +17,10 @@ import type {
   AdminProgram,
   AdminTemplate,
   AdminTemplateSchema,
+  DistributionClip,
+  DistributionPost,
+  DistributionRun,
+  DistributionRunDetail,
 } from './data'
 
 /** happy-dom starts at about:blank — point it at a real path before router tests. */
@@ -193,6 +197,87 @@ export function makeTemplate(overrides: Partial<AdminTemplate> = {}): AdminTempl
     updatedAt: NOW,
     ...overrides,
   }
+}
+
+// ─── Distribution (Project 7) ───
+
+export function makeRun(overrides: Partial<DistributionRun> = {}): DistributionRun {
+  return {
+    id: 'run-1',
+    inputVideoUrl: 'pipeline/abc/episode.mp4',
+    inputVideoSize: null,
+    durationSeconds: null,
+    category: null,
+    status: 'selected',
+    stepFailedAt: null,
+    errorMessage: null,
+    transcript: null,
+    config: { flow: 'short' },
+    stepTimings: null,
+    clipsGenerated: 0,
+    clipsApproved: 0,
+    clipsPosted: 0,
+    clipsFailed: 0,
+    startedAt: NOW,
+    completedAt: null,
+    createdAt: NOW,
+    updatedAt: NOW,
+    ...overrides,
+  } as DistributionRun
+}
+
+export function makeClip(overrides: Partial<DistributionClip> = {}): DistributionClip {
+  return {
+    id: 'clip-1',
+    pipelineRunId: 'run-1',
+    sourceTimestampStart: 0,
+    sourceTimestampEnd: 30,
+    duration: 30,
+    score: 8,
+    suggestedTitle: 'The hook',
+    transcriptSnippet: 'A line worth clipping.',
+    storageUrl: null,
+    approved: false,
+    cutStatus: 'pending',
+    platformFit: ['tiktok'],
+    createdAt: NOW,
+    updatedAt: NOW,
+    ...overrides,
+  } as DistributionClip
+}
+
+export function makePost(overrides: Partial<DistributionPost> = {}): DistributionPost {
+  return {
+    id: 'post-1',
+    clipId: 'clip-1',
+    platformAccountId: 'acct-1',
+    platformName: 'tiktok',
+    uploadPostId: null,
+    uploadPostResponse: null,
+    description: 'caption',
+    hashtags: ['#decision'],
+    cta: null,
+    profileSlug: null,
+    status: 'scheduled',
+    scheduledAt: null,
+    postedAt: null,
+    failureReason: null,
+    retryCount: 0,
+    createdAt: NOW,
+    updatedAt: NOW,
+    ...overrides,
+  } as DistributionPost
+}
+
+export function makeRunDetail(
+  overrides: Partial<DistributionRunDetail> = {},
+): DistributionRunDetail {
+  return {
+    run: makeRun(),
+    clips: [],
+    posts: [],
+    ...overrides,
+  } as DistributionRunDetail
 }
 
 export function makeMaterial(overrides: Partial<AdminMaterial> = {}): AdminMaterial {

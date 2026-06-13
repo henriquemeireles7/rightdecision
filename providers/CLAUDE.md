@@ -17,6 +17,23 @@ Thin wrappers around external services. One file per capability, named by WHAT i
 - Optional-env providers (R2_*, CLOUDFLARE_*, IMAGE_GEN_*) throw ProviderError at runtime when vars are absent — schema stays optional so dev/CI boot without secrets
 - Integration tests live in `*.integration.test.ts` and ALWAYS use `describe.skipIf(!process.env.THE_KEY)` so they skip in CI (see storage.integration.test.ts)
 
+## ai.ts (Anthropic — chat, distillation, suggestions)
+- Docs: this repo's claude-api skill. Model IDs pinned in `AI_MODELS` (LARGE=`claude-opus-4-8`,
+  SMALL=`claude-haiku-4-5`). Swap a model HERE, not in features.
+- Exports: `chat` (AsyncIterable<ChatChunk>), `distill`, `generateSuggestions`, `modelForKind`,
+  `AI_MODELS`, types `AiKind`/`ChatChunk`/`ChatParams`/`ChatMessage`/`DistillResult`.
+- **SSE seam (DX Convention 4):** `chat(params)` is an `AsyncIterable<ChatChunk>` — it yields
+  `{type:'text'}` chunks as the model streams, then exactly ONE terminal
+  `{type:'done', inputTokens, outputTokens, model}`. The FEATURE layer owns persist-on-completion
+  (a pure function); a mid-stream throw (severed socket) propagates and the feature persists NOTHING.
+  The Hono route is thin streamSSE piping. ALL stream tests iterate a FIXTURE AsyncIterable injected
+  at the feature layer — the live socket is NEVER hit in CI (it lives behind the env/key seam).
+- **Model tiering (ADR 10):** `modelForKind(kind)` returns LARGE for `'chat'` (advice), SMALL for
+  `'interview'|'distill'|'suggestion'`. The $197/yr COGS ceiling demands cheap kinds never hit large.
+- `distill(system, transcript)` is a single (non-streamed) SMALL-model call returning
+  `{ fields, inputTokens, outputTokens, model }` via structured outputs; returns empty fields on any
+  failure (the interview simply yields no suggestions).
+
 ## payments.ts (Stripe)
 - Docs: https://docs.stripe.com/api
 - Exports: `payments` (Stripe client), `plans` (price config), `PlanId` type
@@ -109,7 +126,7 @@ bunx tsc --noEmit providers/*.ts
 ## Files
 | File | Exports |
 |------|---------|
-| ai.ts | generateSuggestions |
+| ai.ts | AI_MODELS, AiKind, modelForKind, ChatRole, ChatMessage, ChatChunk, ChatParams, DistillResult, distill, generateSuggestions |
 | analytics.ts | track, identify, shutdown |
 | content.ts | ClassType, DecisionBlockDef, ContentSegment, CourseClass, CourseModule, Course, splitIntoSegments, getClass, getModule, getAllModules, getClassesByCourse, searchClasses, getTotalClasses, getCourse, getAllCourses |
 | email.ts | email, sendEmail |
@@ -130,4 +147,4 @@ bunx tsc --noEmit providers/*.ts
 - platform/env
 - providers/errors
 
-<!-- Generated: 2026-06-12T22:38:50.282Z -->
+<!-- Generated: 2026-06-13T02:53:44.062Z -->

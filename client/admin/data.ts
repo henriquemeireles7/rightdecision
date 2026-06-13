@@ -7,11 +7,15 @@
 import { createContext } from 'preact'
 import { useContext } from 'preact/hooks'
 import { api, unwrap } from '@/features/(shared)/api-client'
+import { createDistributionData } from './distribution-data'
 
 export function createAdminData(client: typeof api = api) {
   const admin = client.api.admin
   const cb = admin['course-builder']
   return {
+    // ─── Distribution (Project 7: BD pipeline admin glue) ───
+    ...createDistributionData(client),
+
     // ─── Courses → modules → lessons ───
     listCourses: () => unwrap(cb.courses.$get()),
     createCourse: (json: { slug: string; title: string; description?: string }) =>
@@ -209,6 +213,15 @@ export type AdminTemplateSchema = AdminTemplate['schema']
 export type AdminTemplateChapter = AdminTemplateSchema['chapters'][number]
 export type AdminTemplatePage = AdminTemplateChapter['pages'][number]
 export type AdminTemplateField = AdminTemplatePage['fields'][number]
+
+// ─── Distribution (Project 7) ───
+export type {
+  DistributionClip,
+  DistributionFlow,
+  DistributionPost,
+  DistributionRun,
+  DistributionRunDetail,
+} from './distribution-data'
 
 export const DataContext = createContext<AdminData>(createAdminData())
 

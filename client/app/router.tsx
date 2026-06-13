@@ -16,6 +16,8 @@ export type Route =
   | { name: 'lives' }
   | { name: 'live'; liveId: string }
   | { name: 'materials' }
+  | { name: 'chat' }
+  | { name: 'chat-conversation'; conversationId: string }
   | { name: 'not-found' }
 
 export const APP_BASE = '/app'
@@ -34,6 +36,9 @@ export function parseRoute(pathname: string): Route {
   if (head === 'lives' && segments.length === 1) return { name: 'lives' }
   if (head === 'lives' && second && segments.length === 2) return { name: 'live', liveId: second }
   if (head === 'materials' && segments.length === 1) return { name: 'materials' }
+  if (head === 'chat' && segments.length === 1) return { name: 'chat' }
+  if (head === 'chat' && second && segments.length === 2)
+    return { name: 'chat-conversation', conversationId: second }
   return { name: 'not-found' }
 }
 

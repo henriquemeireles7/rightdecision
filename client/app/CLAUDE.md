@@ -23,6 +23,15 @@ the Ethereal Warmth cream palette — NEVER dark mode; the lesson player sits in
   desktop arrows; NO auto-scroll, NO hover-zoom; card hover = gold border + subtle shadow
 - 44px minimum touch targets (bottom tab bar, cards, controls); `:focus-visible` gold ring
   comes from styles/global.css — never remove outlines
+- NAV (P6 decision): the bottom bar holds SIX tabs (Home/Playbook/Journal/Chat/Lives/Materials),
+  NOT a More/overflow menu. Chat is a primary surface; at 320px flex-1 gives each tab ~53px
+  (still ≥44px) and labels fit at text-xs. Add a More/overflow only if a 7th primary tab ships.
+  Rationale lives next to NAV_ITEMS in components/shell.tsx.
+- Chat UI: streaming assistant text MUST be in an `aria-live="polite"` region; NO animated typing
+  indicator under `prefers-reduced-motion` (motion-safe pulse only). Chat bubbles: user =
+  ink-on-gold (right), assistant = ink-on-sand (left). The "not therapy" line is a persistent,
+  non-dismissable muted line UNDER the input. The crisis callout is CALM (sand/gold/ink) — NEVER
+  alarm-red. The budget-ceiling state is a DESIGNED warm state, not an error toast.
 - Consume tokens from styles/global.css (bg-cream, bg-sand, border-linen, text-ink,
   text-body, text-muted, bg-gold, text-success, font-display, font-body) — never fork them
 

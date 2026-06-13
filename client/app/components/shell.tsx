@@ -11,15 +11,22 @@ import { fetchBillingPortalUrl, signOut } from '../lib/data'
 import { Link, type Route } from '../router'
 
 /**
- * Shipped waves only — P5 shipped Playbook + Journal; P6 (Chat) adds its entry when it ships.
- * Five tabs fit the mobile bar without an overflow menu: flex-1 keeps every target
- * ≥64px wide at a 320px viewport (44px minimum met with room), min-h-11 keeps 44px
- * height; the tab label drops to text-xs so "Materials" never wraps.
+ * Shipped waves only — P6 adds Chat, a PRIMARY surface (the paid product's core promise),
+ * bringing the bar to SIX tabs.
+ *
+ * NAV DECISION (6 tabs vs a More/overflow menu): six tabs, NOT an overflow menu. At the
+ * 320px floor, flex-1 gives each of 6 tabs ~53px — still ≥44px (the touch-target minimum) and
+ * each label ("Chat" is the longest new one) fits at text-xs without wrapping. An overflow
+ * "More" menu would bury Chat one tap deeper, which is wrong for a primary surface, and add a
+ * popover with its own a11y surface for no real-estate gain at this count. Revisit only if a
+ * 7th primary tab ships (then a More/overflow becomes worth its complexity). Documented in
+ * shell/CLAUDE.md.
  */
 export const NAV_ITEMS: ReadonlyArray<{ label: string; href: string; routes: Route['name'][] }> = [
   { label: 'Home', href: '/app', routes: ['home', 'lesson'] },
   { label: 'Playbook', href: '/app/playbook', routes: ['playbook', 'playbook-page'] },
   { label: 'Journal', href: '/app/journal', routes: ['journal'] },
+  { label: 'Chat', href: '/app/chat', routes: ['chat', 'chat-conversation'] },
   { label: 'Lives', href: '/app/lives', routes: ['lives', 'live'] },
   { label: 'Materials', href: '/app/materials', routes: ['materials'] },
 ]

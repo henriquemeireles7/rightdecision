@@ -3,6 +3,7 @@ import { adminAnalyticsRoutes } from '@/features/(admin)/analytics/routes'
 import { adminCohortsRoutes } from '@/features/(admin)/cohorts/routes'
 import { adminCourseBuilderRoutes } from '@/features/(admin)/course-builder/routes'
 import { streamWebhookRoutes } from '@/features/(admin)/course-builder/webhook-routes'
+import { adminDistributionRoutes } from '@/features/(admin)/distribution/routes'
 import { adminLivesRoutes } from '@/features/(admin)/lives/routes'
 import { adminMaterialsRoutes } from '@/features/(admin)/materials/routes'
 import { adminProgramsRoutes } from '@/features/(admin)/programs/routes'
@@ -17,6 +18,7 @@ import { insightRoutes } from '@/features/(business)/insight-generate/routes'
 import { metadataRoutes } from '@/features/(business)/metadata-generate/routes'
 import { postDistributeRoutes } from '@/features/(business)/post-distribute/routes'
 import { transcribeRoutes } from '@/features/(business)/transcribe/routes'
+import { aiChatRoutes } from '@/features/(life)/ai-chat/routes'
 import { appShellRoutes } from '@/features/(life)/app-shell/routes'
 import { authPageRoutes } from '@/features/(life)/auth/routes'
 import { catalogRoutes } from '@/features/(life)/catalog/routes'
@@ -31,6 +33,7 @@ import { searchRoutes } from '@/features/(life)/course/search-routes'
 import { shareRoutes } from '@/features/(life)/course/share-routes'
 import { courseRoutes } from '@/features/(life)/course-player/routes'
 import { progressRoutes } from '@/features/(life)/course-progress/routes'
+import { interviewRoutes } from '@/features/(life)/interview/routes'
 import { joinRoutes } from '@/features/(life)/join/routes'
 import { journalRoutes } from '@/features/(life)/journal/routes'
 import { livesViewRoutes } from '@/features/(life)/lives-view/routes'
@@ -80,6 +83,8 @@ export function mountRoutes(app: Hono) {
       .route('/api/join', joinRoutes)
       .route('/api/playbook', playbookRoutes)
       .route('/api/journal', journalRoutes)
+      .route('/api/chat', aiChatRoutes)
+      .route('/api/interview', interviewRoutes)
       // ─── V2 Admin APIs ───
       .route('/api/admin/course-builder', adminCourseBuilderRoutes)
       .route('/api/admin/materials', adminMaterialsRoutes)
@@ -87,6 +92,7 @@ export function mountRoutes(app: Hono) {
       .route('/api/admin/cohorts', adminCohortsRoutes)
       .route('/api/admin/programs', adminProgramsRoutes)
       .route('/api/admin/templates', adminTemplatesRoutes)
+      .route('/api/admin/distribution', adminDistributionRoutes)
       .route('/api/webhook/stream', streamWebhookRoutes)
       // ─── BD Pipeline ───
       .route('/api/pipeline/health', healthRoutes)

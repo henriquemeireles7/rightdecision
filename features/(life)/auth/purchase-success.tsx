@@ -6,6 +6,12 @@ export function PurchaseSuccessPage({ email }: { email?: string }) {
           <h1 class="font-display text-3xl text-ink mb-md">Payment confirmed</h1>
           <p class="text-secondary">Create your account to access the course.</p>
           <p class="text-sm text-muted mt-sm">$197.00/year — Right Decision: The Course</p>
+          {/* "Not therapy" disclosure at the onboarding surface (P6 safety deliverable) —
+              present here AND as a persistent line under the chat input. */}
+          <p class="text-sm text-muted mt-sm">
+            One thing before you start: the AI here helps you decide. It is not therapy, and it does
+            not replace a doctor, a therapist, or a crisis line.
+          </p>
         </div>
 
         <form id="signup-form" class="space-y-md">

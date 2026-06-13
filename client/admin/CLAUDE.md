@@ -64,14 +64,17 @@ source /tmp/test-env.sh && bun test client/admin && bunx tsc --noEmit && bun run
 | cohorts.tsx | splitCohorts, CohortsScreen |
 | courses.tsx | slugify, lessonChipStatus, CoursesScreen, CourseDetailScreen, ModuleDetailScreen |
 | covers.tsx | CoverSibling, CoverSection |
-| data.ts | createAdminData, AdminData, AdminCourse, AdminCourseDetail, AdminModule, AdminLesson, AdminProgram, AdminProgramDetail, AdminCohort, AdminCohortSuggestion, AdminLive, AdminMaterial, DataContext, useData |
+| data.ts | createAdminData, AdminData, AdminCourse, AdminCourseDetail, AdminModule, AdminLesson, AdminProgram, AdminProgramDetail, AdminCohort, AdminCohortSuggestion, AdminLive, AdminMaterial, AdminTemplate, AdminTemplateSchema, AdminTemplateChapter, AdminTemplatePage, AdminTemplateField, DataContext, useData |
+| distribution-data.ts | DistributionFlow, createDistributionData, DistributionData, DistributionRun, DistributionRunDetail, DistributionClip, DistributionPost |
+| distribution.tsx | PIPELINE_STEPS, StepKey, StepState, stepStates, DistributionScreen, DistributionRunScreen |
 | index.tsx | — |
 | lesson-editor.tsx | publishBlockers, LessonEditorScreen |
 | lives.tsx | LiveState, deriveLiveState, LivesScreen |
 | materials.tsx | MaterialsScreen |
 | programs.tsx | ProgramsScreen, ProgramDetailScreen |
 | router.ts | Route, parseRoute, routePath, navigate, useRoute |
-| test-fixtures.ts | setBrowserPath, makeData, makeCourse, makeModule, makeLesson, makeProgram, makeCohort, makeSuggestion, makeLive, makeMaterial |
+| templates.tsx | uniqueChildId, TemplatesScreen, TemplateEditorScreen |
+| test-fixtures.ts | setBrowserPath, makeData, makeCourse, makeModule, makeLesson, makeProgram, makeCohort, makeSuggestion, makeLive, makeTemplateSchema, makeTemplate, makeRun, makeClip, makePost, makeRunDetail, makeMaterial |
 | ui.tsx | buttonPrimary, buttonSecondary, buttonGhost, buttonDanger, inputClass, ErrorDescription, describeError, ListSkeleton, EmptyState, ErrorState, InlineError, InlineSuccess, Chip, ChipStatus, StatusChip, ConfirmDialog, mediaUrl, RouteLink, formatInstant, formatBytes, LoadState, useLoad, AutosaveText, useAction |
 | uploader.ts | UploadHandlers, UploadHandle, Uploader, createTusUploader, UploaderContext, useUploader, PutFile, putFileWithProgress, PutFileContext, usePutFile |
 | video-upload.tsx | UploadStatus, VideoUpload |
@@ -80,4 +83,4 @@ source /tmp/test-env.sh && bun test client/admin && bunx tsc --noEmit && bun run
 - features/(admin)
 - features/(shared)
 
-<!-- Generated: 2026-06-13T00:43:48.444Z -->
+<!-- Generated: 2026-06-13T02:53:44.060Z -->

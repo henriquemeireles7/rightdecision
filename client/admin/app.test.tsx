@@ -25,10 +25,18 @@ const data = () =>
   })
 
 describe('component: AdminApp', () => {
-  test('renders the sidebar with all six sections and lands on Courses', async () => {
+  test('renders the sidebar with all sections and lands on Courses', async () => {
     setBrowserPath('/admin')
     const { findByText, getByRole } = render(<AdminApp data={data()} />)
-    for (const section of ['Courses', 'Programs', 'Cohorts', 'Lives', 'Materials', 'Templates']) {
+    for (const section of [
+      'Courses',
+      'Programs',
+      'Cohorts',
+      'Lives',
+      'Materials',
+      'Templates',
+      'Distribution',
+    ]) {
       expect(getByRole('link', { name: section })).toBeTruthy()
     }
     expect(await findByText('Visible Course')).toBeTruthy()
@@ -60,6 +68,13 @@ describe('component: AdminApp', () => {
     })
     const { findByText } = render(<AdminApp data={d} />)
     expect(await findByText('Visible Template')).toBeTruthy()
+  })
+
+  test('deep link to /admin/distribution renders the Distribution screen', async () => {
+    setBrowserPath('/admin/distribution')
+    const d = makeData({ listRuns: async () => [] })
+    const { findByText } = render(<AdminApp data={d} />)
+    expect(await findByText(/No videos yet/)).toBeTruthy()
   })
 
   test('unknown path falls back to Courses instead of a blank page', async () => {

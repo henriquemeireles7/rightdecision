@@ -89,8 +89,13 @@ Every interactive element must handle these 8 states (not all visual — but all
 7. **Error** — invalid state (terracotta border/text)
 8. **Success** — completed action (sage green confirmation)
 
+## Gold Contrast Rule (binding)
+Text on a gold background is ALWAYS ink (`--color-ink`), NEVER white. White-on-gold fails
+WCAG AA. This is enforced in every V2 surface (skip-link, primary buttons, pill badges, CTAs)
+and asserted by gold-contrast tests in the SPA harness. No exceptions.
+
 ## Component Patterns
-- **Buttons:** Primary (gold bg, white text), Secondary (sand bg, dark text), Ghost (transparent, border). All buttons: min 44px touch target even if visually smaller.
+- **Buttons:** Primary (gold bg, **ink text**), Secondary (sand bg, ink text), Ghost (transparent, border). All buttons: min 44px touch target even if visually smaller.
 - **Cards:** White surface, 1px linen border, md radius. Hover: gold border, subtle shadow. Only use cards for truly distinct content or clear interaction boundaries — never nest cards inside cards.
 - **Inputs:** White surface, linen border, sm radius. Focus: gold border + `box-shadow` ring.
 - **Alerts:** Tinted backgrounds matching semantic color (success=green tint, error=red tint)
@@ -101,6 +106,35 @@ Every interactive element must handle these 8 states (not all visual — but all
 - **Navigation:** Logo in Instrument Serif, links in sans, gold CTA button
 - **Empty states:** Onboarding opportunity, not dead ends. Show what the user CAN do, not just "nothing here."
 - **Error messages:** Three-part framework: what happened → why → how to fix it. Never use humor for errors.
+
+### Platform V2 — Members Area (Netflix layout on cream)
+- **Rail:** Semantic `<section>` + real `<h2>` heading; horizontal CSS scroll-snap with a partial next-card peek; desktop arrow buttons (motion-safe). NEVER auto-scroll, NEVER hover-zoom.
+- **Poster card (2:3):** Full-color cover image, 1px linen border; title rendered as live HTML in Instrument Serif ink BELOW the card — never overlaid on the image. Hover: gold border + subtle shadow. Focus-visible: gold ring.
+- **Continue-watching card (16:9):** Thumbnail + a gold resume bar showing watched fraction.
+- **Lock badge / locked card:** Locked content shows the FULL-COLOR cover (never grayscale/blur) + an ink-on-cream pill badge ("Full program"). Tapping opens a preview sheet (module description + lesson titles + upgrade CTA) — never a dead end.
+- **Preview sheet:** Native `<dialog>`; locked = titles-only + upgrade CTA, unlocked = playable lesson list.
+- **Player canvas:** The ONLY ink (`#1A1714`) full-bleed region in the product — wraps the HLS video. hls.js is lazy-loaded on the lesson route only (native HLS fallback on Safari). Everything around it stays cream.
+- **Pre-start (welcome) state:** Before a cohort opens, render a warm welcome with the localized start date + first live date and NO empty rails.
+
+### Platform V2 — Playbook & Journal
+- **Contents spine:** Book-like chapter→page list with QUIET progress numerals ("3 of 7") — no progress bars, no `<progress>`, no percentages, no gamification. Privacy reassurance line ("Only you and your AI see this").
+- **Fill-in page:** One screen-length section in the 640px reading column (`--max-reading`); serif page heading; instruction prose leads; visible labels always (never placeholder-as-label); select/multi-select as calm radio/checkbox groups (not dropdowns) for reflection UX; `exampleAnswer` as quiet italic invitation under empty fields; deprecated-with-answer renders read-only with a soft note.
+- **Autosave indicator:** Saves on blur + 800ms debounce; a quiet "Saved" confirmation — NO spinners mid-typing; a failed save keeps the value and offers a gentle inline retry. Idle/pending render nothing.
+- **No-shame counts:** Cumulative tallies only ("47 mornings · 31 evenings · 52 days"). NEVER streaks, flames, or shame mechanics.
+
+### Platform V2 — AI Chat & Interview
+- **Chat bubbles:** Ink-on-gold (user) / ink-on-sand (assistant); streaming via `aria-live="polite"`; NO animated typing indicator under `prefers-reduced-motion`.
+- **Not-therapy disclosure:** A persistent quiet line UNDER the chat input (not a dismissable modal); also shown in onboarding.
+- **Crisis callout:** CALM treatment — sand/gold/ink `role="note"`, NEVER alarm-red. Crisis input gets resources + a boundary, never advice (this is the one place the red-error-tint alert pattern is deliberately NOT used).
+- **Budget-ceiling state:** A DESIGNED warm state (not an error toast) when the AI usage budget is reached.
+- **Interview confirm:** Distilled answers render sand-tinted "suggested" until the user explicitly accepts, then flip to gold-confirmed — the ADR 11 trust moment. Never fill a field before confirmation.
+
+### Platform V2 — Admin (Stripe-dashboard bar)
+- **Flow-chooser pill:** Segmented pill for picking a pipeline flow (short→clips / long→YouTube).
+- **Step-rail dashboard:** Horizontal per-run pipeline status rail (transcribe→select→cut→metadata→distribute) with done/active/failed chips; failures show what/why/how-to-fix.
+- **Per-clip approval row:** Approve/reject per clip; the distribute action stays disabled until at least one clip is approved (nothing ships without explicit approval).
+- **Injected uploader:** Video uploads (tus) and presigned PUTs go through an injected uploader interface so tests drive progress/retry/failure with a scripted fake — never real uploads in CI. After upload: a "processing — we'll mark it ready automatically" state that polls.
+- **Cover picker:** Generated cover candidates render ALONGSIDE the existing covers of sibling items so collection cohesion is judged in context.
 
 ## Z-Index Scale
 Semantic layers — never use arbitrary values like `9999`:
@@ -145,3 +179,5 @@ Before shipping any page, ask: "Would someone immediately recognize this was AI-
 | 2026-04-02 | Initial design system created | Ethereal Warmth aesthetic for agent-first self-development platform. Inspired by Intercom warmth + Stripe precision. Instrument Serif for intellectual depth. |
 | 2026-04-02 | No dark mode for Phase 1 | Warm cream palette IS the brand identity. Dark mode would flatten personality. Revisit for Phase 2 AI platform. |
 | 2026-04-02 | Instrument Serif for display | Serif in a tech/course product signals depth and intellectual weight. Differentiates from all-sans competitors. |
+| 2026-06-13 | Ink-on-gold, white-on-gold banned | Corrected a stale "gold bg, white text" button spec — white-on-gold fails WCAG AA. The whole Platform V2 build (skip-link, buttons, badges, CTAs) enforces ink-on-gold, gold-contrast-tested. |
+| 2026-06-13 | Platform V2 component patterns added | Members-area Netflix layout on cream (rails, poster cards, lock badges, preview sheets, ink player canvas), book-like Playbook (contents spine, calm fill-in fields, no-shame counts), AI chat/interview (calm crisis callout, suggested→confirmed trust flip), admin pipeline UI (step-rail, per-clip approval gate). One ink region only: the video player canvas. |
