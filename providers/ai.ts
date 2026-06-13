@@ -16,6 +16,13 @@ function getClient(): Anthropic {
 
 const SUGGESTION_TIMEOUT_MS = 10_000
 const SUGGESTION_COUNT = 3
+/**
+ * Idle watchdog for the chat stream: if the Anthropic socket yields no event for this long
+ * the stream is aborted and the iterator throws. A hung socket therefore degrades cleanly —
+ * runChatTurn's catch maps the throw to dropped:true (nothing persisted). Mirrors the 10s
+ * timeout posture of generateSuggestions/distill, but per-chunk so a long answer can still stream.
+ */
+const CHAT_STREAM_IDLE_TIMEOUT_MS = 30_000
 
 /**
  * Model tiering (ADR 10): a LARGE model for advice (chat), a SMALL model for
@@ -67,22 +74,44 @@ export async function* chat(params: ChatParams): AsyncIterable<ChatChunk> {
   let inputTokens = 0
   let outputTokens = 0
 
-  const stream = getClient().messages.stream({
-    model,
-    max_tokens: 1024,
-    thinking: { type: 'adaptive' },
-    system: params.system,
-    messages: params.messages,
-  })
+  // Idle watchdog: a hung Anthropic socket must NOT stall the SSE request forever. We abort the
+  // stream if no event arrives within CHAT_STREAM_IDLE_TIMEOUT_MS; the abort surfaces as a throw
+  // from the for-await, which runChatTurn maps to dropped:true (nothing persisted).
+  const controller = new AbortController()
+  let watchdog: ReturnType<typeof setTimeout> | undefined
+  const armWatchdog = () => {
+    if (watchdog) clearTimeout(watchdog)
+    watchdog = setTimeout(
+      () => controller.abort(new Error('AI chat stream idle timeout')),
+      CHAT_STREAM_IDLE_TIMEOUT_MS,
+    )
+  }
 
-  for await (const event of stream) {
-    if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
-      yield { type: 'text', text: event.delta.text }
-    } else if (event.type === 'message_start') {
-      inputTokens = event.message.usage.input_tokens
-    } else if (event.type === 'message_delta') {
-      outputTokens = event.usage.output_tokens
+  const stream = getClient().messages.stream(
+    {
+      model,
+      max_tokens: 1024,
+      thinking: { type: 'adaptive' },
+      system: params.system,
+      messages: params.messages,
+    },
+    { signal: controller.signal },
+  )
+
+  try {
+    armWatchdog()
+    for await (const event of stream) {
+      armWatchdog()
+      if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
+        yield { type: 'text', text: event.delta.text }
+      } else if (event.type === 'message_start') {
+        inputTokens = event.message.usage.input_tokens
+      } else if (event.type === 'message_delta') {
+        outputTokens = event.usage.output_tokens
+      }
     }
+  } finally {
+    if (watchdog) clearTimeout(watchdog)
   }
 
   yield { type: 'done', inputTokens, outputTokens, model }

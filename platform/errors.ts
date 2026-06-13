@@ -363,6 +363,11 @@ export const errors = {
     status: 502,
     message: 'Video upload failed',
   },
+  PLAYBACK_UNAVAILABLE: {
+    code: 'PLAYBACK_UNAVAILABLE',
+    status: 503,
+    message: 'Video playback is temporarily unavailable, please try again',
+  },
   STREAM_WEBHOOK_INVALID: {
     code: 'STREAM_WEBHOOK_INVALID',
     status: 401,
@@ -410,6 +415,12 @@ export const errors = {
     code: 'AI_BUDGET_EXCEEDED',
     status: 429,
     message: 'Monthly AI budget reached, resets next month',
+  },
+  // ─── Platform V2: Storage (R2) ───
+  STORAGE_UNAVAILABLE: {
+    code: 'STORAGE_UNAVAILABLE',
+    status: 503,
+    message: 'File storage is temporarily unavailable, please try again',
   },
   // ─── Platform V2: Event spine ───
   EVENT_INVALID: {

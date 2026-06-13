@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { requireAuth } from '@/platform/auth/middleware'
 import { requirePermission } from '@/platform/auth/permissions'
 import { throwError } from '@/platform/errors'
+import { checkRateLimit } from '@/platform/rate-limit'
 import { created, success } from '@/platform/server/responses'
 import type { AppEnv } from '@/platform/types'
 import { generateCoverCandidates, pickCover } from './covers'
@@ -72,7 +73,15 @@ const coverTargetSchema = z.object({
   id: z.uuid(),
 })
 const generateCoverSchema = coverTargetSchema.extend({ subject: z.string().min(1) })
-const pickCoverSchema = coverTargetSchema.extend({ key: z.string().min(1) })
+// Only a generated candidate key may be picked (covers.ts emits
+// `covers/candidates/<kind>/<id>/<uuid>.png`) — reject arbitrary client-supplied keys.
+const candidateKeySchema = z
+  .string()
+  .regex(
+    /^covers\/candidates\/(course|module|lesson)\/[0-9a-f-]+\/[0-9a-f-]+\.png$/,
+    'must be a generated cover candidate key',
+  )
+const pickCoverSchema = coverTargetSchema.extend({ key: candidateKeySchema })
 
 export const adminCourseBuilderRoutes = new Hono<AppEnv>()
   .use(requireAuth)
@@ -222,6 +231,9 @@ export const adminCourseBuilderRoutes = new Hono<AppEnv>()
 
   // ─── AI covers (ADR 18) ───
   .post('/covers/generate', zValidator('json', generateCoverSchema), async (c) => {
+    // Each request fans out to 4 paid image-gen calls — cap per admin to bound COGS.
+    const rate = checkRateLimit(`cover-generate:${c.get('user').id}`, 10, 60 * 1000)
+    if (!rate.allowed) return throwError(c, 'RATE_LIMITED')
     const result = await generateCoverCandidates(c.req.valid('json'))
     if ('error' in result) return throwError(c, result.error, result.details)
     return success(c, result)

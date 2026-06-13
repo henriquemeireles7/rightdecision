@@ -1,6 +1,7 @@
-import { mock } from 'bun:test'
+import { afterAll, mock } from 'bun:test'
 import type { MiddlewareHandler } from 'hono'
 import { throwError } from '@/platform/errors'
+import { clearAuthOverride, requireAuthProxy, setAuthOverride } from '@/platform/test/mocks'
 import type { AppEnv, AppUser } from '@/platform/types'
 
 /**
@@ -19,7 +20,11 @@ export function installTestAuth() {
     c.set('session', {})
     await next()
   }
-  mock.module('@/platform/auth/middleware', () => ({ requireAuth }))
+  // Passthrough proxy + afterAll cleanup — mock.module leaks process-wide, so the
+  // override must be cleared or later files' real-requireAuth 401 tests break.
+  mock.module('@/platform/auth/middleware', () => ({ requireAuth: requireAuthProxy }))
+  setAuthOverride(requireAuth)
+  afterAll(clearAuthOverride)
 }
 
 /** Request headers for an authenticated test user. */

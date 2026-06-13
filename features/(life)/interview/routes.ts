@@ -5,6 +5,7 @@ import { z } from 'zod'
 import { enforceAiBudget } from '@/features/(life)/ai-chat/budget'
 import { requireAuth } from '@/platform/auth/middleware'
 import { throwError } from '@/platform/errors'
+import { checkRateLimit } from '@/platform/rate-limit'
 import { success } from '@/platform/server/responses'
 import type { AppEnv } from '@/platform/types'
 import type { DistillProvider } from './service'
@@ -24,6 +25,21 @@ const messageBody = z.object({
 })
 const confirmBody = z.object({ acceptedFieldIds: z.array(z.string().min(1)) })
 const idParam = z.object({ interviewId: z.uuid() })
+
+/**
+ * Per-user per-minute ceiling on the LLM-calling interview POSTs (message turns + distill). The
+ * budget is a MONTHLY cap; this guards against a user bursting many concurrent calls in a minute
+ * (also narrows the budget check-then-write race). RATE_LIMITED on excess.
+ */
+export const INTERVIEW_RATE_LIMIT_PER_MINUTE = 10
+
+/** Per-user per-minute limiter for the LLM-calling interview POSTs. */
+const interviewRateLimit: MiddlewareHandler<AppEnv> = async (c, next) => {
+  const user = c.get('user')
+  const rate = checkRateLimit(`interview:${user.id}`, INTERVIEW_RATE_LIMIT_PER_MINUTE, 60_000)
+  if (!rate.allowed) return throwError(c, 'RATE_LIMITED')
+  await next()
+}
 
 /** Interview-mode system prompt — distill the transcript into concrete page-field answers. */
 const DISTILL_SYSTEM =
@@ -68,6 +84,7 @@ export function createInterviewRoutes(deps: RouteDeps = {}) {
       .post(
         '/:interviewId/messages',
         auth,
+        interviewRateLimit,
         budget,
         zValidator('param', idParam),
         zValidator('json', messageBody),
@@ -90,22 +107,29 @@ export function createInterviewRoutes(deps: RouteDeps = {}) {
         },
       )
       // active → awaiting_confirmation (runs distill; budget-gated, meters a distill row).
-      .post('/:interviewId/distill', auth, budget, zValidator('param', idParam), async (c) => {
-        const user = c.get('user')
-        const result = await distillInterview(
-          user.id,
-          c.req.valid('param').interviewId,
-          DISTILL_SYSTEM,
-          deps.distill ? { distill: deps.distill } : {},
-        )
-        if ('error' in result && result.error)
-          return throwError(
-            c,
-            result.error,
-            'details' in result ? (result.details as string | undefined) : undefined,
+      .post(
+        '/:interviewId/distill',
+        auth,
+        interviewRateLimit,
+        budget,
+        zValidator('param', idParam),
+        async (c) => {
+          const user = c.get('user')
+          const result = await distillInterview(
+            user.id,
+            c.req.valid('param').interviewId,
+            DISTILL_SYSTEM,
+            deps.distill ? { distill: deps.distill } : {},
           )
-        return success(c, result)
-      })
+          if ('error' in result && result.error)
+            return throwError(
+              c,
+              result.error,
+              'details' in result ? (result.details as string | undefined) : undefined,
+            )
+          return success(c, result)
+        },
+      )
       // awaiting_confirmation → confirmed (the ADR 11 trust write — accepted fields only).
       .post(
         '/:interviewId/confirm',

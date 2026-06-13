@@ -2,13 +2,18 @@ import { and, asc, eq } from 'drizzle-orm'
 import { activeEnrollmentClause, canAccessLive } from '@/features/(shared)/enrollment/service'
 import { db } from '@/platform/db/client'
 import { enrollments, lives } from '@/platform/db/schema'
-import { record } from '@/platform/events'
+import { track } from '@/platform/events'
 import { signPlaybackToken } from '@/providers/video'
 
 type LiveRow = typeof lives.$inferSelect
 
-/** Options injection for TESTS ONLY — production callers never pass it. */
-type EventDeps = { record?: typeof record }
+/**
+ * Options injection for TESTS ONLY — production callers never pass it.
+ * These are PURE-READ telemetry paths (no transactional domain write to roll back), so they use
+ * track() (best-effort, swallow-and-log): a transient events-table write must NOT turn a
+ * successful live/replay fetch into a 500.
+ */
+type EventDeps = { record?: typeof track }
 
 export const liveStates = ['upcoming', 'live-now', 'replay-ready', 'cancelled'] as const
 export type LiveState = (typeof liveStates)[number]
@@ -78,7 +83,7 @@ export async function getLive(
   now = new Date(),
   deps: EventDeps = {},
 ) {
-  const recordEvent = deps.record ?? record
+  const recordEvent = deps.record ?? track
 
   const [live] = await db.select().from(lives).where(eq(lives.id, liveId)).limit(1)
   if (!live) return { error: 'NOT_FOUND' as const }
@@ -102,7 +107,7 @@ export async function getLiveReplay(
   now = new Date(),
   deps: EventDeps = {},
 ) {
-  const recordEvent = deps.record ?? record
+  const recordEvent = deps.record ?? track
 
   const [live] = await db.select().from(lives).where(eq(lives.id, liveId)).limit(1)
   if (!live) return { error: 'NOT_FOUND' as const }
@@ -111,7 +116,14 @@ export async function getLiveReplay(
     return { error: 'VIDEO_NOT_READY' as const }
   }
 
-  const playbackToken = await signPlaybackToken(live.replayStreamVideoId)
+  // A signing failure (config/key error) must surface as a clean 503, never a raw 500.
+  let playbackToken: string
+  try {
+    playbackToken = await signPlaybackToken(live.replayStreamVideoId)
+  } catch (error) {
+    console.error('[lives-view] signPlaybackToken failed:', error)
+    return { error: 'PLAYBACK_UNAVAILABLE' as const }
+  }
   await recordEvent({ name: 'replay_watched', properties: { liveId }, userId })
 
   return { data: { playbackToken, streamVideoId: live.replayStreamVideoId } }

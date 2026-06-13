@@ -58,6 +58,7 @@ export async function download(key: string): Promise<Buffer> {
 }
 
 export async function getSignedUrl(key: string, expiresIn = 3600): Promise<string> {
+  assertSafeKey(key, 'getSignedUrl')
   try {
     return await awsGetSignedUrl(client, new GetObjectCommand({ Bucket: bucket, Key: key }), {
       expiresIn,

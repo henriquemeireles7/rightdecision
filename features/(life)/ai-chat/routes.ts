@@ -5,12 +5,20 @@ import { streamSSE } from 'hono/streaming'
 import { z } from 'zod'
 import { requireAuth } from '@/platform/auth/middleware'
 import { throwError } from '@/platform/errors'
+import { checkRateLimit } from '@/platform/rate-limit'
 import { success } from '@/platform/server/responses'
 import type { AppEnv } from '@/platform/types'
 import { chat } from '@/providers/ai'
 import { enforceAiBudget } from './budget'
 import type { ChatProvider } from './service'
 import { getConversation, listConversations, runChatTurn } from './service'
+
+/**
+ * Per-user per-minute ceiling on chat turns. The budget is a MONTHLY cap; this guards against a
+ * single user bursting many concurrent SSE streams in a minute (also narrows the budget
+ * check-then-write race). RATE_LIMITED before the stream opens.
+ */
+export const CHAT_RATE_LIMIT_PER_MINUTE = 10
 
 const sendBody = z.object({
   conversationId: z.uuid().optional(),
@@ -55,6 +63,8 @@ export function createAiChatRoutes(deps: RouteDeps = {}) {
       // an SSE error event (the stream is already open by the time we resolve ownership).
       .post('/', auth, budget, zValidator('json', sendBody), (c) => {
         const user = c.get('user')
+        const rate = checkRateLimit(`ai-chat:${user.id}`, CHAT_RATE_LIMIT_PER_MINUTE, 60_000)
+        if (!rate.allowed) return throwError(c, 'RATE_LIMITED')
         const { conversationId, message } = c.req.valid('json')
         return streamSSE(c, async (stream) => {
           const result = await runChatTurn({

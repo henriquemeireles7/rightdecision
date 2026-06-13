@@ -3,7 +3,13 @@ import { and, eq } from 'drizzle-orm'
 import { events, journalEntries } from '@/platform/db/schema'
 import { createTestUser } from '@/platform/test/factories'
 import { setupTestDb, teardownTestDb, testDb } from '@/platform/test/setup'
-import { EVENING_PROMPT, getEntries, MORNING_PROMPT, saveEntry } from './service'
+import {
+  DEFAULT_ENTRIES_LIMIT,
+  EVENING_PROMPT,
+  getEntries,
+  MORNING_PROMPT,
+  saveEntry,
+} from './service'
 
 await setupTestDb()
 afterAll(teardownTestDb)
@@ -131,6 +137,41 @@ describe('getEntries', () => {
     const { entries } = await getEntries(user!.id, {})
 
     expect(entries).toHaveLength(1)
+  })
+
+  test('entries list is bounded by an explicit limit (newest first), counts stay lifetime', async () => {
+    const user = await createTestUser()
+    // 5 distinct days, morning + evening each = 10 entries.
+    for (let day = 1; day <= 5; day++) {
+      const entryDate = `2026-04-0${day}`
+      await saveEntry(user!.id, { entryDate, kind: 'morning', content: `am-${day}` })
+      await saveEntry(user!.id, { entryDate, kind: 'evening', content: `pm-${day}` })
+    }
+
+    const { entries, counts } = await getEntries(user!.id, { limit: 3 })
+
+    // Only the newest 3 rows come back...
+    expect(entries).toHaveLength(3)
+    expect(entries.map((e) => e.entryDate)).toEqual(['2026-04-05', '2026-04-05', '2026-04-04'])
+    // ...but the counts query is a lifetime aggregate, unaffected by the window.
+    expect(counts).toEqual({ totalMornings: 5, totalEvenings: 5, totalDaysJournaled: 5 })
+  })
+
+  test('the entries window defaults to DEFAULT_ENTRIES_LIMIT when no limit is passed', async () => {
+    const user = await createTestUser()
+    const total = DEFAULT_ENTRIES_LIMIT + 5
+    const dateFor = (i: number) => {
+      // One entry per day so every (date, kind) is unique; dates walk forward from a base.
+      const d = new Date(Date.UTC(2025, 0, 1 + i))
+      return d.toISOString().slice(0, 10)
+    }
+    for (let i = 0; i < total; i++) {
+      await saveEntry(user!.id, { entryDate: dateFor(i), kind: 'morning', content: `e-${i}` })
+    }
+
+    const { entries } = await getEntries(user!.id)
+
+    expect(entries).toHaveLength(DEFAULT_ENTRIES_LIMIT)
   })
 
   test('NO streak fields anywhere in the response shape (no-shame rule)', async () => {

@@ -264,6 +264,19 @@ describe('integration: course-builder routes', () => {
     assertSuccess(pickRes)
   })
 
+  it('400s cover pick with an arbitrary (non-candidate) key', async () => {
+    const course = await createTestCourse()
+    const mod = await createTestModule(course!.id)
+    const res = await apiCall(
+      app,
+      'POST',
+      '/covers/pick',
+      { kind: 'module', id: mod!.id, key: '../../etc/passwd' },
+      asUser(adminId),
+    )
+    expect(res.status).toBe(400)
+  })
+
   it('400s cover generation with an invalid kind', async () => {
     const res = await apiCall(
       app,

@@ -2,6 +2,7 @@ import { zValidator } from '@hono/zod-validator'
 import { Hono } from 'hono'
 import { z } from 'zod'
 import { requireAuth } from '@/platform/auth/middleware'
+import { requirePermission } from '@/platform/auth/permissions'
 import type { ErrorCode } from '@/platform/errors'
 import { throwError } from '@/platform/errors'
 import { partial, success } from '@/platform/server/responses'
@@ -14,6 +15,7 @@ const cutSchema = z.object({
 
 export const clipCutRoutes = new Hono<AppEnv>()
   .use(requireAuth)
+  .use(requirePermission('manage_content'))
   .post('/', zValidator('json', cutSchema), async (c) => {
     const { pipelineRunId } = c.req.valid('json')
     const result = await cutClipsForRun(pipelineRunId)

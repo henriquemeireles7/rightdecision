@@ -169,13 +169,15 @@ export async function syncEnrollmentForSubscriptionUpdate(input: {
     return revokePaidEnrollment(input.stripeSubscriptionId)
   }
   if (input.status === 'active' && input.cancelAtPeriodEnd) {
+    // Schedule expiry on any non-revoked enrollment for this subscription (not just
+    // 'active' — a past_due row that recovers must still expire at period end).
     const updated = await db
       .update(enrollments)
       .set({ expiresAt: input.currentPeriodEnd, updatedAt: new Date() })
       .where(
         and(
           eq(enrollments.stripeSubscriptionId, input.stripeSubscriptionId),
-          eq(enrollments.status, 'active'),
+          ne(enrollments.status, 'revoked'),
         ),
       )
       .returning({ id: enrollments.id })

@@ -124,11 +124,7 @@ export function FreeIntroLesson({
         style={needsEmailGate ? 'display:none' : undefined}
       >
         {/* First segment (always visible) */}
-        <div
-          class="prose-warm"
-          // biome-ignore lint/security/noDangerouslySetInnerHtml: trusted markdown
-          dangerouslySetInnerHTML={{ __html: firstSegmentHtml }}
-        />
+        <div class="prose-warm" dangerouslySetInnerHTML={{ __html: firstSegmentHtml }} />
 
         {/* Decision blocks */}
         {blocks.map((block, i) => (
@@ -202,7 +198,6 @@ export function FreeIntroLesson({
       {/* Client-side JS */}
       <script
         type="module"
-        // biome-ignore lint/security/noDangerouslySetInnerHtml: inline script for decision block + session interactivity
         dangerouslySetInnerHTML={{
           __html: `
 const LESSON = ${lessonNum};
@@ -346,7 +341,7 @@ async function saveAnswer(blockId, response, isCustom, suggestionIndex) {
       // Remove locked placeholder
       const locked = document.querySelector('#locked-' + blockId);
       if (locked) locked.remove();
-    } catch (err) { console.error('L1 save failed:', err); }
+    } catch (err) { /* best-effort anon save — ignore failures */ }
     return;
   }
 
@@ -391,7 +386,7 @@ async function saveAnswer(blockId, response, isCustom, suggestionIndex) {
       block.classList.add('border-gold');
     }
   } catch (err) {
-    console.error('Save failed:', err);
+    /* best-effort save — leave the block as-is so the user can retry */
   }
 }
 

@@ -19,6 +19,8 @@ const saveBody = z.object({
 const rangeQuery = z.object({
   from: z.iso.date().optional(),
   to: z.iso.date().optional(),
+  // Bounds the entries window (default applied in the service); older entries page via from/to.
+  limit: z.coerce.number().int().min(1).max(365).optional(),
 })
 
 type RouteDeps = {

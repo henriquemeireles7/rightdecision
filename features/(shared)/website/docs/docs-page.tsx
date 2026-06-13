@@ -117,11 +117,7 @@ export function DocsContent({
         showViewSource={showViewSource}
         sourceUrl={sourceUrl}
       />
-      <div
-        class="prose prose-warm"
-        // biome-ignore lint/security/noDangerouslySetInnerHtml: content sanitized via DOMPurify in markdown provider
-        dangerouslySetInnerHTML={{ __html: html }}
-      />
+      <div class="prose prose-warm" dangerouslySetInnerHTML={{ __html: html }} />
       {related && related.length > 0 && <DocsRelated items={related} contentType={contentType} />}
       <div class="mt-xl flex items-center justify-between">
         <div data-page-feedback data-content-type={contentType} />

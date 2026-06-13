@@ -114,23 +114,42 @@ export async function saveEntry(
   }
 }
 
-export type EntriesRange = { from?: string; to?: string }
+export type EntriesRange = {
+  from?: string
+  to?: string
+  /** Page size for the entries window. Defaults to DEFAULT_ENTRIES_LIMIT, capped at MAX_ENTRIES_LIMIT. */
+  limit?: number
+}
 
 /**
- * Entries (newest first, optionally range-scoped) + lifetime cumulative counts
- * ("47 mornings journaled"). NO streak fields anywhere — by design, forever
- * (no-shame rule; tests assert the exact shape).
+ * Default entries window. The list is the journaling feed (newest first), not an archive:
+ * an unbounded SELECT grows with every entry forever. 90 rows ≈ ~45 days of morning+evening
+ * — enough for the live feed; older entries page in via the `to`/`from` range cursor.
+ */
+export const DEFAULT_ENTRIES_LIMIT = 90
+export const MAX_ENTRIES_LIMIT = 365
+
+/**
+ * Entries (newest first, windowed, optionally range-scoped) + lifetime cumulative counts
+ * ("47 mornings journaled"). The entries list is ALWAYS bounded by `limit` (default
+ * DEFAULT_ENTRIES_LIMIT) so a member with years of history never triggers an unbounded
+ * read; older entries page in via the from/to range cursor. The counts query stays a
+ * lifetime aggregate (correct, cheap — count(*) over the index). NO streak fields anywhere
+ * — by design, forever (no-shame rule; tests assert the exact shape).
  */
 export async function getEntries(userId: string, range: EntriesRange = {}) {
   const clauses: SQL[] = [eq(journalEntries.userId, userId)]
   if (range.from) clauses.push(gte(journalEntries.entryDate, range.from))
   if (range.to) clauses.push(lte(journalEntries.entryDate, range.to))
 
+  const limit = Math.min(Math.max(range.limit ?? DEFAULT_ENTRIES_LIMIT, 1), MAX_ENTRIES_LIMIT)
+
   const entries = await db
     .select()
     .from(journalEntries)
     .where(and(...clauses))
     .orderBy(desc(journalEntries.entryDate), desc(journalEntries.kind))
+    .limit(limit)
 
   const [totals] = await db
     .select({

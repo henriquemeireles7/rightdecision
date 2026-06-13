@@ -83,6 +83,19 @@ describe('integration: materials-view getMaterialDownloadUrl', () => {
     expect(result.data.title).toBe(material!.title)
   })
 
+  test('STORAGE_UNAVAILABLE when signing throws — clean 503, never a raw 500', async () => {
+    const user = await createTestUser()
+    const program = await createTestProgram()
+    await createTestEnrollment(user!.id, program!.id)
+    const material = await createTestMaterial({ fileKey: 'materials/workbook.pdf' })
+    await createTestProgramMaterial(program!.id, material!.id)
+
+    getSignedUrlMock.mockImplementationOnce(() => Promise.reject(new Error('R2 down')))
+    expect(await getMaterialDownloadUrl(user!.id, material!.id)).toEqual({
+      error: 'STORAGE_UNAVAILABLE',
+    })
+  })
+
   test('ENROLLMENT_REQUIRED without access — never signs', async () => {
     const user = await createTestUser()
     const program = await createTestProgram()

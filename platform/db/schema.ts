@@ -806,52 +806,73 @@ export const journalEntries = pgTable(
 )
 
 // ─── Conversations (V2: AI chat + interview threads) ───
-export const conversations = pgTable('conversations', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('user_id')
-    .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
-  kind: text('kind', { enum: ['chat', 'interview'] }).notNull(),
-  title: text('title'),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow(),
-})
+export const conversations = pgTable(
+  'conversations',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    kind: text('kind', { enum: ['chat', 'interview'] }).notNull(),
+    title: text('title'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  },
+  (table) => [
+    // listConversations (newest-first, per user) + ownership lookups.
+    index('conversations_user_updated_idx').on(table.userId, table.updatedAt),
+  ],
+)
 
 // ─── Conversation Messages (V2: append-only rows; per-message usage needs a message id) ───
-export const conversationMessages = pgTable('conversation_messages', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  conversationId: uuid('conversation_id')
-    .notNull()
-    .references(() => conversations.id, { onDelete: 'cascade' }),
-  role: text('role', { enum: ['user', 'assistant'] }).notNull(),
-  content: text('content').notNull(),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow(),
-})
+export const conversationMessages = pgTable(
+  'conversation_messages',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    conversationId: uuid('conversation_id')
+      .notNull()
+      .references(() => conversations.id, { onDelete: 'cascade' }),
+    role: text('role', { enum: ['user', 'assistant'] }).notNull(),
+    content: text('content').notNull(),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  },
+  (table) => [
+    // History reads (bounded, ordered by createdAt within a conversation).
+    index('conversation_messages_conv_created_idx').on(table.conversationId, table.createdAt),
+  ],
+)
 
 // ─── Interviews (V2: AI interviews a document page; confirmation writes
 //     document_answers with source='interview') ───
-export const interviews = pgTable('interviews', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('user_id')
-    .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
-  documentId: uuid('document_id')
-    .notNull()
-    .references(() => documents.id, { onDelete: 'cascade' }),
-  pageId: text('page_id').notNull(),
-  conversationId: uuid('conversation_id').references(() => conversations.id, {
-    onDelete: 'cascade',
-  }),
-  distilledFields: jsonb('distilled_fields').$type<Record<string, string>>(),
-  status: text('status', {
-    enum: ['active', 'distilling', 'awaiting_confirmation', 'confirmed', 'abandoned'],
-  })
-    .notNull()
-    .default('active'),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow(),
-})
+export const interviews = pgTable(
+  'interviews',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    documentId: uuid('document_id')
+      .notNull()
+      .references(() => documents.id, { onDelete: 'cascade' }),
+    pageId: text('page_id').notNull(),
+    conversationId: uuid('conversation_id').references(() => conversations.id, {
+      onDelete: 'cascade',
+    }),
+    distilledFields: jsonb('distilled_fields').$type<Record<string, string>>(),
+    status: text('status', {
+      enum: ['active', 'distilling', 'awaiting_confirmation', 'confirmed', 'abandoned'],
+    })
+      .notNull()
+      .default('active'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  },
+  (table) => [
+    // assembleContext reads a user's interview distillations.
+    index('interviews_user_idx').on(table.userId),
+  ],
+)
 
 // ─── Events (V2: THE spine — append-only, NO updatedAt; name = Zod discriminated
 //     union at write boundary NOT pg enum (TD-5); Decision Graph v1 via isDecision) ───

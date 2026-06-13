@@ -6,6 +6,8 @@ import { ProviderError } from '@/providers/errors'
 
 const STREAM_API_BASE = 'https://api.cloudflare.com/client/v4/accounts'
 const WEBHOOK_TOLERANCE_SECONDS = 300 // reject webhooks older than 5 minutes
+/** Cap every Stream API fetch so a hung Cloudflare socket can't stall the request forever. */
+const STREAM_FETCH_TIMEOUT_MS = 15_000
 const DEFAULT_PLAYBACK_TTL_SECONDS = 3600
 
 /** Env vars are optional in the schema (dev/CI boot without secrets) — absence is a runtime ProviderError. */
@@ -62,6 +64,7 @@ export async function createTusUploadUrl(
         'Upload-Length': String(uploadLengthBytes),
         ...(metadata.length > 0 ? { 'Upload-Metadata': metadata.join(',') } : {}),
       },
+      signal: AbortSignal.timeout(STREAM_FETCH_TIMEOUT_MS),
     })
     if (!response.ok) {
       throw new ProviderError(
@@ -119,6 +122,7 @@ export async function getVideo(streamVideoId: string) {
   try {
     const response = await fetch(`${STREAM_API_BASE}/${accountId}/stream/${streamVideoId}`, {
       headers: { Authorization: `Bearer ${apiToken}` },
+      signal: AbortSignal.timeout(STREAM_FETCH_TIMEOUT_MS),
     })
     if (!response.ok) {
       throw new ProviderError('stream', 'getVideo', response.status, await response.text())
@@ -269,7 +273,11 @@ export async function generateCaptions(
   try {
     const response = await fetch(
       `${STREAM_API_BASE}/${accountId}/stream/${streamVideoId}/captions/${language}/generate`,
-      { method: 'POST', headers: { Authorization: `Bearer ${apiToken}` } },
+      {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${apiToken}` },
+        signal: AbortSignal.timeout(STREAM_FETCH_TIMEOUT_MS),
+      },
     )
     if (!response.ok) {
       throw new ProviderError('stream', 'generateCaptions', response.status, await response.text())

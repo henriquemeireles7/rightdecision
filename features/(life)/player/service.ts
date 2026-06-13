@@ -83,8 +83,16 @@ export async function getLesson(userId: string, lessonId: string, deps: EventDep
     return { error: 'VIDEO_NOT_READY' as const }
   }
 
-  // Sign BEFORE touching progress — a failed signature must not record lesson_started
-  const playbackToken = await signPlaybackToken(lesson.streamVideoId)
+  // Sign BEFORE touching progress — a failed signature must not record lesson_started.
+  // A signing failure (config/key error) must surface as a clean 503, never a raw 500 — this is
+  // the highest-traffic playback path.
+  let playbackToken: string
+  try {
+    playbackToken = await signPlaybackToken(lesson.streamVideoId)
+  } catch (error) {
+    console.error('[player] signPlaybackToken failed:', error)
+    return { error: 'PLAYBACK_UNAVAILABLE' as const }
+  }
 
   let progress = await db.transaction(async (tx) => {
     const [created] = await tx

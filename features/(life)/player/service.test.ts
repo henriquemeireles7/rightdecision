@@ -114,6 +114,24 @@ describe('integration: player getLesson', () => {
     expect(rows.length).toBe(1)
   })
 
+  test('PLAYBACK_UNAVAILABLE when signing throws — clean 503, no progress, no event', async () => {
+    const { user, lesson } = await enrolledLesson()
+    signPlaybackTokenMock.mockImplementationOnce(() =>
+      Promise.reject(new ProviderError('stream', 'signPlaybackToken', 500, 'no key')),
+    )
+
+    const result = await getLesson(user.id, lesson.id)
+    expect(result).toEqual({ error: 'PLAYBACK_UNAVAILABLE' })
+
+    // Signing fails BEFORE touching progress — no lesson_started, no progress row.
+    expect((await eventRows(user.id, 'lesson_started')).length).toBe(0)
+    const rows = await testDb
+      .select()
+      .from(lessonProgress)
+      .where(eq(lessonProgress.userId, user.id))
+    expect(rows.length).toBe(0)
+  })
+
   test('VIDEO_NOT_READY when the video is processing or has no stream id', async () => {
     const processing = await enrolledLesson({ videoStatus: 'processing' })
     const missingId = await enrolledLesson({ videoStatus: 'ready', streamVideoId: null })
@@ -159,13 +177,14 @@ describe('integration: player getLesson', () => {
     })
   })
 
-  test('token signing failure propagates and records NO lesson_started', async () => {
+  test('token signing failure → clean PLAYBACK_UNAVAILABLE, records NO lesson_started', async () => {
     const { user, lesson } = await enrolledLesson()
     signPlaybackTokenMock.mockImplementation(() => {
       throw new ProviderError('stream', 'signPlaybackToken', 500, 'no key configured')
     })
 
-    await expect(getLesson(user.id, lesson.id)).rejects.toBeInstanceOf(ProviderError)
+    // A signing failure must map to a clean 503, not propagate as a raw 500 (P1).
+    expect(await getLesson(user.id, lesson.id)).toEqual({ error: 'PLAYBACK_UNAVAILABLE' })
 
     expect(await eventRows(user.id, 'lesson_started')).toEqual([])
     expect(await progressRow(user.id, lesson.id)).toBeNull()

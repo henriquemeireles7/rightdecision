@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm'
-import { Hono } from 'hono'
+import { type Context, Hono } from 'hono'
 import {
   accessRevokedEmail,
   paymentFailedEmail,
@@ -13,7 +13,14 @@ import { env } from '@/platform/env'
 import { throwError } from '@/platform/errors'
 import { success } from '@/platform/server/responses'
 import { sendEmail } from '@/providers/email'
-import { intervalFromPriceId, payments } from '@/providers/payments'
+import {
+  formatStripeAmount,
+  intervalFromPriceId,
+  invoiceSubscriptionId,
+  payments,
+  plans,
+  subscriptionPeriodEnd,
+} from '@/providers/payments'
 import {
   syncEnrollmentForCheckoutCompleted,
   syncEnrollmentForSubscriptionDeleted,
@@ -70,18 +77,33 @@ webhookRoutes.post('/', async (c) => {
   }
 
   // ─── Idempotency: INSERT-first with ON CONFLICT DO NOTHING ───
+  // postgres-js result affected-rows is `.count`, NOT `.rowCount`; detect a real insert
+  // via RETURNING so a genuine Stripe redelivery (same event id) is skipped.
   const inserted = await db
     .insert(webhookEvents)
     .values({ stripeEventId: event.id, eventType: event.type })
     .onConflictDoNothing({ target: webhookEvents.stripeEventId })
+    .returning({ id: webhookEvents.id })
 
-  if ((inserted as unknown as { rowCount: number }).rowCount === 0) {
+  if (inserted.length === 0) {
     console.info(`[webhook] Duplicate: ${event.type} ${event.id}`)
     return success(c, { received: true })
   }
 
   console.info(`[webhook] ${event.type} ${event.id}`)
 
+  // The dedup row is claimed BEFORE processing. If the handler throws (e.g. a transient
+  // Stripe/DB blip), release the claim so Stripe's retry re-processes instead of hitting a
+  // now-permanent "duplicate" and silently dropping the event.
+  try {
+    return await handleEvent(c, event)
+  } catch (err) {
+    await db.delete(webhookEvents).where(eq(webhookEvents.stripeEventId, event.id))
+    throw err
+  }
+})
+
+async function handleEvent(c: Context, event: ReturnType<typeof payments.webhooks.constructEvent>) {
   // ─── Event Handlers ───
   switch (event.type) {
     case 'checkout.session.completed': {
@@ -99,7 +121,7 @@ webhookRoutes.post('/', async (c) => {
         typeof session.customer === 'string' ? session.customer : (session.customer?.id ?? '')
 
       const sub = await payments.subscriptions.retrieve(subscriptionId)
-      const periodEnd = (sub as unknown as { current_period_end: number }).current_period_end
+      const periodEnd = subscriptionPeriodEnd(sub)
       const priceId =
         (sub as unknown as { items?: { data?: Array<{ price?: { id?: string } }> } }).items
           ?.data?.[0]?.price?.id ?? ''
@@ -126,14 +148,15 @@ webhookRoutes.post('/', async (c) => {
     case 'invoice.payment_succeeded': {
       const invoice = event.data.object as unknown as {
         billing_reason: string
-        subscription: string
+        amount_paid?: number
+        currency?: string
         lines?: { data?: Array<{ period?: { end?: number } }> }
       }
 
       // Skip first payment — that's handled by success page
       if (invoice.billing_reason !== 'subscription_cycle') break
 
-      const subId = typeof invoice.subscription === 'string' ? invoice.subscription : ''
+      const subId = invoiceSubscriptionId(invoice)
       if (!subId) break
 
       // Update period end
@@ -153,7 +176,10 @@ webhookRoutes.post('/', async (c) => {
           user.email,
           renewalReceiptEmail({
             name: user.name,
-            amount: '$197.00',
+            amount: formatStripeAmount(
+              invoice.amount_paid ?? plans.yearly.amount,
+              invoice.currency,
+            ),
             cardLast4: '****',
             nextRenewalDate: periodEnd
               ? new Date(periodEnd * 1000).toLocaleDateString('en-US', {
@@ -171,12 +197,13 @@ webhookRoutes.post('/', async (c) => {
 
     case 'invoice.payment_failed': {
       const invoice = event.data.object as unknown as {
-        subscription: string
+        amount_due?: number
+        currency?: string
         attempt_count: number
         next_payment_attempt: number | null
       }
 
-      const subId = typeof invoice.subscription === 'string' ? invoice.subscription : ''
+      const subId = invoiceSubscriptionId(invoice)
       if (!subId) break
 
       console.error(
@@ -193,7 +220,11 @@ webhookRoutes.post('/', async (c) => {
         const portalUrl = `${env.PUBLIC_APP_URL}/settings`
         await safeSendEmail(
           user.email,
-          paymentFailedEmail({ name: user.name, amount: '$197.00', portalUrl }),
+          paymentFailedEmail({
+            name: user.name,
+            amount: formatStripeAmount(invoice.amount_due ?? plans.yearly.amount, invoice.currency),
+            portalUrl,
+          }),
         )
       }
       break
@@ -201,12 +232,12 @@ webhookRoutes.post('/', async (c) => {
 
     case 'invoice.upcoming': {
       const invoice = event.data.object as unknown as {
-        subscription: string
         amount_due: number
+        currency?: string
         period_end: number
       }
 
-      const subId = typeof invoice.subscription === 'string' ? invoice.subscription : ''
+      const subId = invoiceSubscriptionId(invoice)
       if (!subId) break
 
       const user = await getUserForSubscription(subId)
@@ -221,7 +252,7 @@ webhookRoutes.post('/', async (c) => {
           user.email,
           renewalReminderEmail({
             name: user.name,
-            amount: '$197.00',
+            amount: formatStripeAmount(invoice.amount_due, invoice.currency),
             renewalDate,
             cardBrand: 'Card',
             cardLast4: '****',
@@ -237,8 +268,10 @@ webhookRoutes.post('/', async (c) => {
         id: string
         cancel_at_period_end: boolean
         status: string
-        current_period_end: number
+        items?: { data?: Array<{ current_period_end?: number }> }
       }
+      // dahlia API version: period end lives on the subscription item, not top-level.
+      const periodEnd = sub.items?.data?.[0]?.current_period_end ?? 0
 
       // Map status accurately
       let dbStatus: 'active' | 'past_due' | 'cancelled'
@@ -256,7 +289,7 @@ webhookRoutes.post('/', async (c) => {
         .update(subscriptions)
         .set({
           status: dbStatus,
-          currentPeriodEnd: new Date(sub.current_period_end * 1000),
+          currentPeriodEnd: new Date(periodEnd * 1000),
           updatedAt: new Date(),
         })
         .where(eq(subscriptions.stripeSubscriptionId, sub.id))
@@ -268,7 +301,7 @@ webhookRoutes.post('/', async (c) => {
           stripeSubscriptionId: sub.id,
           status: dbStatus,
           cancelAtPeriodEnd: sub.cancel_at_period_end,
-          currentPeriodEnd: new Date(sub.current_period_end * 1000),
+          currentPeriodEnd: new Date(periodEnd * 1000),
         }),
       )
 
@@ -276,10 +309,11 @@ webhookRoutes.post('/', async (c) => {
       if (sub.cancel_at_period_end) {
         const user = await getUserForSubscription(sub.id)
         if (user) {
-          const periodEndDate = new Date(sub.current_period_end * 1000).toLocaleDateString(
-            'en-US',
-            { year: 'numeric', month: 'long', day: 'numeric' },
-          )
+          const periodEndDate = new Date(periodEnd * 1000).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          })
           await safeSendEmail(
             user.email,
             subscriptionCancelledEmail({
@@ -307,8 +341,10 @@ webhookRoutes.post('/', async (c) => {
         .set({ status: 'cancelled', updatedAt: new Date() })
         .where(eq(subscriptions.stripeSubscriptionId, subObj.id))
 
-      // P4: hard cancel revokes the paid enrollment now
-      await safeEnrollmentSync(() => syncEnrollmentForSubscriptionDeleted(subObj.id))
+      // P4: hard cancel revokes the paid enrollment now. NOT wrapped in safeEnrollmentSync:
+      // there is no later subscription event to self-heal a missed revoke, so a failure must
+      // surface → the claim is released and Stripe retries (revoke is idempotent).
+      await syncEnrollmentForSubscriptionDeleted(subObj.id)
 
       const user = await getUserForSubscription(subObj.id)
       if (user) {
@@ -338,4 +374,4 @@ webhookRoutes.post('/', async (c) => {
   }
 
   return success(c, { received: true })
-})
+}

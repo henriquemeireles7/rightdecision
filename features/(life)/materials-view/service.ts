@@ -56,6 +56,14 @@ export async function getMaterialDownloadUrl(userId: string, materialId: string)
     return { error: 'ENROLLMENT_REQUIRED' as const }
   }
 
-  const url = await getSignedUrl(material.fileKey)
+  // R2 can be down (or unconfigured) — a thrown ProviderError must surface as a clean 503,
+  // never a raw 500.
+  let url: string
+  try {
+    url = await getSignedUrl(material.fileKey)
+  } catch (error) {
+    console.error('[materials-view] getSignedUrl failed:', error)
+    return { error: 'STORAGE_UNAVAILABLE' as const }
+  }
   return { data: { url, title: material.title, mimeType: material.mimeType } }
 }

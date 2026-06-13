@@ -22,7 +22,6 @@ async function tryGetUserId(c: {
     if (!cookie?.includes('better-auth.session_token')) return null
     // Lazy import to avoid circular deps
     const { db } = await import('@/platform/db/client')
-    const { sessions } = await import('@/platform/db/schema')
     const { eq, gt } = await import('drizzle-orm')
     const tokenMatch = cookie.match(/better-auth\.session_token=([^;]+)/)
     if (!tokenMatch) return null

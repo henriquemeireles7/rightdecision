@@ -1,4 +1,4 @@
-import { and, asc, desc, eq } from 'drizzle-orm'
+import { and, desc, eq, lt } from 'drizzle-orm'
 import { db } from '@/platform/db/client'
 import {
   conversationMessages,
@@ -19,8 +19,52 @@ import { CRISIS_RESPONSE, classifyCrisis, NOT_THERAPY_LINE, SAFETY_SYSTEM_PROMPT
 
 type ServiceError = { error: ErrorCode; details?: string }
 
+/**
+ * The newest N messages replayed into the LLM prompt every turn. Unbounded replay grows the
+ * prompt (and token cost) without limit on long conversations — bound it to the recent window.
+ */
+export const CHAT_HISTORY_LIMIT = 40
+
+/** Default page size for getConversation's message read (the refetch-on-drop path). */
+export const CONVERSATION_MESSAGES_LIMIT = 200
+
+/**
+ * Idle watchdog for iterating the chat provider: if no chunk arrives within this window the turn
+ * is treated as a drop (nothing persisted). Guards the SSE hot path against a hung provider —
+ * the live provider also self-aborts (providers/ai.ts), this is the feature-layer backstop and
+ * the seam tests exercise it with a never-yielding fixture.
+ */
+export const CHAT_TURN_IDLE_TIMEOUT_MS = 30_000
+
 /** A chat() provider — the live one OR an injected fixture AsyncIterable (tests). */
 export type ChatProvider = (params: ChatParams) => AsyncIterable<ChatChunk>
+
+/**
+ * Wrap a chunk stream with a per-chunk idle timeout. If no chunk arrives within `idleMs` the
+ * iterator throws — runChatTurn's catch then maps it to dropped:true (nothing persisted). This is
+ * the feature-layer backstop against a hung provider (the live provider self-aborts too).
+ */
+async function* withIdleTimeout<T>(source: AsyncIterable<T>, idleMs: number): AsyncIterable<T> {
+  const iterator = source[Symbol.asyncIterator]()
+  while (true) {
+    let timer: ReturnType<typeof setTimeout> | undefined
+    const timeout = new Promise<never>((_, reject) => {
+      timer = setTimeout(() => reject(new Error('AI chat stream idle timeout')), idleMs)
+    })
+    try {
+      const next = await Promise.race([iterator.next(), timeout])
+      if (next.done) return
+      yield next.value
+    } catch (error) {
+      // On idle timeout, ask the underlying iterator to wind down but NEVER await it — a hung
+      // provider's return() can itself hang (it resumes a generator stuck on a pending await).
+      void iterator.return?.()
+      throw error
+    } finally {
+      if (timer) clearTimeout(timer)
+    }
+  }
+}
 
 /**
  * Per-request context assembly (ADR 9): the user's STRUCTURED TYPED ROWS — playbook answers,
@@ -30,18 +74,45 @@ export type ChatProvider = (params: ChatParams) => AsyncIterable<ChatChunk>
  * The assembled string is asserted on in tests (it must reference the user's actual data).
  */
 export async function assembleContext(userId: string): Promise<string> {
-  // ── Playbook answers (the core "typed rows", with their field labels) ──
-  const answerRows = await db
-    .select({
-      fieldId: documentAnswers.fieldId,
-      value: documentAnswers.value,
-      schema: documentTemplates.schema,
-      templateTitle: documentTemplates.title,
-    })
-    .from(documentAnswers)
-    .innerJoin(documents, eq(documents.id, documentAnswers.documentId))
-    .innerJoin(documentTemplates, eq(documentTemplates.id, documents.templateId))
-    .where(eq(documents.userId, userId))
+  // These four reads are independent — run them concurrently (P0: this is the chat hot path,
+  // serial awaits added avoidable latency to every turn).
+  const [answerRows, journalRows, decisionRows, interviewRows] = await Promise.all([
+    // ── Playbook answers (the core "typed rows", with their field labels) ──
+    db
+      .select({
+        fieldId: documentAnswers.fieldId,
+        value: documentAnswers.value,
+        schema: documentTemplates.schema,
+        templateTitle: documentTemplates.title,
+      })
+      .from(documentAnswers)
+      .innerJoin(documents, eq(documents.id, documentAnswers.documentId))
+      .innerJoin(documentTemplates, eq(documentTemplates.id, documents.templateId))
+      .where(eq(documents.userId, userId)),
+    // ── Journal entries (most recent first, bounded) ──
+    db
+      .select({
+        entryDate: journalEntries.entryDate,
+        kind: journalEntries.kind,
+        content: journalEntries.content,
+      })
+      .from(journalEntries)
+      .where(eq(journalEntries.userId, userId))
+      .orderBy(desc(journalEntries.entryDate))
+      .limit(14),
+    // ── Decisions made (the Decision Graph — counts, no PII text) ──
+    db
+      .select({ name: events.name, occurredAt: events.occurredAt })
+      .from(events)
+      .where(and(eq(events.userId, userId), eq(events.isDecision, true)))
+      .orderBy(desc(events.occurredAt))
+      .limit(20),
+    // ── Interview distillations (confirmed-or-not proposed fields) ──
+    db
+      .select({ distilledFields: interviews.distilledFields })
+      .from(interviews)
+      .where(eq(interviews.userId, userId)),
+  ])
 
   const playbookLines: string[] = []
   for (const row of answerRows) {
@@ -50,36 +121,13 @@ export async function assembleContext(userId: string): Promise<string> {
     playbookLines.push(`- ${label}: ${row.value}`)
   }
 
-  // ── Journal entries (most recent first, bounded) ──
-  const journalRows = await db
-    .select({
-      entryDate: journalEntries.entryDate,
-      kind: journalEntries.kind,
-      content: journalEntries.content,
-    })
-    .from(journalEntries)
-    .where(eq(journalEntries.userId, userId))
-    .orderBy(desc(journalEntries.entryDate))
-    .limit(14)
   const journalLines = journalRows.map((row) => `- ${row.entryDate} (${row.kind}): ${row.content}`)
 
-  // ── Decisions made (the Decision Graph — counts, no PII text) ──
-  const decisionRows = await db
-    .select({ name: events.name, occurredAt: events.occurredAt })
-    .from(events)
-    .where(and(eq(events.userId, userId), eq(events.isDecision, true)))
-    .orderBy(desc(events.occurredAt))
-    .limit(20)
   const decisionsLine =
     decisionRows.length > 0
       ? `She has made ${decisionRows.length} tracked decisions recently.`
       : 'She has not logged a tracked decision yet.'
 
-  // ── Interview distillations (confirmed-or-not proposed fields) ──
-  const interviewRows = await db
-    .select({ distilledFields: interviews.distilledFields })
-    .from(interviews)
-    .where(eq(interviews.userId, userId))
   const distillLines: string[] = []
   for (const row of interviewRows) {
     for (const [key, value] of Object.entries(row.distilledFields ?? {})) {
@@ -115,14 +163,19 @@ async function findOwnedConversation(userId: string, conversationId: string) {
   return row ?? null
 }
 
-/** Past messages of a conversation, oldest first — replayed into the provider as history. */
+/**
+ * The most recent CHAT_HISTORY_LIMIT messages of a conversation, oldest-first — replayed into the
+ * provider as history. Bounded so a long conversation can't grow the prompt (and token cost)
+ * without limit: select newest-first with a LIMIT, then reverse into chronological order.
+ */
 async function conversationHistory(conversationId: string): Promise<ChatMessage[]> {
   const rows = await db
     .select({ role: conversationMessages.role, content: conversationMessages.content })
     .from(conversationMessages)
     .where(eq(conversationMessages.conversationId, conversationId))
-    .orderBy(asc(conversationMessages.createdAt))
-  return rows.map((row) => ({ role: row.role, content: row.content }))
+    .orderBy(desc(conversationMessages.createdAt))
+    .limit(CHAT_HISTORY_LIMIT)
+  return rows.reverse().map((row) => ({ role: row.role, content: row.content }))
 }
 
 export type RunChatTurnInput = {
@@ -134,6 +187,8 @@ export type RunChatTurnInput = {
   provider: ChatProvider
   /** Called for each streamed text chunk (the route pipes these to streamSSE). */
   onChunk?: (text: string) => void | Promise<void>
+  /** Per-chunk idle timeout. TESTS ONLY override it; production uses CHAT_TURN_IDLE_TIMEOUT_MS. */
+  idleTimeoutMs?: number
 }
 
 export type RunChatTurnResult = {
@@ -201,7 +256,11 @@ export async function runChatTurn(
   let completed = false
 
   try {
-    for await (const chunk of provider({ kind: 'chat', system, messages: history })) {
+    const stream = withIdleTimeout(
+      provider({ kind: 'chat', system, messages: history }),
+      input.idleTimeoutMs ?? CHAT_TURN_IDLE_TIMEOUT_MS,
+    )
+    for await (const chunk of stream) {
       if (chunk.type === 'text') {
         accumulated += chunk.text
         await onChunk?.(chunk.text)
@@ -252,12 +311,24 @@ export async function runChatTurn(
   return { conversationId, assistantText: accumulated, crisis: false, dropped: false }
 }
 
-/** A single conversation with its full message history — the refetch-on-drop read path. */
-export async function getConversation(userId: string, conversationId: string) {
+/**
+ * A single conversation with its message history — the refetch-on-drop read path. Paginated:
+ * returns the newest `limit` messages (oldest-first within the page); pass `before` (a createdAt
+ * cursor) to page further back. `hasMore` signals older messages remain. Bounded so a long
+ * conversation never SELECTs an unbounded row set.
+ */
+export async function getConversation(
+  userId: string,
+  conversationId: string,
+  opts: { limit?: number; before?: Date } = {},
+) {
   const conversation = await findOwnedConversation(userId, conversationId)
   if (!conversation) return { error: 'CONVERSATION_NOT_FOUND' } satisfies ServiceError
 
-  const messages = await db
+  const limit = Math.min(opts.limit ?? CONVERSATION_MESSAGES_LIMIT, CONVERSATION_MESSAGES_LIMIT)
+
+  // Fetch one extra to detect whether older messages remain (hasMore), newest-first + LIMIT.
+  const newestFirst = await db
     .select({
       id: conversationMessages.id,
       role: conversationMessages.role,
@@ -265,12 +336,25 @@ export async function getConversation(userId: string, conversationId: string) {
       createdAt: conversationMessages.createdAt,
     })
     .from(conversationMessages)
-    .where(eq(conversationMessages.conversationId, conversationId))
-    .orderBy(asc(conversationMessages.createdAt))
+    .where(
+      opts.before
+        ? and(
+            eq(conversationMessages.conversationId, conversationId),
+            lt(conversationMessages.createdAt, opts.before),
+          )
+        : eq(conversationMessages.conversationId, conversationId),
+    )
+    .orderBy(desc(conversationMessages.createdAt))
+    .limit(limit + 1)
+
+  const hasMore = newestFirst.length > limit
+  const page = hasMore ? newestFirst.slice(0, limit) : newestFirst
+  const messages = page.reverse()
 
   return {
     conversation: { id: conversation.id, kind: conversation.kind, title: conversation.title },
     messages,
+    hasMore,
     notTherapy: NOT_THERAPY_LINE,
   }
 }

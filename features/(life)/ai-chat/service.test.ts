@@ -19,6 +19,7 @@ import { setupTestDb, teardownTestDb } from '@/platform/test/setup'
 import type { ChatChunk, ChatParams } from '@/providers/ai'
 import {
   assembleContext,
+  CHAT_HISTORY_LIMIT,
   type ChatProvider,
   getConversation,
   listConversations,
@@ -46,6 +47,14 @@ function droppingProvider(text: string): ChatProvider {
     (async function* (): AsyncIterable<ChatChunk> {
       yield { type: 'text', text }
       throw new Error('socket severed mid-stream')
+    })()
+}
+
+/** A provider that hangs forever — never yields a chunk (a hung Anthropic socket). */
+function hangingProvider(): ChatProvider {
+  return () =>
+    (async function* (): AsyncIterable<ChatChunk> {
+      await new Promise(() => {}) // never resolves
     })()
 }
 
@@ -161,6 +170,61 @@ describe('ai-chat: persist-on-completion (the SSE seam, eng-schema S3)', () => {
     expect(refetched.messages.map((m) => m.role)).toEqual(['user'])
     const usage = await db.select().from(aiUsage).where(eq(aiUsage.userId, user.id))
     expect(usage.filter((u) => u.kind === 'chat').length).toBe(0)
+  })
+
+  test('a HUNG provider (never yields) times out → dropped, nothing persisted (C1)', async () => {
+    const user = await seedUserWithPlaybook()
+    const result = await runChatTurn({
+      userId: user.id,
+      userMessage: 'are you there?',
+      provider: hangingProvider(),
+      idleTimeoutMs: 50, // short timeout so the test is fast; prod uses CHAT_TURN_IDLE_TIMEOUT_MS
+    })
+    expect('error' in result).toBe(false)
+    if ('error' in result) return
+    expect(result.dropped).toBe(true)
+    expect(result.assistantText).toBe('')
+
+    // User message persisted; NO assistant row, NO usage row.
+    const refetched = await getConversation(user.id, result.conversationId)
+    if ('error' in refetched) throw new Error('refetch failed')
+    expect(refetched.messages.map((m) => m.role)).toEqual(['user'])
+    const usage = await db.select().from(aiUsage).where(eq(aiUsage.userId, user.id))
+    expect(usage.filter((u) => u.kind === 'chat').length).toBe(0)
+  })
+
+  test('conversationHistory replayed into the provider is bounded to CHAT_HISTORY_LIMIT (fix 6)', async () => {
+    const user = await seedUserWithPlaybook()
+    // Seed a conversation with many messages, then capture what the provider receives.
+    const first = await runChatTurn({
+      userId: user.id,
+      userMessage: 'seed',
+      provider: fixtureProvider(['ok']),
+    })
+    if ('error' in first) throw new Error('seed turn failed')
+    const conversationId = first.conversationId
+    // Insert well over CHAT_HISTORY_LIMIT messages directly.
+    const extra = Array.from({ length: CHAT_HISTORY_LIMIT + 20 }, (_, i) => ({
+      conversationId,
+      role: 'user' as const,
+      content: `m${i}`,
+    }))
+    await db.insert(conversationMessages).values(extra)
+
+    let received: ChatParams['messages'] = []
+    const capturingProvider: ChatProvider = (params) => {
+      received = params.messages
+      return (async function* (): AsyncIterable<ChatChunk> {
+        yield { type: 'done', inputTokens: 1, outputTokens: 1, model: 'm' }
+      })()
+    }
+    await runChatTurn({
+      userId: user.id,
+      conversationId,
+      userMessage: 'next',
+      provider: capturingProvider,
+    })
+    expect(received.length).toBeLessThanOrEqual(CHAT_HISTORY_LIMIT)
   })
 
   test('a second turn replays prior history and appends to the same conversation', async () => {

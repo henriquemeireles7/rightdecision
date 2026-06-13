@@ -1,11 +1,12 @@
-import { and, eq, lte } from 'drizzle-orm'
+import { and, eq, inArray, lte } from 'drizzle-orm'
 import {
   cohortStartsSoonEmail,
   cohortUpgradeNudgeEmail,
   cohortWelcomeEmail,
 } from '@/features/(shared)/email/cohort-emails'
+import { escapeHtml } from '@/features/(shared)/email/layout'
 import { db } from '@/platform/db/client'
-import { dripEmails, subscriptions } from '@/platform/db/schema'
+import { dripEmails, subscriptions, users } from '@/platform/db/schema'
 import { env } from '@/platform/env'
 import { sendEmail } from '@/providers/email'
 import { COHORT_DRIP_BASE_INDEX, COHORT_DRIP_INDEXES } from './cohort-drips'
@@ -29,23 +30,6 @@ export async function scheduleDripSequence(userId: string, decisionText: string)
       })
       .onConflictDoNothing() // idempotent: don't re-schedule if already exists
   }
-}
-
-/** Check-before-send: query subscriptions, skip if user converted to paid. */
-async function isUserPaid(userId: string): Promise<boolean> {
-  const sub = await db.query.subscriptions.findFirst({
-    where: and(eq(subscriptions.userId, userId), eq(subscriptions.status, 'active')),
-  })
-  return !!sub
-}
-
-function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;')
 }
 
 const DRIP_TEMPLATES = [
@@ -130,9 +114,32 @@ function renderCohortDrip(
 export async function processPendingDrips(appUrl: string): Promise<number> {
   const now = new Date()
 
+  // Per-tick batch cap: bound the work a single cron run does. Untreated rows stay
+  // pending and are picked up next tick (ordering by scheduledAt feeds the oldest first).
+  const PROCESS_BATCH_LIMIT = 200
   const pending = await db.query.dripEmails.findMany({
     where: and(eq(dripEmails.status, 'pending'), lte(dripEmails.scheduledAt, now)),
+    orderBy: (d, { asc }) => asc(d.scheduledAt),
+    limit: PROCESS_BATCH_LIMIT,
   })
+
+  // Batch the per-drip lookups (was 1+2N): pre-fetch the active-subscription set and
+  // every user row for this tick in two IN queries, then read from maps in the loop.
+  const userIds = [...new Set(pending.map((drip) => drip.userId))]
+  const paidUserIds = userIds.length
+    ? new Set(
+        (
+          await db
+            .select({ userId: subscriptions.userId })
+            .from(subscriptions)
+            .where(and(inArray(subscriptions.userId, userIds), eq(subscriptions.status, 'active')))
+        ).map((row) => row.userId),
+      )
+    : new Set<string>()
+  const userRows = userIds.length
+    ? await db.select().from(users).where(inArray(users.id, userIds))
+    : []
+  const userById = new Map(userRows.map((user) => [user.id, user]))
 
   let sent = 0
 
@@ -151,7 +158,7 @@ export async function processPendingDrips(appUrl: string): Promise<number> {
     // Check-before-send: every free-intro drip skips for paid users, but among cohort
     // drips only the upgrade nudge does (a welcome to a paid user is fine — P4).
     const paidCheckApplies = !isCohortDrip || drip.emailIndex === COHORT_DRIP_INDEXES.upgradeNudge
-    if (paidCheckApplies && (await isUserPaid(drip.userId))) {
+    if (paidCheckApplies && paidUserIds.has(drip.userId)) {
       await db.update(dripEmails).set({ status: 'skipped' }).where(eq(dripEmails.id, drip.id))
       continue
     }
@@ -159,12 +166,7 @@ export async function processPendingDrips(appUrl: string): Promise<number> {
     const template = isCohortDrip ? undefined : DRIP_TEMPLATES[drip.emailIndex]
     if (!isCohortDrip && !template) continue
 
-    // Get user email
-    const { users } = await import('@/platform/db/schema')
-    const user = await db.query.users.findFirst({
-      where: eq(users.id, drip.userId),
-    })
-
+    const user = userById.get(drip.userId)
     if (!user) continue
 
     let message: { subject: string; html: string; text: string }

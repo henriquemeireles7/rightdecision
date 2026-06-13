@@ -23,12 +23,16 @@
 // These imports run BEFORE any mock.module call in a test file (ESM imports
 // are hoisted, and every mocker file imports this module first), so they
 // capture the genuine modules.
+import type { MiddlewareHandler } from 'hono'
+import { requireAuth } from '@/platform/auth/middleware'
 import { db } from '@/platform/db/client'
 import * as schema from '@/platform/db/schema'
 import { env } from '@/platform/env'
+import type { AppEnv } from '@/platform/types'
 
 const realDb = db
 const realEnv = env
+const realRequireAuth = requireAuth
 
 /** Returns the REAL schema module.
  *
@@ -98,4 +102,25 @@ export function setEnvOverride(partial: Record<string, unknown>): void {
 
 export function clearEnvOverride(): void {
   envOverride = undefined
+}
+
+// ─── requireAuth passthrough proxy ──────────────────────────────────────
+// mock.module('@/platform/auth/middleware') leaks process-wide: a test that
+// stubs requireAuth would otherwise disable auth for EVERY later-loaded file
+// (e.g. the "401 without a session" route tests). The proxy delegates to the
+// override when set, else the REAL requireAuth — so afterAll cleanup restores
+// genuine auth for later files.
+
+let authOverride: MiddlewareHandler<AppEnv> | undefined
+
+/** Drop-in replacement for the real `requireAuth` middleware. */
+export const requireAuthProxy: MiddlewareHandler<AppEnv> = (c, next) =>
+  (authOverride ?? realRequireAuth)(c, next)
+
+export function setAuthOverride(mw: MiddlewareHandler<AppEnv>): void {
+  authOverride = mw
+}
+
+export function clearAuthOverride(): void {
+  authOverride = undefined
 }

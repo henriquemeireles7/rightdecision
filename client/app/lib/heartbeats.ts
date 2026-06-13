@@ -10,7 +10,7 @@ import { postWatchEvents } from './data'
 export type Heartbeat = { lessonId: string; secondsWatched: number }
 
 /** Mirrors WATCH_EVENTS rate-limit sizing: ~2 POSTs/min in practice. */
-export const HEARTBEAT_FLUSH_INTERVAL_MS = 30_000
+const HEARTBEAT_FLUSH_INTERVAL_MS = 30_000
 
 type BatcherOptions = {
   flushIntervalMs?: number

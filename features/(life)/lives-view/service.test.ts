@@ -196,6 +196,24 @@ describe('integration: lives-view getLiveReplay', () => {
     expect((await eventRows(user!.id, 'replay_watched')).length).toBe(1)
   })
 
+  test('PLAYBACK_UNAVAILABLE when signing throws — clean 503, no event', async () => {
+    const user = await createTestUser()
+    const program = await createTestProgram()
+    await createTestEnrollment(user!.id, program!.id)
+    const live = await createTestLive(program!.id, {
+      scheduledAt: PAST,
+      replayStatus: 'ready',
+      replayStreamVideoId: 'replay-vid',
+    })
+
+    signPlaybackTokenMock.mockImplementationOnce(() =>
+      Promise.reject(new Error('signing key not configured')),
+    )
+    const result = await getLiveReplay(user!.id, live!.id, NOW)
+    expect(result).toEqual({ error: 'PLAYBACK_UNAVAILABLE' })
+    expect(await eventRows(user!.id, 'replay_watched')).toEqual([])
+  })
+
   test('VIDEO_NOT_READY for processing and cancelled replays — no token, no event', async () => {
     const user = await createTestUser()
     const program = await createTestProgram()

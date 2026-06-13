@@ -1,15 +1,25 @@
 import { describe, expect, test } from 'bun:test'
+import { checkoutRoutes } from './create-checkout'
 
-// These tests verify the checkout redirect route shape.
-// Full integration tests require env vars — covered in landing page tests.
+// bun-types requires a fn arg on test.todo; this stub never runs unless `bun test --todo`,
+// in which case it throws so the case stays reported as TODO (not false-green).
+const unimplemented = () => {
+  throw new Error('not implemented — needs a Stripe-client seam')
+}
 
-describe('checkout redirect', () => {
-  test('GET /redirect endpoint creates 303 redirect to Stripe', () => {
-    // The redirect endpoint is tested indirectly via the landing page CTA:
-    // - CTA links to /api/checkout/redirect
-    // - Landing page tests verify the CTA link exists
-    // - Stripe mock tests require full env (DATABASE_URL, STRIPE_SECRET_KEY)
-    // Full redirect integration test lives in landing.test.ts when env is available
-    expect(true).toBe(true)
+describe('checkout route', () => {
+  // The route is wired and reachable; this asserts its shape without a live Stripe call.
+  test('exposes a reachable Hono app', () => {
+    expect(typeof checkoutRoutes.request).toBe('function')
   })
+
+  // Behavior that needs a Stripe-client seam to test without a leak-prone mock.module
+  // (payments has no DI seam here). Tracked rather than asserted as false-green:
+  test.todo('GET /redirect 303-redirects to the created Stripe session url', unimplemented)
+  test.todo('GET /redirect falls back to PUBLIC_APP_URL when session.url is null', unimplemented)
+  test.todo(
+    'GET /redirect 303-redirects to ?error=checkout_failed when Stripe throws',
+    unimplemented,
+  )
+  test.todo('POST / returns { url } on success and PAYMENT_FAILED on Stripe error', unimplemented)
 })

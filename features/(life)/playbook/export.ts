@@ -1,3 +1,4 @@
+import { escapeHtml } from '@/features/(shared)/email/layout'
 import type { TemplateSchema } from '@/platform/db/schema'
 
 /**
@@ -5,19 +6,12 @@ import type { TemplateSchema } from '@/platform/db/schema'
  * to PDF from the browser (see this folder's CLAUDE.md for why this beats a satori
  * PDF binary). Print rules: WHITE background, ink text, Instrument Serif heads,
  * gold ONLY for rules/accents — cream wastes ink printed.
+ *
+ * escapeHtml is the single canonical impl from email/layout.ts (DSA: extract on 3rd dup).
  */
 
 const INK = '#1A1A1A'
 const GOLD = '#C4956A'
-
-export function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;')
-}
 
 const styles = `
   * { box-sizing: border-box; }

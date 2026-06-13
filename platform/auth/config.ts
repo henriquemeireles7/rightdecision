@@ -11,7 +11,12 @@ export const auth = betterAuth({
   }),
   secret: env.BETTER_AUTH_SECRET,
   baseURL: env.PUBLIC_APP_URL,
-  trustedOrigins: ['http://localhost:*', 'http://127.0.0.1:*'],
+  // PUBLIC_APP_URL is always trusted; localhost wildcards only outside production
+  // so prod can't be tricked into trusting a localhost origin.
+  trustedOrigins: [
+    env.PUBLIC_APP_URL,
+    ...(env.NODE_ENV !== 'production' ? ['http://localhost:*', 'http://127.0.0.1:*'] : []),
+  ],
   socialProviders:
     env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
       ? {

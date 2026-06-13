@@ -1,6 +1,7 @@
 import { zValidator } from '@hono/zod-validator'
 import { Hono } from 'hono'
 import { requireAuth } from '@/platform/auth/middleware'
+import { requirePermission } from '@/platform/auth/permissions'
 import type { ErrorCode } from '@/platform/errors'
 import { throwError } from '@/platform/errors'
 import { success } from '@/platform/server/responses'
@@ -9,6 +10,7 @@ import { clipSelectInputSchema, saveClipSelections } from './service'
 
 export const clipSelectRoutes = new Hono<AppEnv>()
   .use(requireAuth)
+  .use(requirePermission('manage_content'))
   .post('/', zValidator('json', clipSelectInputSchema), async (c) => {
     const { pipelineRunId, clips } = c.req.valid('json')
     const result = await saveClipSelections(pipelineRunId, clips)

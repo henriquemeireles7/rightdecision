@@ -19,7 +19,7 @@ export const buttonSecondary =
   'inline-flex items-center gap-2 rounded-sm bg-sand px-4 py-2 text-sm font-medium text-ink hover:bg-linen disabled:cursor-not-allowed disabled:opacity-50'
 export const buttonGhost =
   'inline-flex items-center gap-2 rounded-sm border border-linen px-3 py-1.5 text-sm font-medium text-body hover:border-gold hover:text-ink disabled:cursor-not-allowed disabled:opacity-50'
-export const buttonDanger =
+const buttonDanger =
   'inline-flex items-center gap-2 rounded-sm border border-error px-3 py-1.5 text-sm font-medium text-error hover:bg-error hover:text-surface-white disabled:cursor-not-allowed disabled:opacity-50'
 
 export const inputClass =

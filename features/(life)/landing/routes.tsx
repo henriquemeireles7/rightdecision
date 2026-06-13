@@ -21,8 +21,8 @@ async function fetchNextCohortStartsAt(): Promise<Date | null> {
   try {
     const next = await getNextCohort(FREE_PROGRAM_SLUG)
     return next?.cohort.startsAt ?? null
-  } catch (error) {
-    console.error('[landing] next-cohort fetch failed (rendering without it):', error)
+  } catch {
+    // Degrade to the pre-cutover landing on any DB hiccup — the sales page must never break.
     return null
   }
 }

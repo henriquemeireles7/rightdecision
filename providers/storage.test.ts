@@ -91,6 +91,20 @@ describe('providers/storage', () => {
       mockGetSignedUrl.mockRejectedValueOnce(new Error('Auth error'))
       await expect(getSignedUrl('key')).rejects.toThrow(ProviderError)
     })
+
+    it('rejects path-traversal and unsafe keys with ProviderError 400 before signing', async () => {
+      const unsafe = ['../etc/passwd', 'a/../../b', '/absolute/key', 'a\\b', 'a/./b', '', 'a\0b']
+      for (const key of unsafe) {
+        try {
+          await getSignedUrl(key)
+          expect.unreachable(`key should have been rejected: ${JSON.stringify(key)}`)
+        } catch (error) {
+          expect(error).toBeInstanceOf(ProviderError)
+          expect((error as ProviderError).statusCode).toBe(400)
+        }
+      }
+      expect(mockGetSignedUrl).not.toHaveBeenCalled()
+    })
   })
 
   describe('getUploadUrl', () => {

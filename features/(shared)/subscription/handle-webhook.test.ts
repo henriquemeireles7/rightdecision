@@ -69,8 +69,15 @@ describe('integration: webhook → paid enrollment wiring', () => {
     await teardownTestDb()
     mockSendEmail.mockClear()
     fakeRetrieve = () => ({
-      current_period_end: Math.floor(Date.now() / 1000) + 365 * 24 * 3600,
-      items: { data: [{ price: { id: 'price_placeholder' } }] },
+      // dahlia API version: current_period_end lives on the subscription item.
+      items: {
+        data: [
+          {
+            price: { id: 'price_placeholder' },
+            current_period_end: Math.floor(Date.now() / 1000) + 365 * 24 * 3600,
+          },
+        ],
+      },
     })
   })
 
@@ -156,7 +163,7 @@ describe('integration: webhook → paid enrollment wiring', () => {
       id: subscription.stripeSubscriptionId,
       status: 'active',
       cancel_at_period_end: true,
-      current_period_end: periodEnd,
+      items: { data: [{ current_period_end: periodEnd }] },
     })
 
     assertSuccess(response)
@@ -180,7 +187,7 @@ describe('integration: webhook → paid enrollment wiring', () => {
       id: subscription.stripeSubscriptionId,
       status: 'canceled',
       cancel_at_period_end: false,
-      current_period_end: Math.floor(Date.now() / 1000),
+      items: { data: [{ current_period_end: Math.floor(Date.now() / 1000) }] },
     })
 
     const [enrollment] = await testDb.query.enrollments.findMany()

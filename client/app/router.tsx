@@ -20,7 +20,7 @@ export type Route =
   | { name: 'chat-conversation'; conversationId: string }
   | { name: 'not-found' }
 
-export const APP_BASE = '/app'
+const APP_BASE = '/app'
 
 export function parseRoute(pathname: string): Route {
   const path = pathname.startsWith(APP_BASE) ? pathname.slice(APP_BASE.length) : pathname

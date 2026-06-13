@@ -118,11 +118,36 @@ export async function getPlaybook(userId: string) {
     .where(eq(documentTemplates.status, 'published'))
     .orderBy(asc(documentTemplates.sortOrder), asc(documentTemplates.createdAt))
 
-  const entries = []
-  for (const { template } of rows) {
-    const doc = await ensureDocument(userId, template)
-    entries.push({ template, doc })
+  const templates = rows.map((row) => row.template)
+  // Batch lazy instantiation (was 1+2N queries — one ensureDocument per template):
+  // one multi-row INSERT ... ON CONFLICT DO NOTHING pins the CURRENT version for any
+  // template the user has no document for yet (existing pins are never bumped), then
+  // ONE SELECT reads every document back. Collapses to ~3 flat queries regardless of N.
+  if (templates.length) {
+    await db
+      .insert(documents)
+      .values(
+        templates.map((template) => ({
+          userId,
+          templateId: template.id,
+          templateVersion: template.version,
+        })),
+      )
+      .onConflictDoNothing({ target: [documents.userId, documents.templateId] })
   }
+  const templateIds = templates.map((template) => template.id)
+  const docRows = templateIds.length
+    ? await db
+        .select()
+        .from(documents)
+        .where(and(eq(documents.userId, userId), inArray(documents.templateId, templateIds)))
+    : []
+  const docByTemplateId = new Map(docRows.map((doc) => [doc.templateId, doc]))
+  // The unique index + the insert above guarantee a row exists for every template.
+  const entries = templates.map((template) => ({
+    template,
+    doc: docByTemplateId.get(template.id) as DocumentRow,
+  }))
 
   const docIds = entries.map((entry) => entry.doc.id)
   const allAnswers = docIds.length

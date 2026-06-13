@@ -4,7 +4,7 @@
 Test infrastructure shared by all integration and feature tests. Provides database lifecycle management, test data factories, and common assertion helpers. Every integration test imports from here — never roll your own test setup.
 
 ## Critical Rules
-- mock.module leaks process-wide — ALWAYS mock via the passthrough proxies in mocks.ts (`dbProxy`/`envProxy` + `setDbOverride`/`setEnvOverride`) with afterAll cleanup (`clearDbOverride`/`clearEnvOverride`); NEVER hand-roll mock.module replacements for db/env/schema
+- mock.module leaks process-wide — ALWAYS mock via the passthrough proxies in mocks.ts (`dbProxy`/`envProxy`/`requireAuthProxy` + `setDbOverride`/`setEnvOverride`/`setAuthOverride`) with afterAll cleanup (`clearDbOverride`/`clearEnvOverride`/`clearAuthOverride`); NEVER hand-roll mock.module replacements for db/env/schema/auth-middleware (a leaked `requireAuth` stub silently disables the "401 without a session" tests in every later-loaded file)
 - NEVER mock the database — use the real test DB via `setup.ts`
 - ALWAYS clean up test data after tests (transaction rollback in afterEach)
 - ALWAYS use factories from `factories.ts` to create test data — never hand-craft INSERT queries
