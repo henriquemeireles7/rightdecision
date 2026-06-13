@@ -1,6 +1,24 @@
 import { expect } from 'bun:test'
+import type { MiddlewareHandler } from 'hono'
 import type { ErrorCode } from '@/platform/errors'
 import { errors } from '@/platform/errors'
+import type { AppEnv, AppUser } from '@/platform/types'
+
+/**
+ * Test-only auth stub: sets the given user on the context, bypassing Better Auth.
+ * Pass it as the `auth` dep of a route factory (production callers never pass deps).
+ */
+export function stubAuth(user: {
+  id: string
+  email: string
+  name: string
+  role?: AppUser['role']
+}): MiddlewareHandler<AppEnv> {
+  return async (c, next) => {
+    c.set('user', { id: user.id, email: user.email, name: user.name, role: user.role ?? 'free' })
+    await next()
+  }
+}
 
 /**
  * Call a Hono app route in tests. Returns parsed JSON response.

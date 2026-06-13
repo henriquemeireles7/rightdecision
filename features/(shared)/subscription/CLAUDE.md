@@ -10,6 +10,15 @@ Stripe checkout + webhook handling. Creates purchases on successful payment.
 - ALWAYS use `onConflictDoNothing({ target: purchases.stripeSessionId })` to prevent duplicate purchases
 - Webhook handler: only process `checkout.session.completed` with `payment_status === 'paid'`
 - NEVER import Stripe directly — use `payments` from `providers/payments`
+- P4 paid-enrollment wiring lives in `enrollment-sync.ts` (NOT inline in the webhook):
+  checkout completed / subscription active → evergreen paid enrollment (cohortId NULL,
+  source 'purchase', slug from `@/platform/programs` PAID_PROGRAM_SLUG);
+  cancel-at-period-end → enrollment expiresAt (P1 sweep expires it); hard cancel → revoke.
+- NEVER fail the webhook on an enrollment-sync error (`safeEnrollmentSync`) — the
+  webhookEvents dedup row is already written, so a Stripe retry would no-op; sync
+  functions are idempotent and self-heal on the next subscription event.
+- NULL-userId subscriptions (webhook-before-linkage) are REPORTED, never enrolled —
+  same rule as the M8 migration script. A webhook NEVER creates the paid program.
 
 ## Recipe: New Webhook Event Handler
 ```ts
@@ -36,6 +45,7 @@ bun test features/subscription/
 | complete-checkout.ts | completeCheckoutRoutes |
 | create-checkout.ts | checkoutRoutes |
 | customer-portal.ts | portalRoutes |
+| enrollment-sync.ts | PaidEnrollmentSyncResult, SubscriptionEnrollmentSyncResult, syncPaidEnrollment, syncEnrollmentForCheckoutCompleted, syncEnrollmentForSubscriptionUpdate, syncEnrollmentForSubscriptionDeleted |
 | handle-webhook.ts | webhookRoutes |
 | helpers.ts | getUserForSubscription |
 | require-subscription.ts | requireActiveSubscription |
@@ -46,10 +56,12 @@ bun test features/subscription/
 - platform/db
 - platform/env
 - platform/errors
+- platform/events
+- platform/programs
 - platform/server
 - platform/types
 - providers/analytics
 - providers/email
 - providers/payments
 
-<!-- Generated: 2026-04-09T09:30:25.857Z -->
+<!-- Generated: 2026-06-12T23:31:24.932Z -->

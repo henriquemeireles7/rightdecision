@@ -45,11 +45,12 @@ import {
   users,
 } from '@/platform/db/schema'
 import { env } from '@/platform/env'
-import { PAID_PROGRAM_SLUG } from './migrate-subscribers-to-enrollments'
+// Canonical home is platform/programs.ts (P4); re-exported for back-compat.
+import { FREE_PROGRAM_SLUG, PAID_PROGRAM_SLUG } from '@/platform/programs'
 
 type Db = PostgresJsDatabase<typeof schema>
 
-export const FREE_PROGRAM_SLUG = 'life-decisions-free'
+export { FREE_PROGRAM_SLUG }
 export const SEED_COURSE_SLUG = 'right-decision-foundations'
 export const SEED_TEMPLATE_SLUG = 'life-playbook'
 export const SEED_EMAIL_DOMAIN = 'seed.rightdecision.io'

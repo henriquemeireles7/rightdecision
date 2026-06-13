@@ -14,6 +14,11 @@ import { throwError } from '@/platform/errors'
 import { success } from '@/platform/server/responses'
 import { sendEmail } from '@/providers/email'
 import { intervalFromPriceId, payments } from '@/providers/payments'
+import {
+  syncEnrollmentForCheckoutCompleted,
+  syncEnrollmentForSubscriptionDeleted,
+  syncEnrollmentForSubscriptionUpdate,
+} from './enrollment-sync'
 import { getUserForSubscription } from './helpers'
 
 export const webhookRoutes = new Hono()
@@ -28,6 +33,21 @@ async function safeSendEmail(to: string, email: { subject: string; html: string;
     await sendEmail(to, email)
   } catch (err) {
     console.error(`[webhook] Failed to send email "${email.subject}" to ${to}:`, err)
+  }
+}
+
+/**
+ * Run a paid-enrollment sync inside a webhook handler (P4).
+ * CRITICAL: never fail the webhook on a sync error — the webhookEvents dedup row is
+ * already written, so a non-200 would make Stripe retry into a guaranteed no-op.
+ * The sync functions are themselves idempotent; a missed sync self-heals on the next
+ * subscription event (or via the M8 migration script).
+ */
+async function safeEnrollmentSync(sync: () => Promise<unknown>) {
+  try {
+    await sync()
+  } catch (err) {
+    console.error('[webhook] Paid enrollment sync failed (webhook still 200):', err)
   }
 }
 
@@ -94,6 +114,10 @@ webhookRoutes.post('/', async (c) => {
           currentPeriodEnd: new Date(periodEnd * 1000),
         })
         .onConflictDoNothing({ target: subscriptions.stripeSubscriptionId })
+
+      // P4: paid enrollment (evergreen, cohortId NULL). NULL-userId rows are
+      // reported inside the sync, never enrolled — linkage lands via /complete.
+      await safeEnrollmentSync(() => syncEnrollmentForCheckoutCompleted(subscriptionId))
 
       // No email here — success page flow handles first-payment email
       break
@@ -237,6 +261,17 @@ webhookRoutes.post('/', async (c) => {
         })
         .where(eq(subscriptions.stripeSubscriptionId, sub.id))
 
+      // P4: mirror the status mapping onto the paid enrollment
+      // (revoke on cancelled, expiresAt on cancel-at-period-end, re-grant on active)
+      await safeEnrollmentSync(() =>
+        syncEnrollmentForSubscriptionUpdate({
+          stripeSubscriptionId: sub.id,
+          status: dbStatus,
+          cancelAtPeriodEnd: sub.cancel_at_period_end,
+          currentPeriodEnd: new Date(sub.current_period_end * 1000),
+        }),
+      )
+
       // User-initiated cancellation (cancel at period end)
       if (sub.cancel_at_period_end) {
         const user = await getUserForSubscription(sub.id)
@@ -271,6 +306,9 @@ webhookRoutes.post('/', async (c) => {
         .update(subscriptions)
         .set({ status: 'cancelled', updatedAt: new Date() })
         .where(eq(subscriptions.stripeSubscriptionId, subObj.id))
+
+      // P4: hard cancel revokes the paid enrollment now
+      await safeEnrollmentSync(() => syncEnrollmentForSubscriptionDeleted(subObj.id))
 
       const user = await getUserForSubscription(subObj.id)
       if (user) {

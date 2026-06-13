@@ -20,10 +20,13 @@ import { and, eq, gt, inArray, isNull, or } from 'drizzle-orm'
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js'
 import type * as schema from '@/platform/db/schema'
 import { enrollments, programs, subscriptions } from '@/platform/db/schema'
+// Canonical home is platform/programs.ts (P4 moved it there so features can import it);
+// re-exported here for back-compat with existing importers of this script.
+import { PAID_PROGRAM_SLUG } from '@/platform/programs'
 
 type Db = PostgresJsDatabase<typeof schema>
 
-export const PAID_PROGRAM_SLUG = 'life-decisions-paid'
+export { PAID_PROGRAM_SLUG }
 export const GRACE_PERIOD_DAYS = 30
 
 const DAY_MS = 24 * 60 * 60 * 1000

@@ -13,8 +13,10 @@ import {
 /**
  * THE access predicate (eng-schema table 3): an enrollment grants access only while
  * status='active' AND not past expiresAt. Never trust status alone between expiry sweeps.
+ * Exported for member-facing read models (catalog/lives/materials) that join content
+ * down to active enrollments — never re-implement this clause.
  */
-function activeEnrollmentClause(): SQL {
+export function activeEnrollmentClause(): SQL {
   const clause = and(
     eq(enrollments.status, 'active'),
     or(isNull(enrollments.expiresAt), gt(enrollments.expiresAt, new Date())),

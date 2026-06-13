@@ -44,9 +44,9 @@ bunx tsc --noEmit platform/db/schema.ts
 | File | Exports |
 |------|---------|
 | client.ts | db |
-| schema.ts | users, sessions, accounts, verifications, purchases, subscriptions, courseProgress, onboardingSessions, onboardingProfiles, wins, bookmarks, platformAccounts, pipelineRuns, clips, posts, postAnalytics, webhookEvents, userDecisions, readingAnalytics, insights, freeIntroSessions, dripEmails |
+| schema.ts | users, sessions, accounts, verifications, purchases, subscriptions, courseProgress, onboardingSessions, onboardingProfiles, wins, bookmarks, platformAccounts, pipelineRuns, clips, posts, postAnalytics, webhookEvents, userDecisions, readingAnalytics, insights, freeIntroSessions, dripEmails, templateFieldSchema, templatePageSchema, templateChapterSchema, templateSchemaSchema, TemplateSchema, programs, cohorts, enrollments, courses, programCourses, modules, lessons, materials, programMaterials, lives, documentTemplates, documents, documentAnswers, journalEntries, conversations, conversationMessages, interviews, events, aiUsage, lessonProgress |
 
 ## Internal Dependencies
 - platform/env
 
-<!-- Generated: 2026-04-09T09:30:25.860Z -->
+<!-- Generated: 2026-06-12T23:31:24.933Z -->

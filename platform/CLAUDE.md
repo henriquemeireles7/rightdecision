@@ -45,10 +45,11 @@ bunx tsc --noEmit platform/env.ts platform/errors.ts platform/types.ts
 |------|---------|
 | env.ts | env |
 | errors.ts | errors, ErrorCode, throwError |
+| programs.ts | PAID_PROGRAM_SLUG, FREE_PROGRAM_SLUG |
 | rate-limit.ts | checkRateLimit |
 | types.ts | AppUser, Enrollment, AppEnv |
 
 ## Internal Dependencies
 - platform/db
 
-<!-- Generated: 2026-06-12T22:38:50.223Z -->
+<!-- Generated: 2026-06-12T23:31:24.936Z -->

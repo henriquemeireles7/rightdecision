@@ -98,8 +98,13 @@ programs ──< cohorts                    programs ──< program_courses >�
 20. **lesson_progress** — userId FK cascade, lessonId FK cascade, secondsWatched int notNull
     default 0, durationSeconds int (denormalized at write for % math), completedAt timestamptz
     nullable (set when decision prompt answered — ADR 1: answering completes the lesson),
-    lastWatchedAt timestamptz notNull, uniqueIndex(userId, lessonId);
-    index(userId, lastWatchedAt) — the continue-watching rail is one query.
+    promptAnswer text nullable (the user's decision-prompt answer text — events properties
+    are PII-free by design, so the answer needed a relational home; added in migration 0009
+    during P3 implementation), lastWatchedAt timestamptz notNull,
+    uniqueIndex(userId, lessonId); index(userId, lastWatchedAt) — continue-watching is one query.
+
+**Program slug constants:** PAID_PROGRAM_SLUG ('life-decisions-paid') + FREE_PROGRAM_SLUG live
+in platform/programs.ts (platform root is the only layer both features and scripts may import).
     [Aggregator addition post-roadmap: deriving resume position from append-only heartbeat
     events means scanning the spine per catalog render; an upsert row is the explicit answer.
     Heartbeats still flow to events for analytics; this table is the READ model. The existing

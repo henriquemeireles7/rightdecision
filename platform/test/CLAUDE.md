@@ -49,13 +49,15 @@ bun test platform/test/
 |------|---------|
 | dom-preload.ts | — |
 | factories.ts | createTestUser, createTestSession, createTestSubscription, createTestWin, createTestOnboardingProfile, createTestPipelineRun, createTestProgram, createTestCohort, createTestCourse, createTestProgramCourse, createTestModule, createTestLesson, createTestEnrollment, createTestMaterial, createTestProgramMaterial, createTestLive, createTestPlatformAccount |
-| helpers.ts | apiCall, authenticatedRequest, assertError, assertSuccess |
+| helpers.ts | stubAuth, apiCall, authenticatedRequest, assertError, assertSuccess |
 | index.ts | — |
-| mocks.ts | mockSchema |
+| mocks.ts | mockSchema, dbProxy, setDbOverride, clearDbOverride, envProxy, setEnvOverride, clearEnvOverride |
 | setup.ts | testDb, setupTestDb, teardownTestDb |
 
 ## Internal Dependencies
 - platform/db
+- platform/env
 - platform/errors
+- platform/types
 
-<!-- Generated: 2026-06-12T22:38:50.223Z -->
+<!-- Generated: 2026-06-12T23:31:24.934Z -->

@@ -1,4 +1,11 @@
 import type { Hono } from 'hono'
+import { adminAnalyticsRoutes } from '@/features/(admin)/analytics/routes'
+import { adminCohortsRoutes } from '@/features/(admin)/cohorts/routes'
+import { adminCourseBuilderRoutes } from '@/features/(admin)/course-builder/routes'
+import { streamWebhookRoutes } from '@/features/(admin)/course-builder/webhook-routes'
+import { adminLivesRoutes } from '@/features/(admin)/lives/routes'
+import { adminMaterialsRoutes } from '@/features/(admin)/materials/routes'
+import { adminProgramsRoutes } from '@/features/(admin)/programs/routes'
 import { accountSyncRoutes } from '@/features/(business)/account-sync/routes'
 import { analyticsRoutes } from '@/features/(business)/analytics-collect/routes'
 import { clipCutRoutes } from '@/features/(business)/clip-cut/routes'
@@ -9,6 +16,7 @@ import { metadataRoutes } from '@/features/(business)/metadata-generate/routes'
 import { postDistributeRoutes } from '@/features/(business)/post-distribute/routes'
 import { transcribeRoutes } from '@/features/(business)/transcribe/routes'
 import { authPageRoutes } from '@/features/(life)/auth/routes'
+import { catalogRoutes } from '@/features/(life)/catalog/routes'
 import { analyticsReadingRoutes } from '@/features/(life)/course/analytics-routes'
 import { bookmarkRoutes } from '@/features/(life)/course/bookmark-routes'
 import { decisionRoutes } from '@/features/(life)/course/decision-routes'
@@ -20,10 +28,14 @@ import { searchRoutes } from '@/features/(life)/course/search-routes'
 import { shareRoutes } from '@/features/(life)/course/share-routes'
 import { courseRoutes } from '@/features/(life)/course-player/routes'
 import { progressRoutes } from '@/features/(life)/course-progress/routes'
+import { joinRoutes } from '@/features/(life)/join/routes'
+import { livesViewRoutes } from '@/features/(life)/lives-view/routes'
+import { materialsViewRoutes } from '@/features/(life)/materials-view/routes'
 import { onboardingRoutes } from '@/features/(life)/onboarding/routes'
+import { playerRoutes } from '@/features/(life)/player/routes'
+import { watchEventsRoutes } from '@/features/(life)/watch-events/routes'
 import { winsRoutes } from '@/features/(life)/wins/routes'
 import { accountRoutes } from '@/features/(shared)/account/routes'
-import { adminRoutes } from '@/features/(shared)/admin/routes'
 import { freeIntroRoutes } from '@/features/(shared)/free-intro/routes'
 import { completeCheckoutRoutes } from '@/features/(shared)/subscription/complete-checkout'
 import { checkoutRoutes } from '@/features/(shared)/subscription/create-checkout'
@@ -53,7 +65,21 @@ export function mountRoutes(app: Hono) {
       .route('/api/free-intro', freeIntroRoutes)
       .route('/api/account', accountRoutes)
       .route('/api/search', searchRoutes)
-      .route('/api/admin', adminRoutes)
+      .route('/api/admin', adminAnalyticsRoutes)
+      // ─── V2 Members Area APIs ───
+      .route('/api/catalog', catalogRoutes)
+      .route('/api/player', playerRoutes)
+      .route('/api/watch-events', watchEventsRoutes)
+      .route('/api/lives', livesViewRoutes)
+      .route('/api/materials', materialsViewRoutes)
+      .route('/api/join', joinRoutes)
+      // ─── V2 Admin APIs ───
+      .route('/api/admin/course-builder', adminCourseBuilderRoutes)
+      .route('/api/admin/materials', adminMaterialsRoutes)
+      .route('/api/admin/lives', adminLivesRoutes)
+      .route('/api/admin/cohorts', adminCohortsRoutes)
+      .route('/api/admin/programs', adminProgramsRoutes)
+      .route('/api/webhook/stream', streamWebhookRoutes)
       // ─── BD Pipeline ───
       .route('/api/pipeline/health', healthRoutes)
       .route('/api/platform-accounts', accountSyncRoutes)

@@ -57,11 +57,11 @@ DATABASE_URL=postgresql://test:test@localhost:5432/test bun test platform/script
 | backfill-decision-events.ts | LEGACY_DECISION_EVENT, LEGACY_READING_EVENT, BackfillReport, backfillDecisionEvents, formatBackfillReport |
 | build-client.ts | buildClient |
 | harden-check.ts | — |
-| migrate-subscribers-to-enrollments.ts | PAID_PROGRAM_SLUG, GRACE_PERIOD_DAYS, OrphanedSubscription, MigrationReport, ensurePaidProgram, migrateSubscribersToEnrollments, formatMigrationReport |
+| migrate-subscribers-to-enrollments.ts | GRACE_PERIOD_DAYS, OrphanedSubscription, MigrationReport, ensurePaidProgram, migrateSubscribersToEnrollments, formatMigrationReport |
 | migrate.ts | — |
 | seed-accounts.ts | — |
 | seed-users.ts | — |
-| seed-v2.ts | FREE_PROGRAM_SLUG, SEED_COURSE_SLUG, SEED_TEMPLATE_SLUG, SEED_EMAIL_DOMAIN, DEFAULT_SEED_PASSWORD, SEED_EMAILS, SeedSummary, seedV2 |
+| seed-v2.ts | SEED_COURSE_SLUG, SEED_TEMPLATE_SLUG, SEED_EMAIL_DOMAIN, DEFAULT_SEED_PASSWORD, SEED_EMAILS, SeedSummary, seedV2 |
 | seed-wins.ts | — |
 | validate-block-ids.ts | — |
 
@@ -69,5 +69,6 @@ DATABASE_URL=postgresql://test:test@localhost:5432/test bun test platform/script
 - platform/auth
 - platform/db
 - platform/env
+- platform/programs
 
-<!-- Generated: 2026-06-12T22:38:50.222Z -->
+<!-- Generated: 2026-06-12T23:31:24.933Z -->

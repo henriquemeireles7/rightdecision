@@ -1,4 +1,5 @@
 import { afterAll, beforeEach, describe, expect, it, mock } from 'bun:test'
+import * as realFsPromises from 'node:fs/promises'
 import {
   clearDbOverride,
   clearEnvOverride,
@@ -56,7 +57,11 @@ const mockGetMetrics = mock(() =>
 )
 mock.module('@/providers/social-analytics', () => ({ getMetrics: mockGetMetrics }))
 
+// Spread the real module so the mock keeps its full shape (incl. `default`) —
+// mock.module leaks process-wide and a shape-incomplete factory breaks later
+// lazy imports of node:fs/promises in unrelated test files.
 mock.module('node:fs/promises', () => ({
+  ...realFsPromises,
   writeFile: mock(() => Promise.resolve()),
   unlink: mock(() => Promise.resolve()),
 }))

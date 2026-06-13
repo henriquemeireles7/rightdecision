@@ -64,9 +64,9 @@ DATABASE_URL=postgresql://test:test@localhost:5432/test bun test "features/(shar
 ## Files
 | File | Exports |
 |------|---------|
-| service.ts | grantEnrollmentInput, GrantEnrollmentInput, grantEnrollment, revokeEnrollment, listEnrollments, getActiveEnrollment, hasActiveEnrollment, canAccessLesson, canAccessMaterial, canAccessLive |
+| service.ts | activeEnrollmentClause, grantEnrollmentInput, GrantEnrollmentInput, grantEnrollment, revokeEnrollment, listEnrollments, getActiveEnrollment, hasActiveEnrollment, canAccessLesson, canAccessMaterial, canAccessLive |
 
 ## Internal Dependencies
 - platform/db
 
-<!-- Generated: 2026-06-12T22:38:50.330Z -->
+<!-- Generated: 2026-06-12T23:31:24.932Z -->

@@ -919,6 +919,8 @@ export const lessonProgress = pgTable(
       .references(() => lessons.id, { onDelete: 'cascade' }),
     secondsWatched: integer('seconds_watched').notNull().default(0),
     durationSeconds: integer('duration_seconds'), // denormalized at write for % math
+    // The user's decision-prompt answer (ADR 1) — answer TEXT lives here, NEVER in events (PII)
+    promptAnswer: text('prompt_answer'),
     completedAt: timestamp('completed_at', { withTimezone: true }),
     lastWatchedAt: timestamp('last_watched_at', { withTimezone: true }).notNull(),
     createdAt: timestamp('created_at').notNull().defaultNow(),
