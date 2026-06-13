@@ -36,6 +36,48 @@ export function answerDecisionPrompt(lessonId: string, answer: string) {
   )
 }
 
+// ─── Playbook (P5 — ADR 20 book UX) ───
+
+export function fetchPlaybook() {
+  return unwrap(getApi().api.playbook.$get())
+}
+
+export function fetchPlaybookPage(templateId: string, pageId: string) {
+  return unwrap(
+    getApi().api.playbook[':templateId'].pages[':pageId'].$get({ param: { templateId, pageId } }),
+  )
+}
+
+/** Autosave write path — upserts one answer row (blur/debounce call this). */
+export function savePlaybookAnswer(templateId: string, fieldId: string, value: string) {
+  return unwrap(
+    getApi().api.playbook[':templateId'].answers.$put({
+      param: { templateId },
+      json: { fieldId, value },
+    }),
+  )
+}
+
+/** Print-ready HTML export — opened in a new tab, browser print-to-PDF. */
+export function playbookExportUrl(templateId: string): string {
+  return `/api/playbook/${templateId}/export`
+}
+
+// ─── Journal (P5 — cumulative counts, NO streaks anywhere) ───
+
+export function fetchJournal(range: { from?: string; to?: string } = {}) {
+  return unwrap(getApi().api.journal.$get({ query: range }))
+}
+
+/** entryDate is the CLIENT-computed local calendar day (todayLocalDate). */
+export function saveJournalEntry(entry: {
+  entryDate: string
+  kind: 'morning' | 'evening'
+  content: string
+}) {
+  return unwrap(getApi().api.journal.entries.$put({ json: entry }))
+}
+
 export function fetchLiveReplay(liveId: string) {
   return unwrap(getApi().api.lives[':liveId'].replay.$get({ param: { liveId } }))
 }
@@ -53,6 +95,13 @@ export type ContinueWatchingItem = Catalog['continueWatching'][number]
 export type LiveItem = Awaited<ReturnType<typeof fetchLives>>['lives'][number]
 export type MaterialItem = Awaited<ReturnType<typeof fetchMaterials>>['materials'][number]
 export type LessonPayload = Awaited<ReturnType<typeof fetchLesson>>
+export type Playbook = Awaited<ReturnType<typeof fetchPlaybook>>
+export type PlaybookDocument = Playbook['documents'][number]
+export type PlaybookPagePayload = Awaited<ReturnType<typeof fetchPlaybookPage>>
+export type PlaybookPageField = PlaybookPagePayload['page']['fields'][number]
+export type Journal = Awaited<ReturnType<typeof fetchJournal>>
+export type JournalEntry = Journal['entries'][number]
+export type JournalCounts = Journal['counts']
 
 /** Locked lessons carry only { id, title } (Lock-State UX) — narrow on a marker field. */
 export function isUnlockedLesson(

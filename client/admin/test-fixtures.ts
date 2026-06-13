@@ -15,6 +15,8 @@ import type {
   AdminMaterial,
   AdminModule,
   AdminProgram,
+  AdminTemplate,
+  AdminTemplateSchema,
 } from './data'
 
 /** happy-dom starts at about:blank — point it at a real path before router tests. */
@@ -134,6 +136,59 @@ export function makeLive(overrides: Partial<AdminLive> = {}): AdminLive {
     replayStreamVideoId: null,
     replayStatus: 'none',
     cancelledAt: null,
+    createdAt: NOW,
+    updatedAt: NOW,
+    ...overrides,
+  }
+}
+
+export function makeTemplateSchema(
+  overrides: Partial<AdminTemplateSchema> = {},
+): AdminTemplateSchema {
+  return {
+    chapters: [
+      {
+        id: 'ch-seeing',
+        title: 'Seeing Clearly',
+        pages: [
+          {
+            id: 'pg-where-you-are',
+            title: 'Where You Are',
+            instruction: 'Start with what is true right now.',
+            fields: [
+              {
+                id: 'one-true-thing',
+                label: 'One true thing',
+                kind: 'long_text',
+                required: true,
+                exampleAnswer: 'I keep postponing the move.',
+              },
+              {
+                id: 'life-area',
+                label: 'Life area',
+                kind: 'select',
+                required: false,
+                options: ['Career', 'Family', 'Health'],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    ...overrides,
+  }
+}
+
+export function makeTemplate(overrides: Partial<AdminTemplate> = {}): AdminTemplate {
+  return {
+    id: 't-1',
+    programId: 'p-1',
+    slug: 'starter-notebook',
+    title: 'Starter Notebook',
+    sortOrder: 0,
+    version: 1,
+    schema: makeTemplateSchema(),
+    status: 'draft',
     createdAt: NOW,
     updatedAt: NOW,
     ...overrides,

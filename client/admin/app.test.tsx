@@ -3,7 +3,14 @@ import '@/platform/test/dom-preload'
 import { afterEach, describe, expect, test } from 'bun:test'
 import { cleanup, fireEvent, render } from '@testing-library/preact'
 import { AdminApp } from './app'
-import { makeCourse, makeData, makeProgram, makeSuggestion, setBrowserPath } from './test-fixtures'
+import {
+  makeCourse,
+  makeData,
+  makeProgram,
+  makeSuggestion,
+  makeTemplate,
+  setBrowserPath,
+} from './test-fixtures'
 
 afterEach(cleanup)
 
@@ -18,10 +25,10 @@ const data = () =>
   })
 
 describe('component: AdminApp', () => {
-  test('renders the sidebar with all five sections and lands on Courses', async () => {
+  test('renders the sidebar with all six sections and lands on Courses', async () => {
     setBrowserPath('/admin')
     const { findByText, getByRole } = render(<AdminApp data={data()} />)
-    for (const section of ['Courses', 'Programs', 'Cohorts', 'Lives', 'Materials']) {
+    for (const section of ['Courses', 'Programs', 'Cohorts', 'Lives', 'Materials', 'Templates']) {
       expect(getByRole('link', { name: section })).toBeTruthy()
     }
     expect(await findByText('Visible Course')).toBeTruthy()
@@ -43,6 +50,16 @@ describe('component: AdminApp', () => {
     setBrowserPath('/admin/materials')
     const { findByText } = render(<AdminApp data={data()} />)
     expect(await findByText(/No materials yet/)).toBeTruthy()
+  })
+
+  test('deep link to /admin/templates renders the Templates screen', async () => {
+    setBrowserPath('/admin/templates')
+    const d = makeData({
+      listTemplates: async () => ({ templates: [makeTemplate({ title: 'Visible Template' })] }),
+      listPrograms: async () => ({ programs: [makeProgram()] }),
+    })
+    const { findByText } = render(<AdminApp data={d} />)
+    expect(await findByText('Visible Template')).toBeTruthy()
   })
 
   test('unknown path falls back to Courses instead of a blank page', async () => {

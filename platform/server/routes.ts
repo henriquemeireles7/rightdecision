@@ -7,6 +7,7 @@ import { adminLivesRoutes } from '@/features/(admin)/lives/routes'
 import { adminMaterialsRoutes } from '@/features/(admin)/materials/routes'
 import { adminProgramsRoutes } from '@/features/(admin)/programs/routes'
 import { adminShellRoutes } from '@/features/(admin)/shell/routes'
+import { adminTemplatesRoutes } from '@/features/(admin)/templates/routes'
 import { accountSyncRoutes } from '@/features/(business)/account-sync/routes'
 import { analyticsRoutes } from '@/features/(business)/analytics-collect/routes'
 import { clipCutRoutes } from '@/features/(business)/clip-cut/routes'
@@ -31,9 +32,11 @@ import { shareRoutes } from '@/features/(life)/course/share-routes'
 import { courseRoutes } from '@/features/(life)/course-player/routes'
 import { progressRoutes } from '@/features/(life)/course-progress/routes'
 import { joinRoutes } from '@/features/(life)/join/routes'
+import { journalRoutes } from '@/features/(life)/journal/routes'
 import { livesViewRoutes } from '@/features/(life)/lives-view/routes'
 import { materialsViewRoutes } from '@/features/(life)/materials-view/routes'
 import { onboardingRoutes } from '@/features/(life)/onboarding/routes'
+import { playbookRoutes } from '@/features/(life)/playbook/routes'
 import { playerRoutes } from '@/features/(life)/player/routes'
 import { watchEventsRoutes } from '@/features/(life)/watch-events/routes'
 import { winsRoutes } from '@/features/(life)/wins/routes'
@@ -75,12 +78,15 @@ export function mountRoutes(app: Hono) {
       .route('/api/lives', livesViewRoutes)
       .route('/api/materials', materialsViewRoutes)
       .route('/api/join', joinRoutes)
+      .route('/api/playbook', playbookRoutes)
+      .route('/api/journal', journalRoutes)
       // ─── V2 Admin APIs ───
       .route('/api/admin/course-builder', adminCourseBuilderRoutes)
       .route('/api/admin/materials', adminMaterialsRoutes)
       .route('/api/admin/lives', adminLivesRoutes)
       .route('/api/admin/cohorts', adminCohortsRoutes)
       .route('/api/admin/programs', adminProgramsRoutes)
+      .route('/api/admin/templates', adminTemplatesRoutes)
       .route('/api/webhook/stream', streamWebhookRoutes)
       // ─── BD Pipeline ───
       .route('/api/pipeline/health', healthRoutes)

@@ -16,6 +16,8 @@ export type Route =
   | { name: 'cohorts' }
   | { name: 'lives' }
   | { name: 'materials' }
+  | { name: 'templates' }
+  | { name: 'template'; templateId: string }
 
 const NAVIGATE_EVENT = 'admin:navigate'
 
@@ -39,6 +41,8 @@ export function parseRoute(pathname: string): Route {
   if (head === 'cohorts') return { name: 'cohorts' }
   if (head === 'lives') return { name: 'lives' }
   if (head === 'materials') return { name: 'materials' }
+  if (head === 'templates' && a) return { name: 'template', templateId: a }
+  if (head === 'templates') return { name: 'templates' }
   return { name: 'courses' }
 }
 
@@ -62,6 +66,10 @@ export function routePath(route: Route): string {
       return '/admin/lives'
     case 'materials':
       return '/admin/materials'
+    case 'templates':
+      return '/admin/templates'
+    case 'template':
+      return `/admin/templates/${route.templateId}`
   }
 }
 

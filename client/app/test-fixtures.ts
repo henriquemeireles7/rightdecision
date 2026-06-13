@@ -207,6 +207,139 @@ export function materialFixture(id: string, overrides: Record<string, unknown> =
   }
 }
 
+// ─── Playbook fixtures (mirror features/(life)/playbook/service.ts) ───
+
+/** Manual scheduler for autosave tests — debounce fires only when the test flushes. */
+export function manualScheduler() {
+  const tasks = new Map<number, () => void>()
+  const delays: number[] = []
+  let nextId = 1
+  return {
+    set: (fn: () => void, ms: number) => {
+      delays.push(ms)
+      const id = nextId++
+      tasks.set(id, fn)
+      return id
+    },
+    clear: (id: unknown) => {
+      tasks.delete(id as number)
+    },
+    flush: () => {
+      const fns = [...tasks.values()]
+      tasks.clear()
+      for (const fn of fns) fn()
+    },
+    pending: () => tasks.size,
+    delays,
+  }
+}
+
+type FieldKind = 'short_text' | 'long_text' | 'select' | 'multi_select' | 'date' | 'scale_1_10'
+
+export function playbookField(
+  id: string,
+  kind: FieldKind,
+  overrides: Record<string, unknown> = {},
+) {
+  const isSelect = kind === 'select' || kind === 'multi_select'
+  return {
+    id,
+    label: `Question ${id}`,
+    kind,
+    required: false,
+    ...(isSelect ? { options: ['Career', 'Family', 'Health'] } : {}),
+    answer: null,
+    ...overrides,
+  }
+}
+
+export function playbookPageFixture(overrides: Record<string, unknown> = {}) {
+  return {
+    document: { id: 'doc-1', status: 'in_progress', templateVersion: 1 },
+    chapter: { id: 'ch-seeing', title: 'Seeing Clearly' },
+    page: {
+      id: 'pg-where-you-are',
+      title: 'Where You Are',
+      instruction: 'Start with what is true right now. Plain words are enough.',
+      fields: [playbookField('one-true-thing', 'long_text')],
+    },
+    progress: { filled: 0, total: 1 },
+    ...overrides,
+  }
+}
+
+export function playbookDocumentFixture(overrides: Record<string, unknown> = {}) {
+  return {
+    templateId: 'tpl-1',
+    programId: 'prog-free',
+    slug: 'starter-notebook',
+    title: 'Starter Notebook',
+    sortOrder: 0,
+    document: { id: 'doc-1', status: 'in_progress', templateVersion: 1 },
+    progress: {
+      filled: 3,
+      total: 8,
+      chapters: [
+        {
+          id: 'ch-seeing',
+          title: 'Seeing Clearly',
+          filled: 3,
+          total: 5,
+          pages: [
+            { id: 'pg-where-you-are', title: 'Where You Are', filled: 3, total: 3 },
+            { id: 'pg-what-you-avoid', title: 'What You Avoid', filled: 0, total: 2 },
+          ],
+        },
+        {
+          id: 'ch-deciding',
+          title: 'Deciding',
+          filled: 0,
+          total: 3,
+          pages: [{ id: 'pg-the-decision', title: 'The Decision', filled: 0, total: 3 }],
+        },
+      ],
+    },
+    ...overrides,
+  }
+}
+
+export function playbookFixture(overrides: Record<string, unknown> = {}) {
+  return { documents: [playbookDocumentFixture()], ...overrides }
+}
+
+// ─── Journal fixtures (mirror features/(life)/journal/service.ts getEntries) ───
+
+export const MORNING_PROMPT_FIXTURE = 'What would deciding look like today? One small thing counts.'
+export const EVENING_PROMPT_FIXTURE =
+  'What did you avoid today? Say it plainly — nobody reads this but you.'
+
+export function journalEntryFixture(
+  entryDate: string,
+  kind: 'morning' | 'evening',
+  overrides: Record<string, unknown> = {},
+) {
+  return {
+    id: `je-${entryDate}-${kind}`,
+    userId: 'user-1',
+    entryDate,
+    kind,
+    prompt: kind === 'morning' ? MORNING_PROMPT_FIXTURE : EVENING_PROMPT_FIXTURE,
+    content: `${kind} reflection for ${entryDate}`,
+    createdAt: `${entryDate}T08:00:00.000Z`,
+    updatedAt: `${entryDate}T08:00:00.000Z`,
+    ...overrides,
+  }
+}
+
+export function journalFixture(overrides: Record<string, unknown> = {}) {
+  return {
+    entries: [],
+    counts: { totalMornings: 47, totalEvenings: 31, totalDaysJournaled: 52 },
+    prompts: { morning: MORNING_PROMPT_FIXTURE, evening: EVENING_PROMPT_FIXTURE },
+    ...overrides,
+  }
+}
+
 // ─── Lesson fixture (mirror features/(life)/player/service.ts getLesson) ───
 
 export function lessonFixture(overrides: Record<string, unknown> = {}) {

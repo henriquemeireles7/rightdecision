@@ -7,6 +7,7 @@ import {
   formatScheduled,
   formatStartDate,
   progressPercent,
+  todayLocalDate,
   youtubeEmbedUrl,
 } from './format'
 
@@ -115,5 +116,17 @@ describe('unit: youtubeEmbedUrl', () => {
     expect(youtubeEmbedUrl('https://evil.example.com/watch?v=abc')).toBeNull()
     expect(youtubeEmbedUrl(null)).toBeNull()
     expect(youtubeEmbedUrl('not a url')).toBeNull()
+  })
+})
+
+describe('unit: todayLocalDate', () => {
+  test("formats the LOCAL calendar day as YYYY-MM-DD (the journal's entryDate)", () => {
+    // Local-time constructor — the calendar day must come from local fields, never UTC.
+    expect(todayLocalDate(new Date(2026, 5, 12, 23, 30))).toBe('2026-06-12')
+    expect(todayLocalDate(new Date(2026, 0, 1, 0, 5))).toBe('2026-01-01')
+  })
+
+  test('pads single-digit months and days', () => {
+    expect(todayLocalDate(new Date(2026, 8, 3))).toBe('2026-09-03')
   })
 })

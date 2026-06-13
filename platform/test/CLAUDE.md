@@ -48,7 +48,7 @@ bun test platform/test/
 | File | Exports |
 |------|---------|
 | dom-preload.ts | — |
-| factories.ts | createTestUser, createTestSession, createTestSubscription, createTestWin, createTestOnboardingProfile, createTestPipelineRun, createTestProgram, createTestCohort, createTestCourse, createTestProgramCourse, createTestModule, createTestLesson, createTestEnrollment, createTestMaterial, createTestProgramMaterial, createTestLive, createTestPlatformAccount |
+| factories.ts | createTestUser, createTestSession, createTestSubscription, createTestWin, createTestOnboardingProfile, createTestPipelineRun, createTestProgram, createTestCohort, createTestCourse, createTestProgramCourse, createTestModule, createTestLesson, createTestEnrollment, createTestMaterial, createTestProgramMaterial, createTestLive, buildTestTemplateSchema, createTestDocumentTemplate, createTestPlatformAccount |
 | helpers.ts | stubAuth, apiCall, authenticatedRequest, assertError, assertSuccess |
 | index.ts | — |
 | mocks.ts | mockSchema, dbProxy, setDbOverride, clearDbOverride, envProxy, setEnvOverride, clearEnvOverride |
@@ -60,4 +60,4 @@ bun test platform/test/
 - platform/errors
 - platform/types
 
-<!-- Generated: 2026-06-12T23:31:24.934Z -->
+<!-- Generated: 2026-06-13T01:29:20.704Z -->

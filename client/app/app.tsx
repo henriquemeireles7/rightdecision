@@ -7,10 +7,13 @@
 import { Shell } from './components/shell'
 import { EmptyState } from './components/states'
 import { HomePage } from './pages/home'
+import { JournalPage } from './pages/journal'
 import { LessonPage } from './pages/lesson'
 import { LiveReplayPage } from './pages/live-replay'
 import { LivesPage } from './pages/lives'
 import { MaterialsPage } from './pages/materials'
+import { PlaybookPage } from './pages/playbook'
+import { PlaybookPageView } from './pages/playbook-page'
 import { Link, useRoute } from './router'
 
 function Page({ route }: { route: ReturnType<typeof useRoute> }) {
@@ -19,6 +22,12 @@ function Page({ route }: { route: ReturnType<typeof useRoute> }) {
       return <HomePage />
     case 'lesson':
       return <LessonPage lessonId={route.lessonId} />
+    case 'playbook':
+      return <PlaybookPage />
+    case 'playbook-page':
+      return <PlaybookPageView templateId={route.templateId} pageId={route.pageId} />
+    case 'journal':
+      return <JournalPage />
     case 'lives':
       return <LivesPage />
     case 'live':

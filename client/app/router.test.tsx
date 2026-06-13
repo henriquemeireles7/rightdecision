@@ -29,10 +29,28 @@ describe('unit: parseRoute', () => {
     expect(parseRoute('/app/materials')).toEqual({ name: 'materials' })
   })
 
+  test('/app/playbook is the playbook contents (book spine)', () => {
+    expect(parseRoute('/app/playbook')).toEqual({ name: 'playbook' })
+  })
+
+  test('/app/playbook/:templateId/:pageId is one playbook page', () => {
+    expect(parseRoute('/app/playbook/tpl-1/pg-where-you-are')).toEqual({
+      name: 'playbook-page',
+      templateId: 'tpl-1',
+      pageId: 'pg-where-you-are',
+    })
+  })
+
+  test('/app/journal is the journal route', () => {
+    expect(parseRoute('/app/journal')).toEqual({ name: 'journal' })
+  })
+
   test('unknown paths are not-found (never silently home)', () => {
-    expect(parseRoute('/app/playbook')).toEqual({ name: 'not-found' })
+    expect(parseRoute('/app/chat')).toEqual({ name: 'not-found' })
     expect(parseRoute('/app/lessons')).toEqual({ name: 'not-found' })
     expect(parseRoute('/app/lessons/a/b')).toEqual({ name: 'not-found' })
+    expect(parseRoute('/app/playbook/tpl-1')).toEqual({ name: 'not-found' })
+    expect(parseRoute('/app/playbook/a/b/c')).toEqual({ name: 'not-found' })
   })
 })
 

@@ -134,6 +134,30 @@ export function createAdminData(client: typeof api = api) {
         }),
       ),
 
+    // ─── Document templates (P5: Life Playbook / Starter Notebook authorship) ───
+    listTemplates: (programId?: string) =>
+      unwrap(admin.templates.$get({ query: programId ? { programId } : {} })),
+    getTemplate: (id: string) => unwrap(admin.templates[':id'].$get({ param: { id } })),
+    createTemplate: (json: {
+      programId: string
+      slug: string
+      title: string
+      sortOrder?: number
+      schema: unknown
+    }) => unwrap(admin.templates.$post({ json })),
+    updateTemplate: (
+      id: string,
+      json: {
+        programId?: string
+        slug?: string
+        title?: string
+        sortOrder?: number
+        schema?: unknown
+      },
+    ) => unwrap(admin.templates[':id'].$patch({ param: { id }, json })),
+    publishTemplate: (id: string) =>
+      unwrap(admin.templates[':id'].publish.$post({ param: { id } })),
+
     // ─── Materials + program_materials ───
     listMaterials: () => unwrap(admin.materials.$get()),
     requestMaterialUploadUrl: (json: { fileName: string; mimeType: string }) =>
@@ -180,6 +204,11 @@ export type AdminCohortSuggestion = Awaited<
 >['suggestions'][number]
 export type AdminLive = Awaited<ReturnType<AdminData['listLives']>>['lives'][number]
 export type AdminMaterial = Awaited<ReturnType<AdminData['listMaterials']>>['materials'][number]
+export type AdminTemplate = Awaited<ReturnType<AdminData['listTemplates']>>['templates'][number]
+export type AdminTemplateSchema = AdminTemplate['schema']
+export type AdminTemplateChapter = AdminTemplateSchema['chapters'][number]
+export type AdminTemplatePage = AdminTemplateChapter['pages'][number]
+export type AdminTemplateField = AdminTemplatePage['fields'][number]
 
 export const DataContext = createContext<AdminData>(createAdminData())
 

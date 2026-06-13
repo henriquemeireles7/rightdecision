@@ -1,6 +1,7 @@
 import {
   cohorts,
   courses,
+  documentTemplates,
   enrollments,
   lessons,
   lives,
@@ -14,6 +15,7 @@ import {
   programs,
   sessions,
   subscriptions,
+  type TemplateSchema,
   users,
   wins,
 } from '@/platform/db/schema'
@@ -271,6 +273,57 @@ export async function createTestLive(
     })
     .returning()
   return live
+}
+
+/** Minimal valid TemplateSchema: one chapter, one page, one required + one optional field. */
+export function buildTestTemplateSchema(overrides: Partial<TemplateSchema> = {}): TemplateSchema {
+  return {
+    chapters: [
+      {
+        id: 'ch-1',
+        title: 'Test Chapter',
+        pages: [
+          {
+            id: 'pg-1',
+            title: 'Test Page',
+            instruction: 'Write the true thing, not the polite thing.',
+            fields: [
+              {
+                id: 'f-required',
+                label: 'The required field',
+                kind: 'short_text',
+                required: true,
+                exampleAnswer: 'An example answer.',
+              },
+              { id: 'f-optional', label: 'The optional field', kind: 'long_text', required: false },
+            ],
+          },
+        ],
+      },
+    ],
+    ...overrides,
+  }
+}
+
+export async function createTestDocumentTemplate(
+  programId: string,
+  overrides: Partial<typeof documentTemplates.$inferInsert> = {},
+) {
+  const n = nextId()
+  const [template] = await testDb
+    .insert(documentTemplates)
+    .values({
+      programId,
+      slug: `test-template-${n}`,
+      title: `Test Template ${n}`,
+      sortOrder: 0,
+      version: 1,
+      schema: buildTestTemplateSchema(),
+      status: 'published',
+      ...overrides,
+    })
+    .returning()
+  return template
 }
 
 export async function createTestPlatformAccount(

@@ -43,6 +43,11 @@ describe('client/admin router: parseRoute', () => {
     expect(parseRoute('/admin/materials')).toEqual({ name: 'materials' })
   })
 
+  test('templates list and editor', () => {
+    expect(parseRoute('/admin/templates')).toEqual({ name: 'templates' })
+    expect(parseRoute('/admin/templates/t-1')).toEqual({ name: 'template', templateId: 't-1' })
+  })
+
   test('unknown paths fall back to the courses list (never a dead end)', () => {
     expect(parseRoute('/admin/nope/whatever')).toEqual({ name: 'courses' })
   })
@@ -60,6 +65,8 @@ describe('client/admin router: routePath', () => {
       '/admin/cohorts',
       '/admin/lives',
       '/admin/materials',
+      '/admin/templates',
+      '/admin/templates/t-1',
     ]
     for (const path of paths) {
       expect(routePath(parseRoute(path))).toBe(path)

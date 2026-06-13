@@ -14,6 +14,7 @@ import { MaterialsScreen } from './materials'
 import { ProgramDetailScreen, ProgramsScreen } from './programs'
 import type { Route } from './router'
 import { useRoute } from './router'
+import { TemplateEditorScreen, TemplatesScreen } from './templates'
 import { RouteLink } from './ui'
 import type { PutFile, Uploader } from './uploader'
 import { createTusUploader, PutFileContext, putFileWithProgress, UploaderContext } from './uploader'
@@ -28,6 +29,7 @@ const NAV: Array<{ label: string; route: Route; matches: Route['name'][] }> = [
   { label: 'Cohorts', route: { name: 'cohorts' }, matches: ['cohorts'] },
   { label: 'Lives', route: { name: 'lives' }, matches: ['lives'] },
   { label: 'Materials', route: { name: 'materials' }, matches: ['materials'] },
+  { label: 'Templates', route: { name: 'templates' }, matches: ['templates', 'template'] },
 ]
 
 function Screen({ route }: { route: Route }) {
@@ -56,6 +58,10 @@ function Screen({ route }: { route: Route }) {
       return <LivesScreen />
     case 'materials':
       return <MaterialsScreen />
+    case 'templates':
+      return <TemplatesScreen />
+    case 'template':
+      return <TemplateEditorScreen templateId={route.templateId} />
   }
 }
 

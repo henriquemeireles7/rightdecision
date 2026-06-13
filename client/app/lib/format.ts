@@ -66,6 +66,17 @@ export function progressPercent(
   return Math.min(100, Math.round((secondsWatched / durationSeconds) * 100))
 }
 
+/**
+ * The member's LOCAL calendar day as 'YYYY-MM-DD' — the journal's entryDate is
+ * computed client-side in the user's zone and sent explicitly (never derived
+ * server-side from UTC now).
+ */
+export function todayLocalDate(now: Date = new Date()): string {
+  const month = `${now.getMonth() + 1}`.padStart(2, '0')
+  const day = `${now.getDate()}`.padStart(2, '0')
+  return `${now.getFullYear()}-${month}-${day}`
+}
+
 const toCalendarStamp = (date: Date): string =>
   date
     .toISOString()

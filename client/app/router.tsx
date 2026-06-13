@@ -10,6 +10,9 @@ import { useEffect, useState } from 'preact/hooks'
 export type Route =
   | { name: 'home' }
   | { name: 'lesson'; lessonId: string }
+  | { name: 'playbook' }
+  | { name: 'playbook-page'; templateId: string; pageId: string }
+  | { name: 'journal' }
   | { name: 'lives' }
   | { name: 'live'; liveId: string }
   | { name: 'materials' }
@@ -24,6 +27,10 @@ export function parseRoute(pathname: string): Route {
   if (segments.length === 0) return { name: 'home' }
   if (head === 'lessons' && second && segments.length === 2)
     return { name: 'lesson', lessonId: second }
+  if (head === 'playbook' && segments.length === 1) return { name: 'playbook' }
+  if (head === 'playbook' && second && segments.length === 3)
+    return { name: 'playbook-page', templateId: second, pageId: segments[2] as string }
+  if (head === 'journal' && segments.length === 1) return { name: 'journal' }
   if (head === 'lives' && segments.length === 1) return { name: 'lives' }
   if (head === 'lives' && second && segments.length === 2) return { name: 'live', liveId: second }
   if (head === 'materials' && segments.length === 1) return { name: 'materials' }

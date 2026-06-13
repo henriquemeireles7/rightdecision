@@ -16,6 +16,7 @@ CLI utilities run with `bun run`. Migrations, seeds, one-time tasks.
 - `migrate-subscribers-to-enrollments.ts` — existing-subscriber auto-enrollment at V2 cutover (eng-schema M8). Selects subscriptions in (active, past_due, trialing) within the 30-day grace window; NULL-userId rows are REPORTED, never enrolled. Paid program is looked up (or created as a draft placeholder) by slug `life-decisions-paid`.
 - `backfill-decision-events.ts` — userDecisions → events (isDecision, decisionKind='lesson_prompt') and readingAnalytics → events (non-decision). sourceRef=`user_decisions:<id>` / `reading_analytics:<id>`; occurredAt = original createdAt; source='backfill'.
 - `seed-v2.ts` — V2 dev seed; produces every UI-relevant state from the foundation roadmap enumeration. Seed users live at `@seed.rightdecision.io`; cleanup is scoped to those emails + seed slugs. This is the `db:seed` entrypoint.
+- `seed-templates.ts` — Life Playbook + Starter Notebook template CONTENT (P5). Idempotent by slug: creates missing (published v1), refreshes v1, SKIPS admin-republished (version > 1). Safe on existing data (never delete+recreate — user documents FK to templates). Called by seed-v2; also runnable standalone.
 
 ## Recipe: New Script
 ```ts
@@ -60,6 +61,7 @@ DATABASE_URL=postgresql://test:test@localhost:5432/test bun test platform/script
 | migrate-subscribers-to-enrollments.ts | GRACE_PERIOD_DAYS, OrphanedSubscription, MigrationReport, ensurePaidProgram, migrateSubscribersToEnrollments, formatMigrationReport |
 | migrate.ts | — |
 | seed-accounts.ts | — |
+| seed-templates.ts | LIFE_PLAYBOOK_SLUG, STARTER_NOTEBOOK_SLUG, SeedTemplateDef, SEED_TEMPLATES, SeedTemplatesReport, seedTemplates |
 | seed-users.ts | — |
 | seed-v2.ts | SEED_COURSE_SLUG, SEED_TEMPLATE_SLUG, SEED_EMAIL_DOMAIN, DEFAULT_SEED_PASSWORD, SEED_EMAILS, SeedSummary, seedV2 |
 | seed-wins.ts | — |
@@ -70,5 +72,6 @@ DATABASE_URL=postgresql://test:test@localhost:5432/test bun test platform/script
 - platform/db
 - platform/env
 - platform/programs
+- platform/templates
 
-<!-- Generated: 2026-06-12T23:31:24.933Z -->
+<!-- Generated: 2026-06-13T01:29:20.704Z -->

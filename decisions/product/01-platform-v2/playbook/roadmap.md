@@ -203,6 +203,17 @@ document_answers); free-form editing; streak mechanics of any kind.
 
 ## Open Questions
 
+- RESOLVED IN P5 IMPLEMENTATION (founder may override): same-day journal re-save UPDATES the
+  entry instead of returning JOURNAL_DUPLICATE — editing today's entry is normal journaling
+  behavior, and a 409 there is shame UX. The unique index stays as the integrity backstop;
+  JOURNAL_DUPLICATE is reserved for the race where two concurrent FIRST saves collide
+  (loser gets 409, client retries). The decision event records once per (date, kind).
+  See features/(life)/journal/CLAUDE.md.
+- RESOLVED IN P5 IMPLEMENTATION: "PDF export" v1 = print-ready HTML (white bg, ink text,
+  Instrument Serif heads, gold accents, @media print stylesheet) + browser print-to-PDF.
+  satori cannot paginate a multipage document (single SVG frame), and a headless-Chrome PDF
+  pipeline is overkill for v1. See features/(life)/playbook/CLAUDE.md.
+
 - Playbook/Notebook naming (ADR 16): founder may override copy before this project ships —
   check before finalizing UI strings.
 - "Progress" display granularity (per chapter vs per document) is not specified beyond

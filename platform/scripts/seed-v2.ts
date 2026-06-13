@@ -20,7 +20,7 @@
  */
 
 import { hashPassword } from 'better-auth/crypto'
-import { inArray, like } from 'drizzle-orm'
+import { and, eq, inArray, like } from 'drizzle-orm'
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js'
 import type * as schema from '@/platform/db/schema'
 import {
@@ -40,19 +40,19 @@ import {
   modules,
   programCourses,
   programs,
-  type TemplateSchema,
-  templateSchemaSchema,
   users,
 } from '@/platform/db/schema'
 import { env } from '@/platform/env'
 // Canonical home is platform/programs.ts (P4); re-exported for back-compat.
 import { FREE_PROGRAM_SLUG, PAID_PROGRAM_SLUG } from '@/platform/programs'
+// Template content lives in seed-templates.ts (P5) — single source for chapters/pages/fields.
+import { LIFE_PLAYBOOK_SLUG, seedTemplates } from './seed-templates'
 
 type Db = PostgresJsDatabase<typeof schema>
 
 export { FREE_PROGRAM_SLUG }
 export const SEED_COURSE_SLUG = 'right-decision-foundations'
-export const SEED_TEMPLATE_SLUG = 'life-playbook'
+export const SEED_TEMPLATE_SLUG = LIFE_PLAYBOOK_SLUG
 export const SEED_EMAIL_DOMAIN = 'seed.rightdecision.io'
 export const DEFAULT_SEED_PASSWORD = 'rightdecision-dev'
 
@@ -78,67 +78,6 @@ function firstRow<T>(rows: T[], what: string): T {
 
 function dateString(now: Date, daysAgo: number): string {
   return daysFrom(now, -daysAgo).toISOString().slice(0, 10)
-}
-
-/** Life Playbook template using the full v1 field vocabulary (eng-schema DX SF2). */
-function buildTemplateSchema(): TemplateSchema {
-  return templateSchemaSchema.parse({
-    chapters: [
-      {
-        id: 'ch-foundation',
-        title: 'The Foundation',
-        pages: [
-          {
-            id: 'pg-the-decision',
-            title: 'The One Decision',
-            instruction: 'You already know the decision. This page is where you stop circling it.',
-            fields: [
-              {
-                id: 'f-decision-name',
-                label: 'Name the decision in one sentence',
-                kind: 'short_text',
-                required: true,
-                placeholder: 'The decision I keep avoiding is...',
-              },
-              {
-                id: 'f-decision-story',
-                label: 'What happens if you keep not making it?',
-                kind: 'long_text',
-                required: true,
-                exampleAnswer: 'Another year of the same conversations with myself.',
-              },
-              {
-                id: 'f-life-area',
-                label: 'Which area of life does it live in?',
-                kind: 'select',
-                required: true,
-                options: ['health', 'relationships', 'career', 'money'],
-              },
-              {
-                id: 'f-tried-before',
-                label: 'What have you already tried?',
-                kind: 'multi_select',
-                required: false,
-                options: ['therapy', 'journaling', 'courses', 'books', 'coaching', 'nothing'],
-              },
-              {
-                id: 'f-decide-by',
-                label: 'When will you decide by?',
-                kind: 'date',
-                required: false,
-              },
-              {
-                id: 'f-certainty',
-                label: 'How certain are you, right now?',
-                kind: 'scale_1_10',
-                required: true,
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  })
 }
 
 export type SeedSummary = {
@@ -439,20 +378,19 @@ export async function seedV2(
     },
   ])
 
-  // ── Published template + one filled + one empty document ──
+  // ── Published templates (Life Playbook + Starter Notebook from seed-templates.ts)
+  //    + one filled + one empty document ──
+  await seedTemplates(db)
   const template = firstRow(
     await db
-      .insert(documentTemplates)
-      .values({
-        programId: paidProgram.id,
-        slug: SEED_TEMPLATE_SLUG,
-        title: 'Life Playbook',
-        sortOrder: 1,
-        version: 1,
-        schema: buildTemplateSchema(),
-        status: 'published',
-      })
-      .returning({ id: documentTemplates.id }),
+      .select({ id: documentTemplates.id })
+      .from(documentTemplates)
+      .where(
+        and(
+          eq(documentTemplates.programId, paidProgram.id),
+          eq(documentTemplates.slug, SEED_TEMPLATE_SLUG),
+        ),
+      ),
     'template',
   )
 
@@ -468,24 +406,28 @@ export async function seedV2(
       .returning({ id: documents.id }),
     'filled document',
   )
+  // Field ids come from the Life Playbook content in seed-templates.ts.
   await db.insert(documentAnswers).values([
     {
       documentId: filledDocument.id,
-      fieldId: 'f-decision-name',
-      value: 'Leave the job that pays for the life I do not want.',
+      fieldId: 'f-story-now',
+      value: 'A job that pays for a life I do not want. From the outside it looks fine.',
       source: 'typed',
+      confirmedAt: now,
     },
     {
       documentId: filledDocument.id,
-      fieldId: 'f-life-area',
+      fieldId: 'f-want-area',
       value: 'career',
       source: 'typed',
+      confirmedAt: now,
     },
     {
       documentId: filledDocument.id,
-      fieldId: 'f-certainty',
+      fieldId: 'f-commit-certainty',
       value: '7',
       source: 'typed',
+      confirmedAt: now,
     },
   ])
 

@@ -4,7 +4,13 @@ import { afterEach, describe, expect, test } from 'bun:test'
 import { cleanup, render } from '@testing-library/preact'
 import { AppRoot } from './app'
 import { setApiFetchForTests } from './lib/api'
-import { catalogFixture, jsonFetch, setTestUrl } from './test-fixtures'
+import {
+  catalogFixture,
+  journalFixture,
+  jsonFetch,
+  playbookFixture,
+  setTestUrl,
+} from './test-fixtures'
 
 afterEach(() => {
   cleanup()
@@ -21,11 +27,26 @@ describe('component: AppRoot (route switch)', () => {
   })
 
   test('unknown /app path renders the not-found state with a way home', async () => {
-    setTestUrl('/app/playbook')
+    setTestUrl('/app/chat')
     setApiFetchForTests(jsonFetch({}))
     const { findByText, findByRole } = render(<AppRoot />)
     expect(await findByText("That page isn't here")).toBeTruthy()
     expect(await findByRole('link', { name: 'Back to Home' })).toBeTruthy()
+  })
+
+  test('deep link to /app/playbook renders the Playbook contents in the shell', async () => {
+    setTestUrl('/app/playbook')
+    setApiFetchForTests(jsonFetch({ 'GET /api/playbook': { ok: true, data: playbookFixture() } }))
+    const { findByRole } = render(<AppRoot />)
+    expect(await findByRole('heading', { level: 1, name: 'Playbook' })).toBeTruthy()
+    expect(await findByRole('heading', { name: 'Starter Notebook' })).toBeTruthy()
+  })
+
+  test('deep link to /app/journal renders the Journal in the shell', async () => {
+    setTestUrl('/app/journal')
+    setApiFetchForTests(jsonFetch({ 'GET /api/journal': { ok: true, data: journalFixture() } }))
+    const { findByRole } = render(<AppRoot />)
+    expect(await findByRole('heading', { level: 1, name: 'Journal' })).toBeTruthy()
   })
 
   test('/app renders Home', async () => {

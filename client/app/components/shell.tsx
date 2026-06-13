@@ -10,9 +10,16 @@ import { useState } from 'preact/hooks'
 import { fetchBillingPortalUrl, signOut } from '../lib/data'
 import { Link, type Route } from '../router'
 
-/** Shipped waves only — P5 (Playbook/Journal) and P6 (Chat) add entries when they ship. */
+/**
+ * Shipped waves only — P5 shipped Playbook + Journal; P6 (Chat) adds its entry when it ships.
+ * Five tabs fit the mobile bar without an overflow menu: flex-1 keeps every target
+ * ≥64px wide at a 320px viewport (44px minimum met with room), min-h-11 keeps 44px
+ * height; the tab label drops to text-xs so "Materials" never wraps.
+ */
 export const NAV_ITEMS: ReadonlyArray<{ label: string; href: string; routes: Route['name'][] }> = [
   { label: 'Home', href: '/app', routes: ['home', 'lesson'] },
+  { label: 'Playbook', href: '/app/playbook', routes: ['playbook', 'playbook-page'] },
+  { label: 'Journal', href: '/app/journal', routes: ['journal'] },
   { label: 'Lives', href: '/app/lives', routes: ['lives', 'live'] },
   { label: 'Materials', href: '/app/materials', routes: ['materials'] },
 ]
@@ -126,7 +133,7 @@ export function Shell({ route, children }: { route: Route; children: ComponentCh
               aria-current={isActive(item) ? 'page' : undefined}
               class={navClass(
                 isActive(item),
-                'flex min-h-11 flex-1 items-center justify-center py-3 text-sm font-medium',
+                'flex min-h-11 flex-1 items-center justify-center py-3 text-xs font-medium',
               )}
             >
               {item.label}

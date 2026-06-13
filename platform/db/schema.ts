@@ -484,6 +484,12 @@ export const templateFieldSchema = z.object({
   placeholder: z.string().optional(),
   options: z.array(z.string()).optional(), // select/multi_select only
   exampleAnswer: z.string().optional(), // empty-page invitation copy
+  // Version stamps (P5): the single jsonb row carries ALL versions' fields; a document
+  // pinned at version P sees fields where (addedInVersion ?? 1) <= P and
+  // (deprecatedInVersion is unset or > P). Stamped server-side on published updates
+  // (features/(admin)/templates) — admin adds/deprecates, NEVER renames/retypes.
+  addedInVersion: z.number().int().min(1).optional(), // absent = 1
+  deprecatedInVersion: z.number().int().min(1).optional(), // absent = active
 })
 
 export const templatePageSchema = z.object({

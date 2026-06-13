@@ -75,6 +75,30 @@ describe('client/admin data: createAdminData wiring', () => {
     expect(requests[0]?.body).toEqual({ moduleIds: ['m-2', 'm-1'] })
   })
 
+  test('listTemplates hits the admin templates endpoint, optionally program-scoped', async () => {
+    const { client, requests } = fakeClient({ templates: [] })
+    await createAdminData(client).listTemplates()
+    expect(new URL(requests[0]?.url ?? '').pathname).toBe('/api/admin/templates')
+    await createAdminData(client).listTemplates('p-1')
+    expect(new URL(requests[1]?.url ?? '').searchParams.get('programId')).toBe('p-1')
+  })
+
+  test('updateTemplate PATCHes the schema payload verbatim', async () => {
+    const { client, requests } = fakeClient({ template: {} })
+    const schema = { chapters: [] }
+    await createAdminData(client).updateTemplate('t-1', { title: 'Life Playbook', schema })
+    expect(requests[0]?.url).toBe('http://test.local/api/admin/templates/t-1')
+    expect(requests[0]?.method).toBe('PATCH')
+    expect(requests[0]?.body).toEqual({ title: 'Life Playbook', schema: { chapters: [] } })
+  })
+
+  test('publishTemplate POSTs to the publish endpoint', async () => {
+    const { client, requests } = fakeClient({ template: {} })
+    await createAdminData(client).publishTemplate('t-1')
+    expect(requests[0]?.url).toBe('http://test.local/api/admin/templates/t-1/publish')
+    expect(requests[0]?.method).toBe('POST')
+  })
+
   test('error envelopes become typed ApiError (components branch on code)', async () => {
     const client = createApiClient('http://test.local', {
       fetch: async () =>

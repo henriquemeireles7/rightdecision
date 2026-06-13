@@ -129,10 +129,17 @@ describe('integration: seed-v2', () => {
     )
     expect(allLives.some((l) => l.cancelledAt !== null)).toBe(true)
 
-    // published template with a valid schema using the v1 field vocabulary
-    const [template] = await testDb.select().from(documentTemplates)
-    expect(template!.status).toBe('published')
-    const parsed = templateSchemaSchema.parse(template!.schema)
+    // published templates (P5 seed content): Life Playbook (paid) + Starter Notebook (free)
+    const allTemplates = await testDb.select().from(documentTemplates)
+    expect(allTemplates).toHaveLength(2)
+    const playbook = allTemplates.find((t) => t.slug === 'life-playbook')
+    const notebook = allTemplates.find((t) => t.slug === 'starter-notebook')
+    expect(playbook?.status).toBe('published')
+    expect(playbook?.programId).toBe(paidProgram?.id as string)
+    expect(notebook?.status).toBe('published')
+    expect(notebook?.programId).toBe(freeProgram?.id as string)
+    // the Life Playbook exercises the full v1 field vocabulary
+    const parsed = templateSchemaSchema.parse(playbook?.schema)
     const kinds = new Set(
       parsed.chapters.flatMap((c) => c.pages.flatMap((p) => p.fields.map((f) => f.kind))),
     )
