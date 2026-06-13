@@ -34,6 +34,18 @@ the Ethereal Warmth cream palette — NEVER dark mode; the lesson player sits in
   alarm-red. The budget-ceiling state is a DESIGNED warm state, not an error toast.
 - Consume tokens from styles/global.css (bg-cream, bg-sand, border-linen, text-ink,
   text-body, text-muted, bg-gold, text-success, font-display, font-body) — never fork them
+- Interview mode (ADR 11): an IN-PAGE PANEL on the playbook page (components/interview-panel.tsx),
+  NOT a route. Rationale: the flow is page-scoped + short, the /app shell is ~24KB gzipped (no
+  lazy-load budget pressure), and a panel keeps the interview co-located with the page whose
+  fields it fills (no router state threading documentId). The entry button ("Fill this in with a
+  few questions") sits on pages/playbook-page.tsx as an ALTERNATIVE to the typed fields — it never
+  disrupts the typed fill-in. The panel walks one scripted question per free-text field (each turn
+  persisted via the plain request/response /messages POST — the interview API is NOT SSE, unlike
+  chat), then distills → renders components/interview-confirm.tsx. NOTHING writes to the playbook
+  before the user explicitly accepts in InterviewConfirm (the ADR 11 trust write). Suggested fields
+  are SAND-tinted; accepted ones flip to a GOLD ring — the proposed→confirmed distinction is the
+  trust-critical visual. INTERVIEW_INVALID_STATE / network errors surface as a calm ErrorState with
+  retry, never a crash. On confirm the page refetches so confirmed answers show.
 
 ## Test Seam (the documented mocking strategy)
 Tests mock at the FETCH level through the api-client's own `ApiClientOptions.fetch` seam —

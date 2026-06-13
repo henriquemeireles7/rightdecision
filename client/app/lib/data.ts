@@ -208,6 +208,20 @@ export function fetchInterview(interviewId: string) {
   return getJson<InterviewView>(`/api/interview/${interviewId}`)
 }
 
+/**
+ * Append ONE Q&A turn to the interview's conversation. The interview message endpoint is a
+ * plain request/response POST (NOT SSE — unlike chat): the backend persists the turn and the
+ * distill step later reads the whole transcript. The panel posts the assistant question
+ * (role='assistant') and the user's typed answer (role='user') as separate turns.
+ */
+export function sendInterviewMessage(
+  interviewId: string,
+  role: 'user' | 'assistant',
+  content: string,
+) {
+  return postJson<{ ok: true }>(`/api/interview/${interviewId}/messages`, { role, content })
+}
+
 export function distillInterview(interviewId: string) {
   return postJson<{ status: string; distilledFields: Record<string, string> }>(
     `/api/interview/${interviewId}/distill`,

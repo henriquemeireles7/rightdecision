@@ -132,6 +132,28 @@ describe('page: Playbook page view (one scrollable section, 640px column)', () =
     expect(contents.getAttribute('href')).toBe('/app/playbook')
   })
 
+  test('offers a calm interview entry that opens the page-scoped interview panel', async () => {
+    setTestUrl('/app/playbook/tpl-1/pg-where-you-are')
+    withApi({
+      'POST /api/interview': () =>
+        new Response(
+          JSON.stringify({ ok: true, data: { interview: { id: 'iv-1' }, conversationId: 'cv-1' } }),
+          { status: 200, headers: { 'content-type': 'application/json' } },
+        ),
+      'POST /api/interview/iv-1/messages': () =>
+        new Response(JSON.stringify({ ok: true, data: { ok: true } }), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        }),
+    })
+    const { findByRole } = render(view())
+    const entry = await findByRole('button', { name: /Fill this in with a few questions/i })
+    fireEvent.click(entry)
+    // The panel mounts and asks the first scripted question (the field's label).
+    expect(await findByRole('region', { name: /Interview/i })).toBeTruthy()
+    expect(await findByRole('button', { name: /Done|Next/i })).toBeTruthy()
+  })
+
   test('the first page has no previous link; the last has no next', async () => {
     withApi({
       'GET /api/playbook/tpl-1/pages/pg-the-decision': {
