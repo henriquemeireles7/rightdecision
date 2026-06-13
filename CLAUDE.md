@@ -60,8 +60,8 @@ The auto-generated footer (Files, Internal Dependencies) is added by the Stop ho
 3. platform/db/schema.ts — all database tables
 4. platform/server/routes.ts — all API endpoints
 5. platform/server/responses.ts — success(), paginated()
-6. platform/auth/permissions.ts — roles + permissions
-7. providers/analytics.ts — all trackable events
+6. platform/auth/permissions.ts — roles + permissions (note: 'pro' role is legacy — enrollments gate content; see platform/auth/enrollment.ts)
+7. platform/events/taxonomy.ts — all trackable events (the event spine; providers/analytics.ts is just the PostHog mirror)
 
 ## Rules
 - ALWAYS run `bun run check` before committing — CI runs the same command, if it fails locally it WILL fail in CI

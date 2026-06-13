@@ -43,6 +43,7 @@ bunx tsc --noEmit platform/server/app.ts && bun test platform/server/
 | routes.ts | mountRoutes |
 
 ## Internal Dependencies
+- features/(admin)
 - features/(business)
 - features/(life)
 - features/(shared)
@@ -53,4 +54,4 @@ bunx tsc --noEmit platform/server/app.ts && bun test platform/server/
 - providers/email
 - providers/payments
 
-<!-- Generated: 2026-06-12T22:38:50.222Z -->
+<!-- Generated: 2026-06-13T00:43:48.443Z -->

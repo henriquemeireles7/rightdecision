@@ -18,6 +18,16 @@ Tasks that require manual human action. AI agents add items here when they hit s
 
 ---
 
+## Platform V2 — Admin Panel (P0)
+
+- [ ] **Co-founder walkthrough of /admin (Indy, unaided)** — the acceptance bar for Project 2.
+      Indy completes the full flow with no code and no help: create a course → module with
+      AI-generated cover (pick from 4 candidates shown next to sibling covers) → lesson with
+      video upload (watch progress %, see "processing" flip to "ready" automatically) →
+      decision prompt + captions → publish; upload a material and attach it to a program;
+      schedule a live; see the next cohort auto-created on the Cohorts screen. Note ANY
+      moment she has to ask Henry something — each one is a UX bug to file.
+
 ## Entity Building (SEO — P0)
 
 - [ ] **LinkedIn Personal Profile** — Create/update with "Founder, The Right Decision" headline, link to rightdecisions.io/about, professional photo

@@ -45,6 +45,12 @@ function toLockedLesson(lesson: LessonRow) {
   return { id: lesson.id, title: lesson.title }
 }
 
+/**
+ * Explicit union — a bare ternary infers the best common SUPERTYPE ({ id, title }),
+ * erasing the unlocked shape from AppRoutes RPC types the members SPA consumes.
+ */
+type CatalogLessonView = ReturnType<typeof toUnlockedLesson> | ReturnType<typeof toLockedLesson>
+
 function groupBy<T>(rows: T[], key: (row: T) => string): Map<string, T[]> {
   const map = new Map<string, T[]>()
   for (const row of rows) {
@@ -157,10 +163,11 @@ export async function getCatalog(userId: string) {
           title: courseModule.title,
           description: courseModule.description,
           coverImageKey: courseModule.coverImageKey,
-          lessons: (lessonsByModule.get(courseModule.id) ?? []).map((lesson) =>
-            unlocked
-              ? toUnlockedLesson(lesson, progressByLesson.get(lesson.id))
-              : toLockedLesson(lesson),
+          lessons: (lessonsByModule.get(courseModule.id) ?? []).map(
+            (lesson): CatalogLessonView =>
+              unlocked
+                ? toUnlockedLesson(lesson, progressByLesson.get(lesson.id))
+                : toLockedLesson(lesson),
           ),
         })),
       })),

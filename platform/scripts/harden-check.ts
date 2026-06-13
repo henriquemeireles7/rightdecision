@@ -334,6 +334,8 @@ for (const f of uiFiles) {
 
 const BUNDLE_BUDGETS: Array<{ entry: string; maxGzipBytes: number }> = [
   { entry: 'app', maxGzipBytes: 100 * 1024 }, // /app shell ≤100KB gzipped
+  { entry: 'player-hls', maxGzipBytes: 120 * 1024 }, // lazy hls.js chunk — lesson route ONLY
+  { entry: 'admin', maxGzipBytes: 60 * 1024 }, // /admin shell — internal tool, currently ~41KB
 ]
 
 const MANIFEST_FILE = 'public/build/manifest.json'

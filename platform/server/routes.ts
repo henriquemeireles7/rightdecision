@@ -6,6 +6,7 @@ import { streamWebhookRoutes } from '@/features/(admin)/course-builder/webhook-r
 import { adminLivesRoutes } from '@/features/(admin)/lives/routes'
 import { adminMaterialsRoutes } from '@/features/(admin)/materials/routes'
 import { adminProgramsRoutes } from '@/features/(admin)/programs/routes'
+import { adminShellRoutes } from '@/features/(admin)/shell/routes'
 import { accountSyncRoutes } from '@/features/(business)/account-sync/routes'
 import { analyticsRoutes } from '@/features/(business)/analytics-collect/routes'
 import { clipCutRoutes } from '@/features/(business)/clip-cut/routes'
@@ -15,6 +16,7 @@ import { insightRoutes } from '@/features/(business)/insight-generate/routes'
 import { metadataRoutes } from '@/features/(business)/metadata-generate/routes'
 import { postDistributeRoutes } from '@/features/(business)/post-distribute/routes'
 import { transcribeRoutes } from '@/features/(business)/transcribe/routes'
+import { appShellRoutes } from '@/features/(life)/app-shell/routes'
 import { authPageRoutes } from '@/features/(life)/auth/routes'
 import { catalogRoutes } from '@/features/(life)/catalog/routes'
 import { analyticsReadingRoutes } from '@/features/(life)/course/analytics-routes'
@@ -93,6 +95,11 @@ export function mountRoutes(app: Hono) {
       // ─── Course SSR Pages ───
       .route('/courses', coursePageRoutes)
       .route('/journey', journeyPageRoute)
+      // V2 Members SPA shell — MUST stay BEFORE the '/' catch-alls below,
+      // or /app deep links 404 into marketing (P3 mount-order rule)
+      .route('/app', appShellRoutes)
+      // V2 Admin SPA shell (P2) — same mount-order rule as /app
+      .route('/admin', adminShellRoutes)
       // Auth pages — BEFORE website catch-all
       .route('/', authPageRoutes)
       // Website — AFTER all /api/* routes (homepage, LP at /life, blog, concepts, legal)
