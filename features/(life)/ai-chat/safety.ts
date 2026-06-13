@@ -11,19 +11,22 @@
  */
 
 /**
- * Crisis-resource list — FOUNDER INPUT REQUIRED (roadmap open question + humantasks.md P0).
- * Do NOT invent specific region-specific hotline numbers here. This is a clearly-marked
- * placeholder using only the generic US 988 line + emergency-services language; the founder
- * supplies the real region-aware list before AI features launch.
+ * Crisis-resource list. The MECHANISM is complete and tested; the content below is the
+ * launch-safe default: only resources that are real, stable, and verifiable — the US 988
+ * Suicide & Crisis Lifeline, the Crisis Text Line (741741), local emergency services, and
+ * the findahelpline.com international directory. We do NOT invent region-specific hotline
+ * numbers — a wrong number in a crisis is real harm. `isPlaceholder` stays true because the
+ * founder must still confirm/extend coverage for the ICP's actual regions before AI launch.
  *
- * TODO(founder): replace with the real, region-aware crisis-resource list. Tracked in
- * decisions/humantasks.md ("AI crisis-resource list" P0).
+ * TODO(founder): confirm + extend the region-aware crisis-resource list for the ICP's
+ * countries. Tracked in decisions/humantasks.md ("AI crisis-resource list" P0).
  */
 export const CRISIS_RESOURCES = {
   isPlaceholder: true as const,
-  todo: 'PLACEHOLDER — founder must supply the real region-specific crisis-resource list (humantasks.md P0).',
-  /** US generic placeholder. Real region-aware lines are founder input. */
+  todo: 'US-verified default in place; founder must confirm/extend region-aware coverage for the ICP before AI launch (humantasks.md P0).',
   primaryLine: 'In the US, call or text 988 (the Suicide & Crisis Lifeline) — 24 hours a day.',
+  textLine: 'You can also text HOME to 741741 to reach the Crisis Text Line.',
+  internationalLine: 'Outside the US, findahelpline.com lists free, confidential lines by country.',
   emergencyLine: 'If you might act on this right now, call your local emergency services.',
 } as const
 
@@ -38,6 +41,8 @@ export const CRISIS_RESPONSE = [
   "I'm built to help you decide things — and this is not the right place for what you're carrying right now. You deserve a real person, not a product.",
   '',
   CRISIS_RESOURCES.primaryLine,
+  CRISIS_RESOURCES.textLine,
+  CRISIS_RESOURCES.internationalLine,
   CRISIS_RESOURCES.emergencyLine,
   '',
   "You're not a burden for saying this. Please reach out to one of them now. I'll be here when you're ready to come back.",

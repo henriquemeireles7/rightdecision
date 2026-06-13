@@ -34,7 +34,7 @@ export function Homepage({ latestPosts }: HomepageProps) {
           </p>
           <a
             href="/free"
-            class="inline-block px-xl py-md bg-gold text-white font-semibold rounded-sm hover:bg-gold-hover transition-colors no-underline"
+            class="inline-block px-xl py-md bg-gold text-ink font-semibold rounded-sm hover:bg-gold-hover transition-colors no-underline"
           >
             Start Free
           </a>
@@ -101,7 +101,7 @@ export function Homepage({ latestPosts }: HomepageProps) {
           <div class="flex gap-md items-center flex-wrap">
             <a
               href="/free"
-              class="inline-block px-xl py-md bg-gold text-white font-semibold rounded-sm hover:bg-gold-hover transition-colors no-underline"
+              class="inline-block px-xl py-md bg-gold text-ink font-semibold rounded-sm hover:bg-gold-hover transition-colors no-underline"
             >
               Start with 3 Free Lessons
             </a>
@@ -172,7 +172,7 @@ export function Homepage({ latestPosts }: HomepageProps) {
               </a>
             </div>
             <div class="p-xl bg-white border-2 border-gold rounded-md relative">
-              <span class="absolute -top-[12px] left-xl bg-gold text-white text-xs font-semibold px-sm py-[2px] rounded-full">
+              <span class="absolute -top-[12px] left-xl bg-gold text-ink text-xs font-semibold px-sm py-[2px] rounded-full">
                 Save $40
               </span>
               <h3 class="font-display text-lg text-ink mb-xs">Yearly</h3>
@@ -184,7 +184,7 @@ export function Homepage({ latestPosts }: HomepageProps) {
               </p>
               <a
                 href="/api/checkout/redirect?plan=yearly"
-                class="block text-center px-lg py-sm bg-gold text-white font-medium rounded-sm hover:bg-gold-hover transition-colors no-underline"
+                class="block text-center px-lg py-sm bg-gold text-ink font-medium rounded-sm hover:bg-gold-hover transition-colors no-underline"
               >
                 Start Yearly
               </a>
@@ -254,7 +254,7 @@ export function Homepage({ latestPosts }: HomepageProps) {
           </p>
           <a
             href="/free"
-            class="inline-block px-xl py-md bg-gold text-white font-semibold rounded-sm hover:bg-gold-hover transition-colors no-underline"
+            class="inline-block px-xl py-md bg-gold text-ink font-semibold rounded-sm hover:bg-gold-hover transition-colors no-underline"
           >
             Start Free
           </a>

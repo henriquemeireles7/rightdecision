@@ -29,7 +29,7 @@ export function BlogIndex({ items }: { items: ParsedContentItem[] }) {
         <div class="flex flex-wrap gap-xs mb-xl">
           <a
             href="/blog"
-            class="px-sm py-xs rounded-full text-sm no-underline border bg-gold text-white border-gold"
+            class="px-sm py-xs rounded-full text-sm no-underline border bg-gold text-ink border-gold"
           >
             All
           </a>

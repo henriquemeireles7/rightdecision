@@ -84,7 +84,7 @@ export function MechanismSection() {
               <div class="bg-linen rounded-lg h-48 flex items-center justify-center text-muted text-sm mb-4">
                 Illustration: {phase.illustration}
               </div>
-              <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gold text-white font-semibold text-sm">
+              <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gold text-ink font-semibold text-sm">
                 {phase.num}
               </span>
               <h3 class="font-display text-xl text-ink mt-2">{phase.label}</h3>

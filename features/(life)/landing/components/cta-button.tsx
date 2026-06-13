@@ -12,7 +12,7 @@ export function CTAButton({
   return (
     <a
       href={href}
-      class={`inline-block bg-gold hover:bg-gold-hover text-white font-body font-semibold text-lg px-8 py-4 rounded-[8px] min-h-[48px] transition-colors ${className}`}
+      class={`inline-block bg-gold hover:bg-gold-hover text-ink font-body font-semibold text-lg px-8 py-4 rounded-[8px] min-h-[48px] transition-colors ${className}`}
     >
       {text}
     </a>

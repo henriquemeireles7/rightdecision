@@ -48,7 +48,7 @@ export function JourneyPage({
             </p>
             <a
               href={currentClassId ? `/class/${currentClassId}` : '/courses/life-decisions'}
-              class="inline-block bg-gold text-white px-6 py-3 rounded-md hover:bg-gold-hover transition-colors"
+              class="inline-block bg-gold text-ink px-6 py-3 rounded-md hover:bg-gold-hover transition-colors"
             >
               Continue reading
             </a>
@@ -91,7 +91,7 @@ export function JourneyPage({
             <p class="text-body mb-4">You've completed the course. Share your journey.</p>
             <a
               href="/share/journey"
-              class="inline-block bg-gold text-white px-6 py-3 rounded-md hover:bg-gold-hover transition-colors"
+              class="inline-block bg-gold text-ink px-6 py-3 rounded-md hover:bg-gold-hover transition-colors"
             >
               Share your journey
             </a>

@@ -66,7 +66,7 @@ function EmailGate() {
           </label>
           <button
             type="submit"
-            class="w-full px-lg py-md bg-gold text-white font-semibold rounded-sm hover:bg-gold-hover transition-colors"
+            class="w-full px-lg py-md bg-gold text-ink font-semibold rounded-sm hover:bg-gold-hover transition-colors"
           >
             Continue →
           </button>
@@ -183,14 +183,14 @@ export function FreeIntroLesson({
             {isLastLesson ? (
               <a
                 href="/free/paywall"
-                class="inline-block px-xl py-md bg-gold text-white font-semibold rounded-sm hover:bg-gold-hover transition-colors no-underline"
+                class="inline-block px-xl py-md bg-gold text-ink font-semibold rounded-sm hover:bg-gold-hover transition-colors no-underline"
               >
                 Continue to Full Program →
               </a>
             ) : (
               <a
                 href={`/free/${lessonNum + 1}`}
-                class="inline-block px-lg py-sm bg-gold text-white font-medium rounded-sm hover:bg-gold-hover transition-colors no-underline"
+                class="inline-block px-lg py-sm bg-gold text-ink font-medium rounded-sm hover:bg-gold-hover transition-colors no-underline"
               >
                 Continue to Lesson {lessonNum + 1} →
               </a>

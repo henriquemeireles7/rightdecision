@@ -81,7 +81,7 @@ export function FreeIntroPaywall() {
 
             {/* Yearly — highlighted */}
             <div class="p-xl bg-white border-2 border-gold rounded-md relative">
-              <span class="absolute -top-[12px] left-xl bg-gold text-white text-xs font-semibold px-sm py-[2px] rounded-full">
+              <span class="absolute -top-[12px] left-xl bg-gold text-ink text-xs font-semibold px-sm py-[2px] rounded-full">
                 Save $40
               </span>
               <h3 class="font-display text-lg text-ink mb-xs">Yearly</h3>
@@ -93,7 +93,7 @@ export function FreeIntroPaywall() {
               </p>
               <a
                 href="/api/checkout/redirect?plan=yearly"
-                class="block text-center px-lg py-sm bg-gold text-white font-medium rounded-sm hover:bg-gold-hover transition-colors no-underline"
+                class="block text-center px-lg py-sm bg-gold text-ink font-medium rounded-sm hover:bg-gold-hover transition-colors no-underline"
               >
                 Start Yearly
               </a>

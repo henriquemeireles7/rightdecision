@@ -70,7 +70,7 @@ export function MicroDecision({
 
         <button
           type="submit"
-          class="bg-gold text-white px-6 py-3 rounded-md hover:bg-gold-hover transition-colors"
+          class="bg-gold text-ink px-6 py-3 rounded-md hover:bg-gold-hover transition-colors"
         >
           I've decided
         </button>

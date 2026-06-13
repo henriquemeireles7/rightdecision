@@ -178,7 +178,7 @@ function MobileBottomSheet({ sections }: { sections: SidebarSection[] }) {
       <button
         type="button"
         data-mobile-nav-trigger
-        class="fixed bottom-md right-md z-40 bg-gold text-white rounded-full w-[48px] h-[48px] flex items-center justify-center shadow-lg"
+        class="fixed bottom-md right-md z-40 bg-gold text-ink rounded-full w-[48px] h-[48px] flex items-center justify-center shadow-lg"
         aria-label="Open navigation"
       >
         <svg

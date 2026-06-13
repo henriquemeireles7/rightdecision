@@ -34,7 +34,7 @@ function Header() {
           </a>
           <a
             href="/life"
-            class="bg-gold hover:bg-gold-hover text-white px-md py-xs rounded-sm text-sm font-semibold no-underline transition-colors"
+            class="bg-gold hover:bg-gold-hover text-ink px-md py-xs rounded-sm text-sm font-semibold no-underline transition-colors"
           >
             Life Decisions →
           </a>
@@ -44,7 +44,7 @@ function Header() {
         <div class="flex md:hidden items-center gap-sm">
           <a
             href="/life"
-            class="bg-gold hover:bg-gold-hover text-white px-sm py-xs rounded-sm text-sm font-semibold no-underline transition-colors"
+            class="bg-gold hover:bg-gold-hover text-ink px-sm py-xs rounded-sm text-sm font-semibold no-underline transition-colors"
           >
             Life Decisions →
           </a>
