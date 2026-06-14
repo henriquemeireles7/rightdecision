@@ -51,7 +51,15 @@ jobs:
         run: bun platform/scripts/harden-check.ts
 
       - name: Test + Coverage
-        run: bun test --coverage
+        run: |
+          set -o pipefail
+          bun test --coverage 2>&1 | tee /tmp/test-output.txt
+
+      - name: Failure summary
+        if: failure()
+        run: |
+          echo '===== FAILING TESTS ====='
+          grep -aE '\(fail\)' /tmp/test-output.txt || echo '(no (fail) lines captured)'
 
   integration:
     runs-on: ubuntu-latest
