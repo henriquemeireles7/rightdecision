@@ -53,14 +53,18 @@ jobs:
       - name: Test + Coverage
         run: |
           set -o pipefail
-          # The (business) pipeline tests use a shared mock-DB override (dbProxy +
-          # setDbOverride, set at module top-level). Under bun's runner in CI, files are
-          # batch-imported before their tests run, so a later business file's top-level
-          # override clobbers an earlier one's — they pass in isolation but not in the full
-          # suite. Run that group in its own process so the global override can't be
-          # clobbered. (Tech debt: move setDbOverride into beforeEach to drop this split.)
-          bun test "features/(business)" 2>&1 | tee /tmp/test-output.txt
-          bun test --coverage platform providers client tests "features/(life)" "features/(shared)" "features/(admin)" 2>&1 | tee -a /tmp/test-output.txt
+          # The (business) BD-pipeline tests hand-roll mock.module replacements of the db
+          # client/providers. bun's CI runner contaminates these mocks across files in a
+          # shared run (every file passes in isolation, but the group fails together — a
+          # pre-existing fragility). Run each business test file in its OWN process so no
+          # cross-file mock state can leak. Everything else runs together (with coverage).
+          : > /tmp/test-output.txt
+          ec=0
+          for f in $(git ls-files | grep -E '^features/\(business\)/.*\.test\.tsx?$'); do
+            bun test "$f" 2>&1 | tee -a /tmp/test-output.txt || ec=1
+          done
+          bun test --coverage platform providers client tests "features/(life)" "features/(shared)" "features/(admin)" 2>&1 | tee -a /tmp/test-output.txt || ec=1
+          [ "$ec" -eq 0 ]
 
       - name: Failure summary
         if: failure()
