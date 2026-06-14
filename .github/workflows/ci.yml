@@ -58,8 +58,10 @@ jobs:
       - name: Failure summary
         if: failure()
         run: |
-          echo '===== FAILING TESTS ====='
-          grep -aE '\(fail\)' /tmp/test-output.txt || echo '(no (fail) lines captured)'
+          echo '===== UNHANDLED ERRORS (root cause) ====='
+          grep -aA6 'Unhandled error between tests' /tmp/test-output.txt | grep -avE 'duplicate key|FATAL:|STATEMENT:|DETAIL:|severity|routine|^[[:space:]]*(file|line|code|where|message|detail|hint|table|column|constraint|schema):' | head -80 || echo '(none)'
+          echo '===== FIRST IMPORT/SYNTAX ERROR ====='
+          grep -aoE "(Export named '[^']+' not found in module '[^']+')|(SyntaxError: [^\\\\]+)|(Cannot find module '[^']+')" /tmp/test-output.txt | sort -u | head -20 || echo '(none)'
 
   integration:
     runs-on: ubuntu-latest
