@@ -71,4 +71,4 @@ maturity.md, company.md, voice.md, code.md, architecture.md, design.md, deploy.m
 | maturity.md | Maturity — The Company Operating System |
 | voice.md | Human Communication Guide |
 
-<!-- Generated: 2026-04-10T07:50:04.400Z -->
+<!-- Generated: 2026-06-13T00:43:48.442Z -->

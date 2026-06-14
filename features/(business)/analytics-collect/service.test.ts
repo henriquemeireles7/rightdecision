@@ -1,26 +1,40 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterAll, beforeEach, describe, expect, it, mock } from 'bun:test'
+import {
+  clearDbOverride,
+  clearEnvOverride,
+  dbProxy,
+  envProxy,
+  setDbOverride,
+  setEnvOverride,
+} from '@/platform/test/mocks'
 import { ProviderError } from '@/providers/errors'
+import * as actualSocialAnalytics from '@/providers/social-analytics'
 
-mock.module('@/platform/env', () => ({
-  env: { DATABASE_URL: 'postgres://test', UPLOAD_POST_API_KEY: 'key' },
-}))
+mock.module('@/platform/env', () => ({ env: envProxy }))
+setEnvOverride({ DATABASE_URL: 'postgres://test', UPLOAD_POST_API_KEY: 'key' })
 
 const mockFindManyPosts = mock(() => Promise.resolve([]))
 const mockFindFirstPost = mock(() => Promise.resolve(null))
 
-mock.module('@/platform/db/client', () => ({
-  db: {
-    query: {
-      posts: { findMany: () => mockFindManyPosts(), findFirst: () => mockFindFirstPost() },
-    },
-    insert: () => ({ values: () => Promise.resolve() }),
-    update: () => ({ set: () => ({ where: () => Promise.resolve() }) }),
+mock.module('@/platform/db/client', () => ({ db: dbProxy }))
+const __dbOverride = {
+  query: {
+    posts: { findMany: () => mockFindManyPosts(), findFirst: () => mockFindFirstPost() },
   },
-}))
+  insert: () => ({ values: () => Promise.resolve() }),
+  update: () => ({ set: () => ({ where: () => Promise.resolve() }) }),
+}
+setDbOverride(__dbOverride)
+beforeEach(() => setDbOverride(__dbOverride))
 
 import { mockSchema } from '@/features/(business)/test-helpers'
 
 mock.module('@/platform/db/schema', () => mockSchema())
+
+afterAll(() => {
+  clearDbOverride()
+  clearEnvOverride()
+})
 
 const mockGetMetrics = mock(() =>
   Promise.resolve({
@@ -33,7 +47,10 @@ const mockGetMetrics = mock(() =>
     reach: 150,
   }),
 )
-mock.module('@/providers/social-analytics', () => ({ getMetrics: mockGetMetrics }))
+mock.module('@/providers/social-analytics', () => ({
+  ...actualSocialAnalytics,
+  getMetrics: mockGetMetrics,
+}))
 
 const { collectAnalytics } = await import('./service')
 

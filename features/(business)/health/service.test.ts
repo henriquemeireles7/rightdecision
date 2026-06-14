@@ -1,20 +1,35 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterAll, beforeEach, describe, expect, it, mock } from 'bun:test'
+import {
+  clearDbOverride,
+  clearEnvOverride,
+  dbProxy,
+  envProxy,
+  setDbOverride,
+  setEnvOverride,
+} from '@/platform/test/mocks'
+import * as actualStorage from '@/providers/storage'
 
-mock.module('@/platform/env', () => ({
-  env: { DATABASE_URL: 'postgres://test' },
-}))
+mock.module('@/platform/env', () => ({ env: envProxy }))
+setEnvOverride({ DATABASE_URL: 'postgres://test' })
 
 // Mock DB
 const mockExecute = mock(() => Promise.resolve([{ result: 1 }]))
-mock.module('@/platform/db/client', () => ({
-  db: { execute: mockExecute },
-}))
+mock.module('@/platform/db/client', () => ({ db: dbProxy }))
+const __dbOverride = { execute: mockExecute }
+setDbOverride(__dbOverride)
+beforeEach(() => setDbOverride(__dbOverride))
+
+afterAll(() => {
+  clearDbOverride()
+  clearEnvOverride()
+})
 
 // Mock storage
 const mockUpload = mock(() => Promise.resolve('test/health-check'))
 const mockDownload = mock(() => Promise.resolve(Buffer.from('health')))
 const mockRemove = mock(() => Promise.resolve())
 mock.module('@/providers/storage', () => ({
+  ...actualStorage,
   upload: mockUpload,
   download: mockDownload,
   remove: mockRemove,

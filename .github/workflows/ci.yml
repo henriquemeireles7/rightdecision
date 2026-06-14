@@ -21,6 +21,8 @@ jobs:
       STRIPE_SECRET_KEY: sk_test_placeholder
       STRIPE_WEBHOOK_SECRET: whsec_placeholder
       STRIPE_PRICE_ID: price_placeholder
+      STRIPE_MONTHLY_PRICE_ID: price_monthly_placeholder
+      ANTHROPIC_API_KEY: sk-ant-placeholder
       RESEND_API_KEY: re_placeholder
       BETTER_AUTH_SECRET: test-secret-that-is-at-least-32-characters-long
       PUBLIC_APP_URL: http://localhost:3000
@@ -30,6 +32,8 @@ jobs:
         with:
           fetch-depth: 0
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: 1.3.11
 
       - name: Install
         run: bun install --frozen-lockfile
@@ -40,11 +44,35 @@ jobs:
       - name: Typecheck
         run: bunx tsc --noEmit
 
+      - name: Build Client Bundles
+        run: bun run build:client
+
       - name: Harden Check
         run: bun platform/scripts/harden-check.ts
 
       - name: Test + Coverage
-        run: bun test --coverage
+        run: |
+          set -o pipefail
+          # The (business) BD-pipeline tests hand-roll mock.module replacements of the db
+          # client/providers. bun's CI runner contaminates these mocks across files in a
+          # shared run (every file passes in isolation, but the group fails together — a
+          # pre-existing fragility). Run each business test file in its OWN process so no
+          # cross-file mock state can leak. Everything else runs together (with coverage).
+          : > /tmp/test-output.txt
+          ec=0
+          for f in $(git ls-files | grep -E '^features/\(business\)/.*\.test\.tsx?$'); do
+            bun test "$f" 2>&1 | tee -a /tmp/test-output.txt || ec=1
+          done
+          bun test --coverage platform providers client tests "features/(life)" "features/(shared)" "features/(admin)" 2>&1 | tee -a /tmp/test-output.txt || ec=1
+          [ "$ec" -eq 0 ]
+
+      - name: Failure summary
+        if: failure()
+        run: |
+          echo '===== UNHANDLED ERRORS (root cause) ====='
+          grep -aA6 'Unhandled error between tests' /tmp/test-output.txt | grep -avE 'duplicate key|FATAL:|STATEMENT:|DETAIL:|severity|routine|^[[:space:]]*(file|line|code|where|message|detail|hint|table|column|constraint|schema):' | head -80 || echo '(none)'
+          echo '===== FIRST IMPORT/SYNTAX ERROR ====='
+          grep -aoE "(Export named '[^']+' not found in module '[^']+')|(SyntaxError: [^\\\\]+)|(Cannot find module '[^']+')" /tmp/test-output.txt | sort -u | head -20 || echo '(none)'
 
   integration:
     runs-on: ubuntu-latest
@@ -57,11 +85,24 @@ jobs:
       R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
       UPLOAD_POST_API_KEY: ${{ secrets.UPLOAD_POST_API_KEY }}
       DATABASE_URL: postgresql://test:test@localhost:5432/test
+      # Required by platform/env.ts at import — without these, env validation throws before
+      # the integration tests' describe.skipIf can skip on absent credentials.
+      STRIPE_SECRET_KEY: sk_test_placeholder
+      STRIPE_WEBHOOK_SECRET: whsec_placeholder
+      STRIPE_PRICE_ID: price_placeholder
+      STRIPE_MONTHLY_PRICE_ID: price_monthly_placeholder
+      ANTHROPIC_API_KEY: sk-ant-placeholder
+      RESEND_API_KEY: re_placeholder
+      BETTER_AUTH_SECRET: test-secret-that-is-at-least-32-characters-long
+      PUBLIC_APP_URL: http://localhost:3000
+      PUBLIC_STRIPE_KEY: pk_test_placeholder
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: 1.3.11
       - name: Install
         run: bun install --frozen-lockfile
       - name: Integration Tests

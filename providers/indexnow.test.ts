@@ -1,17 +1,19 @@
-import { afterEach, describe, expect, mock, test } from 'bun:test'
+import { afterAll, afterEach, describe, expect, mock, test } from 'bun:test'
 import { existsSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
+import { clearEnvOverride, envProxy, setEnvOverride } from '@/platform/test/mocks'
 
 const LOG_PATH = join(import.meta.dir, '../.indexnow-submitted.json')
 const originalFetch = globalThis.fetch
 
 // Mock env with key present for all tests (optional key is fine)
-mock.module('@/platform/env', () => ({
-  env: {
-    INDEXNOW_KEY: 'test-key-12345678',
-    PUBLIC_APP_URL: 'https://rightdecisions.io',
-  },
-}))
+mock.module('@/platform/env', () => ({ env: envProxy }))
+setEnvOverride({
+  INDEXNOW_KEY: 'test-key-12345678',
+  PUBLIC_APP_URL: 'https://rightdecisions.io',
+})
+
+afterAll(clearEnvOverride)
 
 afterEach(() => {
   globalThis.fetch = originalFetch
@@ -62,19 +64,23 @@ describe('submitUrls', () => {
 
 describe('submitUrls (no key)', () => {
   test('skips when INDEXNOW_KEY not set', async () => {
-    // Re-mock env without key
-    mock.module('@/platform/env', () => ({
-      env: {
-        INDEXNOW_KEY: undefined,
-        PUBLIC_APP_URL: 'https://rightdecisions.io',
-      },
-    }))
+    // Override env without key (provider reads env at call time)
+    setEnvOverride({
+      INDEXNOW_KEY: undefined,
+      PUBLIC_APP_URL: 'https://rightdecisions.io',
+    })
 
-    // Need fresh import with new mock
-    const mod = await import('./indexnow')
-    const result = await mod.submitUrls(['https://rightdecisions.io/blog/test'])
-    expect(result.skipped).toBe(true)
-    expect(result.submitted).toBe(0)
+    try {
+      const mod = await import('./indexnow')
+      const result = await mod.submitUrls(['https://rightdecisions.io/blog/test'])
+      expect(result.skipped).toBe(true)
+      expect(result.submitted).toBe(0)
+    } finally {
+      setEnvOverride({
+        INDEXNOW_KEY: 'test-key-12345678',
+        PUBLIC_APP_URL: 'https://rightdecisions.io',
+      })
+    }
   })
 })
 

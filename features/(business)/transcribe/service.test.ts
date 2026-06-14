@@ -1,12 +1,22 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterAll, beforeEach, describe, expect, it, mock } from 'bun:test'
+import * as realFsPromises from 'node:fs/promises'
+import {
+  clearDbOverride,
+  clearEnvOverride,
+  dbProxy,
+  envProxy,
+  setDbOverride,
+  setEnvOverride,
+} from '@/platform/test/mocks'
+import * as actualStorage from '@/providers/storage'
+import * as actualTranscription from '@/providers/transcription'
 
 // Mock env
-mock.module('@/platform/env', () => ({
-  env: {
-    DATABASE_URL: 'postgres://test',
-    WHISPER_MODEL_PATH: 'models/test.bin',
-  },
-}))
+mock.module('@/platform/env', () => ({ env: envProxy }))
+setEnvOverride({
+  DATABASE_URL: 'postgres://test',
+  WHISPER_MODEL_PATH: 'models/test.bin',
+})
 
 // Mock DB
 const mockInsert = mock(() => ({
@@ -24,41 +34,47 @@ const mockFindFirst = mock(() =>
 )
 const mockFindMany = mock(() => Promise.resolve([]))
 
-mock.module('@/platform/db/client', () => ({
-  db: {
-    insert: () => ({
-      values: () => ({
-        returning: () =>
-          Promise.resolve([{ id: 'run-1', inputVideoUrl: 'episodes/video.mp4', status: 'queued' }]),
-      }),
+mock.module('@/platform/db/client', () => ({ db: dbProxy }))
+const __dbOverride = {
+  insert: () => ({
+    values: () => ({
+      returning: () =>
+        Promise.resolve([{ id: 'run-1', inputVideoUrl: 'episodes/video.mp4', status: 'queued' }]),
     }),
-    update: () => ({
-      set: (data: unknown) => ({
-        where: () => {
-          // If setting transcript, prepare the findFirst to return updated
-          if (data && typeof data === 'object' && 'transcript' in data) {
-            mockFindFirst.mockResolvedValueOnce({
-              id: 'run-1',
-              inputVideoUrl: 'episodes/video.mp4',
-              status: 'transcribed',
-              transcript: '[00:00:01] Hello world',
-            } as never)
-          }
-          return casResult('run-1')
-        },
-      }),
+  }),
+  update: () => ({
+    set: (data: unknown) => ({
+      where: () => {
+        // If setting transcript, prepare the findFirst to return updated
+        if (data && typeof data === 'object' && 'transcript' in data) {
+          mockFindFirst.mockResolvedValueOnce({
+            id: 'run-1',
+            inputVideoUrl: 'episodes/video.mp4',
+            status: 'transcribed',
+            transcript: '[00:00:01] Hello world',
+          } as never)
+        }
+        return casResult('run-1')
+      },
     }),
-    select: () => ({ from: () => Promise.resolve([{ count: 5 }]) }),
-    query: {
-      pipelineRuns: { findFirst: () => mockFindFirst(), findMany: mockFindMany },
-      clips: { findMany: mock(() => Promise.resolve([])) },
-    },
+  }),
+  select: () => ({ from: () => Promise.resolve([{ count: 5 }]) }),
+  query: {
+    pipelineRuns: { findFirst: () => mockFindFirst(), findMany: mockFindMany },
+    clips: { findMany: mock(() => Promise.resolve([])) },
   },
-}))
+}
+setDbOverride(__dbOverride)
+beforeEach(() => setDbOverride(__dbOverride))
 
 import { casResult, mockSchema } from '@/features/(business)/test-helpers'
 
 mock.module('@/platform/db/schema', () => mockSchema())
+
+afterAll(() => {
+  clearDbOverride()
+  clearEnvOverride()
+})
 
 // Mock state machine
 // Don't mock state-machine — it's pure logic with no external deps.
@@ -67,6 +83,7 @@ mock.module('@/platform/db/schema', () => mockSchema())
 // Mock providers
 const mockDownload = mock(() => Promise.resolve(Buffer.from('fake-video-data')))
 mock.module('@/providers/storage', () => ({
+  ...actualStorage,
   download: mockDownload,
   upload: mock(() => Promise.resolve('test-key')),
   getSignedUrl: mock(() => Promise.resolve('https://signed.example.com')),
@@ -76,10 +93,16 @@ mock.module('@/providers/storage', () => ({
 const mockTranscribe = mock(() =>
   Promise.resolve('[00:00:01] Hello world\n[00:00:05] Test transcript'),
 )
-mock.module('@/providers/transcription', () => ({ transcribe: mockTranscribe }))
+mock.module('@/providers/transcription', () => ({
+  ...actualTranscription,
+  transcribe: mockTranscribe,
+}))
 
-// Mock fs
+// Mock fs — spread the real module so the mock keeps its full shape (incl.
+// `default`); mock.module leaks process-wide and a shape-incomplete factory
+// breaks later lazy imports of node:fs/promises in unrelated test files.
 mock.module('node:fs/promises', () => ({
+  ...realFsPromises,
   writeFile: mock(() => Promise.resolve()),
   unlink: mock(() => Promise.resolve()),
 }))

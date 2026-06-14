@@ -8,7 +8,7 @@
  *   bun platform/scripts/harden-check.ts --quiet   # exit code only, no output
  */
 
-import { readdirSync, readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join, relative } from 'node:path'
 
 const ROOT = import.meta.dir.replace('/platform/scripts', '')
@@ -323,6 +323,78 @@ for (const f of uiFiles) {
         severity: 'warn',
         rule: 'no-arbitrary-tailwind',
         message: 'Arbitrary Tailwind value — use design system scale (text-sm, w-4, etc.)',
+      })
+    }
+  }
+}
+
+// ─── Bundle Budget (eng-schema M6: per-surface gzipped budgets) ───────────────
+// Marketing/SSR pages ship 0KB client JS — any bundle WITHOUT a budget row is an error.
+// P3 adds the lazy player chunk row here when the lesson route ships.
+
+const BUNDLE_BUDGETS: Array<{ entry: string; maxGzipBytes: number }> = [
+  { entry: 'app', maxGzipBytes: 100 * 1024 }, // /app shell ≤100KB gzipped
+  { entry: 'player-hls', maxGzipBytes: 120 * 1024 }, // lazy hls.js chunk — lesson route ONLY
+  { entry: 'admin', maxGzipBytes: 60 * 1024 }, // /admin shell — internal tool, currently ~41KB
+]
+
+const MANIFEST_FILE = 'public/build/manifest.json'
+const manifestPath = join(ROOT, MANIFEST_FILE)
+
+if (!existsSync(manifestPath)) {
+  report({
+    file: MANIFEST_FILE,
+    line: 1,
+    severity: 'error',
+    rule: 'bundle-manifest-missing',
+    message: 'Client bundle manifest not found — run `bun run build:client` first',
+  })
+} else {
+  const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8')) as Record<string, string>
+
+  for (const [entry, publicPath] of Object.entries(manifest)) {
+    const budget = BUNDLE_BUDGETS.find((b) => b.entry === entry)
+    if (!budget) {
+      report({
+        file: MANIFEST_FILE,
+        line: 1,
+        severity: 'error',
+        rule: 'bundle-no-budget',
+        message: `Bundle '${entry}' has no budget row — marketing stays 0KB JS; add a BUNDLE_BUDGETS entry before shipping a new bundle`,
+      })
+      continue
+    }
+    const bundlePath = join(ROOT, 'public', publicPath.replace(/^\//, ''))
+    if (!existsSync(bundlePath)) {
+      report({
+        file: MANIFEST_FILE,
+        line: 1,
+        severity: 'error',
+        rule: 'bundle-file-missing',
+        message: `Manifest entry '${entry}' points at missing file ${publicPath} — run \`bun run build:client\``,
+      })
+      continue
+    }
+    const gzipBytes = Bun.gzipSync(new Uint8Array(readFileSync(bundlePath))).byteLength
+    if (gzipBytes > budget.maxGzipBytes) {
+      report({
+        file: MANIFEST_FILE,
+        line: 1,
+        severity: 'error',
+        rule: 'bundle-over-budget',
+        message: `Bundle '${entry}' is ${(gzipBytes / 1024).toFixed(1)}KB gzipped — budget is ${budget.maxGzipBytes / 1024}KB`,
+      })
+    }
+  }
+
+  for (const budget of BUNDLE_BUDGETS) {
+    if (!(budget.entry in manifest)) {
+      report({
+        file: MANIFEST_FILE,
+        line: 1,
+        severity: 'error',
+        rule: 'bundle-budget-entry-missing',
+        message: `Budgeted bundle '${budget.entry}' not in manifest — run \`bun run build:client\``,
       })
     }
   }

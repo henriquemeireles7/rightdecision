@@ -288,7 +288,10 @@ Rule: every new error path needs a named error code in platform/errors.ts. Catch
 
 | Metric | Target | Enforcement |
 |--------|--------|-------------|
-| Client JS bundle | <50KB gzipped | Check in CI |
+| Client JS — marketing pages | 0KB (SSR) / <50KB gzipped | Check in CI |
+| Client JS — /app shell | ≤100KB gzipped | harden-check BUNDLE_BUDGETS |
+| Client JS — player chunk (hls.js) | ≤120KB gzipped, lazy-loaded on lesson route only | harden-check BUNDLE_BUDGETS |
+| Client JS — /admin shell | ≤60KB gzipped (internal tool) | harden-check BUNDLE_BUDGETS |
 | API p95 latency | <500ms | PostHog monitoring |
 | Lighthouse performance | >90 | Monthly check via d-health |
 | DB query count per request | <5 (no N+1) | Code review |

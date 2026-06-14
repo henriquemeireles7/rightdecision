@@ -14,10 +14,14 @@ Transactional email reminders: inactivity, module completion, abandoned onboardi
 ## Files
 | File | Exports |
 |------|---------|
+| auth-emails.ts | verificationEmail, welcomeEmail, passwordResetEmail, passwordChangedEmail, inactivityReminderEmail, moduleCompletionEmail, abandonedOnboardingEmail |
+| cohort-emails.ts | cohortWelcomeEmail, cohortStartsSoonEmail, cohortUpgradeNudgeEmail |
+| layout.ts | emailLayout, escapeHtml, ctaButton, stripHtml |
+| payment-emails.ts | paymentConfirmationEmail, renewalReceiptEmail, paymentFailedEmail, renewalReminderEmail, subscriptionCancelledEmail, accessRevokedEmail |
 | reminders.ts | sendInactivityReminders, sendModuleCompletionEmail, sendAbandonedOnboardingReminders |
 
 ## Internal Dependencies
 - platform/db
 - providers/email
 
-<!-- Generated: 2026-04-08T05:22:13.833Z -->
+<!-- Generated: 2026-06-12T23:31:24.936Z -->

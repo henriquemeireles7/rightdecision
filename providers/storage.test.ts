@@ -1,15 +1,17 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterAll, beforeEach, describe, expect, it, mock } from 'bun:test'
+import { clearEnvOverride, envProxy, setEnvOverride } from '@/platform/test/mocks'
 import { ProviderError } from '@/providers/errors'
 
 // Mock env before storage imports it
-mock.module('@/platform/env', () => ({
-  env: {
-    R2_ENDPOINT: 'https://r2.example.com',
-    R2_ACCESS_KEY_ID: 'test-key-id',
-    R2_SECRET_ACCESS_KEY: 'test-secret',
-    R2_BUCKET_NAME: 'test-bucket',
-  },
-}))
+mock.module('@/platform/env', () => ({ env: envProxy }))
+setEnvOverride({
+  R2_ENDPOINT: 'https://r2.example.com',
+  R2_ACCESS_KEY_ID: 'test-key-id',
+  R2_SECRET_ACCESS_KEY: 'test-secret',
+  R2_BUCKET_NAME: 'test-bucket',
+})
+
+afterAll(clearEnvOverride)
 
 // Mock the S3 client
 const mockSend = mock(() => Promise.resolve({}))
@@ -34,7 +36,7 @@ mock.module('@aws-sdk/s3-request-presigner', () => ({
   getSignedUrl: mockGetSignedUrl,
 }))
 
-const { upload, download, getSignedUrl, remove } = await import('./storage')
+const { upload, download, getSignedUrl, getUploadUrl, remove } = await import('./storage')
 
 describe('providers/storage', () => {
   beforeEach(() => {
@@ -88,6 +90,59 @@ describe('providers/storage', () => {
     it('throws ProviderError on failure', async () => {
       mockGetSignedUrl.mockRejectedValueOnce(new Error('Auth error'))
       await expect(getSignedUrl('key')).rejects.toThrow(ProviderError)
+    })
+
+    it('rejects path-traversal and unsafe keys with ProviderError 400 before signing', async () => {
+      const unsafe = ['../etc/passwd', 'a/../../b', '/absolute/key', 'a\\b', 'a/./b', '', 'a\0b']
+      for (const key of unsafe) {
+        try {
+          await getSignedUrl(key)
+          expect.unreachable(`key should have been rejected: ${JSON.stringify(key)}`)
+        } catch (error) {
+          expect(error).toBeInstanceOf(ProviderError)
+          expect((error as ProviderError).statusCode).toBe(400)
+        }
+      }
+      expect(mockGetSignedUrl).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('getUploadUrl', () => {
+    it('returns a presigned PUT URL', async () => {
+      mockGetSignedUrl.mockResolvedValueOnce('https://signed.example.com/key?token=put')
+      const url = await getUploadUrl('uploads/cover.png', 'image/png')
+      expect(url).toContain('signed')
+      expect(mockGetSignedUrl).toHaveBeenCalledTimes(1)
+    })
+
+    it('signs a PutObjectCommand with the content type', async () => {
+      mockGetSignedUrl.mockResolvedValueOnce('https://signed.example.com/key?token=put')
+      await getUploadUrl('uploads/cover.png', 'image/png')
+      const [, command] = mockGetSignedUrl.mock.calls[0] as unknown as [
+        unknown,
+        { input: { Key: string; ContentType: string } },
+      ]
+      expect(command.input.Key).toBe('uploads/cover.png')
+      expect(command.input.ContentType).toBe('image/png')
+    })
+
+    it('throws ProviderError on failure', async () => {
+      mockGetSignedUrl.mockRejectedValueOnce(new Error('Auth error'))
+      await expect(getUploadUrl('key', 'image/png')).rejects.toThrow(ProviderError)
+    })
+
+    it('rejects path-traversal and unsafe keys with ProviderError 400', async () => {
+      const unsafe = ['../etc/passwd', 'a/../../b', '/absolute/key', 'a\\b', 'a/./b', '', 'a\0b']
+      for (const key of unsafe) {
+        try {
+          await getUploadUrl(key, 'image/png')
+          expect.unreachable(`key should have been rejected: ${JSON.stringify(key)}`)
+        } catch (error) {
+          expect(error).toBeInstanceOf(ProviderError)
+          expect((error as ProviderError).statusCode).toBe(400)
+        }
+      }
+      expect(mockGetSignedUrl).not.toHaveBeenCalled()
     })
   })
 

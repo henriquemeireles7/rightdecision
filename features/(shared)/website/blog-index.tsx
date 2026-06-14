@@ -41,7 +41,7 @@ export function BlogIndex({ posts, currentCluster, currentPage, totalPages }: Bl
               href="/blog"
               class={`px-sm py-xs rounded-full text-sm no-underline border transition-colors ${
                 !currentCluster
-                  ? 'bg-gold text-white border-gold'
+                  ? 'bg-gold text-ink border-gold'
                   : 'bg-transparent text-secondary border-linen hover:border-gold hover:text-ink'
               }`}
             >
@@ -53,7 +53,7 @@ export function BlogIndex({ posts, currentCluster, currentPage, totalPages }: Bl
                 href={`/blog?cluster=${cluster}`}
                 class={`px-sm py-xs rounded-full text-sm no-underline border transition-colors ${
                   currentCluster === cluster
-                    ? 'bg-gold text-white border-gold'
+                    ? 'bg-gold text-ink border-gold'
                     : 'bg-transparent text-secondary border-linen hover:border-gold hover:text-ink'
                 }`}
               >

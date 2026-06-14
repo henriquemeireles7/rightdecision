@@ -8,27 +8,45 @@ CLI utilities run with `bun run`. Migrations, seeds, one-time tasks.
 - ALWAYS call `process.exit(0)` on success, `process.exit(1)` on failure
 - NEVER commit scripts that modify production data — seeds are dev-only
 - `generate-context-files.ts` is the CLAUDE.md footer generator — changes here affect all context files
+- Data-changing scripts are NEVER Drizzle migrations — they live here, support `--dry-run`, and are idempotent (run twice = zero new rows)
+- ALWAYS export the core logic as a function taking a `Db` instance; the CLI wrapper is a thin `if (import.meta.main)` block — tests call the function against the test DB
+- Idempotency mechanisms: enrollments via `onConflictDoNothing` on (userId, programId); events backfill via the partial unique index on sourceRef; seed via delete+recreate scoped to seed slugs/emails
+
+## V2 Data Scripts
+- `migrate-subscribers-to-enrollments.ts` — existing-subscriber auto-enrollment at V2 cutover (eng-schema M8). Selects subscriptions in (active, past_due, trialing) within the 30-day grace window; NULL-userId rows are REPORTED, never enrolled. Paid program is looked up (or created as a draft placeholder) by slug `life-decisions-paid`.
+- `backfill-decision-events.ts` — userDecisions → events (isDecision, decisionKind='lesson_prompt') and readingAnalytics → events (non-decision). sourceRef=`user_decisions:<id>` / `reading_analytics:<id>`; occurredAt = original createdAt; source='backfill'.
+- `seed-v2.ts` — V2 dev seed; produces every UI-relevant state from the foundation roadmap enumeration. Seed users live at `@seed.rightdecision.io`; cleanup is scoped to those emails + seed slugs. This is the `db:seed` entrypoint.
+- `seed-templates.ts` — Life Playbook + Starter Notebook template CONTENT (P5). Idempotent by slug: creates missing (published v1), refreshes v1, SKIPS admin-republished (version > 1). Safe on existing data (never delete+recreate — user documents FK to templates). Called by seed-v2; also runnable standalone.
 
 ## Recipe: New Script
 ```ts
-import { db } from '@/platform/db/client'
+import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js'
+import type * as schema from '@/platform/db/schema'
 
-async function main() {
-  // ... script logic ...
-  console.log('Done.')
-  process.exit(0)
+type Db = PostgresJsDatabase<typeof schema>
+
+export async function doTheThing(db: Db, opts: { dryRun?: boolean } = {}) {
+  // ... testable script logic, returns a report object ...
 }
 
-main().catch((err) => {
-  console.error(err)
-  process.exit(1)
-})
+if (import.meta.main) {
+  const { db } = await import('@/platform/db/client')
+  doTheThing(db, { dryRun: Bun.argv.includes('--dry-run') })
+    .then((report) => {
+      console.log(report)
+      process.exit(0)
+    })
+    .catch((err) => {
+      console.error(err)
+      process.exit(1)
+    })
+}
 ```
-Run with: `bun run platform/scripts/my-script.ts`
+Run with: `bun run platform/scripts/my-script.ts [--dry-run]`
 
 ## Verify
 ```sh
-bunx tsc --noEmit platform/scripts/*.ts
+DATABASE_URL=postgresql://test:test@localhost:5432/test bun test platform/scripts/
 ```
 
 ---
@@ -37,16 +55,23 @@ bunx tsc --noEmit platform/scripts/*.ts
 ## Files
 | File | Exports |
 |------|---------|
-| generate-context-files.ts | — |
+| backfill-decision-events.ts | LEGACY_DECISION_EVENT, LEGACY_READING_EVENT, BackfillReport, backfillDecisionEvents, formatBackfillReport |
+| build-client.ts | buildClient |
 | harden-check.ts | — |
+| migrate-subscribers-to-enrollments.ts | GRACE_PERIOD_DAYS, OrphanedSubscription, MigrationReport, ensurePaidProgram, migrateSubscribersToEnrollments, formatMigrationReport |
 | migrate.ts | — |
 | seed-accounts.ts | — |
+| seed-templates.ts | LIFE_PLAYBOOK_SLUG, STARTER_NOTEBOOK_SLUG, SeedTemplateDef, SEED_TEMPLATES, SeedTemplatesReport, seedTemplates |
 | seed-users.ts | — |
+| seed-v2.ts | SEED_COURSE_SLUG, SEED_TEMPLATE_SLUG, SEED_EMAIL_DOMAIN, DEFAULT_SEED_PASSWORD, SEED_EMAILS, SeedSummary, seedV2 |
 | seed-wins.ts | — |
 | validate-block-ids.ts | — |
 
 ## Internal Dependencies
 - platform/auth
 - platform/db
+- platform/env
+- platform/programs
+- platform/templates
 
-<!-- Generated: 2026-04-09T21:54:19.092Z -->
+<!-- Generated: 2026-06-13T01:29:20.704Z -->

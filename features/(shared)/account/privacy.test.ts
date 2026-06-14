@@ -1,9 +1,16 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
-import { mockSchema } from '@/platform/test/mocks'
+import { afterAll, beforeEach, describe, expect, it, mock } from 'bun:test'
+import {
+  clearDbOverride,
+  clearEnvOverride,
+  dbProxy,
+  envProxy,
+  mockSchema,
+  setDbOverride,
+  setEnvOverride,
+} from '@/platform/test/mocks'
 
-mock.module('@/platform/env', () => ({
-  env: { DATABASE_URL: 'postgres://test' },
-}))
+mock.module('@/platform/env', () => ({ env: envProxy }))
+setEnvOverride({ DATABASE_URL: 'postgres://test' })
 
 const mockUsersFindFirst = mock(() => Promise.resolve(null))
 const mockProfileFindFirst = mock(() => Promise.resolve(null))
@@ -14,21 +21,25 @@ const mockSubsFindMany = mock(() => Promise.resolve([]))
 const mockDeleteWhere = mock(() => Promise.resolve())
 const mockDelete = mock(() => ({ where: mockDeleteWhere }))
 
-mock.module('@/platform/db/client', () => ({
-  db: {
-    query: {
-      users: { findFirst: mockUsersFindFirst },
-      onboardingProfiles: { findFirst: mockProfileFindFirst },
-      courseProgress: { findMany: mockProgressFindMany },
-      wins: { findMany: mockWinsFindMany },
-      bookmarks: { findMany: mockBookmarksFindMany },
-      subscriptions: { findMany: mockSubsFindMany },
-    },
-    delete: mockDelete,
+mock.module('@/platform/db/client', () => ({ db: dbProxy }))
+setDbOverride({
+  query: {
+    users: { findFirst: mockUsersFindFirst },
+    onboardingProfiles: { findFirst: mockProfileFindFirst },
+    courseProgress: { findMany: mockProgressFindMany },
+    wins: { findMany: mockWinsFindMany },
+    bookmarks: { findMany: mockBookmarksFindMany },
+    subscriptions: { findMany: mockSubsFindMany },
   },
-}))
+  delete: mockDelete,
+})
 
 mock.module('@/platform/db/schema', () => mockSchema())
+
+afterAll(() => {
+  clearDbOverride()
+  clearEnvOverride()
+})
 
 const { exportUserData, deleteUserAccount } = await import('./privacy')
 

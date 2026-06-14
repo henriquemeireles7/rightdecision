@@ -1,9 +1,11 @@
-import { beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
+import { afterAll, beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
+import { clearEnvOverride, envProxy, setEnvOverride } from '@/platform/test/mocks'
 import { ProviderError } from '@/providers/errors'
 
-mock.module('@/platform/env', () => ({
-  env: { UPLOAD_POST_API_KEY: 'test-api-key' },
-}))
+mock.module('@/platform/env', () => ({ env: envProxy }))
+setEnvOverride({ UPLOAD_POST_API_KEY: 'test-api-key' })
+
+afterAll(clearEnvOverride)
 
 const mockFetch = spyOn(globalThis, 'fetch')
 

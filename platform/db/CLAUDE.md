@@ -7,6 +7,8 @@ Drizzle ORM + PostgreSQL. Single schema file, postgres-js driver, migration syst
 - ALL tables go in `schema.ts` — NEVER define tables in feature folders
 - ALWAYS use `uuid('id').defaultRandom().primaryKey()` for primary keys
 - ALWAYS add `createdAt` and `updatedAt` timestamps to new tables
+  - EXCEPTION: `events` is append-only and has NO `updatedAt` — never add one, never UPDATE events rows (insert-only spine)
+- ALWAYS use `timestamp(..., { withTimezone: true })` (timestamptz) for scheduling timestamps — anything that represents a real-world instant compared across timezones (startsAt, endsAt, scheduledAt, expiresAt, cancelledAt, confirmedAt, occurredAt, completedAt, lastWatchedAt). Legacy pre-V2 columns stay plain `timestamp`; do not retrofit.
 - ALWAYS use `.references(() => parentTable.id, { onDelete: 'cascade' })` for foreign keys
 - After schema changes: `bun run db:generate` then `bun run db:migrate` — NEVER edit migration files manually
 - Use Drizzle query builder — NEVER raw SQL unless performance-critical
@@ -42,9 +44,9 @@ bunx tsc --noEmit platform/db/schema.ts
 | File | Exports |
 |------|---------|
 | client.ts | db |
-| schema.ts | users, sessions, accounts, verifications, purchases, subscriptions, courseProgress, onboardingSessions, onboardingProfiles, wins, bookmarks, platformAccounts, pipelineRuns, clips, posts, postAnalytics, webhookEvents, userDecisions, readingAnalytics, insights, freeIntroSessions, dripEmails |
+| schema.ts | users, sessions, accounts, verifications, purchases, subscriptions, courseProgress, onboardingSessions, onboardingProfiles, wins, bookmarks, platformAccounts, pipelineRuns, clips, posts, postAnalytics, webhookEvents, userDecisions, readingAnalytics, insights, freeIntroSessions, dripEmails, templateFieldSchema, templatePageSchema, templateChapterSchema, templateSchemaSchema, TemplateSchema, programs, cohorts, enrollments, courses, programCourses, modules, lessons, materials, programMaterials, lives, documentTemplates, documents, documentAnswers, journalEntries, conversations, conversationMessages, interviews, events, aiUsage, lessonProgress |
 
 ## Internal Dependencies
 - platform/env
 
-<!-- Generated: 2026-04-09T09:30:25.860Z -->
+<!-- Generated: 2026-06-13T01:29:20.703Z -->

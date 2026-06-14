@@ -1,30 +1,41 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
-import { mockSchema } from '@/platform/test/mocks'
+import { afterAll, beforeEach, describe, expect, it, mock } from 'bun:test'
+import {
+  clearDbOverride,
+  clearEnvOverride,
+  dbProxy,
+  envProxy,
+  mockSchema,
+  setDbOverride,
+  setEnvOverride,
+} from '@/platform/test/mocks'
 
-mock.module('@/platform/env', () => ({
-  env: { DATABASE_URL: 'postgres://test', ONBOARDING_SESSION_TTL_HOURS: 24 },
-}))
+mock.module('@/platform/env', () => ({ env: envProxy }))
+setEnvOverride({ DATABASE_URL: 'postgres://test', ONBOARDING_SESSION_TTL_HOURS: 24 })
 
 const mockFindMany = mock(() => Promise.resolve([]))
 const mockFindFirst = mock(() => Promise.resolve(null))
 const mockUpdateSet = mock(() => ({ where: mock(() => Promise.resolve()) }))
 const mockUpdate = mock(() => ({ set: mockUpdateSet }))
 
-mock.module('@/platform/db/client', () => ({
-  db: {
-    query: {
-      subscriptions: { findMany: mockFindMany },
-      onboardingSessions: { findFirst: mockFindFirst },
-    },
-    update: mockUpdate,
-    insert: mock(() => ({
-      values: mock(() => ({ returning: mock(() => Promise.resolve([{ id: 'p1' }])) })),
-    })),
-    delete: mock(() => ({ where: mock(() => Promise.resolve()) })),
+mock.module('@/platform/db/client', () => ({ db: dbProxy }))
+setDbOverride({
+  query: {
+    subscriptions: { findMany: mockFindMany },
+    onboardingSessions: { findFirst: mockFindFirst },
   },
-}))
+  update: mockUpdate,
+  insert: mock(() => ({
+    values: mock(() => ({ returning: mock(() => Promise.resolve([{ id: 'p1' }])) })),
+  })),
+  delete: mock(() => ({ where: mock(() => Promise.resolve()) })),
+})
 
 mock.module('@/platform/db/schema', () => mockSchema())
+
+afterAll(() => {
+  clearDbOverride()
+  clearEnvOverride()
+})
 
 // Mock the consumeSession dependency
 const mockConsumeSession = mock(() => Promise.resolve(null))

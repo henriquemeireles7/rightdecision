@@ -42,7 +42,7 @@ export function renderPage(component: VNode, options: PageOptions = {}): string 
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body class="bg-cream text-ink font-body">
-  <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 bg-gold text-white px-4 py-2 rounded">Skip to content</a>
+  <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 bg-gold text-ink px-4 py-2 rounded">Skip to content</a>
   <main id="main-content">
     ${html}
   </main>

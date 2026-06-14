@@ -1,23 +1,34 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterAll, beforeEach, describe, expect, it, mock } from 'bun:test'
+import {
+  clearDbOverride,
+  clearEnvOverride,
+  dbProxy,
+  envProxy,
+  setDbOverride,
+  setEnvOverride,
+} from '@/platform/test/mocks'
 
-mock.module('@/platform/env', () => ({
-  env: { DATABASE_URL: 'postgres://test' },
-}))
+mock.module('@/platform/env', () => ({ env: envProxy }))
+setEnvOverride({ DATABASE_URL: 'postgres://test' })
 
 const mockSelectFromWhere = mock(() => Promise.resolve([{ count: 0 }]))
 const mockSelectFrom = mock(() => ({ where: mockSelectFromWhere }))
 const mockSelect = mock(() => ({ from: mockSelectFrom }))
 const _mockInnerJoin = mock(() => ({ where: mock(() => Promise.resolve([{ count: 0 }])) }))
 
-mock.module('@/platform/db/client', () => ({
-  db: {
-    select: mockSelect,
-  },
-}))
+mock.module('@/platform/db/client', () => ({ db: dbProxy }))
+setDbOverride({
+  select: mockSelect,
+})
 
 import { mockSchema } from '@/features/(business)/test-helpers'
 
 mock.module('@/platform/db/schema', () => mockSchema())
+
+afterAll(() => {
+  clearDbOverride()
+  clearEnvOverride()
+})
 
 const {
   assertStatus,

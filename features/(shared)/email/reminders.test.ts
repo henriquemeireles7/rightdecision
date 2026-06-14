@@ -1,9 +1,16 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
-import { mockSchema } from '@/platform/test/mocks'
+import { afterAll, beforeEach, describe, expect, it, mock } from 'bun:test'
+import {
+  clearDbOverride,
+  clearEnvOverride,
+  dbProxy,
+  envProxy,
+  mockSchema,
+  setDbOverride,
+  setEnvOverride,
+} from '@/platform/test/mocks'
 
-mock.module('@/platform/env', () => ({
-  env: { DATABASE_URL: 'postgres://test' },
-}))
+mock.module('@/platform/env', () => ({ env: envProxy }))
+setEnvOverride({ DATABASE_URL: 'postgres://test' })
 
 const mockFindFirst = mock(() => Promise.resolve(null))
 const mockFindMany = mock(() => Promise.resolve([]))
@@ -13,17 +20,21 @@ const mockSelectFrom = mock(() => ({
 }))
 const mockSelect = mock(() => ({ from: mockSelectFrom }))
 
-mock.module('@/platform/db/client', () => ({
-  db: {
-    query: {
-      users: { findFirst: mockFindFirst },
-      onboardingSessions: { findMany: mockFindMany },
-    },
-    select: mockSelect,
+mock.module('@/platform/db/client', () => ({ db: dbProxy }))
+setDbOverride({
+  query: {
+    users: { findFirst: mockFindFirst },
+    onboardingSessions: { findMany: mockFindMany },
   },
-}))
+  select: mockSelect,
+})
 
 mock.module('@/platform/db/schema', () => mockSchema())
+
+afterAll(() => {
+  clearDbOverride()
+  clearEnvOverride()
+})
 
 const mockSendEmail = mock(() => Promise.resolve())
 mock.module('@/providers/email', () => ({

@@ -60,8 +60,8 @@ The auto-generated footer (Files, Internal Dependencies) is added by the Stop ho
 3. platform/db/schema.ts — all database tables
 4. platform/server/routes.ts — all API endpoints
 5. platform/server/responses.ts — success(), paginated()
-6. platform/auth/permissions.ts — roles + permissions
-7. providers/analytics.ts — all trackable events
+6. platform/auth/permissions.ts — roles + permissions (note: 'pro' role is legacy — enrollments gate content; see platform/auth/enrollment.ts)
+7. platform/events/taxonomy.ts — all trackable events (the event spine; providers/analytics.ts is just the PostHog mirror)
 
 ## Rules
 - ALWAYS run `bun run check` before committing — CI runs the same command, if it fails locally it WILL fail in CI
@@ -215,6 +215,14 @@ Pre-execution safety guard. 49+ rule packs across 17 categories. Blocks dangerou
 - If DCG blocks a command: read the explanation, don't bypass without understanding
 - Override: `DCG_BYPASS=1` ONLY when certain the command is safe
 - Explain why blocked: `dcg explain "<command>"`
+
+### gstack (vendored at .claude/skills/gstack)
+Garry Tan's review/QA skill framework, vendored in-repo so cloud/mobile sessions get it (version in `.claude/skills/gstack/VERSION`).
+- Planning/review skills (work everywhere, including cloud): /office-hours, /autoplan, /plan-ceo-review, /plan-eng-review, /plan-design-review, /plan-devex-review, /review, /investigate, /design-consultation, /retro, /cso, /careful, /learn, /ship, /health
+- Browser-dependent skills (local machine only — need the browse binary built by `./setup`): /browse, /qa, /qa-only, /design-review, /connect-chrome, /canary, /setup-browser-cookies
+- On local machines, use the /browse skill from gstack for all web browsing; never use mcp__claude-in-chrome__* tools
+- Vendored copy excludes gstack's test fixtures and browser extension (~35MB pruned). To upgrade: re-clone garrytan/gstack, prune `.git`, `test/`, `browse/test/`, `extension/`, and copy over `.claude/skills/gstack/`
+- /goal and /loop are NOT gstack — they're built into Claude Code itself (use them for autonomous runs)
 
 ## External Service CLIs — Act First, Ask Never
 You have authenticated CLIs: `railway`, `stripe`, `gh`, and PostHog MCP tools. Use them directly — NEVER tell the user to check a dashboard. Full CLI reference: `decisions/deploy.md`.

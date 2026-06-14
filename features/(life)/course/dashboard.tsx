@@ -58,7 +58,7 @@ export function CourseDashboard(props: DashboardProps) {
         {!isComplete && currentClassId && (
           <a
             href={`/class/${currentClassId}`}
-            class="block bg-gold text-white px-6 py-4 rounded-md hover:bg-gold-hover transition-colors text-center text-lg mb-10"
+            class="block bg-gold text-ink px-6 py-4 rounded-md hover:bg-gold-hover transition-colors text-center text-lg mb-10"
           >
             {overallPercent === 0
               ? 'Begin reading'

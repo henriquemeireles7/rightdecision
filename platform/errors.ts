@@ -321,6 +321,113 @@ export const errors = {
     status: 409,
     message: 'A workflow is already running for this video',
   },
+  // ─── Platform V2: Programs & Enrollment ───
+  ENROLLMENT_REQUIRED: {
+    code: 'ENROLLMENT_REQUIRED',
+    status: 403,
+    message: 'Active enrollment required',
+  },
+  PROGRAM_NOT_FOUND: {
+    code: 'PROGRAM_NOT_FOUND',
+    status: 404,
+    message: 'Program not found',
+  },
+  COHORT_NOT_FOUND: {
+    code: 'COHORT_NOT_FOUND',
+    status: 404,
+    message: 'Cohort not found',
+  },
+  LESSON_NOT_FOUND: {
+    code: 'LESSON_NOT_FOUND',
+    status: 404,
+    message: 'Lesson not found',
+  },
+  MODULE_NOT_FOUND: {
+    code: 'MODULE_NOT_FOUND',
+    status: 404,
+    message: 'Module not found',
+  },
+  // ─── Platform V2: Video (Cloudflare Stream) ───
+  VIDEO_NOT_READY: {
+    code: 'VIDEO_NOT_READY',
+    status: 409,
+    message: 'Video is not ready for playback',
+  },
+  CAPTIONS_REQUIRED: {
+    code: 'CAPTIONS_REQUIRED',
+    status: 422,
+    message: 'Captions are required before publishing',
+  },
+  VIDEO_UPLOAD_FAILED: {
+    code: 'VIDEO_UPLOAD_FAILED',
+    status: 502,
+    message: 'Video upload failed',
+  },
+  PLAYBACK_UNAVAILABLE: {
+    code: 'PLAYBACK_UNAVAILABLE',
+    status: 503,
+    message: 'Video playback is temporarily unavailable, please try again',
+  },
+  STREAM_WEBHOOK_INVALID: {
+    code: 'STREAM_WEBHOOK_INVALID',
+    status: 401,
+    message: 'Invalid Stream webhook signature',
+  },
+  COVER_GENERATION_FAILED: {
+    code: 'COVER_GENERATION_FAILED',
+    status: 502,
+    message: 'Cover image generation failed',
+  },
+  // ─── Platform V2: Documents (Playbook) ───
+  TEMPLATE_NOT_FOUND: {
+    code: 'TEMPLATE_NOT_FOUND',
+    status: 404,
+    message: 'Document template not found',
+  },
+  DOCUMENT_NOT_FOUND: {
+    code: 'DOCUMENT_NOT_FOUND',
+    status: 404,
+    message: 'Document not found',
+  },
+  ANSWER_FIELD_INVALID: {
+    code: 'ANSWER_FIELD_INVALID',
+    status: 400,
+    message: 'Field does not exist in the document template',
+  },
+  // ─── Platform V2: Journal ───
+  JOURNAL_DUPLICATE: {
+    code: 'JOURNAL_DUPLICATE',
+    status: 409,
+    message: 'A journal entry of this kind already exists for this date',
+  },
+  // ─── Platform V2: AI (chat, interviews, budget) ───
+  CONVERSATION_NOT_FOUND: {
+    code: 'CONVERSATION_NOT_FOUND',
+    status: 404,
+    message: 'Conversation not found',
+  },
+  INTERVIEW_INVALID_STATE: {
+    code: 'INTERVIEW_INVALID_STATE',
+    status: 409,
+    message: 'Interview is not in the correct state for this operation',
+  },
+  AI_BUDGET_EXCEEDED: {
+    code: 'AI_BUDGET_EXCEEDED',
+    status: 429,
+    message: 'Monthly AI budget reached, resets next month',
+  },
+  // ─── Platform V2: Storage (R2) ───
+  STORAGE_UNAVAILABLE: {
+    code: 'STORAGE_UNAVAILABLE',
+    status: 503,
+    message: 'File storage is temporarily unavailable, please try again',
+  },
+  // ─── Platform V2: Event spine ───
+  EVENT_INVALID: {
+    code: 'EVENT_INVALID',
+    status: 400,
+    message: 'Invalid event name or properties',
+  },
 } as const satisfies Record<string, { code: string; status: number; message: string }>
 
 export type ErrorCode = keyof typeof errors

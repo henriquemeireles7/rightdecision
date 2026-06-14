@@ -103,8 +103,7 @@ freeIntroRoutes.post(
       return success(c, {
         existingAccount: result.existingAccount,
       })
-    } catch (error) {
-      console.error('[free-intro] Email gate error:', error)
+    } catch {
       return throwError(c, 'INTERNAL_ERROR')
     }
   },
@@ -158,8 +157,7 @@ freeIntroRoutes.get(
           'Cache-Control': 'no-cache',
         },
       })
-    } catch (error) {
-      console.error('[free-intro] Export error:', error)
+    } catch {
       return throwError(c, 'INTERNAL_ERROR')
     }
   },

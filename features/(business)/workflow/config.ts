@@ -1,6 +1,9 @@
 import { z } from 'zod'
 
 export const workflowConfigSchema = z.object({
+  // Distribution flow chosen in the admin UI: 'short' → clips → TikTok/IG/Shorts,
+  // 'long' → YouTube. Recorded on the run; no separate column (P7).
+  flow: z.enum(['short', 'long']).optional(),
   dryRun: z.boolean().default(false),
   autoApproveClips: z.boolean().default(true),
   autoApproveMetadata: z.boolean().default(true),

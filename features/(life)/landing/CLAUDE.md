@@ -36,3 +36,22 @@ export function MySection() {
 bun test features/(life)/landing/
 bunx tsc --noEmit features/(life)/landing/routes.ts
 ```
+
+---
+<!-- AUTO-GENERATED BELOW — do not edit manually -->
+
+## Files
+| File | Exports |
+|------|---------|
+| landing.tsx | LandingPage |
+| routes.tsx | landingRoutes |
+
+## Internal Dependencies
+- features/(life)
+- features/(shared)
+- platform/auth
+- platform/env
+- platform/programs
+- platform/server
+
+<!-- Generated: 2026-06-12T23:31:24.931Z -->

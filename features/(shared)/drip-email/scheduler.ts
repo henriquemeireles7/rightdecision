@@ -1,7 +1,15 @@
-import { and, eq, lte } from 'drizzle-orm'
+import { and, eq, inArray, lte } from 'drizzle-orm'
+import {
+  cohortStartsSoonEmail,
+  cohortUpgradeNudgeEmail,
+  cohortWelcomeEmail,
+} from '@/features/(shared)/email/cohort-emails'
+import { escapeHtml } from '@/features/(shared)/email/layout'
 import { db } from '@/platform/db/client'
-import { dripEmails, subscriptions } from '@/platform/db/schema'
+import { dripEmails, subscriptions, users } from '@/platform/db/schema'
+import { env } from '@/platform/env'
 import { sendEmail } from '@/providers/email'
+import { COHORT_DRIP_BASE_INDEX, COHORT_DRIP_INDEXES } from './cohort-drips'
 
 const DRIP_INTERVALS_HOURS = [24, 72, 168] // 24h, 72h, 7 days
 
@@ -22,23 +30,6 @@ export async function scheduleDripSequence(userId: string, decisionText: string)
       })
       .onConflictDoNothing() // idempotent: don't re-schedule if already exists
   }
-}
-
-/** Check-before-send: query subscriptions, skip if user converted to paid. */
-async function isUserPaid(userId: string): Promise<boolean> {
-  const sub = await db.query.subscriptions.findFirst({
-    where: and(eq(subscriptions.userId, userId), eq(subscriptions.status, 'active')),
-  })
-  return !!sub
-}
-
-function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;')
 }
 
 const DRIP_TEMPLATES = [
@@ -88,13 +79,67 @@ const DRIP_TEMPLATES = [
   },
 ]
 
+/**
+ * Render a cohort-lifecycle drip (emailIndex 100+, P4). decisionText carries the
+ * cohort-start instant as an ISO string (documented column reuse — see CLAUDE.md).
+ * Returns null for corrupt instants or unknown cohort indexes — the caller marks
+ * the row 'skipped' so it never retries forever.
+ */
+function renderCohortDrip(
+  emailIndex: number,
+  input: { name: string; startsAtIso: string; appUrl: string },
+): { subject: string; html: string; text: string } | null {
+  const startsAt = new Date(input.startsAtIso)
+  if (Number.isNaN(startsAt.getTime())) return null
+
+  switch (emailIndex) {
+    case COHORT_DRIP_INDEXES.welcome:
+      return cohortWelcomeEmail({
+        name: input.name,
+        startsAt,
+        timezone: env.COHORT_TIMEZONE,
+        appUrl: input.appUrl,
+        now: new Date(),
+      })
+    case COHORT_DRIP_INDEXES.startsSoon:
+      return cohortStartsSoonEmail({ name: input.name, appUrl: input.appUrl })
+    case COHORT_DRIP_INDEXES.upgradeNudge:
+      return cohortUpgradeNudgeEmail({ name: input.name, appUrl: input.appUrl })
+    default:
+      return null
+  }
+}
+
 /** Process all pending drip emails that are due. Called by cron. */
 export async function processPendingDrips(appUrl: string): Promise<number> {
   const now = new Date()
 
+  // Per-tick batch cap: bound the work a single cron run does. Untreated rows stay
+  // pending and are picked up next tick (ordering by scheduledAt feeds the oldest first).
+  const PROCESS_BATCH_LIMIT = 200
   const pending = await db.query.dripEmails.findMany({
     where: and(eq(dripEmails.status, 'pending'), lte(dripEmails.scheduledAt, now)),
+    orderBy: (d, { asc }) => asc(d.scheduledAt),
+    limit: PROCESS_BATCH_LIMIT,
   })
+
+  // Batch the per-drip lookups (was 1+2N): pre-fetch the active-subscription set and
+  // every user row for this tick in two IN queries, then read from maps in the loop.
+  const userIds = [...new Set(pending.map((drip) => drip.userId))]
+  const paidUserIds = userIds.length
+    ? new Set(
+        (
+          await db
+            .select({ userId: subscriptions.userId })
+            .from(subscriptions)
+            .where(and(inArray(subscriptions.userId, userIds), eq(subscriptions.status, 'active')))
+        ).map((row) => row.userId),
+      )
+    : new Set<string>()
+  const userRows = userIds.length
+    ? await db.select().from(users).where(inArray(users.id, userIds))
+    : []
+  const userById = new Map(userRows.map((user) => [user.id, user]))
 
   let sent = 0
 
@@ -108,34 +153,50 @@ export async function processPendingDrips(appUrl: string): Promise<number> {
       continue
     }
 
-    // Check-before-send: skip if user already paid
-    if (await isUserPaid(drip.userId)) {
+    const isCohortDrip = drip.emailIndex >= COHORT_DRIP_BASE_INDEX
+
+    // Check-before-send: every free-intro drip skips for paid users, but among cohort
+    // drips only the upgrade nudge does (a welcome to a paid user is fine — P4).
+    const paidCheckApplies = !isCohortDrip || drip.emailIndex === COHORT_DRIP_INDEXES.upgradeNudge
+    if (paidCheckApplies && paidUserIds.has(drip.userId)) {
       await db.update(dripEmails).set({ status: 'skipped' }).where(eq(dripEmails.id, drip.id))
       continue
     }
 
-    const template = DRIP_TEMPLATES[drip.emailIndex]
-    if (!template) continue
+    const template = isCohortDrip ? undefined : DRIP_TEMPLATES[drip.emailIndex]
+    if (!isCohortDrip && !template) continue
 
-    // Get user email
-    const { users } = await import('@/platform/db/schema')
-    const user = await db.query.users.findFirst({
-      where: eq(users.id, drip.userId),
-    })
-
+    const user = userById.get(drip.userId)
     if (!user) continue
 
-    try {
-      const html = template
-        .html(escapeHtml(user.name), drip.decisionText)
-        .replace(/\{\{app_url\}\}/g, appUrl)
-      const text = template.text(user.name, drip.decisionText).replace(/\{\{app_url\}\}/g, appUrl)
-
-      await sendEmail(user.email, {
-        subject: template.subject,
-        html,
-        text,
+    let message: { subject: string; html: string; text: string }
+    if (isCohortDrip) {
+      const rendered = renderCohortDrip(drip.emailIndex, {
+        name: user.name,
+        startsAtIso: drip.decisionText,
+        appUrl,
       })
+      if (!rendered) {
+        // Corrupt cohort instant or unknown cohort index — never retry forever
+        await db.update(dripEmails).set({ status: 'skipped' }).where(eq(dripEmails.id, drip.id))
+        console.warn(`[drip-email] Skipping unrenderable cohort drip ${drip.id}`)
+        continue
+      }
+      message = rendered
+    } else if (template) {
+      message = {
+        subject: template.subject,
+        html: template
+          .html(escapeHtml(user.name), drip.decisionText)
+          .replace(/\{\{app_url\}\}/g, appUrl),
+        text: template.text(user.name, drip.decisionText).replace(/\{\{app_url\}\}/g, appUrl),
+      }
+    } else {
+      continue
+    }
+
+    try {
+      await sendEmail(user.email, message)
 
       await db
         .update(dripEmails)

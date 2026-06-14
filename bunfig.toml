@@ -1,0 +1,5 @@
+[test]
+# Registers a happy-dom global DOM for SPA component tests (@testing-library/preact).
+# Bun-native fetch primitives are restored after registration so server tests are unaffected.
+# See platform/test/dom-preload.ts. Opt out with HAPPY_DOM=0.
+preload = ["./platform/test/dom-preload.ts"]

@@ -1,3 +1,25 @@
+/**
+ * Validate a post-login `?next` redirect target. Returns the path only if it is a
+ * SAME-ORIGIN relative path (a single leading '/', no scheme, no host); otherwise
+ * falls back to '/course'. This blocks open-redirects: protocol-relative '//evil.com',
+ * absolute 'https://evil.com', and backslash tricks ('/\evil.com') are all rejected.
+ * The inline login script duplicates this exact logic (it can't import) — keep them in
+ * sync; this exported copy is what the tests pin.
+ */
+export function safeNextPath(next: string | null | undefined): string {
+  if (!next) return '/course'
+  // Must start with exactly one forward slash (relative path), and never '//' or '/\'.
+  if (next[0] !== '/' || next[1] === '/' || next[1] === '\\') return '/course'
+  // Reject backslashes and any control char (< 0x20) — they could confuse the browser
+  // into treating the value as a host/scheme. Checked by code point, not a control-char
+  // regex (which Biome flags).
+  for (let i = 0; i < next.length; i++) {
+    const code = next.charCodeAt(i)
+    if (code < 0x20 || code === 0x5c /* backslash */) return '/course'
+  }
+  return next
+}
+
 export function LoginPage() {
   return (
     <main class="min-h-screen bg-cream flex items-center justify-center px-md">
@@ -143,6 +165,16 @@ export function LoginPage() {
   var eyeIcon=document.getElementById('eye-icon');
   var eyeOffIcon=document.getElementById('eye-off-icon');
 
+  // Same-origin relative redirect target from ?next (mirror of safeNextPath — keep in sync).
+  function safeNext(){
+    var next=new URLSearchParams(window.location.search).get('next');
+    if(!next) return '/course';
+    if(next.charAt(0)!=='/'||next.charAt(1)==='/'||next.charAt(1)==='\\\\') return '/course';
+    for(var i=0;i<next.length;i++){var code=next.charCodeAt(i);if(code<32||code===92) return '/course';}
+    return next;
+  }
+  var nextPath=safeNext();
+
   toggleBtn.addEventListener('click',function(){
     var isPassword=pwInput.type==='password';
     pwInput.type=isPassword?'text':'password';
@@ -166,7 +198,7 @@ export function LoginPage() {
       })
     }).then(function(r){
       if(!r.ok) return r.json().catch(function(){return {}}).then(function(d){throw new Error(d.message||'Invalid email or password')});
-      window.location.href='/course';
+      window.location.href=nextPath;
     }).catch(function(ex){
       err.textContent=ex.message||'Something went wrong. Please try again.';
       err.classList.remove('hidden');
@@ -176,7 +208,7 @@ export function LoginPage() {
   });
 
   document.getElementById('google-btn').addEventListener('click',function(){
-    window.location.href='/api/auth/sign-in/social?provider=google&callbackURL=/course';
+    window.location.href='/api/auth/sign-in/social?provider=google&callbackURL='+encodeURIComponent(nextPath);
   });
 })()`,
           }}

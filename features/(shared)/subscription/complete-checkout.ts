@@ -10,7 +10,8 @@ import { env } from '@/platform/env'
 import { throwError } from '@/platform/errors'
 import { success } from '@/platform/server/responses'
 import { sendEmail } from '@/providers/email'
-import { payments } from '@/providers/payments'
+import { formatStripeAmount, payments, plans, subscriptionPeriodEnd } from '@/providers/payments'
+import { syncEnrollmentForCheckoutCompleted } from './enrollment-sync'
 
 const completeCheckoutSchema = z.object({
   sessionId: z.string().min(1),
@@ -72,9 +73,9 @@ completeCheckoutRoutes.post('/complete', zValidator('json', completeCheckoutSche
     return throwError(c, 'VALIDATION_ERROR', 'Email must match the one used at checkout')
   }
 
-  // 4. Get subscription details for period end
+  // 4. Get subscription details for period end (dahlia: on the item, not top-level)
   const stripeSub = await payments.subscriptions.retrieve(stripeSubscriptionId)
-  const periodEnd = (stripeSub as unknown as { current_period_end: number }).current_period_end
+  const periodEnd = subscriptionPeriodEnd(stripeSub)
 
   // 5-8. Create subscription + user + link atomically
   // Atomic linking: UPDATE ... WHERE userId IS NULL prevents race condition
@@ -109,15 +110,17 @@ completeCheckoutRoutes.post('/complete', zValidator('json', completeCheckoutSche
     })
     userId = (result as unknown as { user: { id: string } }).user.id
 
-    // 7. Atomic link: only succeeds if userId IS NULL (prevents race condition)
+    // 7. Atomic link: only succeeds if userId IS NULL (prevents race condition).
+    // postgres-js reports affected rows via RETURNING length, not `.rowCount`.
     const linked = await db
       .update(subscriptions)
       .set({ userId, updatedAt: new Date() })
       .where(
         sql`${subscriptions.stripeSubscriptionId} = ${stripeSubscriptionId} AND ${subscriptions.userId} IS NULL`,
       )
+      .returning({ id: subscriptions.id })
 
-    if ((linked as unknown as { rowCount: number }).rowCount === 0) {
+    if (linked.length === 0) {
       // Another request linked it first — user created but subscription already taken
       return throwError(
         c,
@@ -137,7 +140,20 @@ completeCheckoutRoutes.post('/complete', zValidator('json', completeCheckoutSche
     )
   }
 
-  // 9. Send payment confirmation + course welcome email
+  // 9. Grant the paid enrollment now that the subscription is linked. The
+  // checkout.session.completed webhook fires once and may have run BEFORE this account
+  // existed (reported user_not_linked, granted nothing), so /complete must grant itself.
+  // Best-effort: a transient failure self-heals on the next customer.subscription.updated.
+  try {
+    await syncEnrollmentForCheckoutCompleted(stripeSubscriptionId)
+  } catch (err) {
+    console.error(
+      '[complete-checkout] Paid enrollment grant failed (self-heals on next event):',
+      err,
+    )
+  }
+
+  // 10. Send payment confirmation + course welcome email
   const renewalDate = new Date(periodEnd * 1000).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
@@ -148,7 +164,10 @@ completeCheckoutRoutes.post('/complete', zValidator('json', completeCheckoutSche
       email,
       paymentConfirmationEmail({
         name,
-        amount: '$197.00',
+        amount: formatStripeAmount(
+          session.amount_total ?? plans.yearly.amount,
+          session.currency ?? 'usd',
+        ),
         renewalDate,
         firstLessonUrl: `${env.PUBLIC_APP_URL}/course`,
       }),

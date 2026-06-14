@@ -1,11 +1,13 @@
-import { beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
+import { afterAll, beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
+import { clearEnvOverride, envProxy, setEnvOverride } from '@/platform/test/mocks'
 import { ProviderError } from '@/providers/errors'
 
-mock.module('@/platform/env', () => ({
-  env: {
-    WHISPER_MODEL_PATH: 'models/ggml-large-v3.bin',
-  },
-}))
+mock.module('@/platform/env', () => ({ env: envProxy }))
+setEnvOverride({
+  WHISPER_MODEL_PATH: 'models/ggml-large-v3.bin',
+})
+
+afterAll(clearEnvOverride)
 
 // Helper to create a mock process
 function mockProc(exitCode: number, stdout = '', stderr = '') {

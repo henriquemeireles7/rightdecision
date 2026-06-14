@@ -39,7 +39,8 @@
       "!.claude/skills/gstack",
       "!.beads/.br_history",
       "!mcp_agent_mail",
-      "!public/styles.css"
+      "!public/styles.css",
+      "!public/build"
     ]
   }
 }

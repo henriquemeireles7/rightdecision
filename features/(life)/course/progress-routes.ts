@@ -16,6 +16,10 @@ const completeSchema = z.object({
   courseId: z.string().min(1),
 })
 
+const moduleNumParam = z.object({
+  moduleNum: z.coerce.number().int().min(0),
+})
+
 export const progressApiRoutes = new Hono<AppEnv>()
 
 // Mark a class complete
@@ -41,10 +45,15 @@ progressApiRoutes.get('/', requireAuth, async (c) => {
 })
 
 // Get progress for a specific module
-progressApiRoutes.get('/module/:moduleNum', requireAuth, async (c) => {
-  const moduleNum = Number.parseInt(c.req.param('moduleNum'), 10)
-  const user = c.get('user')
-  const moduleProgress = await getModuleProgress(user.id, moduleNum)
+progressApiRoutes.get(
+  '/module/:moduleNum',
+  requireAuth,
+  zValidator('param', moduleNumParam),
+  async (c) => {
+    const { moduleNum } = c.req.valid('param')
+    const user = c.get('user')
+    const moduleProgress = await getModuleProgress(user.id, moduleNum)
 
-  return success(c, moduleProgress)
-})
+    return success(c, moduleProgress)
+  },
+)

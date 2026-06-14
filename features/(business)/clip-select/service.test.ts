@@ -1,8 +1,15 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterAll, beforeEach, describe, expect, it, mock } from 'bun:test'
+import {
+  clearDbOverride,
+  clearEnvOverride,
+  dbProxy,
+  envProxy,
+  setDbOverride,
+  setEnvOverride,
+} from '@/platform/test/mocks'
 
-mock.module('@/platform/env', () => ({
-  env: { DATABASE_URL: 'postgres://test' },
-}))
+mock.module('@/platform/env', () => ({ env: envProxy }))
+setEnvOverride({ DATABASE_URL: 'postgres://test' })
 
 const mockFindFirst = mock(() => Promise.resolve(null))
 const _mockDelete = mock(() => ({ where: () => Promise.resolve() }))
@@ -26,21 +33,27 @@ const mockTx = {
   update: () => ({ set: () => ({ where: () => Promise.resolve() }) }),
 }
 
-mock.module('@/platform/db/client', () => ({
-  db: {
-    query: {
-      pipelineRuns: { findFirst: () => mockFindFirst() },
-    },
-    update: () => ({ set: () => ({ where: () => casResult() }) }),
-    delete: () => ({ where: () => Promise.resolve() }),
-    insert: () => ({ values: () => ({ returning: () => mockInsertReturning() }) }),
-    transaction: mockTransaction(mockTx),
+mock.module('@/platform/db/client', () => ({ db: dbProxy }))
+const __dbOverride = {
+  query: {
+    pipelineRuns: { findFirst: () => mockFindFirst() },
   },
-}))
+  update: () => ({ set: () => ({ where: () => casResult() }) }),
+  delete: () => ({ where: () => Promise.resolve() }),
+  insert: () => ({ values: () => ({ returning: () => mockInsertReturning() }) }),
+  transaction: mockTransaction(mockTx),
+}
+setDbOverride(__dbOverride)
+beforeEach(() => setDbOverride(__dbOverride))
 
 import { casResult, mockSchema, mockTransaction } from '@/features/(business)/test-helpers'
 
 mock.module('@/platform/db/schema', () => mockSchema())
+
+afterAll(() => {
+  clearDbOverride()
+  clearEnvOverride()
+})
 
 // Don't mock state-machine — it's pure logic, no external deps
 

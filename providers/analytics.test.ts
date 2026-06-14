@@ -1,12 +1,14 @@
-import { describe, expect, mock, test } from 'bun:test'
+import { afterAll, describe, expect, mock, test } from 'bun:test'
+import { clearEnvOverride, envProxy, setEnvOverride } from '@/platform/test/mocks'
 
 // Mock env before analytics imports it
-mock.module('@/platform/env', () => ({
-  env: {
-    POSTHOG_API_KEY: undefined,
-    POSTHOG_HOST: 'https://us.i.posthog.com',
-  },
-}))
+mock.module('@/platform/env', () => ({ env: envProxy }))
+setEnvOverride({
+  POSTHOG_API_KEY: undefined,
+  POSTHOG_HOST: 'https://us.i.posthog.com',
+})
+
+afterAll(clearEnvOverride)
 
 // Mock posthog-node to avoid real HTTP calls
 const mockCapture = mock(() => {})

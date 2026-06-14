@@ -44,7 +44,7 @@ export function ClassView({
           <p class="text-body mb-6">This module requires an active subscription.</p>
           <a
             href="/api/checkout"
-            class="inline-block bg-gold text-white px-6 py-3 rounded-md hover:bg-gold-hover transition-colors"
+            class="inline-block bg-gold text-ink px-6 py-3 rounded-md hover:bg-gold-hover transition-colors"
           >
             Get access — $197/year
           </a>
@@ -103,7 +103,7 @@ export function ClassView({
           {!isComplete ? (
             <button
               type="button"
-              class="bg-gold text-white px-6 py-3 rounded-md hover:bg-gold-hover transition-colors"
+              class="bg-gold text-ink px-6 py-3 rounded-md hover:bg-gold-hover transition-colors"
               hx-post="/api/progress/v2/complete"
               hx-vals={JSON.stringify({ classId: cls.id, courseId: cls.courseId })}
             >

@@ -19,11 +19,11 @@ analyticsReadingRoutes.post('/', requireAuth, zValidator('json', logSchema), asy
   const user = c.get('user')
   const { classId, courseSlug, timeSpentSec, scrollDepth } = c.req.valid('json')
 
-  // Fire-and-forget: log errors but always return 200
+  // Fire-and-forget: swallow failures and always return 200 (analytics never breaks reading).
   try {
     await logReading(user.id, classId, courseSlug, timeSpentSec, scrollDepth)
-  } catch (err) {
-    console.error('Reading analytics error:', err)
+  } catch {
+    // intentionally ignored — best-effort analytics write
   }
 
   return success(c, { logged: true })

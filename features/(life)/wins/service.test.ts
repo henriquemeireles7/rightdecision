@@ -1,9 +1,16 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
-import { mockSchema } from '@/platform/test/mocks'
+import { afterAll, beforeEach, describe, expect, it, mock } from 'bun:test'
+import {
+  clearDbOverride,
+  clearEnvOverride,
+  dbProxy,
+  envProxy,
+  mockSchema,
+  setDbOverride,
+  setEnvOverride,
+} from '@/platform/test/mocks'
 
-mock.module('@/platform/env', () => ({
-  env: { DATABASE_URL: 'postgres://test', WIN_RATE_LIMIT_PER_DAY: 3 },
-}))
+mock.module('@/platform/env', () => ({ env: envProxy }))
+setEnvOverride({ WIN_RATE_LIMIT_PER_DAY: 3 })
 
 const mockFindMany = mock(() => Promise.resolve([]))
 const mockSelectFromWhere = mock(() => Promise.resolve([{ count: 0 }]))
@@ -15,17 +22,21 @@ const mockInsertReturning = mock(() =>
 const mockInsertValues = mock(() => ({ returning: mockInsertReturning }))
 const mockInsert = mock(() => ({ values: mockInsertValues }))
 
-mock.module('@/platform/db/client', () => ({
-  db: {
-    query: {
-      wins: { findMany: mockFindMany },
-    },
-    select: mockSelect,
-    insert: mockInsert,
+mock.module('@/platform/db/client', () => ({ db: dbProxy }))
+setDbOverride({
+  query: {
+    wins: { findMany: mockFindMany },
   },
-}))
+  select: mockSelect,
+  insert: mockInsert,
+})
 
 mock.module('@/platform/db/schema', () => mockSchema())
+
+afterAll(() => {
+  clearDbOverride()
+  clearEnvOverride()
+})
 
 const { createWin, getPublicFeed, getMyWins } = await import('./service')
 

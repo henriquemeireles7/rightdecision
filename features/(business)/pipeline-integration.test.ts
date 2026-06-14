@@ -1,19 +1,36 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
-import { mockSchema } from '@/platform/test/mocks'
+import { afterAll, beforeEach, describe, expect, it, mock } from 'bun:test'
+import * as realFsPromises from 'node:fs/promises'
+import {
+  clearDbOverride,
+  clearEnvOverride,
+  dbProxy,
+  envProxy,
+  mockSchema,
+  setDbOverride,
+  setEnvOverride,
+} from '@/platform/test/mocks'
+import * as actualAnalytics from '@/providers/analytics'
+import * as actualSocialAnalytics from '@/providers/social-analytics'
+import * as actualSocialPosting from '@/providers/social-posting'
+import * as actualStorage from '@/providers/storage'
+import * as actualTranscription from '@/providers/transcription'
 
 // ── Mock env ──────────────────────────────────────────────────────────
-mock.module('@/platform/env', () => ({
-  env: { DATABASE_URL: 'postgres://test', WHISPER_MODEL_PATH: 'models/test.bin' },
-}))
+mock.module('@/platform/env', () => ({ env: envProxy }))
+setEnvOverride({ DATABASE_URL: 'postgres://test', WHISPER_MODEL_PATH: 'models/test.bin' })
 
 // ── Mock analytics (no-op) ────────────────────────────────────────────
-mock.module('@/providers/analytics', () => ({ track: () => {} }))
+mock.module('@/providers/analytics', () => ({
+  ...actualAnalytics,
+  track: () => {},
+}))
 
 // ── Mock providers ────────────────────────────────────────────────────
 const mockDownload = mock(() => Promise.resolve(Buffer.from('fake-video-data')))
 const mockUpload = mock(() => Promise.resolve('https://r2.example.com/clip.mp4'))
 const mockGetSignedUrl = mock(() => Promise.resolve('https://signed.example.com/clip.mp4'))
 mock.module('@/providers/storage', () => ({
+  ...actualStorage,
   download: mockDownload,
   upload: mockUpload,
   getSignedUrl: mockGetSignedUrl,
@@ -23,12 +40,16 @@ mock.module('@/providers/storage', () => ({
 const mockTranscribe = mock(() =>
   Promise.resolve('[00:00:01] Hello world\n[00:00:30] Great insight'),
 )
-mock.module('@/providers/transcription', () => ({ transcribe: mockTranscribe }))
+mock.module('@/providers/transcription', () => ({
+  ...actualTranscription,
+  transcribe: mockTranscribe,
+}))
 
 const mockPost = mock(() =>
   Promise.resolve({ id: 'upload-post-1', url: 'https://social.com/post/1' }),
 )
 mock.module('@/providers/social-posting', () => ({
+  ...actualSocialPosting,
   post: mockPost,
   listProfiles: mock(() =>
     Promise.resolve([{ id: 'acct-1', platform: 'instagram', handle: 'test' }]),
@@ -47,9 +68,16 @@ const mockGetMetrics = mock(() =>
     reach: 1500,
   }),
 )
-mock.module('@/providers/social-analytics', () => ({ getMetrics: mockGetMetrics }))
+mock.module('@/providers/social-analytics', () => ({
+  ...actualSocialAnalytics,
+  getMetrics: mockGetMetrics,
+}))
 
+// Spread the real module so the mock keeps its full shape (incl. `default`) —
+// mock.module leaks process-wide and a shape-incomplete factory breaks later
+// lazy imports of node:fs/promises in unrelated test files.
 mock.module('node:fs/promises', () => ({
+  ...realFsPromises,
   writeFile: mock(() => Promise.resolve()),
   unlink: mock(() => Promise.resolve()),
 }))
@@ -250,28 +278,19 @@ function makeDbMock() {
   }
 }
 
-const mockSchemaRef = {
-  pipelineRuns: Symbol('pipelineRuns'),
-  clips: Symbol('clips'),
-  posts: Symbol('posts'),
-  postAnalytics: Symbol('postAnalytics'),
-  insights: Symbol('insights'),
-  platformAccounts: Symbol('platformAccounts'),
-}
+// Real schema tables — services receive the same objects from the (real)
+// schema mock below, so identity dispatch in makeDbMock keeps working.
+const mockSchemaRef = mockSchema()
 
-mock.module('@/platform/db/client', () => ({
-  db: makeDbMock(),
-}))
+mock.module('@/platform/db/client', () => ({ db: dbProxy }))
+setDbOverride(makeDbMock())
 
-mock.module('@/platform/db/schema', () => ({
-  ...mockSchema(),
-  platformAccounts: mockSchemaRef.platformAccounts,
-  pipelineRuns: mockSchemaRef.pipelineRuns,
-  clips: mockSchemaRef.clips,
-  posts: mockSchemaRef.posts,
-  postAnalytics: mockSchemaRef.postAnalytics,
-  insights: mockSchemaRef.insights,
-}))
+mock.module('@/platform/db/schema', () => mockSchema())
+
+afterAll(() => {
+  clearDbOverride()
+  clearEnvOverride()
+})
 
 // ── Import state machine (pure logic, no mocking needed) ──────────────
 import {
