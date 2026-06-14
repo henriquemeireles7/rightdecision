@@ -18,11 +18,13 @@ const mockInsertReturning = mock(() =>
 const mockFindMany = mock(() => Promise.resolve([]))
 
 mock.module('@/platform/db/client', () => ({ db: dbProxy }))
-setDbOverride({
+const __dbOverride = {
   select: () => ({ from: () => ({ where: () => mockSelectCount() }) }),
   insert: () => ({ values: () => ({ returning: () => mockInsertReturning() }) }),
   query: { insights: { findMany: () => mockFindMany() } },
-})
+}
+setDbOverride(__dbOverride)
+beforeEach(() => setDbOverride(__dbOverride))
 
 import { mockSchema } from '@/features/(business)/test-helpers'
 

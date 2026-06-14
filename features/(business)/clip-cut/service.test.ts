@@ -18,14 +18,16 @@ const mockFindFirstRun = mock(() => Promise.resolve(null))
 const mockFindManyClips = mock(() => Promise.resolve([]))
 
 mock.module('@/platform/db/client', () => ({ db: dbProxy }))
-setDbOverride({
+const __dbOverride = {
   query: {
     pipelineRuns: { findFirst: () => mockFindFirstRun() },
     clips: { findMany: () => mockFindManyClips() },
   },
   update: () => ({ set: () => ({ where: () => casResult() }) }),
   delete: () => ({ where: () => Promise.resolve() }),
-})
+}
+setDbOverride(__dbOverride)
+beforeEach(() => setDbOverride(__dbOverride))
 
 import { casResult, mockSchema } from '@/features/(business)/test-helpers'
 

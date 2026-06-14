@@ -17,13 +17,15 @@ const mockFindManyPosts = mock(() => Promise.resolve([]))
 const mockFindFirstPost = mock(() => Promise.resolve(null))
 
 mock.module('@/platform/db/client', () => ({ db: dbProxy }))
-setDbOverride({
+const __dbOverride = {
   query: {
     posts: { findMany: () => mockFindManyPosts(), findFirst: () => mockFindFirstPost() },
   },
   insert: () => ({ values: () => Promise.resolve() }),
   update: () => ({ set: () => ({ where: () => Promise.resolve() }) }),
-})
+}
+setDbOverride(__dbOverride)
+beforeEach(() => setDbOverride(__dbOverride))
 
 import { mockSchema } from '@/features/(business)/test-helpers'
 

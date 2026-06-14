@@ -35,7 +35,7 @@ const mockFindFirst = mock(() =>
 const mockFindMany = mock(() => Promise.resolve([]))
 
 mock.module('@/platform/db/client', () => ({ db: dbProxy }))
-setDbOverride({
+const __dbOverride = {
   insert: () => ({
     values: () => ({
       returning: () =>
@@ -63,7 +63,9 @@ setDbOverride({
     pipelineRuns: { findFirst: () => mockFindFirst(), findMany: mockFindMany },
     clips: { findMany: mock(() => Promise.resolve([])) },
   },
-})
+}
+setDbOverride(__dbOverride)
+beforeEach(() => setDbOverride(__dbOverride))
 
 import { casResult, mockSchema } from '@/features/(business)/test-helpers'
 

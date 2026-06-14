@@ -15,7 +15,9 @@ setEnvOverride({ DATABASE_URL: 'postgres://test' })
 // Mock DB
 const mockExecute = mock(() => Promise.resolve([{ result: 1 }]))
 mock.module('@/platform/db/client', () => ({ db: dbProxy }))
-setDbOverride({ execute: mockExecute })
+const __dbOverride = { execute: mockExecute }
+setDbOverride(__dbOverride)
+beforeEach(() => setDbOverride(__dbOverride))
 
 afterAll(() => {
   clearDbOverride()

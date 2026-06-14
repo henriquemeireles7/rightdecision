@@ -27,7 +27,7 @@ const mockTx = {
 }
 
 mock.module('@/platform/db/client', () => ({ db: dbProxy }))
-setDbOverride({
+const __dbOverride = {
   query: {
     pipelineRuns: { findFirst: () => mockFindFirstRun() },
     platformAccounts: { findMany: () => mockFindManyAccounts() },
@@ -36,7 +36,9 @@ setDbOverride({
   update: () => ({ set: () => ({ where: () => casResult() }) }),
   insert: () => ({ values: () => ({ returning: () => mockInsertPost() }) }),
   transaction: mockTransaction(mockTx),
-})
+}
+setDbOverride(__dbOverride)
+beforeEach(() => setDbOverride(__dbOverride))
 
 import { casResult, mockSchema, mockTransaction } from '@/features/(business)/test-helpers'
 

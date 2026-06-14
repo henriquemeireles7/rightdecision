@@ -19,13 +19,15 @@ const mockUpdateSet = mock(() => ({ where: mock(() => Promise.resolve()) }))
 const mockFindMany = mock(() => Promise.resolve([]))
 
 mock.module('@/platform/db/client', () => ({ db: dbProxy }))
-setDbOverride({
+const __dbOverride = {
   query: {
     platformAccounts: { findFirst: () => mockFindFirst(), findMany: () => mockFindMany() },
   },
   insert: () => ({ values: mockInsertValues }),
   update: () => ({ set: mockUpdateSet }),
-})
+}
+setDbOverride(__dbOverride)
+beforeEach(() => setDbOverride(__dbOverride))
 
 import { mockSchema } from '@/features/(business)/test-helpers'
 
