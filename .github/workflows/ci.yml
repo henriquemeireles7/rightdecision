@@ -21,6 +21,8 @@ jobs:
       STRIPE_SECRET_KEY: sk_test_placeholder
       STRIPE_WEBHOOK_SECRET: whsec_placeholder
       STRIPE_PRICE_ID: price_placeholder
+      STRIPE_MONTHLY_PRICE_ID: price_monthly_placeholder
+      ANTHROPIC_API_KEY: sk-ant-placeholder
       RESEND_API_KEY: re_placeholder
       BETTER_AUTH_SECRET: test-secret-that-is-at-least-32-characters-long
       PUBLIC_APP_URL: http://localhost:3000
@@ -60,6 +62,17 @@ jobs:
       R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
       UPLOAD_POST_API_KEY: ${{ secrets.UPLOAD_POST_API_KEY }}
       DATABASE_URL: postgresql://test:test@localhost:5432/test
+      # Required by platform/env.ts at import — without these, env validation throws before
+      # the integration tests' describe.skipIf can skip on absent credentials.
+      STRIPE_SECRET_KEY: sk_test_placeholder
+      STRIPE_WEBHOOK_SECRET: whsec_placeholder
+      STRIPE_PRICE_ID: price_placeholder
+      STRIPE_MONTHLY_PRICE_ID: price_monthly_placeholder
+      ANTHROPIC_API_KEY: sk-ant-placeholder
+      RESEND_API_KEY: re_placeholder
+      BETTER_AUTH_SECRET: test-secret-that-is-at-least-32-characters-long
+      PUBLIC_APP_URL: http://localhost:3000
+      PUBLIC_STRIPE_KEY: pk_test_placeholder
     steps:
       - uses: actions/checkout@v4
         with:
