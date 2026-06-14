@@ -8,6 +8,8 @@ import {
   setDbOverride,
   setEnvOverride,
 } from '@/platform/test/mocks'
+import * as actualStorage from '@/providers/storage'
+import * as actualTranscription from '@/providers/transcription'
 
 // Mock env
 mock.module('@/platform/env', () => ({ env: envProxy }))
@@ -79,6 +81,7 @@ afterAll(() => {
 // Mock providers
 const mockDownload = mock(() => Promise.resolve(Buffer.from('fake-video-data')))
 mock.module('@/providers/storage', () => ({
+  ...actualStorage,
   download: mockDownload,
   upload: mock(() => Promise.resolve('test-key')),
   getSignedUrl: mock(() => Promise.resolve('https://signed.example.com')),
@@ -88,7 +91,10 @@ mock.module('@/providers/storage', () => ({
 const mockTranscribe = mock(() =>
   Promise.resolve('[00:00:01] Hello world\n[00:00:05] Test transcript'),
 )
-mock.module('@/providers/transcription', () => ({ transcribe: mockTranscribe }))
+mock.module('@/providers/transcription', () => ({
+  ...actualTranscription,
+  transcribe: mockTranscribe,
+}))
 
 // Mock fs — spread the real module so the mock keeps its full shape (incl.
 // `default`); mock.module leaks process-wide and a shape-incomplete factory

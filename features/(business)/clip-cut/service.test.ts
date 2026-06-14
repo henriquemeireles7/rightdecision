@@ -9,6 +9,7 @@ import {
   setEnvOverride,
 } from '@/platform/test/mocks'
 import { ProviderError } from '@/providers/errors'
+import * as actualStorage from '@/providers/storage'
 
 mock.module('@/platform/env', () => ({ env: envProxy }))
 setEnvOverride({ DATABASE_URL: 'postgres://test' })
@@ -40,6 +41,7 @@ afterAll(() => {
 const mockDownload = mock(() => Promise.resolve(Buffer.from('video-data')))
 const mockUpload = mock(() => Promise.resolve('https://r2.example.com/clips/run-1/clip-1.mp4'))
 mock.module('@/providers/storage', () => ({
+  ...actualStorage,
   download: mockDownload,
   upload: mockUpload,
   getSignedUrl: mock(() => Promise.resolve('https://signed.example.com')),

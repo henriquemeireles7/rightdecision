@@ -7,6 +7,7 @@ import {
   setDbOverride,
   setEnvOverride,
 } from '@/platform/test/mocks'
+import * as actualStorage from '@/providers/storage'
 
 mock.module('@/platform/env', () => ({ env: envProxy }))
 setEnvOverride({ DATABASE_URL: 'postgres://test' })
@@ -26,6 +27,7 @@ const mockUpload = mock(() => Promise.resolve('test/health-check'))
 const mockDownload = mock(() => Promise.resolve(Buffer.from('health')))
 const mockRemove = mock(() => Promise.resolve())
 mock.module('@/providers/storage', () => ({
+  ...actualStorage,
   upload: mockUpload,
   download: mockDownload,
   remove: mockRemove,

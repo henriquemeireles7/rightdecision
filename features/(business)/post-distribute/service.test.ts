@@ -7,6 +7,8 @@ import {
   setDbOverride,
   setEnvOverride,
 } from '@/platform/test/mocks'
+import * as actualSocialPosting from '@/providers/social-posting'
+import * as actualStorage from '@/providers/storage'
 
 mock.module('@/platform/env', () => ({ env: envProxy }))
 setEnvOverride({ DATABASE_URL: 'postgres://test', UPLOAD_POST_API_KEY: 'key' })
@@ -38,6 +40,7 @@ afterAll(() => {
 
 const mockPost = mock(() => Promise.resolve({ id: 'upload-123', status: 'queued' }))
 mock.module('@/providers/social-posting', () => ({
+  ...actualSocialPosting,
   post: mockPost,
   listProfiles: mock(() => Promise.resolve([])),
   getPostStatus: mock(() => Promise.resolve({ id: 'test', status: 'queued' })),
@@ -45,6 +48,7 @@ mock.module('@/providers/social-posting', () => ({
 
 const mockGetSignedUrl = mock(() => Promise.resolve('https://signed.example.com/clip.mp4'))
 mock.module('@/providers/storage', () => ({
+  ...actualStorage,
   getSignedUrl: mockGetSignedUrl,
   upload: mock(() => Promise.resolve('test-key')),
   download: mock(() => Promise.resolve(Buffer.from('test'))),

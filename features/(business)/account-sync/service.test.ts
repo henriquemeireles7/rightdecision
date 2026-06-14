@@ -7,6 +7,7 @@ import {
   setDbOverride,
   setEnvOverride,
 } from '@/platform/test/mocks'
+import * as actualSocialPosting from '@/providers/social-posting'
 
 mock.module('@/platform/env', () => ({ env: envProxy }))
 setEnvOverride({ DATABASE_URL: 'postgres://test' })
@@ -43,6 +44,7 @@ const mockListProfiles = mock(() =>
   ]),
 )
 mock.module('@/providers/social-posting', () => ({
+  ...actualSocialPosting,
   listProfiles: mockListProfiles,
   post: mock(() => Promise.resolve({ id: 'test', status: 'queued' })),
   getPostStatus: mock(() => Promise.resolve({ id: 'test', status: 'queued' })),

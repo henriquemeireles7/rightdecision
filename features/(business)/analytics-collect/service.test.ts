@@ -8,6 +8,7 @@ import {
   setEnvOverride,
 } from '@/platform/test/mocks'
 import { ProviderError } from '@/providers/errors'
+import * as actualSocialAnalytics from '@/providers/social-analytics'
 
 mock.module('@/platform/env', () => ({ env: envProxy }))
 setEnvOverride({ DATABASE_URL: 'postgres://test', UPLOAD_POST_API_KEY: 'key' })
@@ -44,7 +45,10 @@ const mockGetMetrics = mock(() =>
     reach: 150,
   }),
 )
-mock.module('@/providers/social-analytics', () => ({ getMetrics: mockGetMetrics }))
+mock.module('@/providers/social-analytics', () => ({
+  ...actualSocialAnalytics,
+  getMetrics: mockGetMetrics,
+}))
 
 const { collectAnalytics } = await import('./service')
 
