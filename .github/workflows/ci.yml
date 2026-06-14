@@ -53,7 +53,14 @@ jobs:
       - name: Test + Coverage
         run: |
           set -o pipefail
-          bun test --coverage 2>&1 | tee /tmp/test-output.txt
+          # The (business) pipeline tests use a shared mock-DB override (dbProxy +
+          # setDbOverride, set at module top-level). Under bun's runner in CI, files are
+          # batch-imported before their tests run, so a later business file's top-level
+          # override clobbers an earlier one's — they pass in isolation but not in the full
+          # suite. Run that group in its own process so the global override can't be
+          # clobbered. (Tech debt: move setDbOverride into beforeEach to drop this split.)
+          bun test "features/(business)" 2>&1 | tee /tmp/test-output.txt
+          bun test --coverage platform providers client tests "features/(life)" "features/(shared)" "features/(admin)" 2>&1 | tee -a /tmp/test-output.txt
 
       - name: Failure summary
         if: failure()
