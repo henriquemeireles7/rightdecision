@@ -959,3 +959,139 @@ export const lessonProgress = pgTable(
     index('lesson_progress_user_watched_idx').on(table.userId, table.lastWatchedAt),
   ],
 )
+
+// ═══════════════════════════════════════════════════════════
+// Handbook Pillars (the four-pillar product: aspirations → plan → routine)
+// Member-owned, personal content. PII (titles, notes) lives in these rows,
+// NEVER in the events spine (events carry ids + enums only).
+// ═══════════════════════════════════════════════════════════
+
+/** Life areas a member can file an aspiration or habit under (shared by pillars 1 + 3). */
+export const lifeAreas = [
+  'health',
+  'relationships',
+  'career',
+  'money',
+  'home',
+  'experiences',
+  'growth',
+  'other',
+] as const
+export type LifeArea = (typeof lifeAreas)[number]
+
+// ─── Aspirations (Pillar 1 — Dream Board: now → next → dream; NO dates, aspirational) ───
+export const aspirations = pgTable(
+  'aspirations',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    lifeArea: text('life_area', { enum: lifeAreas }).notNull(),
+    title: text('title').notNull(),
+    // The three columns of the board. `dream` is the aspiration; `current` is where they are
+    // now; `nextStep` is the one move toward it. Free text, no dates by design.
+    dream: text('dream'),
+    current: text('current'),
+    nextStep: text('next_step'),
+    imageUrl: text('image_url'),
+    link: text('link'),
+    sortOrder: integer('sort_order').notNull().default(0),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  },
+  (table) => [index('aspirations_user_sort_idx').on(table.userId, table.sortOrder)],
+)
+
+// ─── Plans (Pillar 2 — a horizon turned into a few dated decisions, reviewed weekly) ───
+export const plans = pgTable(
+  'plans',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    title: text('title').notNull(),
+    // Default horizon is one quarter (the "3-month plan"); stored as days for flexibility.
+    horizonDays: integer('horizon_days').notNull().default(90),
+    startDate: date('start_date'),
+    targetDate: date('target_date'),
+    status: text('status', { enum: ['active', 'completed', 'archived'] })
+      .notNull()
+      .default('active'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  },
+  (table) => [index('plans_user_status_idx').on(table.userId, table.status)],
+)
+
+// ─── Plan Decisions (Pillar 2 — the few dated decisions a plan breaks down into) ───
+export const planDecisions = pgTable(
+  'plan_decisions',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    planId: uuid('plan_id')
+      .notNull()
+      .references(() => plans.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    title: text('title').notNull(),
+    detail: text('detail'),
+    // Unlike aspirations, real planning HAS dates.
+    targetDate: date('target_date'),
+    status: text('status', { enum: ['pending', 'done'] })
+      .notNull()
+      .default('pending'),
+    sortOrder: integer('sort_order').notNull().default(0),
+    completedAt: timestamp('completed_at', { withTimezone: true }),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  },
+  (table) => [index('plan_decisions_plan_sort_idx').on(table.planId, table.sortOrder)],
+)
+
+/** Habit cadences (Pillar 3). */
+export const habitCadences = ['daily', 'weekly'] as const
+
+// ─── Habits (Pillar 3 — intentional habits the member commits to tracking) ───
+export const habits = pgTable(
+  'habits',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    lifeArea: text('life_area', { enum: lifeAreas }).notNull().default('health'),
+    cadence: text('cadence', { enum: habitCadences }).notNull().default('daily'),
+    // The intention behind the habit — the planned approach (e.g. "mobility + strength + cardio").
+    intention: text('intention'),
+    isArchived: boolean('is_archived').notNull().default(false),
+    sortOrder: integer('sort_order').notNull().default(0),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  },
+  (table) => [index('habits_user_sort_idx').on(table.userId, table.sortOrder)],
+)
+
+// ─── Habit Logs (Pillar 3 — one row per (habit, calendar day); logDate computed CLIENT-side
+//     in the user's zone like journal entries — NEVER derived server-side from UTC now) ───
+export const habitLogs = pgTable(
+  'habit_logs',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    habitId: uuid('habit_id')
+      .notNull()
+      .references(() => habits.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    logDate: date('log_date').notNull(),
+    done: boolean('done').notNull().default(true),
+    note: text('note'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  },
+  (table) => [uniqueIndex('habit_logs_habit_date_idx').on(table.habitId, table.logDate)],
+)

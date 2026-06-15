@@ -44,9 +44,9 @@ bunx tsc --noEmit platform/db/schema.ts
 | File | Exports |
 |------|---------|
 | client.ts | db |
-| schema.ts | users, sessions, accounts, verifications, purchases, subscriptions, courseProgress, onboardingSessions, onboardingProfiles, wins, bookmarks, platformAccounts, pipelineRuns, clips, posts, postAnalytics, webhookEvents, userDecisions, readingAnalytics, insights, freeIntroSessions, dripEmails, templateFieldSchema, templatePageSchema, templateChapterSchema, templateSchemaSchema, TemplateSchema, programs, cohorts, enrollments, courses, programCourses, modules, lessons, materials, programMaterials, lives, documentTemplates, documents, documentAnswers, journalEntries, conversations, conversationMessages, interviews, events, aiUsage, lessonProgress |
+| schema.ts | users, sessions, accounts, verifications, purchases, subscriptions, courseProgress, onboardingSessions, onboardingProfiles, wins, bookmarks, platformAccounts, pipelineRuns, clips, posts, postAnalytics, webhookEvents, userDecisions, readingAnalytics, insights, freeIntroSessions, dripEmails, templateFieldSchema, templatePageSchema, templateChapterSchema, templateSchemaSchema, TemplateSchema, programs, cohorts, enrollments, courses, programCourses, modules, lessons, materials, programMaterials, lives, documentTemplates, documents, documentAnswers, journalEntries, conversations, conversationMessages, interviews, events, aiUsage, lessonProgress, lifeAreas, LifeArea, aspirations, plans, planDecisions, habitCadences, habits, habitLogs |
 
 ## Internal Dependencies
 - platform/env
 
-<!-- Generated: 2026-06-13T01:29:20.703Z -->
+<!-- Generated: 2026-06-15T04:05:06.163Z -->

@@ -62,6 +62,25 @@ export const eventSchema = z.discriminatedUnion('name', [
     kind: z.enum(['morning', 'evening']),
   }),
 
+  // ─── Handbook pillars (aspirations / plan / routine) — ids + enums ONLY; titles/notes
+  //     are PII and stay in their own tables. These are NOT decisions (Decision Graph v1 is
+  //     unchanged): wiring plan-decisions into "Decisions Made" is a deliberate later choice. ───
+  event('aspiration_created', {
+    aspirationId: uuid,
+    lifeArea: z.enum([
+      'health',
+      'relationships',
+      'career',
+      'money',
+      'home',
+      'experiences',
+      'growth',
+      'other',
+    ]),
+  }),
+  event('plan_created', { planId: uuid }),
+  event('habit_logged', { habitId: uuid, logDate: z.iso.date() }),
+
   // ─── Interview (Wave 4 — names reserved; P6 fills properties) ───
   event('interview_started', { interviewId: uuid }),
   event('interview_distilled', { interviewId: uuid }),

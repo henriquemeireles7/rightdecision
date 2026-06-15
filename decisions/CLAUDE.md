@@ -62,7 +62,7 @@ maturity.md, company.md, voice.md, code.md, architecture.md, design.md, deploy.m
 |------|---------|
 | architecture.md | Architecture — How We Design Systems |
 | code.md | Coding — How We Build Software |
-| company.md | Company — The Right Decision |
+| company.md | Company — Right Decision |
 | deploy.md | Deploy — How We Ship |
 | design.md | Design System — Right Decision |
 | harness.md | Harness — AI Development System |
@@ -71,4 +71,4 @@ maturity.md, company.md, voice.md, code.md, architecture.md, design.md, deploy.m
 | maturity.md | Maturity — The Company Operating System |
 | voice.md | Human Communication Guide |
 
-<!-- Generated: 2026-06-13T00:43:48.442Z -->
+<!-- Generated: 2026-06-15T04:05:06.162Z -->
