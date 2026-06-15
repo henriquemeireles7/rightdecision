@@ -20,6 +20,7 @@ import { postDistributeRoutes } from '@/features/(business)/post-distribute/rout
 import { transcribeRoutes } from '@/features/(business)/transcribe/routes'
 import { aiChatRoutes } from '@/features/(life)/ai-chat/routes'
 import { appShellRoutes } from '@/features/(life)/app-shell/routes'
+import { aspirationsRoutes } from '@/features/(life)/aspirations/routes'
 import { authPageRoutes } from '@/features/(life)/auth/routes'
 import { catalogRoutes } from '@/features/(life)/catalog/routes'
 import { analyticsReadingRoutes } from '@/features/(life)/course/analytics-routes'
@@ -39,8 +40,10 @@ import { journalRoutes } from '@/features/(life)/journal/routes'
 import { livesViewRoutes } from '@/features/(life)/lives-view/routes'
 import { materialsViewRoutes } from '@/features/(life)/materials-view/routes'
 import { onboardingRoutes } from '@/features/(life)/onboarding/routes'
+import { planRoutes } from '@/features/(life)/plan/routes'
 import { playbookRoutes } from '@/features/(life)/playbook/routes'
 import { playerRoutes } from '@/features/(life)/player/routes'
+import { routineRoutes } from '@/features/(life)/routine/routes'
 import { watchEventsRoutes } from '@/features/(life)/watch-events/routes'
 import { winsRoutes } from '@/features/(life)/wins/routes'
 import { accountRoutes } from '@/features/(shared)/account/routes'
@@ -83,6 +86,9 @@ export function mountRoutes(app: Hono) {
       .route('/api/join', joinRoutes)
       .route('/api/playbook', playbookRoutes)
       .route('/api/journal', journalRoutes)
+      .route('/api/aspirations', aspirationsRoutes)
+      .route('/api/plans', planRoutes)
+      .route('/api/routine', routineRoutes)
       .route('/api/chat', aiChatRoutes)
       .route('/api/interview', interviewRoutes)
       // ─── V2 Admin APIs ───

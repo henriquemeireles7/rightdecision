@@ -33,6 +33,10 @@ const expectedNames = [
   'document_completed',
   // journal
   'journal_entry_saved',
+  // handbook pillars (aspirations / plan / routine)
+  'aspiration_created',
+  'plan_created',
+  'habit_logged',
   // interview
   'interview_started',
   'interview_distilled',
@@ -56,7 +60,7 @@ describe('taxonomy: event-name union', () => {
   test('declares the complete V2 event-name union for waves 1-4 upfront', () => {
     const actual: string[] = [...eventNames]
     expect(actual.sort()).toEqual([...expectedNames].sort())
-    expect(eventNames).toHaveLength(27)
+    expect(eventNames).toHaveLength(30)
   })
 
   test('rejects an event name outside the union', () => {

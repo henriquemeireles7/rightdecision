@@ -428,6 +428,27 @@ export const errors = {
     status: 400,
     message: 'Invalid event name or properties',
   },
+  // ─── Handbook Pillars (aspirations / plan / routine) ───
+  ASPIRATION_NOT_FOUND: {
+    code: 'ASPIRATION_NOT_FOUND',
+    status: 404,
+    message: 'Aspiration not found',
+  },
+  PLAN_NOT_FOUND: {
+    code: 'PLAN_NOT_FOUND',
+    status: 404,
+    message: 'Plan not found',
+  },
+  PLAN_DECISION_NOT_FOUND: {
+    code: 'PLAN_DECISION_NOT_FOUND',
+    status: 404,
+    message: 'Plan decision not found',
+  },
+  HABIT_NOT_FOUND: {
+    code: 'HABIT_NOT_FOUND',
+    status: 404,
+    message: 'Habit not found',
+  },
 } as const satisfies Record<string, { code: string; status: number; message: string }>
 
 export type ErrorCode = keyof typeof errors
