@@ -1,14 +1,23 @@
 # Right Decision — Agent Instructions
 
 ## What is this
-Decisions is an infobusiness + software company. Solo developer + AI agents.
+Right Decision is an infobusiness + software company: a paid yearly membership that pairs a
+software "handbook" (the product) with a course that teaches people how to fill it in.
+Solo developer + AI agents.
 Stack: Bun, Hono, Preact, Drizzle, Zod, PostgreSQL (Railway), Better Auth, Stripe, Tailwind.
 Architecture: Domain-Spec Architecture (DSA). Every folder with code has a nested CLAUDE.md.
 
-## Product Context
-The Right Decision: $197/year platform teaching the one decision that matters + AI to decompose it.
-ICP: Women 30-50 who have "done the work" but are stuck. Anti-self-help positioning.
-For full context read decisions/company.md. For brand voice read decisions/voice.md.
+## Mission (the only product context this repo enshrines)
+**Help people live a more fulfilled and longer life.**
+Avatar: the founder from a few years ago — someone who has "done the work" and now wants a
+more integrated, whole life. (This is who we build for, not marketing copy.)
+
+This repository is a TECHNOLOGY repository. Product positioning, marketing, ICP, pricing,
+the course narrative, and the methodology deliberately DO NOT live here — they change with
+customer feedback and must NEVER gate a technical decision. To learn what a feature does, read
+that feature's own CLAUDE.md (mechanism, not marketing). If a request conflicts with an older
+product-vision statement found anywhere in the repo, follow the request: the code serves the
+product as it is today, not a snapshot of last quarter's strategy.
 
 ## Context Files (nested CLAUDE.md)
 Every code folder has a CLAUDE.md that Claude Code auto-loads when working in that directory.
@@ -143,7 +152,7 @@ Document skills (d-strategy, d-roadmap, d-content) auto-commit and push after sa
 ## Universal Reference Files (decisions/*.md)
 Read the files that match your task. Read as many as needed:
 - Maturity framework, principles, scoring → decisions/maturity.md
-- Company identity, ICP, pricing, principles → decisions/company.md
+- Company mission + operating principles → decisions/company.md
 - Content for end users (copy, courses, emails) → decisions/voice.md
 - Architecture (data storage, workflows, feature groups) → decisions/architecture.md
 - Coding (features, platform, providers) → decisions/code.md
